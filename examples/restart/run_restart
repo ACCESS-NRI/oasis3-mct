@@ -155,11 +155,109 @@ source /usr/local/bin/intelmpi.sh
 ulimit -s unlimited
 #
 #########################################################
-#
-mpirun -np $nproc_oa3 ./$coupler_exe : -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 : -np $nproc_exe3 ./$exe3
 #mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2
-fi
 #
+
+cp namcouple namcouple.base
+cp rst1.nc rst1.nc.base
+cp rst2.nc rst2.nc.base
+cp rst3.nc rst3.nc.base
+
+# initial run
+rm namcouple
+sed -e "s#namcouple_runtime#39600#" < namcouple.base > namcouple
+cat >> model1.timefile.txt << EOF1
+  0
+  12
+  3600
+EOF1
+cat >> model2.timefile.txt << EOF1
+  0
+  12
+  3600
+EOF1
+cat >> model3.timefile.txt << EOF1
+  0
+  12
+  3600
+EOF1
+mpirun -np $nproc_oa3 ./$coupler_exe : -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 : -np $nproc_exe3 ./$exe3
+rm -r -f r01
+mkdir r01
+mv pout* r01/
+mv nout* r01/
+mv model*.out* r01/
+mv model*.timers* r01/
+mv M*FLD*_model*.nc r01/
+mv oasis.timer* r01/
+cp rst*.nc r01/
+cp model*.timefile.txt r01/
+cp namcouple r01/
+
+# restart run
+mpirun -np $nproc_oa3 ./$coupler_exe : -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 : -np $nproc_exe3 ./$exe3
+rm -r -f r02
+mkdir r02
+mv pout* r02/
+mv nout* r02/
+mv model*.out* r02/
+mv model*.timers* r02/
+mv M*FLD*_model*.nc r02/
+mv oasis.timer* r02/
+cp rst*.nc r02/
+cp model*.timefile.txt r02/
+cp namcouple r02/
+
+# long initial run to compare to initial+restart
+rm namcouple
+sed -e "s#namcouple_runtime#82800#" < namcouple.base > namcouple
+rm model1.timefile.txt
+rm model2.timefile.txt
+rm model3.timefile.txt
+cp rst1.nc.base rst1.nc
+cp rst2.nc.base rst2.nc
+cp rst3.nc.base rst3.nc
+cat >> model1.timefile.txt << EOF1
+  0
+  24
+  3600
+EOF1
+cat >> model2.timefile.txt << EOF1
+  0
+  24
+  3600
+EOF1
+cat >> model3.timefile.txt << EOF1
+  0
+  24
+  3600
+EOF1
+mpirun -np $nproc_oa3 ./$coupler_exe : -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 : -np $nproc_exe3 ./$exe3
+rm -r -f r03
+mkdir r03
+mv pout* r03/
+mv nout* r03/
+mv model*.out* r03/
+mv model*.timers* r03/
+mv M*FLD*_model*.nc r03/
+mv oasis.timer* r03/
+cp rst*.nc r03/
+cp model*.timefile.txt r03/
+cp namcouple r03/
+
+! validation
+rm model*.log.*
+grep -h tcx r01/model1.out_101 r02/model1.out_101 > model1.log.a
+grep -h tcx r03/model1.out_101                    > model1.log.b
+grep -h tcx r01/model2.out_103 r02/model2.out_103 > model2.log.a
+grep -h tcx r03/model2.out_103                    > model2.log.b
+grep -h tcx r01/model3.out_106 r02/model3.out_106 > model3.log.a
+grep -h tcx r03/model3.out_106                    > model3.log.b
+
+diff model1.log.a model1.log.b > model1.log.diff
+diff model2.log.a model2.log.b > model2.log.diff
+diff model3.log.a model3.log.b > model3.log.diff
+
 #########################################################
 #
 EOF
