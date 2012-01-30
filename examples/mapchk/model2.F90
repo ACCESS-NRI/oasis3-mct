@@ -3,13 +3,14 @@
 ! All rights reserved. Use is subject to OASIS3 license terms.
 !=============================================================================
 !
-PROGRAM model3
-
+PROGRAM model2
+  !
   ! Use for netCDF library
   USE netcdf
   ! Use for OASIS communication library
   USE mod_prism
-
+  use mod_decomp_def
+  !
   IMPLICIT NONE
 
   INCLUDE 'mpif.h'
@@ -25,92 +26,86 @@ PROGRAM model3
   INTEGER, PARAMETER :: wp = SELECTED_REAL_KIND(12,307) ! double
 #endif
   !
-  CHARACTER(len=30), PARAMETER   :: data_filename='grid_model3.nc'
+  CHARACTER(len=30), PARAMETER :: data_filename='grid_model2.nc'
   ! Component name (6 characters) same as in the namcouple
-  CHARACTER(len=6)   :: comp_name = 'model3'
-  CHARACTER(len=128) :: comp_out ! name of the output log file 
+  CHARACTER(len=6)   :: comp_name = 'toyatm'
+  CHARACTER(len=128) :: comp_out ! name of the output log file
   CHARACTER(len=3)   :: chout
-
+  !
   ! Global grid parameters : 
   INTEGER :: nlon, nlat     ! dimensions in the 2 directions of space
   INTEGER :: ntot           ! total dimension
-  INTEGER :: il_size
   INTEGER :: nbr_corners_ij ! number of corners in the (i,j) plan
+  !
   DOUBLE PRECISION, DIMENSION(:), POINTER      :: globalgrid_lon,globalgrid_lat
   DOUBLE PRECISION, DIMENSION(:,:), POINTER    :: globalgrid_clo,globalgrid_cla
   INTEGER, DIMENSION(:,:), POINTER           :: indice_mask ! mask, 0 == valid point, 1 == masked point 
-
-  INTEGER :: mype, npes ! rank and  number of pe
+  !
+  INTEGER :: mype, npes ! rank and number of pe
   INTEGER :: localComm  ! local MPI communicator and Initialized
   INTEGER :: comp_id    ! component identification
-
+  !
   INTEGER, DIMENSION(:), ALLOCATABLE :: il_paral ! Decomposition for each proc
-
-  INTEGER :: ierror, rank, w_unit
-  INTEGER :: i, j, n
-
-  character(len=*),parameter :: F01 = '(a,i6,i12,3g15.8)'
-
+  !
+  INTEGER :: ierror, rank, w_unit, decomp_type
+  INTEGER :: i, j, n1
+  !
+  ! Names of exchanged Fields
+  CHARACTER(len=8), PARAMETER :: var_name1 = 'FRECVATM' ! 8 characters field received by the atmosphere from the ocean
+  CHARACTER(len=8), PARAMETER :: var_name2 = 'FSENDATM' ! 8 characters field sent by the atmosphere to the ocean
+  !
   ! Used in prism_def_var and prism_def_var_proto
-  integer, parameter :: mvar = 10
-  integer, parameter :: nvar = 5
-  character(len=8),parameter :: var_name(mvar) =  &
-     (/'M3FLD01 ','M3FLD02 ','M3FLD03 ','M3FLD04 ','M3FLD05 ', &
-       'M3FLD06 ','M3FLD07 ','M3FLD08 ','M3FLD09 ','M3FLD10 '/)
-  logical, parameter :: var_out(mvar) = &
-     (/.true.,.true.,.false.,.false.,.true., &
-       .false.,.false.,.false.,.true.,.true./)
-  INTEGER                       :: var_id(mvar) 
+  INTEGER                       :: var_id(3) 
   INTEGER                       :: var_nodims(2) 
   INTEGER                       :: var_type
   !
   REAL (kind=wp), PARAMETER     :: field_ini = -1. ! initialisation of received fields
   !
-  INTEGER               ::  ib
-  INTEGER, PARAMETER    ::  il_nb_time_steps = 24 ! number of time steps
-  INTEGER, PARAMETER    ::  delta_t = 1800       ! time step
+  INTEGER               ::  ib,ifn
+  INTEGER, PARAMETER    ::  il_nb_time_steps = 6 ! number of time steps
+  INTEGER, PARAMETER    ::  delta_t = 3600       ! time step
   !
   ! Centers arrays of the local grid
-  ! used to calculate the field field1_send sent by the model
+  ! used to calculate the field sent by the model
   REAL (kind=wp), POINTER :: localgrid_lon (:,:)
   REAL (kind=wp), POINTER :: localgrid_lat (:,:)
+  !
+  INTEGER                       :: il_flag          ! Flag for grid writing
+  !
+  INTEGER                       :: itap_sec ! Time
+  !
+  ! Grid parameter definition
+  INTEGER                       :: part_id  ! use to connect the partition to the variables
+                                            ! in prism_def_var_proto
+  INTEGER                       :: var_actual_shape(4) ! local dimensions of the arrays to the pe
+                                                       ! 2 x field rank (= 4 because fields are of rank = 2)
+  !
   ! Centers and corners of the global grid for writing the
   ! files grids.nc and masks.nc by proc 0
   ! and used to calculate the field field2_send sent by the model
   DOUBLE PRECISION, POINTER     :: lon(:,:),lat(:,:)
   DOUBLE PRECISION, POINTER     :: clo(:,:,:),cla(:,:,:)
   !
-  INTEGER                       :: il_flag  ! Flag for grid writing by proc 0
-  !
-  INTEGER                       :: itap_sec ! Time used in prism_put/get_proto
-  !
-  ! Grid parameters definition
-  INTEGER                       :: part_id  ! use to connect the partition to the variables
-                                            ! in prism_def_var_proto
-  INTEGER                       :: var_actual_shape(4) ! local dimensions of the arrays to the pe
-                                                       ! 2 x field rank (= 4 because fields are of rank = 2)
-  !
-  !
   ! Exchanged local fields arrays
   ! used in routines prism_put_proto and prism_get_proto
-  REAL (kind=wp),   POINTER     :: field(:,:)
-  REAL (kind=wp) :: fmin,fmax,fsum
+  REAL (kind=wp), POINTER       :: field1_recv(:,:)
+  REAL (kind=wp), POINTER       :: field2_send(:,:)
   !
-  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  !   INITIALISATION 
-  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  !   INITIALISATION
+  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !
   !!!!!!!!!!!!!!!!! PRISM_INIT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !
-  call MPI_INIT(ierror)
   CALL prism_init_comp_proto (comp_id, comp_name, ierror )
-  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'prism_init_comp_proto', 'Pb in model3')
+  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'prism_init_comp_proto', 'Pb in model2')
   !
   ! Unit for output messages : one file for each process
   CALL MPI_Comm_Rank ( MPI_COMM_WORLD, rank, ierror )
-  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'MPI_Comm_Rank', 'Pb in model3')
+  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'MPI_Comm_Rank','Pb in model2')
   !
-  w_unit = 100 + rank
+  !
+  w_unit=100+rank
   WRITE(chout,'(I3)') w_unit
   comp_out=comp_name//'.out_'//chout
   !
@@ -124,44 +119,48 @@ PROGRAM model3
   !!!!!!!!!!!!!!!!! PRISM_GET_LOCALCOMM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !
   CALL prism_get_localcomm_proto ( localComm, ierror )
-  IF (ierror /= 0) CALL prism_abort_proto(comp_id,'prism_get_localcomm_proto','Pb in model3')
+  IF (ierror /= 0) CALL prism_abort_proto(comp_id,'prism_get_localcomm_proto','Pb in model2')
   !
   ! Get MPI size and rank
   CALL MPI_Comm_Size ( localComm, npes, ierror )
-  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'MPI_Comm_Size','Pb in model3')
+  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'MPI_Comm_Size','Pb in model2')
   !
   CALL MPI_Comm_Rank ( localComm, mype, ierror )
-  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'MPI_Comm_Rank','Pb in model3')
+  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'MPI_Comm_Rank','Pb in model2')
   !
-  WRITE(w_unit,*) 'I am the', TRIM(comp_name), ' ', 'comp', comp_id, 'local rank', mype
+  WRITE(w_unit,*) 'I am the', TRIM(comp_name), ' ',' comp', comp_id, ' local rank ', mype
   CALL flush(w_unit)
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !  GRID DEFINITION 
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !
-  ! Reading global grid netcdf file
+  ! Reading netcdf file with pre-defined variable names
   !
   ! Reading dimensions of the grid
   CALL read_dim_reg(nlon,nlat,nbr_corners_ij,data_filename,w_unit)
   !
   ! Allocation
   ALLOCATE(globalgrid_lon(nlon), STAT=ierror )
-  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gglon'
+  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating globalgrid_lon'
   ALLOCATE(globalgrid_lat(nlat), STAT=ierror )
-  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gglat'
+  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating globalgrid_lat'
   ALLOCATE(globalgrid_clo(nlon,nbr_corners_ij), STAT=ierror )
-  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating ggclo'
+  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating globalgrid_clo'
   ALLOCATE(globalgrid_cla(nlat,nbr_corners_ij), STAT=ierror )
-  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating ggcla'
+  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating globalgrid_cla'
   ALLOCATE(indice_mask(nlon,nlat), STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating indice_mask'
+  !
   ! Reading of the longitudes, latitudes, longitude and latitudes of the corners, mask of the grid
   CALL read_grid_reg(nlon,nlat,nbr_corners_ij,data_filename,w_unit, &
                               globalgrid_lon,globalgrid_lat, &
                               globalgrid_clo,globalgrid_cla, &
                               indice_mask)
-
+  !
+  !
+  ! (Global) grid definition for OASIS3
+  ! Writing of the file grids.nc and masks.nc by the processor 0 from the grid read in 
   ALLOCATE(lon(nlon,nlat), STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating lon'
   ALLOCATE(lat(nlon,nlat), STAT=ierror )
@@ -179,28 +178,23 @@ PROGRAM model3
   ENDDO
   DO j=1,nlat
     DO i=1,nlon
-      clo(i,j,1) = globalgrid_clo(i,1)
-      clo(i,j,2) = globalgrid_clo(i,2)
+      clo(i,j,1:2) = globalgrid_clo(i,1:2)
+      cla(i,j,1:2) = globalgrid_cla(j,1:2)
       clo(i,j,3) = globalgrid_clo(i,2)
       clo(i,j,4) = globalgrid_clo(i,1)
-      cla(i,j,1) = globalgrid_cla(j,1)
-      cla(i,j,2) = globalgrid_cla(j,1)
       cla(i,j,3) = globalgrid_cla(j,2)
-      cla(i,j,4) = globalgrid_cla(j,2)
+      cla(i,j,4) = globalgrid_cla(j,1)
     ENDDO
   ENDDO
-
-  !
-  ! (Global) grid definition for OASIS3
-  ! Writing of the file grids.nc and masks.nc by the processor 0 from the grid read in 
-!  IF (mype == 0) THEN
-!      CALL prism_start_grids_writing(il_flag)
-!      CALL prism_write_grid('lmdz', nlon, nlat, lon, lat)
-!      CALL prism_write_corner('lmdz', nlon, nlat, 4, clo, cla)
-!      CALL prism_write_mask('lmdz', nlon, nlat, indice_mask(:,:))
-!      CALL prism_terminate_grids_writing()
-!  ENDIF
-!  WRITE(w_unit,*) 'After grids writing'
+  IF (mype == 0) THEN
+      !
+      CALL prism_start_grids_writing(il_flag)
+      CALL prism_write_grid('lmdz', nlon, nlat, lon, lat)
+      CALL prism_write_corner('lmdz', nlon, nlat, 4, clo, cla)
+      CALL prism_write_mask('lmdz', nlon, nlat, indice_mask(:,:))
+      CALL prism_terminate_grids_writing()
+  ENDIF
+  WRITE(w_unit,*) 'After grids writing'
   call flush(w_unit)
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -209,29 +203,20 @@ PROGRAM model3
   !
   ! Definition of the partition of the grid (calling prism_def_partition_proto)
   ntot=nlon*nlat
-#ifdef DECOMP_APPLE
-  il_size = 3
-#elif defined DECOMP_BOX
-  il_size = 5
-#endif
-  ALLOCATE(il_paral(il_size))
-  WRITE(w_unit,*) 'After allocate il_paral, il_size', il_size
-  call flush(w_unit)
+  decomp_type = 1  ! 1=apple, 2=box, 3=orange
   !
-  CALL decomp_def (part_id,il_paral,il_size,nlon,nlat,mype,npes,w_unit)
+  CALL decomp_def (decomp_type,il_paral,nlon,nlat,mype,npes,w_unit)
   WRITE(w_unit,*) 'After decomp_def, il_paral = ', il_paral(:)
   call flush(w_unit)
   CALL prism_def_partition_proto (part_id, il_paral, ierror)
-  WRITE(w_unit,*) 'After prism_def_partition_proto = ', il_paral(:)
-  call flush(w_unit)
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   ! DEFINITION OF THE LOCAL FIELDS  
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !
-  !!!!!!!!!!!!!!! !!!!!!!!! PRISM_DEF_VAR !!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !!!!!!!!!!!!!!!!!! PRISM_DEF_VAR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !
-  !  Define transient variables
+  ! Define transient variables
   !
   var_nodims(1) = 2    ! Rank of the field array is 2
   var_nodims(2) = 1    ! Bundles always 1 for OASIS3
@@ -240,25 +225,31 @@ PROGRAM model3
   var_actual_shape(1) = 1
   var_actual_shape(2) = il_paral(3)
   var_actual_shape(3) = 1 
-#ifdef DECOMP_APPLE
-  var_actual_shape(4) = 1
-#elif defined DECOMP_BOX
-  var_actual_shape(4) = il_paral(4)
-#endif
+  if (il_paral(1) == 1) then
+     ! DECOMP_APPLE
+     var_actual_shape(2) = il_paral(3)
+     var_actual_shape(4) = 1
+  elseif (il_paral(1) == 2) then
+     ! DECOMP_BOX
+     var_actual_shape(2) = il_paral(3)
+     var_actual_shape(4) = il_paral(4)
+  elseif (il_paral(1) == 3) then
+     ! DECOMP_ORANGE
+     var_actual_shape(2) = 0
+     do n1 = 4,4+(il_paral(2)-1)*2,2
+        var_actual_shape(2) = var_actual_shape(2)+il_paral(n1)
+     enddo
+     var_actual_shape(4) = 1
+  endif
+
+  ! Declaration of the field associated with the partition of the grid
+  CALL prism_def_var_proto (var_id(1),var_name1, part_id, &
+     var_nodims, PRISM_In, var_actual_shape, var_type, ierror)
+  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'prism_def_var_proto','Pb in model2')
   !
-  ! Declaration of the field associated with the partition
-
-  do n = 1,nvar
-     if (var_out(n)) then
-        CALL prism_def_var_proto (var_id(n),var_name(n), part_id, &
-           var_nodims, PRISM_Out, var_actual_shape, var_type, ierror)
-     else
-        CALL prism_def_var_proto (var_id(n),var_name(n), part_id, &
-           var_nodims, PRISM_In, var_actual_shape, var_type, ierror)
-     endif
-     IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'prism_def_var_proto', 'Pb in model3')
-  enddo
-
+  CALL prism_def_var_proto (var_id(2),var_name2, part_id, &
+     var_nodims, PRISM_Out, var_actual_shape, var_type, ierror)
+  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'prism_def_var_proto','Pb in model2')
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !         TERMINATION OF DEFINITION PHASE 
@@ -269,7 +260,7 @@ PROGRAM model3
   !!!!!!!!!!!!!!!!!! PRISM_ENDDEF !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !
   CALL prism_enddef_proto ( ierror )
-  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'prism_enddef_proto', 'Pb in model3')
+  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'prism_enddef_proto','Pb in model2')
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   ! SEND AND RECEIVE ARRAYS 
@@ -277,62 +268,56 @@ PROGRAM model3
   !
   ! Allocate the fields send and received by the model
   !
-
-  ALLOCATE(field(var_actual_shape(2), var_actual_shape(4)), STAT=ierror )
-  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field'
-
+  ALLOCATE(field1_recv(var_actual_shape(2), var_actual_shape(4)), STAT=ierror )
+  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field1_recv'
+  !
+  ALLOCATE(field2_send(var_actual_shape(2), var_actual_shape(4)),STAT=ierror )
+  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field2_send'
+  !
   ALLOCATE ( localgrid_lon(var_actual_shape(2), var_actual_shape(4)), STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating localgrid_lon'
   !
   ALLOCATE ( localgrid_lat(var_actual_shape(2), var_actual_shape(4)), STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating localgrid_lat'
-
+  !
   ! Calculate the local grid to the process for OASIS3
-
+  !
   CALL oasis3_local_grid(mype, npes, nlon, nlat, var_actual_shape, &
                          localgrid_lon, localgrid_lat,             &
-                         globalgrid_lon, globalgrid_lat, w_unit)
+                         lon, lat, w_unit)
   !
   DEALLOCATE(il_paral)
   !
-  !!!!!!!!!!!!!!!!!!!!!!!!PRISM_PUT/PRISM_GET !!!!!!!!!!!!!!!!!!!!!! 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!PRISM_PUT/PRISM_GET !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !
-  ! Data exchange 
-  ! 
+  ! Data exchange
+  !
   ! Time loop
   DO ib=1, il_nb_time_steps
     itap_sec = delta_t * (ib-1) ! Time
     !
-!    CALL function_sent(var_actual_shape(2), &
-!                       var_actual_shape(4), &
-!                       localgrid_lon,localgrid_lat, &
-!                       field,ib)
-
-     do n = 1,nvar
-        if (var_out(n)) then
-           DO j=1,var_actual_shape(4)
-           DO i=1,var_actual_shape(2)
-              field(i,j) =  300 + (n-1)*10 + ib + (cos(float(i)/10.)*sin(float(j)/10.))
-           ENDDO
-           ENDDO
-           call flddiag(field,fmin,fmax,fsum,localcomm,var_actual_shape(2),var_actual_shape(4))
-           if (mype == 0) write(w_unit,F01) 'tcx send ',n,itap_sec,fmin,fmax,fsum
-           CALL prism_put_proto(var_id(n),itap_sec, field, ierror)
-           IF ( ierror .NE. PRISM_Ok .AND. ierror .LT. PRISM_Sent) &
-              CALL prism_abort_proto(comp_id, 'prism_put_proto', 'Pb in model3')
-        else
-           field=field_ini
-           CALL prism_get_proto(var_id(n),itap_sec, field, ierror)
-           call flddiag(field,fmin,fmax,fsum,localcomm,var_actual_shape(2),var_actual_shape(4))
-           if (mype == 0) write(w_unit,F01) 'tcx recv ',n,itap_sec,fmin,fmax,fsum
-           IF ( ierror .NE. PRISM_Ok .AND. ierror .LT. PRISM_Recvd) &
-              CALL prism_abort_proto(comp_id, 'prism_get_proto', 'Pb in model3')
-        endif
-     enddo
-
+    ifn = 10**(ib)
+    CALL function_sent(var_actual_shape(2),&
+                       var_actual_shape(4), &
+                       localgrid_lon,localgrid_lat, &
+                       field2_send,ifn)
+    !
+    ! Send the field FSENDATM
+    write(w_unit,*) 'tcx sendf2 ',itap_sec,minval(field2_send),maxval(field2_send)
+    CALL prism_put_proto(var_id(2),itap_sec, field2_send, ierror)
+    IF ( ierror .NE. PRISM_Ok .AND. ierror .LT. PRISM_Sent) &
+    CALL prism_abort_proto(comp_id, 'prism_put_proto','Pb in model2')
+    !
+    ! Get the field FRECVATM
+    field1_recv=field_ini
+    CALL prism_get_proto(var_id(1),itap_sec, field1_recv, ierror)
+    write(w_unit,*) 'tcx recvf1 ',itap_sec,minval(field1_recv),maxval(field1_recv)
+    IF ( ierror .NE. PRISM_Ok .AND. ierror .LT. PRISM_Recvd) &
+    CALL prism_abort_proto(comp_id, 'prism_get_proto','Pb in model2')
+    !
   ENDDO
   !
-  CLOSE (w_unit)
+  CLOSE(w_unit)
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !         TERMINATION 
@@ -343,8 +328,7 @@ PROGRAM model3
   ! Collective call to terminate the coupling exchanges
   !
   CALL prism_terminate_proto (ierror)
-  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'prism_terminate_proto', 'Pb in model3')
-  call MPI_Finalize(ierror)
+  IF (ierror /= 0) CALL prism_abort_proto(comp_id, 'prism_terminate_proto', 'Pb in model1')
   !
-END PROGRAM MODEL3
+END PROGRAM MODEL2
 !
