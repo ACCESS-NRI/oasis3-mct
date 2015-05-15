@@ -1787,7 +1787,7 @@ SUBROUTINE inipar_alloc()
    IF (ilen .LE. 0) THEN
        GOTO 191
    ELSE
-       READ (clvari,FMT = 1004) ntime
+       READ (clvari,FMT = 1005) ntime
    ENDIF
 
    !* Print out total time
@@ -1925,7 +1925,8 @@ SUBROUTINE inipar_alloc()
 1001 FORMAT(A9)
 1002 FORMAT(A1000)
 1003 FORMAT(I3)
-1004 FORMAT(I10)
+1004 FORMAT(I8)
+1005 FORMAT(I10)
 
    !*    2. Get field information
    !        ---------------------
