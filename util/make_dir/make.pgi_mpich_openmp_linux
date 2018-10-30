@@ -10,13 +10,13 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3-mct main directory
-COUPLE          = $(HOME)/oasis3-mct_buildbot
+COUPLE          = $(HOME)/oasis3-mct
 #
 # ARCHDIR       : directory created when compiling
-ARCHDIR         = $(COUPLE)/compile_oa3-mct_pgi_openmpi_openmp
+ARCHDIR         = $(COUPLE)/compile_oa3-mct_pgi_mpich_openmp
 #
 # MPI library
-MPIDIR      = /usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2
+MPIDIR      = /usr/local/mpich/3.2.1_pgi17
 MPIBIN      = $(MPIDIR)/bin
 MPI_INCLUDE = $(MPIDIR)/include
 MPILIB      = -L$(MPIDIR)/lib
