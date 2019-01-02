@@ -40,18 +40,32 @@ fi
 ## - User's section
 # Some examples of namcouples are given in data_oasis3
 # If you add any additional lines in the namcouples given as examples you will have to
-# change 3the  lines 'SRC_GRID_TYPE=' 'SRC_GRID_PERIOD=' and 'SRC_GRID_OVERLAP=' line 123
+# change the  lines 'SRC_GRID_TYPE=' 'SRC_GRID_PERIOD=' and 'SRC_GRID_OVERLAP=' line 123
 ## - Source grids 
 ## bggd is an atmosphere structured (LR) grid
 ## ssea is an atmosphere gaussian reduced grid (D) : no conserv2nd remapping
-## icos is an atmosphere unstructured grid (U) : no bicu nor conserv2nd remapping
-SRC_GRID=bggd # ssea, icos
+## icos is an atmosphere unstructured grid (U) : no bili, no bicu nor conserv2nd remapping
+SRC_GRID=icos # bggd, ssea, icos
 ## - Target grid
 ## nogt is an ocean structured grid (LR)
 ## 
 TGT_GRID=nogt
-## - Remapping
-remap=bicu # bili, conserv1st, conserv2nd, distwgt
+## - Remapping (see restrictions above)
+remap=conserv1st #distwgt, bicu, bili, conserv1st, conserv2nd
+
+## - Verification source grid type and remapping
+if [ ${SRC_GRID} == "ssea" ]; then
+	if [ ${remap} == "conserv2nd" ]; then
+		echo "Impossible to perform conserv2nd remapping from gaussian reduced grid ssea"
+		exit
+	fi
+fi
+if [ ${SRC_GRID} == "icos" ]; then
+	if [ ${remap} == "conserv2nd" ] || [ ${remap} == "bicu" ] || [ ${remap} == "bili" ]; then
+		echo "Impossible to perform ${remap} remapping from unstrcutred grid icos"
+		exit
+	fi
+fi
 
 arch=kraken_intel_impi_openmp  # nemo_lenovo_intel_impi, nemo_lenovo_intel_impi_openmp or beaufix_intel_impi_openmp
                               # kraken_intel_impi, kraken_intel_impi_openmp, training_computer
@@ -108,7 +122,7 @@ echo ''
 echo ''
 
 ## - Copy everything needed into rundir
-\rm -fr $rundir
+\rm -fr $rundir/*
 mkdir -p $rundir
 
 ln -sf $datadir/grids.nc  $rundir/grids.nc
@@ -130,24 +144,6 @@ SRC_GRID_OVERLAP=`sed -n 17p $rundir/namcouple | tr -s ' ' | cut -d" " -f2` # Nu
 echo "SRC_GRID_TYPE : $SRC_GRID_TYPE"
 echo "SRC_GRID_PERIOD : $SRC_GRID_PERIOD"
 echo "SRC_GRID_OVERLAP : $SRC_GRID_OVERLAP"
-
-## - Verification source grid type and remapping
-if [ ${SRC_GRID} == "ssea" ]; then
-	if [ ${remap} == "conserv2nd" ]; then
-		echo "Impossible to perform conserv2nd remapping from gaussian reduced grid ssea"
-		exit
-	fi
-fi
-if [ ${SRC_GRID} == "icos" ]; then
-	if [ ${remap} == "conserv2nd" ]; then
-		echo "Impossible to perform conserv2nd remapping from unstrcutred grid icos"
-		exit
-	fi
-	if [ ${remap} == "bicu" ]; then
-		echo "Impossible to perform bicubic remapping from unstrcutred grid icos"
-		exit
-	fi
-fi
 
 ## - Create name_grids.dat from namcouple informations
 cat <<EOF >> $rundir/name_grids.dat
@@ -274,7 +270,7 @@ elif [ ${arch} == nemo_lenovo_intel_impi_openmp ]; then
 # Number of MPI tasks per node
 #SBATCH --ntasks-per-node=$mpiprocs
 # Number of OpenMP threads per MPI task
-#SBATCH --cpus-per-task=$threads
+#SBATCH --cpus-per-task=24
 
 cd $rundir
 
@@ -345,7 +341,7 @@ elif [ ${arch} == kraken_intel_impi_openmp ]; then
 # Number of MPI tasks per node
 #SBATCH --ntasks-per-node=$mpiprocs
 # Number of OpenMP threads per MPI task
-#SBATCH --cpus-per-task=18
+#SBATCH --cpus-per-task=36
 
 cd $rundir
 module purge
@@ -356,10 +352,24 @@ module load lib/netcdf-c/4.6.1_impi
 
 export KMP_STACKSIZE=1GB
 export I_MPI_PIN_DOMAIN=omp
-#export I_MPI_PIN_DOMAIN=socket
 export I_MPI_WAIT_MODE=enable
-export KMP_AFFINITY=verbose,granularity=fine,compact
+(( map = $threads - 1 ))
+affin="verbose,granularity=fine,proclist=[0"
+for place in \$(seq \$map); do
+  affin=\${affin}",\${place}"
+  echo \$place
+done
+echo affin1 \$affin
+affin=\${affin}"],explicit"
+export KMP_AFFINITY=\$affin
+echo KMP_AFFINITY \$KMP_AFFINITY
 export OASIS_OMP_NUM_THREADS=$threads
+export OMP_NUM_THREADS=$threads
+
+    # Binding IntelMPI
+    MAP_CPU="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35"
+    INTELMPI_BINDING="-env I_MPI_PIN_PROCESSOR_LIST \${MAP_CPU}"
+    I_IMPI_BINDING="-env I_MPI_PERHOST \${mpiprocs} \${INTELMPI_BINDING}"
 
 time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 
 EOF
