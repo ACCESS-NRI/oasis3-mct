@@ -1707,6 +1707,23 @@ contains
             else
                norm_factor = zero
             endif
+         case (norm_opt_dstartr)
+            if (grid2_area(grid2_add) /= zero) then
+               norm_factor = grid1_area_in(grid1_add)/grid1_area(grid1_add) * &
+                  grid2_area(grid2_add)/grid2_area_in(grid2_add) *            &
+                  one/grid2_area(grid2_add)
+            else
+               norm_factor = zero
+            endif
+         case (norm_opt_frcartr)
+            if (grid2_frac(grid2_add) /= zero) then
+               norm_factor = grid1_area_in(grid1_add)/ &
+                  grid1_area(grid1_add) * &
+                  grid2_area(grid2_add)/grid2_area_in(grid2_add) * &
+                  one/grid2_frac(grid2_add)
+            else
+               norm_factor = zero
+            endif
          case (norm_opt_none)
             norm_factor = one
          end select
@@ -1830,6 +1847,10 @@ contains
          case (norm_opt_dstarea)
             norm_factor = grid2_frac(n)
          case (norm_opt_frcarea)
+            norm_factor = one
+         case (norm_opt_dstartr)
+            norm_factor = grid2_frac(n)
+         case (norm_opt_frcartr)
             norm_factor = one
          case (norm_opt_none)
             if (luse_grid2_area) then

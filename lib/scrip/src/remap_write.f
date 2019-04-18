@@ -165,11 +165,15 @@ C***********************************************************************
       ENDIF
       select case(norm_opt)
       case (norm_opt_none)
-        normalize_opt = 'none'
+        normalize_opt = 'nonenone'
       case (norm_opt_frcarea)
         normalize_opt = 'fracarea'
       case (norm_opt_dstarea)
         normalize_opt = 'destarea'
+      case (norm_opt_frcartr)
+        normalize_opt = 'fracartr'
+      case (norm_opt_dstartr)
+        normalize_opt = 'destartr'
       case (norm_opt_nonorm)
         normalize_opt = 'no norm'
       end select

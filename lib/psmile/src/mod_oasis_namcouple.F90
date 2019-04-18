@@ -80,7 +80,7 @@ MODULE mod_oasis_namcouple
   REAL (kind=ip_realwp_p) ,public,pointer :: namflddad(:)  !< dst additive term
 
   CHARACTER(len=ic_med)   ,public,pointer :: namscrmet(:)  !< scrip method (CONSERV, DISTWGT, BILINEAR, BICUBIC, GAUSWGT)
-  CHARACTER(len=ic_med)   ,public,pointer :: namscrnor(:)  !< scrip conserv normalization (FRACAREA, DESTAREA, FRACNNEI)
+  character(len=ic_med)   ,public,pointer :: namscrnor(:)  !< scrip conserv normalization (FRACAREA, DESTAREA, FRACNNEI, FRACARTR, DESTARTR, FRACNNTR)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrtyp(:)  !< scrip mapping type (SCALAR, VECTOR)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrord(:)  !< scrip conserve order (FIRST, SECOND)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrres(:)  !< scrip search restriction (LATLON, LATITUDE)
@@ -2338,16 +2338,28 @@ SUBROUTINE inipar
               IF (cmap_method(ig_number_field(jf)) .EQ. 'CONSERV') THEN
                  CALL parse(clline, clvari, 6, jpeighty, ilen, __LINE__)
                  READ(clvari, FMT=2009)cnorm_opt(ig_number_field(jf))
-                 IF (cnorm_opt(ig_number_field(jf)) .NE. 'FRACAREA' .AND. &
+                 if (cnorm_opt(ig_number_field(jf)) .ne. 'FRACAREA' .and. &
                      cnorm_opt(ig_number_field(jf)) .NE. 'DESTAREA' .AND.  &
-                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACNNEI') THEN
+                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACNNEI' .AND. &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACARTR' .AND. &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'DESTARTR' .AND.  &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACNNTR') THEN
                     IF (mpi_rank_global == 0) THEN
                        WRITE(nulprt1,*) '    '
                     ENDIF
                     CALL prtout('ERROR in namcouple for normalize option of field',jf,1)
-                    WRITE(tmpstr1, *) '==> must be FRACAREA, DESTAREA, or FRACNNEI'
+                    write(tmpstr1, *) '==> must be FRACAREA, DESTAREA, FRACNNEI, FRACARTR, DESTARTR, or FRACNNTR'
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
-                 ENDIF
+                 endif
+                 if (cnorm_opt(ig_number_field(jf))(7:8) == 'TR') then
+                    inquire(file='areas.nc',exist=ll_exist)
+                    if (.not. ll_exist) then
+                       call prtout('ERROR in namcouple for normalization option of field',jf,1)
+                       write(tmpstr1, *) '==> Missing file areas.nc needed for ',&
+                          & trim(cnorm_opt(ig_number_field(jf))),' normalization'
+                       call namcouple_abort(subname,__LINE__,tmpstr1)
+                    end if
+                 end if
 !* Get order of remapping for CONSERV
                  CALL parse(clline, clvari, 7, jpeighty, ilen, __LINE__)
                  IF (ilen .LE. 0) THEN
@@ -2428,6 +2440,13 @@ SUBROUTINE inipar
               CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
 !     * Get conservation method
               cconmet(ig_number_field(jf)) = clvari
+              inquire(file='areas.nc',exist=ll_exist)
+              if (.not. ll_exist) then
+                 call prtout('ERROR in namcouple for CONSERV postprocessing of field',jf,1)
+                 write(tmpstr1, *) '==> Missing file areas.nc needed for CONSERV ',&
+                    & trim(cconmet(ig_number_field(jf))),' postprocessing'
+                 call namcouple_abort(subname,__LINE__,tmpstr1)
+              end if
               lsurf(ig_number_field(jf)) = .TRUE.
               CALL parse(clline, clvari, 2, jpeighty, ilen, __LINE__)
               cconopt(ig_number_field(jf)) = 'bfb'

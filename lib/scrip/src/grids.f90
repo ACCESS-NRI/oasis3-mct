@@ -153,6 +153,7 @@
                            src_lat,  src_lon,  dst_lat,  dst_lon,   &
                            src_corner_lat, src_corner_lon,          &
                            dst_corner_lat, dst_corner_lon,          &
+                           src_area_true, dst_area_true,        &
                            ilogunit, ilogprt)
 
 !-----------------------------------------------------------------------
@@ -195,7 +196,9 @@
                                             src_corner_lat(ncrn_src,src_size), &
                                             src_corner_lon(ncrn_src,src_size), &
                                             dst_corner_lat(ncrn_dst,dst_size), &
-                                            dst_corner_lon(ncrn_dst,dst_size) 
+                                            dst_corner_lon(ncrn_dst,dst_size), & 
+                                            src_area_true(src_size), & ! true source grid areas
+                                            dst_area_true(dst_size)    ! true target grid areas
 
 !-----------------------------------------------------------------------
 !
@@ -263,7 +266,10 @@
       case default
         stop 'unknown mapping method'
       end select
-
+     
+      luse_grid1_area = any(src_area_true .ne. -9999.0)
+      luse_grid2_area = any(dst_area_true .ne. -9999.0)
+      
       allocate( grid1_mask      (src_size), &
                 grid2_mask      (dst_size), &
                 grid1_center_lat(src_size), &
@@ -280,6 +286,9 @@
                 grid2_bound_box (4       , dst_size), &
                 grid1_bbox_per  (src_size), &
                 grid2_bbox_per  (dst_size))
+
+      if (luse_grid1_area) allocate (grid1_area_in(src_size))
+      if (luse_grid2_area) allocate (grid2_area_in(dst_size))
 
       if (.not. luse_grid_centers) then
         allocate( grid1_corner_lat(ncrn_src, src_size), &
@@ -318,12 +327,12 @@
         grid2_corner_lon = dst_corner_lon
       endif
 
-!      if (luse_grid1_area) then
-!        grid1_area_in
-!      endif
-!      if (luse_grid2_area) then
-!        grid2_area_in
-!      endif
+      if (luse_grid1_area) then
+        grid1_area_in = src_area_true
+      endif
+      if (luse_grid2_area) then
+        grid2_area_in = dst_area_true
+      endif
 
       grid1_area = zero
       grid1_frac = zero
@@ -1064,6 +1073,9 @@
                  grid1_frac, grid2_frac,              &
                  grid1_dims, grid2_dims)
 
+      if (luse_grid1_area) deallocate (grid1_area_in)
+      if (luse_grid2_area) deallocate (grid2_area_in)
+      
       IF (restrict_TYPE == 'REDUCED') then
           deallocate( grid1_bound_box, grid2_bound_box,         &
                       grid1_bbox_per,  grid2_bbox_per,          &
