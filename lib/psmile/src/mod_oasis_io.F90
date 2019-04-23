@@ -74,7 +74,7 @@ end function oasis_io_varexists
 
 !> Reads single field from a file into an attribute Vector
 
-subroutine oasis_io_read_avfld(filename,av,gsmap,mpicom,avfld,filefld,fldtype)
+subroutine oasis_io_read_avfld(filename,av,gsmap,mpicom,avfld,filefld,fldtype,dfltint,dfltreal)
 
    implicit none
 
@@ -85,6 +85,8 @@ subroutine oasis_io_read_avfld(filename,av,gsmap,mpicom,avfld,filefld,fldtype)
    character(len=*), intent(in) :: avfld      !< av field name
    character(len=*), intent(in) :: filefld    !< file field name
    character(len=*), intent(in),optional :: fldtype       !< kind
+   integer(ip_i4_p), intent(in),optional :: dfltint  !< constant default value for missing int fields
+   real(ip_double_p),intent(in),optional :: dfltreal !< constant default value for missing real fields
 
    !--- local ---
    integer(ip_i4_p)    :: n,n1,i,j,fk,fk1    ! index
@@ -99,6 +101,8 @@ subroutine oasis_io_read_avfld(filename,av,gsmap,mpicom,avfld,filefld,fldtype)
    real(ip_double_p),allocatable :: array2(:,:)
    integer(ip_i4_p) ,allocatable :: array2i(:,:)
    integer(ip_i4_p)    :: ifldtype     ! field type int (1) or real (2)
+   logical             :: ll_intdflt
+   logical             :: ll_realdflt
 
    character(len=*),parameter :: subname = '(oasis_io_read_avfld)'
 
@@ -130,6 +134,9 @@ subroutine oasis_io_read_avfld(filename,av,gsmap,mpicom,avfld,filefld,fldtype)
       endif
    endif
 
+   ll_intdflt = .false.
+   ll_realdflt = .false.
+   
    call mct_aVect_gather(av,av_g,gsmap,master_task,mpicom)
 
    if (iam == master_task) then
@@ -146,63 +153,80 @@ subroutine oasis_io_read_avfld(filename,av,gsmap,mpicom,avfld,filefld,fldtype)
 
       status = nf90_inq_varid(ncid,trim(filefld),varid)
       if (status /= nf90_noerr) then
-         write(nulprt,*) subname,':',trim(nf90_strerror(status))
-         WRITE(nulprt,*) subname,estr,'filefld variable not found '//trim(filefld)
-         call oasis_abort(file=__FILE__,line=__LINE__)
+         if ( ifldtype == 2 .and. present(dfltreal) ) then
+            ll_realdflt = .true.
+         else if ( ifldtype == 1 .and. present(dfltint) ) then
+            ll_intdflt = .true.
+         else
+            write(nulprt,*) subname,':',trim(nf90_strerror(status))
+            write(nulprt,*) subname,estr,'filefld variable not found '//trim(filefld)
+            call oasis_abort(file=__FILE__,line=__LINE__)
+         end if
       endif
-      status = nf90_inquire_variable(ncid,varid,ndims=dlen,dimids=dimid2)
-      IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
+
+      if (.not.(ll_realdflt.or.ll_intdflt)) then
+         status = nf90_inquire_variable(ncid,varid,ndims=dlen,dimids=dimid2)
+         if (status /= nf90_noerr) write(nulprt,*) subname,' model :',compid,' proc :',&
                                                 mpi_rank_local,':',TRIM(nf90_strerror(status))
-      if (dlen > 2) then
-         write(nulprt,*) subname,estr,'variable ndims gt 2 ',trim(filefld),dlen
-         call oasis_abort(file=__FILE__,line=__LINE__)
-      endif
-      status = nf90_inquire_dimension(ncid,dimid2(1),len=nx)
-      IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
-                                                mpi_rank_local,':',TRIM(nf90_strerror(status))
-      ny = 1
-      if (dlen == 2) then
-         status = nf90_inquire_dimension(ncid,dimid2(2),len=ny)
-         IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
+         if (dlen > 2) then
+            write(nulprt,*) subname,estr,'variable ndims gt 2 ',trim(filefld),dlen
+            call oasis_abort(file=__FILE__,line=__LINE__)
+         endif
+         status = nf90_inquire_dimension(ncid,dimid2(1),len=nx)
+         if (status /= nf90_noerr) write(nulprt,*) subname,' model :',compid,' proc :',&
+                                                mpi_rank_local,':',trim(nf90_strerror(status))
+         ny = 1
+         if (dlen == 2) then
+            status = nf90_inquire_dimension(ncid,dimid2(2),len=ny)
+            if (status /= nf90_noerr) write(nulprt,*) subname,' model :',compid,' proc :',&
                                                    mpi_rank_local,':',TRIM(nf90_strerror(status))
-      endif
+         endif
 
-      if (size(av_g%rAttr,dim=2) /= nx*ny) then
-         WRITE(nulprt,*) subname,estr,'av gsize nx ny mismatch in file :',&
-                                       TRIM(filename),SIZE(av_g%rAttr,dim=2),nx,ny
-         call oasis_abort(file=__FILE__,line=__LINE__)
-      endif
-
+         if (size(av_g%rAttr,dim=2) /= nx*ny) then
+            write(nulprt,*) subname,estr,'av gsize nx ny mismatch in file :',&
+                                         trim(filename),size(av_g%rAttr,dim=2),nx,ny
+            call oasis_abort(file=__FILE__,line=__LINE__)
+         endif
+      end if
+      
       if (ifldtype == 1) then
-         allocate(array2i(nx,ny))
-         status = nf90_get_var(ncid,varid,array2i)
-         IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
-                                                   mpi_rank_local,':',TRIM(nf90_strerror(status))
-
          n = mct_avect_indexIA(av_g,trim(avfld))
-         n1 = 0
-         do j = 1,ny
-         do i = 1,nx
-            n1 = n1 + 1
-            av_g%iAttr(n,n1) = array2i(i,j)
-         enddo
-         enddo
-         deallocate(array2i)
-      else
-         allocate(array2(nx,ny))
-         status = nf90_get_var(ncid,varid,array2)
-         IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
+         if (ll_intdflt) then
+            av_g%iAttr(n,:) = dfltint
+         else
+            allocate(array2i(nx,ny))
+            status = nf90_get_var(ncid,varid,array2i)
+            if (status /= nf90_noerr) write(nulprt,*) subname,' model :',compid,' proc :',&
                                                    mpi_rank_local,':',TRIM(nf90_strerror(status))
 
+            n1 = 0
+            do j = 1,ny
+            do i = 1,nx
+               n1 = n1 + 1
+               av_g%iAttr(n,n1) = array2i(i,j)
+            enddo
+            enddo
+            deallocate(array2i)
+         end if
+      else
          n = mct_avect_indexRA(av_g,trim(avfld))
-         n1 = 0
-         do j = 1,ny
-         do i = 1,nx
-            n1 = n1 + 1
-            av_g%rAttr(n,n1) = array2(i,j)
-         enddo
-         enddo
-         deallocate(array2)
+         if (ll_realdflt) then
+            av_g%rAttr(n,:) = dfltreal
+         else
+            allocate(array2(nx,ny))
+            status = nf90_get_var(ncid,varid,array2)
+            if (status /= nf90_noerr) write(nulprt,*) subname,' model :',compid,' proc :',&
+                                                   mpi_rank_local,':',TRIM(nf90_strerror(status))
+
+            n1 = 0
+            do j = 1,ny
+            do i = 1,nx
+               n1 = n1 + 1
+               av_g%rAttr(n,n1) = array2(i,j)
+            enddo
+            enddo
+            deallocate(array2)
+         end if
       endif
 
       status = nf90_close(ncid)

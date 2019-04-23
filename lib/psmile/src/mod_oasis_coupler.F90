@@ -1651,7 +1651,7 @@ CONTAINS
            dpart = prism_mapper(mapID)%dpart
 
            lsize = mct_gsmap_lsize(prism_part(spart)%gsmap,mpi_comm_local)
-           call mct_avect_init(prism_mapper(mapID)%av_ms,iList='mask',rList='area',lsize=lsize)
+           call mct_avect_init(prism_mapper(mapID)%av_ms,iList='mask',rList='area:frac',lsize=lsize)
            call mct_avect_zero(prism_mapper(mapID)%av_ms)
 !           gridname = prism_part(spart)%gridname
            gridname=prism_mapper(mapID)%srcgrid
@@ -1659,9 +1659,11 @@ CONTAINS
               prism_part(spart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
            call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_ms, &
               prism_part(spart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_ms, &
+              prism_part(spart)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real',dfltreal=1._ip_double_p)
 
            lsize = mct_gsmap_lsize(prism_part(dpart)%gsmap,mpi_comm_local)
-           call mct_avect_init(prism_mapper(mapID)%av_md,iList='mask',rList='area',lsize=lsize)
+           call mct_avect_init(prism_mapper(mapID)%av_md,iList='mask',rList='area:frac',lsize=lsize)
            call mct_avect_zero(prism_mapper(mapID)%av_md)
 !           gridname = prism_part(dpart)%gridname
            gridname=prism_mapper(mapID)%dstgrid
@@ -1669,6 +1671,8 @@ CONTAINS
               prism_part(dpart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
            call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_md, &
               prism_part(dpart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_md, &
+              prism_part(dpart)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real',dfltreal=1._ip_double_p)
 
            prism_mapper(mapID)%AVred = .true.
 

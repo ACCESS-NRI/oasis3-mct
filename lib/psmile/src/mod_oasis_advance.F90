@@ -1848,6 +1848,8 @@ contains
        imasks(:) = mapper%av_ms%iAttr(nf,:)
        nf = mct_aVect_indexRA(mapper%av_ms,'area')
        areas(:) = mapper%av_ms%rAttr(nf,:)*zradi
+       nf = mct_aVect_indexRA(mapper%av_ms,'frac')
+       areas(:) = areas(:)*mapper%av_ms%rAttr(nf,:)
 
        if (map_barrier .and. present(tstrinp)) then
           call oasis_timer_start(trim(tstrinp)//'_cons_prebarrier')
@@ -1873,6 +1875,8 @@ contains
        imaskd(:) = mapper%av_md%iAttr(nf,:)
        nf = mct_aVect_indexRA(mapper%av_md,'area')
        aread(:) = mapper%av_md%rAttr(nf,:)*zradi
+       nf = mct_aVect_indexRA(mapper%av_md,'frac')
+       aread(:) = aread(:)*mapper%av_md%rAttr(nf,:)
 
        if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cons2')
        call mct_avect_init(avone,rList='one',lsize=lsized)
