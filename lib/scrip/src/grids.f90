@@ -113,7 +113,9 @@
 
       logical (kind=log_kind), save :: luse_grid_centers, & ! use centers for bounding boxes
                                        luse_grid1_area,   & ! use area from grid file
-                                       luse_grid2_area      ! use area from grid file
+                                       luse_grid2_area,   & ! use area from grid file
+                                       lstore_grid1_area, & ! store area from grid file
+                                       lstore_grid2_area    ! store area from grid file
 
       real (kind=dbl_kind), dimension(:,:), allocatable, save :: grid1_bound_box, & ! lat/lon bounding box for use
                                                                  grid2_bound_box    ! in restricting grid searches
@@ -153,7 +155,8 @@
                            src_lat,  src_lon,  dst_lat,  dst_lon,   &
                            src_corner_lat, src_corner_lon,          &
                            dst_corner_lat, dst_corner_lon,          &
-                           src_area_true, dst_area_true,        &
+                           lstore_src_area, src_area_true,          &
+                           lstore_dst_area, dst_area_true,          &
                            ilogunit, ilogprt)
 
 !-----------------------------------------------------------------------
@@ -188,6 +191,9 @@
                                  rst_type, &          ! restriction type
                                  src_name, &          ! source grid name
                                  dst_name             ! target grid name
+
+      logical, intent(in) :: lstore_src_area, &  ! store source area from grid file
+                             lstore_dst_area     ! store dest area from grid file
 
       real (kind=real_kind), intent (in) :: src_lat(src_size), & ! source grid latitudes
                                             src_lon(src_size), & ! sourde grid longitudes
@@ -252,9 +258,14 @@
 !      write(nulou,*) subname,trim(m_method)
 !      write(nulou,*) subname,src_size,dst_size,src_rank,dst_rank
 
+      lstore_grid1_area = .false.
+      lstore_grid2_area = .false.
+      
       select case(m_method)
       case ('CONSERV')
         luse_grid_centers = .false.
+        lstore_grid1_area = lstore_src_area
+        lstore_grid2_area = lstore_dst_area
       case ('BILINEAR')
         luse_grid_centers = .true.
       case ('BICUBIC')
@@ -267,9 +278,6 @@
         stop 'unknown mapping method'
       end select
      
-      luse_grid1_area = any(src_area_true .ne. -9999.0)
-      luse_grid2_area = any(dst_area_true .ne. -9999.0)
-      
       allocate( grid1_mask      (src_size), &
                 grid2_mask      (dst_size), &
                 grid1_center_lat(src_size), &
@@ -287,8 +295,8 @@
                 grid1_bbox_per  (src_size), &
                 grid2_bbox_per  (dst_size))
 
-      if (luse_grid1_area) allocate (grid1_area_in(src_size))
-      if (luse_grid2_area) allocate (grid2_area_in(dst_size))
+      if (lstore_grid1_area) allocate (grid1_area_in(src_size))
+      if (lstore_grid2_area) allocate (grid2_area_in(dst_size))
 
       if (.not. luse_grid_centers) then
         allocate( grid1_corner_lat(ncrn_src, src_size), &
@@ -327,10 +335,10 @@
         grid2_corner_lon = dst_corner_lon
       endif
 
-      if (luse_grid1_area) then
+      if (lstore_grid1_area) then
         grid1_area_in = src_area_true
       endif
-      if (luse_grid2_area) then
+      if (lstore_grid2_area) then
         grid2_area_in = dst_area_true
       endif
 
@@ -1073,8 +1081,8 @@
                  grid1_frac, grid2_frac,              &
                  grid1_dims, grid2_dims)
 
-      if (luse_grid1_area) deallocate (grid1_area_in)
-      if (luse_grid2_area) deallocate (grid2_area_in)
+      if (lstore_grid1_area) deallocate (grid1_area_in)
+      if (lstore_grid2_area) deallocate (grid2_area_in)
       
       IF (restrict_TYPE == 'REDUCED') then
           deallocate( grid1_bound_box, grid2_bound_box,         &

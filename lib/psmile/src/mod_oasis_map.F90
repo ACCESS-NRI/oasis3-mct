@@ -102,6 +102,8 @@ CONTAINS
   integer(ip_i4_p) :: i,j,k,icnt,nx,ny,nc
   logical :: lextrapdone
   logical :: do_corners
+  logical :: ll_src_area_in
+  logical :: ll_dst_area_in
   character(len=ic_med) :: filename
   character(len=ic_med) :: fldname
   character(len=*),parameter :: subname = '(oasis_map_genmap)'
@@ -218,7 +220,9 @@ CONTAINS
      if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
          minval(src_area_true),maxval(src_area_true)
      deallocate(fld2)
+     ll_src_area_in = .true.
   else
+     ll_src_area_in = .false.
      src_area_true = -9999.
   end if
   
@@ -314,7 +318,9 @@ CONTAINS
      if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
          minval(dst_area_true),maxval(dst_area_true)
      deallocate(fld2)
+     ll_dst_area_in = .true.
   else
+     ll_dst_area_in = .false.
      dst_area_true = -9999.
   end if
   
@@ -333,7 +339,8 @@ CONTAINS
        src_lat,  src_lon,  dst_lat,  dst_lon, &
        src_corner_lat, src_corner_lon, &
        dst_corner_lat, dst_corner_lon, &
-       src_area_true,  dst_area_true,  &
+       ll_src_area_in, src_area_true,  &
+       ll_dst_area_in, dst_area_true,  &
        ilogunit=nulprt,ilogprt=OASIS_debug)
   if (OASIS_debug >= 15) then
       WRITE(nulprt,*) subname,' done grid_init '
