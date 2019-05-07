@@ -45,13 +45,13 @@ fi
 ## bggd is an atmosphere structured (LR) grid
 ## ssea is an atmosphere gaussian reduced grid (D) : no conserv2nd remapping
 ## icos is an atmosphere unstructured grid (U) : no bili, no bicu nor conserv2nd remapping
-SRC_GRID=icos # bggd, ssea, icos
+SRC_GRID=bggd # bggd, ssea, icos
 ## - Target grid (the only grid supported in this environment is nogt)
 ## nogt is an ocean structured grid (LR)
 ## 
 TGT_GRID=nogt
 ## - Remapping (see restrictions above)
-remap=conserv1st #distwgt, bicu, bili, conserv1st, conserv2nd
+remap=distwgt #distwgt, bicu, bili, conserv1st, conserv2nd
 
 ## - Verification source grid type and remapping
 if [ ${SRC_GRID} == "ssea" ]; then
@@ -66,20 +66,16 @@ if [ ${SRC_GRID} == "icos" ]; then
 		exit
 	fi
 fi
-
-arch=kraken_intel_impi_openmp  # nemo_lenovo_intel_impi, nemo_lenovo_intel_impi_openmp or beaufix_intel_impi_openmp
+arch=linux_pgi_openmpi_openmp # nemo_lenovo_intel_impi, nemo_lenovo_intel_impi_openmp or beaufix_intel_impi_openmp
                               # kraken_intel_impi, kraken_intel_impi_openmp, training_computer
+			      # linux_pgi_openmpi_openmp, linux_pgi_openmpi, linux_gfortran_openmpi_openmp, linux_gfortran_openmpi 
 # For arch=beaufix_intel_impi_openmp you must put in your .bashrc 
 #module load intel
 #module load intelmpi
 #module load netcdf
 #module load hdf5/1.8.16_par_thrsaf
 
-if [ ${arch} == linux_gfortran_openmpi ] || [ ${arch} == linux_gfortran_openmpi_openmp ]; then
-   rundir=/space/${user}/OA3_MCT_RES/work_${casename}_${SRC_GRID}_${TGT_GRID}_${remap}/rundir_${nnode}_${mpiprocs}_${threads}
-else
-   rundir=$srcdir/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}/rundir_${nnode}_${mpiprocs}_${threads}
-fi
+rundir=$srcdir/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}/rundir_${nnode}_${mpiprocs}_${threads}
 
 ## - End of user's section
 ######################################################################
@@ -387,6 +383,15 @@ if [ ${arch} == training_computer ]; then
 elif [ ${arch} == linux_gfortran_openmpi ] || [ ${arch} == linux_gfortran_openmpi_openmp ]; then
     export OASIS_OMP_NUM_THREADS=$threads
     MPIRUN=/usr/lib64/openmpi/bin/mpirun
+    echo 'Executing the model using '$MPIRUN
+    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+elif [ ${arch} == linux_pgi_openmpi ] || [ ${arch} == linux_pgi_openmpi_openmp ]; then
+    if [ `hostname` == stiff.cerfacs.fr ]; then
+        PGI_VERSION=18.7
+    elif [ `hostname` == tioman.cerfacs.fr ]; then
+        PGI_VERSION=17.10
+    fi
+    MPIRUN=/usr/local/pgi/linux86-64/${PGI_VERSION}/mpi/openmpi-2.1.2/bin/mpirun 
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
 elif [ $arch == beaufix_intel_impi_openmp ]; then

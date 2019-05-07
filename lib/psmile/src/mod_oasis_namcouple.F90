@@ -23,7 +23,6 @@ MODULE mod_oasis_namcouple
   private
 
   public oasis_namcouple_init
-
 ! NAMCOUPLE PUBLIC DATA
 
   INTEGER (kind=ip_intwp_p),PARAMETER :: jpeighty = 5000 !< max number of characters to be read 
@@ -1596,7 +1595,7 @@ SUBROUTINE inipar
   INTEGER (kind=ip_intwp_p) il_file_unit, id_error
   INTEGER (kind=ip_intwp_p) il_max_entry_id, il_no_of_entries
   INTEGER (kind=ip_intwp_p) il_i, il_pos
-  LOGICAL llseq, lllag, ll_exist
+  LOGICAL llseq, lllag
   INTEGER lastplace
   INTEGER (kind=ip_intwp_p) :: ib,ilind1,ilind2,ilind
   INTEGER (kind=ip_intwp_p) :: ja,jf,jfn,jz,jm,ilen,idum
@@ -2351,15 +2350,6 @@ SUBROUTINE inipar
                     write(tmpstr1, *) '==> must be FRACAREA, DESTAREA, FRACNNEI, FRACARTR, DESTARTR, or FRACNNTR'
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
                  endif
-                 if (cnorm_opt(ig_number_field(jf))(7:8) == 'TR') then
-                    inquire(file='areas.nc',exist=ll_exist)
-                    if (.not. ll_exist) then
-                       call prtout('ERROR in namcouple for normalization option of field',jf,1)
-                       write(tmpstr1, *) '==> Missing file areas.nc needed for ',&
-                          & trim(cnorm_opt(ig_number_field(jf))),' normalization'
-                       call namcouple_abort(subname,__LINE__,tmpstr1)
-                    end if
-                 end if
 !* Get order of remapping for CONSERV
                  CALL parse(clline, clvari, 7, jpeighty, ilen, __LINE__)
                  IF (ilen .LE. 0) THEN
@@ -2440,13 +2430,6 @@ SUBROUTINE inipar
               CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
 !     * Get conservation method
               cconmet(ig_number_field(jf)) = clvari
-              inquire(file='areas.nc',exist=ll_exist)
-              if (.not. ll_exist) then
-                 call prtout('ERROR in namcouple for CONSERV postprocessing of field',jf,1)
-                 write(tmpstr1, *) '==> Missing file areas.nc needed for CONSERV ',&
-                    & trim(cconmet(ig_number_field(jf))),' postprocessing'
-                 call namcouple_abort(subname,__LINE__,tmpstr1)
-              end if
               lsurf(ig_number_field(jf)) = .TRUE.
               CALL parse(clline, clvari, 2, jpeighty, ilen, __LINE__)
               cconopt(ig_number_field(jf)) = 'bfb'
