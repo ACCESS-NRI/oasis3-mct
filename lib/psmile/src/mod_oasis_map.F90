@@ -215,7 +215,7 @@ CONTAINS
      fldname = trim(namsrcgrd(namID))//'.srf'
      call oasis_io_read_field_fromroot(filename,fldname,fld2=fld2)
      icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
-     src_area_true(icnt) = fld2(i,j)/(eradius*eradius)
+     src_area_true(icnt) = fld2(i,j)
      enddo; enddo
      if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
          minval(src_area_true),maxval(src_area_true)
@@ -313,7 +313,7 @@ CONTAINS
      fldname = trim(namdstgrd(namID))//'.srf'
      call oasis_io_read_field_fromroot(filename,fldname,fld2=fld2)
      icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
-     dst_area_true(icnt) = fld2(i,j)/(eradius*eradius)
+     dst_area_true(icnt) = fld2(i,j)
      enddo; enddo
      if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
          minval(dst_area_true),maxval(dst_area_true)
