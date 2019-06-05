@@ -1572,7 +1572,7 @@ C***********************************************************************
       call netcdf_error_handler(ncstat)
 
       if (luse_grid2_area) then
-        ncstat = nf_put_var_double(nc_file_id, itmp3, grid2_area)
+        ncstat = nf_put_var_double(nc_file_id, itmp3, grid2_area_in)
       else
         ncstat = nf_put_var_double(nc_file_id, itmp3, grid2_area)
       endif
