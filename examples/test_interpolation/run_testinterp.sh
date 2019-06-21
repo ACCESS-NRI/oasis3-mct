@@ -45,13 +45,14 @@ fi
 ## bggd is an atmosphere structured (LR) grid
 ## ssea is an atmosphere gaussian reduced grid (D) : no conserv2nd remapping
 ## icos is an atmosphere unstructured grid (U) : no bili, no bicu nor conserv2nd remapping
-SRC_GRID=torc # bggd, ssea, icos
+SRC_GRID=bggd # bggd, ssea, icos
+##
 ## - Target grid (the only grid supported in this environment is nogt)
 ## nogt is an ocean structured grid (LR)
-## 
-TGT_GRID=lmdz
+TGT_GRID=nogt
+##
 ## - Remapping (see restrictions above)
-remap=gauswgt #distwgt, bicu, bili, conserv1st, conserv2nd
+remap=conserv1st #distwgt, bicu, bili, conserv1st, conserv2nd
 
 ## - Verification source grid type and remapping
 if [ ${SRC_GRID} == "ssea" ]; then
