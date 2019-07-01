@@ -46,12 +46,13 @@ fi
 ## ssea is an atmosphere gaussian reduced grid (D) : no conserv2nd remapping
 ## icos is an atmosphere unstructured grid (U) : no bili, no bicu nor conserv2nd remapping
 SRC_GRID=bggd # bggd, ssea, icos
+##
 ## - Target grid (the only grid supported in this environment is nogt)
 ## nogt is an ocean structured grid (LR)
-## 
 TGT_GRID=nogt
+##
 ## - Remapping (see restrictions above)
-remap=distwgt #distwgt, bicu, bili, conserv1st, conserv2nd
+remap=conserv1st #distwgt, bicu, bili, conserv1st, conserv2nd
 
 ## - Verification source grid type and remapping
 if [ ${SRC_GRID} == "ssea" ]; then
@@ -66,9 +67,9 @@ if [ ${SRC_GRID} == "icos" ]; then
 		exit
 	fi
 fi
-arch=linux_pgi_openmpi_openmp # nemo_lenovo_intel_impi, nemo_lenovo_intel_impi_openmp or beaufix_intel_impi_openmp
+
+arch=kraken_intel_impi_openmp  # nemo_lenovo_intel_impi, nemo_lenovo_intel_impi_openmp or beaufix_intel_impi_openmp
                               # kraken_intel_impi, kraken_intel_impi_openmp, training_computer
-			      # linux_pgi_openmpi_openmp, linux_pgi_openmpi, linux_gfortran_openmpi_openmp, linux_gfortran_openmpi 
 # For arch=beaufix_intel_impi_openmp you must put in your .bashrc 
 #module load intel
 #module load intelmpi
