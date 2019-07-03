@@ -2203,6 +2203,7 @@ contains
 
          cell_loop: do cell=1,num_srch_cells
             gcell = srch_add(cell)
+            lcoinc = .false.
             corner_loop: do n=1,srch_corners
                next_n = mod(n,srch_corners) + 1
 
@@ -2733,6 +2734,7 @@ contains
 
          cell_loop: do cell=1,num_srch_cells
             gcell = srch_add(cell)
+            lcoinc = .false.
             srch_corner_x(:) = rns*two*sin(pi4 - half*grid_corner_lat(:,gcell)) * cos(grid_corner_lon(:,gcell))
             srch_corner_y(:) =     two*sin(pi4 - half*grid_corner_lat(:,gcell)) * sin(grid_corner_lon(:,gcell))
             corner_loop: do n=1,srch_corners
