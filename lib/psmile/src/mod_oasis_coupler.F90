@@ -1672,25 +1672,31 @@ CONTAINS
            call mct_avect_init(prism_mapper(mapID)%av_ms,iList='mask',rList='area:frac',lsize=lsize)
            call mct_avect_zero(prism_mapper(mapID)%av_ms)
 !           gridname = prism_part(spart)%gridname
-           gridname=prism_mapper(mapID)%srcgrid
-           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
-              prism_part(spart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
+           gridname=trim(prism_mapper(mapID)%srcgrid)
            call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_ms, &
               prism_part(spart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
-           call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_ms, &
+           gridname=trim(prism_mapper(mapID)%srcgrid)//'_with_'//trim(prism_mapper(mapID)%dstgrid)
+           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
               prism_part(spart)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real',dfltreal=1._ip_double_p)
+           if (.not. oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) &
+              gridname=trim(prism_mapper(mapID)%srcgrid)
+           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
+              prism_part(spart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
 
            lsize = mct_gsmap_lsize(prism_part(dpart)%gsmap,mpi_comm_local)
            call mct_avect_init(prism_mapper(mapID)%av_md,iList='mask',rList='area:frac',lsize=lsize)
            call mct_avect_zero(prism_mapper(mapID)%av_md)
 !           gridname = prism_part(dpart)%gridname
-           gridname=prism_mapper(mapID)%dstgrid
-           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
-              prism_part(dpart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
+           gridname=trim(prism_mapper(mapID)%dstgrid)
            call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_md, &
               prism_part(dpart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
-           call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_md, &
+           gridname=trim(prism_mapper(mapID)%dstgrid)//'_with_'//trim(prism_mapper(mapID)%srcgrid)
+           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
               prism_part(dpart)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real',dfltreal=1._ip_double_p)
+           if (.not. oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) &
+              gridname=trim(prism_mapper(mapID)%dstgrid)
+           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
+              prism_part(dpart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
 
            prism_mapper(mapID)%AVred = .true.
 

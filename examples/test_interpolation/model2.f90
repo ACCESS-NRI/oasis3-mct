@@ -24,9 +24,21 @@ PROGRAM model2
   CHARACTER(len=6)   :: comp_name = 'model2'
   CHARACTER(len=128) :: comp_out ! name of the output log file
   CHARACTER(len=3)   :: chout
-  CHARACTER(len=4)   :: cl_grd_tgt ! name of the target grid
+  CHARACTER(len=4)   :: cl_grd_src     ! name of the source grid
+  CHARACTER(len=11)  :: cl_remap       ! type of remapping
+  CHARACTER(len=2)   :: cl_type_src    ! type of the source grid
+  CHARACTER(len=8)   :: cl_period_src  ! Periodicity of grid (P=periodic or R=regional)
+  INTEGER            :: il_overlap_src
+  NAMELIST /grid_source_characteristics/cl_grd_src
+  NAMELIST /grid_source_characteristics/cl_remap
+  NAMELIST /grid_source_characteristics/cl_type_src
+  NAMELIST /grid_source_characteristics/cl_period_src
+  NAMELIST /grid_source_characteristics/il_overlap_src
   !
+  CHARACTER(len=4)   :: cl_grd_tgt ! name of the target grid
   NAMELIST /grid_target_characteristics/cl_grd_tgt
+  !
+  CHARACTER(len=14)  :: cl_msk_nam
   !
   ! Global grid parameters : 
   INTEGER :: nlon, nlat    ! dimensions in the 2 directions of space
@@ -147,6 +159,7 @@ PROGRAM model2
   ! Get arguments giving source grid acronym and field type
   !
   OPEN(UNIT=70,FILE='name_grids.dat',FORM='FORMATTED')
+  READ(UNIT=70,NML=grid_source_characteristics)
   READ(UNIT=70,NML=grid_target_characteristics)
   CLOSE(70)
   !
@@ -173,7 +186,12 @@ PROGRAM model2
   ! Read global grid longitudes, latitudes and mask 
   !
   CALL read_grid(nlon,nlat, data_gridname, cl_grd_tgt, w_unit, FILE_Debug, gg_lon,gg_lat)
-  CALL read_mask(nlon,nlat, data_maskname, cl_grd_tgt, w_unit, FILE_Debug, gg_mask)
+  cl_msk_nam = TRIM(cl_grd_tgt//'_with_'//cl_grd_src)
+  IF (inquire_mask(data_maskname,cl_msk_nam,w_unit, FILE_Debug)) THEN
+     CALL read_mask(nlon,nlat, data_maskname, cl_msk_nam, w_unit, FILE_Debug, gg_mask)
+  ELSE
+     CALL read_mask(nlon,nlat, data_maskname, cl_grd_tgt, w_unit, FILE_Debug, gg_mask)
+  END IF
   !
   IF (FILE_Debug >= 2) THEN
       WRITE(w_unit,*) 'After grid and mask reading'

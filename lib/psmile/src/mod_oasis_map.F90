@@ -154,7 +154,9 @@ CONTAINS
 
   allocate(ifld2(nx,ny))
   filename = 'masks.nc'
-  fldname = trim(namsrcgrd(namID))//'.msk'
+  fldname = trim(namsrcgrd(namID))//'_with_'//trim(namdstgrd(namID))//'.msk'
+  if (.NOT. oasis_io_varexists(filename,fldname)) &
+     fldname = trim(namsrcgrd(namID))//'.msk'
   call oasis_io_read_field_fromroot(filename,fldname,ifld2=ifld2)
   icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
      src_mask(icnt) = ifld2(i,j)
@@ -252,7 +254,9 @@ CONTAINS
 
   allocate(ifld2(nx,ny))
   filename = 'masks.nc'
-  fldname = trim(namdstgrd(namID))//'.msk'
+  fldname = trim(namdstgrd(namID))//'_with_'//trim(namsrcgrd(namID))//'.msk'
+  if (.NOT. oasis_io_varexists(filename,fldname)) &
+     fldname = trim(namdstgrd(namID))//'.msk'
   call oasis_io_read_field_fromroot(filename,fldname,ifld2=ifld2)
   icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
      dst_mask(icnt) = ifld2(i,j)

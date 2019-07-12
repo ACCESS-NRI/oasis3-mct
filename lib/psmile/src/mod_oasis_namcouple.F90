@@ -113,7 +113,9 @@ MODULE mod_oasis_namcouple
   CHARACTER(len=4), PARAMETER :: crnlonsuf = '.clo'
   CHARACTER(len=4), PARAMETER :: crnlatsuf = '.cla'
   CHARACTER(len=4), PARAMETER :: cmsksuf = '.msk'
+  CHARACTER(len=6), PARAMETER :: cmskint = '_with_'
   CHARACTER(len=4), PARAMETER :: csursuf = '.srf'
+  CHARACTER(len=4), PARAMETER :: cfrcsuf = '.frc'
   CHARACTER(len=4), PARAMETER :: cangsuf = '.ang'
 ! --- mod_rainbow
   LOGICAL,DIMENSION(:),ALLOCATABLE :: lmapp
@@ -2624,12 +2626,20 @@ SUBROUTINE inipar
               WRITE(nulprt1, FMT=3008) &
                  cficbf(ig_number_field(jf))(1:ifcb)//cglonsuf,  &
                  cficbf(ig_number_field(jf))(1:ifcb)//cglatsuf, &
+                 cficbf(ig_number_field(jf))(1:ifcb)//cmskint//cficaf(ig_number_field(jf))&
+                 (1:ifca)//cmsksuf,  &
                  cficbf(ig_number_field(jf))(1:ifcb)//cmsksuf,  &
                  cficbf(ig_number_field(jf))(1:ifcb)//csursuf, &
+                 cficbf(ig_number_field(jf))(1:ifcb)//cmskint//cficaf(ig_number_field(jf))&
+                 (1:ifca)//cfrcsuf,  &
                  cficaf(ig_number_field(jf))(1:ifca)//cglonsuf,  &
                  cficaf(ig_number_field(jf))(1:ifca)//cglatsuf, &
+                 cficaf(ig_number_field(jf))(1:ifca)//cmskint//cficbf(ig_number_field(jf))&
+                 (1:ifcb)//cmsksuf,  &
                  cficaf(ig_number_field(jf))(1:ifca)//cmsksuf,  &
-                 cficaf(ig_number_field(jf))(1:ifca)//csursuf
+                 cficaf(ig_number_field(jf))(1:ifca)//csursuf,  &
+                 cficaf(ig_number_field(jf))(1:ifca)//cmskint//cficbf(ig_number_field(jf))&
+                 (1:ifcb)//cfrcsuf
               WRITE(nulprt1, FMT=3009) 
               WRITE(nulprt1, FMT=3010)
               DO ja = 1, ig_ntrans(ig_number_field(jf))
@@ -2741,12 +2751,14 @@ SUBROUTINE inipar
              /,10X,'  Number of overlapped grid points is  = ',I2,/)
  3008 FORMAT(/,10X,'  Source longitude file string    = ',A8, &
              /,10X,'  Source latitude file string     = ',A8, &
-             /,10X,'  Source mask file string         = ',A8, &
+             /,10X,'  Source mask file string         = ',A18,' or ',A8, &
              /,10X,'  Source surface file string      = ',A8, &
+             /,10X,'  Source surf frac.s file string  = ',A18, &
              /,10X,'  Target longitude file string    = ',A8, &
              /,10X,'  Target latitude file string     = ',A8, &
-             /,10X,'  Target mask file string         = ',A8, &
-             /,10X,'  Target surface file string      = ',A8,/)
+             /,10X,'  Target mask file string         = ',A18,' or ',A8, &
+             /,10X,'  Target surface file string      = ',A8, &
+             /,10X,'  Target surf frac.s file string  = ',A18,/)
  3009 FORMAT(/,10X,'  ANALYSIS PARAMETERS ')
  3010 FORMAT(10X,'  ******************* ',/)
  3011 FORMAT(/,5X,'  ANALYSIS number ',I2,' is ',A8, &
