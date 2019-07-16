@@ -77,7 +77,7 @@ module remap_conservative
    !
    !-----------------------------------------------------------------------
 
-   real (kind=dbl_kind), parameter :: north_thresh = 2.00_dbl_kind, & ! threshold for coord transf.
+   real (kind=dbl_kind), parameter :: north_thresh = 1.45_dbl_kind, & ! threshold for coord transf.
       south_thresh =-2.00_dbl_kind  ! threshold for coord transf.
 
    integer (kind=int_kind) :: il_nbthreads = 1
@@ -141,6 +141,7 @@ contains
          intrsct_lat, intrsct_lon,       & ! lat/lon of next intersect
          beglat, endlat, beglon, endlon, & ! endpoints of current seg.
          norm_factor,                    & ! factor for normalizing wts
+         norm_correc,                    & ! true area correction for norm wts
          delta,                          & ! precision
          r2d
 
@@ -1590,7 +1591,6 @@ contains
          endif
       end do pole_loop2
 
-!AP
       if (grid1_np > 0) then
          grid1_area(grid1_np) = grid1_area(grid1_np) + weights(1)
          grid1_centroid_lat(grid1_np) = grid1_centroid_lat(grid1_np) + weights(2)
@@ -1633,7 +1633,6 @@ contains
          endif
       end do pole_loop4
 
-!AP
       if (grid1_sp > 0) then
          grid1_area(grid1_sp) = grid1_area(grid1_sp) + weights(1)
          grid1_centroid_lat(grid1_sp) = grid1_centroid_lat(grid1_sp) + weights(2)
@@ -1711,29 +1710,36 @@ contains
                norm_factor = zero
             endif
          case (norm_opt_dstartr)
-            if (grid2_area(grid2_add) /= zero .and. grid1_area(grid1_add) /= zero) then
-               if ( grid1_add .ne. grid1_np .and. grid2_add .ne. grid2_np .and.&
-                    grid1_add .ne. grid1_sp .and. grid2_add .ne. grid2_sp) then
-                  norm_factor = grid1_area_in(grid1_add)/grid1_area(grid1_add) * &
-                     grid2_area(grid2_add)/grid2_area_in(grid2_add) *            &
-                     one/grid2_area(grid2_add)
-               else
-                  norm_factor = one/grid2_area(grid2_add)
-               endif
+            if (grid2_area(grid2_add) /= zero) then
+               norm_factor = one/grid2_area(grid2_add)
+               if (grid1_add .ne. grid1_np .and. grid1_add .ne. grid1_sp  &
+                   .and. grid1_area(grid1_add) /= zero) then
+                  norm_correc = grid1_area_in(grid1_add)/grid1_area(grid1_add)
+                  if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
+                      norm_factor = norm_factor * norm_correc
+               end if
+               if (grid2_add .ne. grid2_np .and. grid2_add .ne. grid2_sp) then
+                  norm_correc = grid2_area(grid2_add)/grid2_area_in(grid2_add)
+                  if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
+                      norm_factor = norm_factor * norm_correc
+               end if
             else
                norm_factor = zero
             endif
          case (norm_opt_frcartr)
-            if (grid2_frac(grid2_add) /= zero .and. grid1_area(grid1_add) /= zero) then
-               if ( grid1_add .ne. grid1_np .and. grid2_add .ne. grid2_np .and.&
-                    grid1_add .ne. grid1_sp .and. grid2_add .ne. grid2_sp) then
-                  norm_factor = grid1_area_in(grid1_add)/ &
-                     grid1_area(grid1_add) * &
-                     grid2_area(grid2_add)/grid2_area_in(grid2_add) * &
-                     one/grid2_frac(grid2_add)
-               else
-                  norm_factor = one/grid2_frac(grid2_add)                  
-               endif
+            if (grid2_frac(grid2_add) /= zero) then
+               norm_factor = one/grid2_frac(grid2_add)
+               if (grid1_add .ne. grid1_np .and. grid1_add .ne. grid1_sp  &
+                   .and. grid1_area(grid1_add) /= zero) then
+                  norm_correc = grid1_area_in(grid1_add)/grid1_area(grid1_add)
+                  if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
+                      norm_factor = norm_factor * norm_correc
+               end if
+               if (grid2_add .ne. grid2_np .and. grid2_add .ne. grid2_sp) then
+                  norm_correc = grid2_area(grid2_add)/grid2_area_in(grid2_add)
+                  if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
+                      norm_factor = norm_factor * norm_correc
+               end if
             else
                norm_factor = zero
             endif
