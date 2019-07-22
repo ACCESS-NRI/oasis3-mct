@@ -272,7 +272,7 @@ elif [ ${arch} == nemo_lenovo_intel_impi_openmp ]; then
 # Number of MPI tasks per node
 #SBATCH --ntasks-per-node=$mpiprocs
 # Number of OpenMP threads per MPI task
-#SBATCH --cpus-per-task=24
+#SBATCH --cpus-per-task=$threads
 
 cd $rundir
 
@@ -282,6 +282,7 @@ export I_MPI_PIN_DOMAIN=omp
 export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
 export OASIS_OMP_NUM_THREADS=$threads
+export OMP_NUM_THREADS=$threads
 
 time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 
 EOF
@@ -343,7 +344,7 @@ elif [ ${arch} == kraken_intel_impi_openmp ]; then
 # Number of MPI tasks per node
 #SBATCH --ntasks-per-node=$mpiprocs
 # Number of OpenMP threads per MPI task
-#SBATCH --cpus-per-task=36
+#SBATCH --cpus-per-task=$threads
 
 cd $rundir
 module purge
