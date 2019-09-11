@@ -1914,11 +1914,14 @@ contains
        if (conserv == ip_cglobal) then
           if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cglobal')
           if (wts_sumd == 0.0_ip_r8_p) then
-              WRITE(nulprt,*) subname,estr,'global conserve sums to zero '
+              WRITE(nulprt,*) subname,estr,'global masked area sums to zero '
               call oasis_abort(file=__FILE__,line=__LINE__)
           endif
           do m = 1,fsize
              zlagr = (av_sumd(m) - av_sums(m)) / wts_sumd
+             if (OASIS_debug >= 20) then
+                write(nulprt,'(2a,g16.9,i5)') subname,' DEBUG conserve global +zlagr ',-zlagr,m
+             endif
              do n = 1,lsized
                 if (imaskd(n) == 0) avd%rAttr(m,n) = avd%rAttr(m,n) - zlagr
              enddo
@@ -1928,10 +1931,20 @@ contains
           if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cglbpos')
           do m = 1,fsize
              if (av_sumd(m) == 0.0_ip_r8_p .and. av_sums(m) /= 0.0_ip_r8_p) then
-                 WRITE(nulprt,*) subname,estr,'cglpos conserve one of the sums is zero'
+                 WRITE(nulprt,*) subname,estr,'glbpos sumdst is zero but sumsrc is not'
                  call oasis_abort(file=__FILE__,line=__LINE__)
-             elseif (av_sumd(m) /= 0.0_ip_r8_p) then
-                zlagr = av_sums(m) / av_sumd(m)
+             else
+                if (av_sumd(m) /= 0.0_ip_r8_p) then
+                   zlagr = av_sums(m) / av_sumd(m)
+                else
+                   zlagr = 1.0_ip_r8_p
+                   if (OASIS_debug >= 20) then
+                      write(nulprt,'(2a)') subname,' DEBUG conserve glbpos sumdst is zero, set zlagr to 1'
+                   endif
+                endif
+                if (OASIS_debug >= 20) then
+                   write(nulprt,'(2a,g16.9,i5)') subname,' DEBUG conserve glbpos *zlagr ',zlagr,m
+                endif
                 do n = 1,lsized
                    if (imaskd(n) == 0) avd%rAttr(m,n) = avd%rAttr(m,n) * zlagr
                 enddo
@@ -1941,11 +1954,14 @@ contains
        elseif (conserv == ip_cbasbal) then
           if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cbasbal')
           if (wts_sumd == 0.0_ip_r8_p .or. wts_sums == 0.0_ip_r8_p) then
-              WRITE(nulprt,*) subname,estr,'cbasbal conserve both sums are zero'
+              WRITE(nulprt,*) subname,estr,'basbal sum or dst area are zero'
               call oasis_abort(file=__FILE__,line=__LINE__)
           endif
           do m = 1,fsize
              zlagr = (av_sumd(m) - (av_sums(m)*(wts_sumd/wts_sums))) / wts_sumd
+             if (OASIS_debug >= 20) then
+                write(nulprt,'(2a,g16.9,i5)') subname,' DEBUG conserve basbal +zlagr ',-zlagr,m
+             endif
              do n = 1,lsized
                 if (imaskd(n) == 0) avd%rAttr(m,n) = avd%rAttr(m,n) - zlagr
              enddo
@@ -1955,10 +1971,23 @@ contains
           if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cbaspos')
           do m = 1,fsize
              if (av_sumd(m) == 0.0_ip_r8_p .and. av_sums(m) /= 0.0_ip_r8_p) then
-                 WRITE(nulprt,*) subname,estr,'cbaspos conserve one of the sums is zero'
+                 WRITE(nulprt,*) subname,estr,'baspos sumdst is zero but sumsrc is not'
                  call oasis_abort(file=__FILE__,line=__LINE__)
-             elseif (av_sumd(m) /= 0.0_ip_r8_p) then
-                zlagr = (av_sums(m)/av_sumd(m)) * (wts_sumd/wts_sums)
+             elseif (wts_sumd == 0.0_ip_r8_p .or. wts_sums == 0.0_ip_r8_p) then
+                 WRITE(nulprt,*) subname,estr,'baspos sum or dst area are zero'
+                 call oasis_abort(file=__FILE__,line=__LINE__)
+             else
+                if (av_sumd(m) /= 0.0_ip_r8_p) then
+                   zlagr = (av_sums(m)/av_sumd(m)) * (wts_sumd/wts_sums)
+                else
+                   zlagr = 1.0_ip_r8_p
+                   if (OASIS_debug >= 20) then
+                      write(nulprt,'(2a)') subname,' DEBUG conserve baspos sumdst is zero, set zlagr to 1'
+                   endif
+                endif
+                if (OASIS_debug >= 20) then
+                   write(nulprt,'(2a,g16.9,i5)') subname,' DEBUG conserve baspos *zlagr ',zlagr,m
+                endif
                 do n = 1,lsized
                    if (imaskd(n) == 0) avd%rAttr(m,n) = avd%rAttr(m,n) * zlagr
                 enddo
