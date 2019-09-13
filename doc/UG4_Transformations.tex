@@ -539,26 +539,44 @@ noted with the string UNUSED and not described.
     \item with {\tt \$CMETH = GLOBAL}, the field is integrated on both
       source and target grids, without considering values of masked
       points, and the residual (target - source) is uniformly
-      distributed on the target grid; this option ensures global
+      distributed on the target grid as an additive term; this option ensures global
       conservation of the field;
-    \item with {\tt \$CMETH = GLBPOS}, the same operation is performed
+    \item with {\tt \$CMETH = GLBPOS}, the same operation as {\tt GLOBAL} is performed
       except that the residual is distributed proportionally to the
-      value of the original field; this option ensures the global
-      conservation of the field and does not change the sign of the
-      field;
+      value of the original field as a multiplicative term; this option ensures the 
+      global conservation of the field, and it does not change the sign of the
+      field if the field is well behaved;  if the field is well behaved, multiplication
+      factors close to 1 are expected.
+    \item with {\tt \$CMETH = GSSPOS}, the same operation as {\tt GLBPOS} is performed
+      except that the multiplicative term is computed separately for positive
+      and negative values of the field; this option ensures the 
+      global conservation of the field, it does not change the sign of the
+      field, but it is more expensive because many extra global sums are required; 
+      this should be used in cases where the area averaged field value tends to 0
+      as these cases can generate poor corrections, even leading
+      to changes of sign when carried out with the {\tt GLBPOS} option.
     \item with {\tt \$CMETH = BASBAL}, the operation is analogous to
-      {\tt GLOBAL} except that the non masked surface of the source
+      {\tt GLOBAL} as an additive term except the non masked surface of the source
       and the target grids are taken into account in the calculation
       of the residual; this option does not ensure global conservation
       of the field but ensures that the energy received is
       proportional to the non masked surface of the target grid;
-    \item with {\tt \$CMETH = BASPOS}, the non masked surface of the
+    \item with {\tt \$CMETH = BASPOS}, the operation is analgous to
+      {\tt GLBPOS} as a multiplicative term except the non masked surface of the
       source and the target grids are taken into account and the
       residual is distributed proportionally to the value of the
-      original field; therefore, this option does not ensure global
+      original field; this option does not ensure global
       conservation of the field but ensures that the energy received
       is proportional to the non masked surface of the target grid and
-      it does not change the sign of the field.
+      it does not change the sign of the field if the field is well behaved.
+    \item with {\tt \$CMETH = BSSPOS}, the same operation as {\tt BASPOS} is performed
+      except that the multiplicative term is computed separately for positive
+      and negative values of the field; this option has the same characteristics
+      as {\tt BASPOS} except it does not change the sign of the field, but is
+      more expensive because many extra global sums are required; 
+      this should be used in cases where the area averaged field value tends to 0
+      as these cases can generate poor corrections, even leading
+      to changes of sign when carried out with the {\tt BASPOS} option.
     \end{itemize}
   \item {\tt \$CONSOPT} is an optional argument specifying the
     algorithm.  {\tt \$CONSOPT} can be {\tt bfb}, {\tt gather}, {\tt lsum16}, {\tt lsum8},
