@@ -151,7 +151,7 @@ CONTAINS
   character(len=ic_lvar):: gridname
   character(len=ic_long):: tmp_mapfile
   integer(kind=ip_i4_p) :: flag
-  logical               :: found, exists, found2
+  LOGICAL               :: found, exists, found2, ll_exist
   integer(kind=ip_i4_p) :: mynvar
   integer(kind=ip_i4_p) :: nwgts, arrlen
   character(len=ic_lvar):: tmpfld
@@ -1060,15 +1060,33 @@ CONTAINS
 
                  tmp_mapfile = nammapfil(nn)
 
-                 if (trim(tmp_mapfile) == 'idmap' .and. trim(namscrmet(nn)) /= trim(cspval)) then
+                 IF (TRIM(tmp_mapfile) == 'idmap' .AND. TRIM(namscrmet(nn)) /= TRIM(cspval)) THEN
                     if (trim(namscrmet(nn)) == 'CONSERV') then
                        tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
-                                     &'_'//trim(namscrmet(nn))//'_'//trim(namscrnor(nn))//'.nc'
+                          &'_'//TRIM(namscrmet(nn))//'_'//TRIM(namscrnor(nn))//'.nc'
+                       if (namscrnor(nn)(7:8) == 'TR') then
+                           inquire(file='areas.nc',exist=ll_exist)
+                           if (.not. ll_exist) then
+                               WRITE(nulprt,*) subname,estr,' for normalization option of conservative remapping (TR)'
+                               write(nulprt,*) '==> Missing file areas.nc needed for ',&
+                          & trim(namscrnor(nn)),' normalization'
+                            call oasis_abort(file=__FILE__,line=__LINE__)
+                            end if
+                       end if
                     else
                        tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
                                      &'_'//trim(namscrmet(nn))//'.nc'
                     endif
-                 endif
+                ENDIF
+                IF (namfldcon(nn) /= ip_cnone) THEN
+                    INQUIRE(file='areas.nc',exist=ll_exist)
+                    IF (.NOT. ll_exist) THEN
+                        WRITE(nulprt,*) subname,estr,' for post-processing option CONSERV'
+                        WRITE(nulprt,*) '==> Missing file areas.nc needed for post-processing CONSERV'
+                        CALL oasis_abort(file=__FILE__,line=__LINE__)
+                    END IF
+                ENDIF
+                
 
                  if (trim(tmp_mapfile) /= 'idmap') then
                     pcpointer%maploc = trim(nammaploc(nn))
@@ -1651,24 +1669,34 @@ CONTAINS
            dpart = prism_mapper(mapID)%dpart
 
            lsize = mct_gsmap_lsize(prism_part(spart)%gsmap,mpi_comm_local)
-           call mct_avect_init(prism_mapper(mapID)%av_ms,iList='mask',rList='area',lsize=lsize)
+           call mct_avect_init(prism_mapper(mapID)%av_ms,iList='mask',rList='area:frac',lsize=lsize)
            call mct_avect_zero(prism_mapper(mapID)%av_ms)
 !           gridname = prism_part(spart)%gridname
-           gridname=prism_mapper(mapID)%srcgrid
-           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
-              prism_part(spart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
+           gridname=trim(prism_mapper(mapID)%srcgrid)
            call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_ms, &
               prism_part(spart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           gridname=trim(prism_mapper(mapID)%srcgrid)//'_with_'//trim(prism_mapper(mapID)%dstgrid)
+           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
+              prism_part(spart)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real',dfltreal=1._ip_double_p)
+           if (.not. oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) &
+              gridname=trim(prism_mapper(mapID)%srcgrid)
+           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
+              prism_part(spart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
 
            lsize = mct_gsmap_lsize(prism_part(dpart)%gsmap,mpi_comm_local)
-           call mct_avect_init(prism_mapper(mapID)%av_md,iList='mask',rList='area',lsize=lsize)
+           call mct_avect_init(prism_mapper(mapID)%av_md,iList='mask',rList='area:frac',lsize=lsize)
            call mct_avect_zero(prism_mapper(mapID)%av_md)
 !           gridname = prism_part(dpart)%gridname
-           gridname=prism_mapper(mapID)%dstgrid
-           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
-              prism_part(dpart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
+           gridname=trim(prism_mapper(mapID)%dstgrid)
            call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_md, &
               prism_part(dpart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           gridname=trim(prism_mapper(mapID)%dstgrid)//'_with_'//trim(prism_mapper(mapID)%srcgrid)
+           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
+              prism_part(dpart)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real',dfltreal=1._ip_double_p)
+           if (.not. oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) &
+              gridname=trim(prism_mapper(mapID)%dstgrid)
+           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
+              prism_part(dpart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
 
            prism_mapper(mapID)%AVred = .true.
 

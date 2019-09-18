@@ -68,7 +68,9 @@
       integer (kind=int_kind), parameter :: norm_opt_none    = 1,  &
                                             norm_opt_dstarea = 2,  &
                                             norm_opt_frcarea = 3,  &
-                                            norm_opt_nonorm  = 4
+                                            norm_opt_dstartr = 4,  &
+                                            norm_opt_frcartr = 5,  &
+                                            norm_opt_nonorm  = 6
 
       integer (kind=int_kind), parameter :: map_type_conserv  = 1, &
                                             map_type_bilinear = 2, &

@@ -175,22 +175,36 @@
         stop 'unknown mapping method'
       end select
       
-      SELECT CASE (normalize_opt)
-      CASE ('FRACNNEI')
-        lfracnnei = .true.
-      END SELECT
-         
+      if (normalize_opt(1:6) == 'FRACNN') lfracnnei = .true.
+      
       select case(normalize_opt(1:4))
       case ('NONE')
-        norm_opt = norm_opt_none
+         norm_opt = norm_opt_none
       case ('FRAC')
-        norm_opt = norm_opt_frcarea
+         if (normalize_opt(7:8) == 'TR') then
+            norm_opt = norm_opt_frcartr
+         else
+            norm_opt = norm_opt_frcarea
+         end if
       case ('DEST')
-        norm_opt = norm_opt_dstarea
-      CASE ('NONO')
-        norm_opt = norm_opt_nonorm
+         if (normalize_opt(7:8) == 'TR') then
+            norm_opt = norm_opt_dstartr
+         else
+            norm_opt = norm_opt_dstarea
+         end if
+      case ('NONO')
+         norm_opt = norm_opt_nonorm
       case default
-        stop 'unknown normalization option'
+         stop 'unknown normalization option'
+      end select
+
+      select case(normalize_opt(7:8))
+      case ('TR')
+         luse_grid1_area = .true.
+         luse_grid2_area = .true.
+      case default
+         luse_grid1_area = .false.
+         luse_grid2_area = .false.
       end select
 !
       IF (nlogprt .GE. 2) THEN
