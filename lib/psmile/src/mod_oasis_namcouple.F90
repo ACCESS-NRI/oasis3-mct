@@ -568,8 +568,10 @@ SUBROUTINE oasis_namcouple_init()
               namfldcoo(jf) = trim(cconopt(ig_number_field(jf)))
               IF (cconmet(ig_number_field(jf)) .EQ. 'GLOBAL') namfldcon(jf) = ip_cglobal
               IF (cconmet(ig_number_field(jf)) .EQ. 'GLBPOS') namfldcon(jf) = ip_cglbpos
+              IF (cconmet(ig_number_field(jf)) .EQ. 'GSSPOS') namfldcon(jf) = ip_cgsspos
               IF (cconmet(ig_number_field(jf)) .EQ. 'BASBAL') namfldcon(jf) = ip_cbasbal
               IF (cconmet(ig_number_field(jf)) .EQ. 'BASPOS') namfldcon(jf) = ip_cbaspos
+              IF (cconmet(ig_number_field(jf)) .EQ. 'BSSPOS') namfldcon(jf) = ip_cbsspos
               IF (namfldcon(jf) .EQ. ip_cnone) THEN
                  WRITE(tmpstr1,*) subname,jf,'WARNING: CONSERV option not supported: '//&
                                   &TRIM(cconmet(ig_number_field(jf)))
