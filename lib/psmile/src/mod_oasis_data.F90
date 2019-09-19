@@ -68,6 +68,7 @@ MODULE mod_oasis_data
   integer(ip_i4_p) ,parameter :: ispval = -999999
 
   real(ip_double_p),parameter :: prism_pi = 3.14159265358979323846
+  real(ip_double_p),parameter :: eradius = 6371229.    ! meters
 
 !------------------------------------------------------------
 CONTAINS

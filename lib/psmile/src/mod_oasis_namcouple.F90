@@ -113,7 +113,6 @@ MODULE mod_oasis_namcouple
   CHARACTER(len=4), PARAMETER :: crnlonsuf = '.clo'
   CHARACTER(len=4), PARAMETER :: crnlatsuf = '.cla'
   CHARACTER(len=4), PARAMETER :: cmsksuf = '.msk'
-  CHARACTER(len=6), PARAMETER :: cmskint = '_with_'
   CHARACTER(len=4), PARAMETER :: csursuf = '.srf'
   CHARACTER(len=4), PARAMETER :: cfrcsuf = '.frc'
   CHARACTER(len=4), PARAMETER :: cangsuf = '.ang'
@@ -2341,7 +2340,7 @@ SUBROUTINE inipar
               IF (cmap_method(ig_number_field(jf)) .EQ. 'CONSERV') THEN
                  CALL parse(clline, clvari, 6, jpeighty, ilen, __LINE__)
                  READ(clvari, FMT=2009)cnorm_opt(ig_number_field(jf))
-                 if (cnorm_opt(ig_number_field(jf)) .ne. 'FRACAREA' .and. &
+                 IF (cnorm_opt(ig_number_field(jf)) .NE. 'FRACAREA' .and. &
                      cnorm_opt(ig_number_field(jf)) .NE. 'DESTAREA' .AND.  &
                      cnorm_opt(ig_number_field(jf)) .NE. 'FRACNNEI' .AND. &
                      cnorm_opt(ig_number_field(jf)) .NE. 'FRACARTR' .AND. &
@@ -2353,7 +2352,7 @@ SUBROUTINE inipar
                     CALL prtout('ERROR in namcouple for normalize option of field',jf,1)
                     write(tmpstr1, *) '==> must be FRACAREA, DESTAREA, FRACNNEI, FRACARTR, DESTARTR, or FRACNNTR'
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
-                 endif
+                 ENDIF
 !* Get order of remapping for CONSERV
                  CALL parse(clline, clvari, 7, jpeighty, ilen, __LINE__)
                  IF (ilen .LE. 0) THEN
@@ -2628,20 +2627,14 @@ SUBROUTINE inipar
               WRITE(nulprt1, FMT=3008) &
                  cficbf(ig_number_field(jf))(1:ifcb)//cglonsuf,  &
                  cficbf(ig_number_field(jf))(1:ifcb)//cglatsuf, &
-                 cficbf(ig_number_field(jf))(1:ifcb)//cmskint//cficaf(ig_number_field(jf))&
-                 (1:ifca)//cmsksuf,  &
                  cficbf(ig_number_field(jf))(1:ifcb)//cmsksuf,  &
                  cficbf(ig_number_field(jf))(1:ifcb)//csursuf, &
-                 cficbf(ig_number_field(jf))(1:ifcb)//cmskint//cficaf(ig_number_field(jf))&
-                 (1:ifca)//cfrcsuf,  &
+                 cficbf(ig_number_field(jf))(1:ifcb)//cfrcsuf,  &
                  cficaf(ig_number_field(jf))(1:ifca)//cglonsuf,  &
                  cficaf(ig_number_field(jf))(1:ifca)//cglatsuf, &
-                 cficaf(ig_number_field(jf))(1:ifca)//cmskint//cficbf(ig_number_field(jf))&
-                 (1:ifcb)//cmsksuf,  &
                  cficaf(ig_number_field(jf))(1:ifca)//cmsksuf,  &
                  cficaf(ig_number_field(jf))(1:ifca)//csursuf,  &
-                 cficaf(ig_number_field(jf))(1:ifca)//cmskint//cficbf(ig_number_field(jf))&
-                 (1:ifcb)//cfrcsuf
+                 cficaf(ig_number_field(jf))(1:ifca)//cfrcsuf
               WRITE(nulprt1, FMT=3009) 
               WRITE(nulprt1, FMT=3010)
               DO ja = 1, ig_ntrans(ig_number_field(jf))
@@ -2753,14 +2746,14 @@ SUBROUTINE inipar
              /,10X,'  Number of overlapped grid points is  = ',I2,/)
  3008 FORMAT(/,10X,'  Source longitude file string    = ',A8, &
              /,10X,'  Source latitude file string     = ',A8, &
-             /,10X,'  Source mask file string         = ',A18,' or ',A8, &
+             /,10X,'  Source mask file string         = ',A8, &
              /,10X,'  Source surface file string      = ',A8, &
-             /,10X,'  Source surf frac.s file string  = ',A18, &
+             /,10X,'  Source surf frac.s file string  = ',A8, &
              /,10X,'  Target longitude file string    = ',A8, &
              /,10X,'  Target latitude file string     = ',A8, &
-             /,10X,'  Target mask file string         = ',A18,' or ',A8, &
+             /,10X,'  Target mask file string         = ',A8, &
              /,10X,'  Target surface file string      = ',A8, &
-             /,10X,'  Target surf frac.s file string  = ',A18,/)
+             /,10X,'  Target surf frac.s file string  = ',A8,/)
  3009 FORMAT(/,10X,'  ANALYSIS PARAMETERS ')
  3010 FORMAT(10X,'  ******************* ',/)
  3011 FORMAT(/,5X,'  ANALYSIS number ',I2,' is ',A8, &

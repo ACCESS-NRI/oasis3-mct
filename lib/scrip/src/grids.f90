@@ -155,8 +155,8 @@
                            src_lat,  src_lon,  dst_lat,  dst_lon,   &
                            src_corner_lat, src_corner_lon,          &
                            dst_corner_lat, dst_corner_lon,          &
-                           lstore_src_area, src_area_true,          &
-                           lstore_dst_area, dst_area_true,          &
+                           lstore_src_area, src_area,               &
+                           lstore_dst_area, dst_area,               &
                            ilogunit, ilogprt)
 
 !-----------------------------------------------------------------------
@@ -203,8 +203,8 @@
                                             src_corner_lon(ncrn_src,src_size), &
                                             dst_corner_lat(ncrn_dst,dst_size), &
                                             dst_corner_lon(ncrn_dst,dst_size), & 
-                                            src_area_true(src_size), & ! true source grid areas
-                                            dst_area_true(dst_size)    ! true target grid areas
+                                            src_area(src_size),& ! true source grid areas
+                                            dst_area(dst_size)   ! true target grid areas
 
 !-----------------------------------------------------------------------
 !
@@ -336,10 +336,10 @@
       endif
 
       if (lstore_grid1_area) then
-        grid1_area_in = src_area_true
+        grid1_area_in = src_area
       endif
       if (lstore_grid2_area) then
-        grid2_area_in = dst_area_true
+        grid2_area_in = dst_area
       endif
 
       grid1_area = zero

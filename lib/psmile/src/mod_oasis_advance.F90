@@ -1664,7 +1664,7 @@ contains
     character(len=*)       ,intent(in),optional :: tstrinp  !< timer label string
 
     integer(kind=ip_i4_p)  :: fsize,lsizes,lsized,nf,ni,n,m,k,ierr
-    real(kind=ip_r8_p)     :: sumtmp, wts_sums, wts_sumd, zlagr
+    real(kind=ip_r8_p)     :: sumtmp, wts_sums, wts_sumd, zradi, zlagr
     real(kind=ip_r8_p)     :: wts_sums1(1), wts_sumd1(1)
     integer(kind=ip_i4_p),allocatable :: imasks(:),imaskd(:)
     real(kind=ip_r8_p),allocatable :: areas(:),aread(:)
@@ -1840,6 +1840,8 @@ contains
        fsize = mct_avect_nRattr(av1)
        allocate(av_sums(fsize),av_sumd(fsize))
 
+       zradi = 1./(eradius*eradius)
+
        !-------------------
        ! extract mask and area and compute sum of masked area for source
        !-------------------
@@ -1848,7 +1850,7 @@ contains
        nf = mct_aVect_indexIA(mapper%av_ms,'mask')
        imasks(:) = mapper%av_ms%iAttr(nf,:)
        nf = mct_aVect_indexRA(mapper%av_ms,'area')
-       areas(:) = mapper%av_ms%rAttr(nf,:)
+       areas(:) = mapper%av_ms%rAttr(nf,:)*zradi
        nf = mct_aVect_indexRA(mapper%av_ms,'frac')
        areas(:) = areas(:)*mapper%av_ms%rAttr(nf,:)
 
@@ -1875,7 +1877,7 @@ contains
        nf = mct_aVect_indexIA(mapper%av_md,'mask')
        imaskd(:) = mapper%av_md%iAttr(nf,:)
        nf = mct_aVect_indexRA(mapper%av_md,'area')
-       aread(:) = mapper%av_md%rAttr(nf,:)
+       aread(:) = mapper%av_md%rAttr(nf,:)*zradi
        nf = mct_aVect_indexRA(mapper%av_md,'frac')
        aread(:) = aread(:)*mapper%av_md%rAttr(nf,:)
 

@@ -1691,6 +1691,11 @@ contains
          case (norm_opt_dstarea)
             if (grid2_area(grid2_add) /= zero) then
                if (luse_grid2_area) then
+                  if (.not. lstore_grid2_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_dstarea failed with missing grid2_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
                   norm_factor = one/grid2_area_in(grid2_add)
                else
                   norm_factor = one/grid2_area(grid2_add)
@@ -1701,6 +1706,11 @@ contains
          case (norm_opt_frcarea)
             if (grid2_frac(grid2_add) /= zero) then
                if (luse_grid2_area) then
+                  if (.not. lstore_grid2_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_frcarea failed with missing grid2_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
                   norm_factor = grid2_area(grid2_add)/ &
                      (grid2_frac(grid2_add)*grid2_area_in(grid2_add))
                else
@@ -1714,11 +1724,21 @@ contains
                norm_factor = one/grid2_area(grid2_add)
                if (grid1_add .ne. grid1_np .and. grid1_add .ne. grid1_sp  &
                    .and. grid1_area(grid1_add) /= zero) then
+                  if (.not. lstore_grid1_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_dstartr failed with missing grid1_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
                   norm_correc = grid1_area_in(grid1_add)/grid1_area(grid1_add)
                   if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
                       norm_factor = norm_factor * norm_correc
                end if
                if (grid2_add .ne. grid2_np .and. grid2_add .ne. grid2_sp) then
+                  if (.not. lstore_grid2_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_dstartr failed with missing grid2_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
                   norm_correc = grid2_area(grid2_add)/grid2_area_in(grid2_add)
                   if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
                       norm_factor = norm_factor * norm_correc
@@ -1731,11 +1751,21 @@ contains
                norm_factor = one/grid2_frac(grid2_add)
                if (grid1_add .ne. grid1_np .and. grid1_add .ne. grid1_sp  &
                    .and. grid1_area(grid1_add) /= zero) then
+                  if (.not. lstore_grid1_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_frcartr failed with missing grid1_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
                   norm_correc = grid1_area_in(grid1_add)/grid1_area(grid1_add)
                   if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
                       norm_factor = norm_factor * norm_correc
                end if
                if (grid2_add .ne. grid2_np .and. grid2_add .ne. grid2_sp) then
+                  if (.not. lstore_grid2_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_frcartr failed with missing grid2_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
                   norm_correc = grid2_area(grid2_add)/grid2_area_in(grid2_add)
                   if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
                       norm_factor = norm_factor * norm_correc
@@ -1873,6 +1903,11 @@ contains
             norm_factor = one
          case (norm_opt_none)
             if (luse_grid2_area) then
+               if (.not. lstore_grid2_area) then
+                  write(nulou,*) 'ERROR: remap_conserv norm_opt_none failed with missing grid2_area_in'
+                  call OASIS_FLUSH_SCRIP(nulou)
+                  stop
+               endif
                norm_factor = grid2_area_in(n)
             else
                norm_factor = grid2_area(n)

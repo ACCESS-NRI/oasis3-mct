@@ -90,12 +90,12 @@ CONTAINS
   integer(ip_i4_p)              :: src_size,src_rank, ncrn_src
   integer(ip_i4_p) ,allocatable :: src_dims(:),src_mask(:)
   real(ip_double_p),allocatable :: src_lon(:),src_lat(:)
-  real(ip_double_p),allocatable :: src_area_true(:)
+  real(ip_double_p),allocatable :: src_area(:)
   real(ip_double_p),allocatable :: src_corner_lon(:,:),src_corner_lat(:,:)
   integer(ip_i4_p)              :: dst_size,dst_rank, ncrn_dst
   integer(ip_i4_p) ,allocatable :: dst_dims(:),dst_mask(:)
   real(ip_double_p),allocatable :: dst_lon(:),dst_lat(:)
-  real(ip_double_p),allocatable :: dst_area_true(:)
+  real(ip_double_p),allocatable :: dst_area(:)
   real(ip_double_p),allocatable :: dst_corner_lon(:,:),dst_corner_lat(:,:)
   integer(ip_i4_p) ,allocatable :: ifld2(:,:)
   real(ip_double_p),allocatable :: fld2(:,:),fld3(:,:,:)
@@ -148,15 +148,13 @@ CONTAINS
   allocate(src_mask(src_size))
   allocate(src_lon (src_size))
   allocate(src_lat (src_size))
-  allocate(src_area_true (src_size))
+  allocate(src_area (src_size))
   allocate(src_corner_lon(ncrn_src,src_size))
   allocate(src_corner_lat(ncrn_src,src_size))
 
-  allocate(ifld2(nx,ny))
   filename = 'masks.nc'
-  fldname = trim(namsrcgrd(namID))//'_with_'//trim(namdstgrd(namID))//'.msk'
-  if (.NOT. oasis_io_varexists(filename,fldname)) &
-     fldname = trim(namsrcgrd(namID))//'.msk'
+  fldname = trim(namsrcgrd(namID))//'.msk'
+  allocate(ifld2(nx,ny))
   call oasis_io_read_field_fromroot(filename,fldname,ifld2=ifld2)
   icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
      src_mask(icnt) = ifld2(i,j)
@@ -166,6 +164,22 @@ CONTAINS
   deallocate(ifld2)
 
   allocate(fld2(nx,ny))
+
+  filename = 'areas.nc'
+  fldname = trim(namsrcgrd(namID))//'.srf'
+  if (oasis_io_varexists(filename,fldname)) then
+     ll_src_area_in = .true.
+     call oasis_io_read_field_fromroot(filename,fldname,fld2=fld2)
+     icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
+        src_area(icnt) = fld2(i,j)
+     enddo; enddo
+     if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
+         minval(src_area),maxval(src_area)
+  else
+     ll_src_area_in = .false.
+     src_area = -9999.
+  endif
+
   filename = 'grids.nc'
   fldname = trim(namsrcgrd(namID))//'.lon'
   call oasis_io_read_field_fromroot(filename,fldname,fld2=fld2)
@@ -174,6 +188,7 @@ CONTAINS
   enddo; enddo
   if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
      minval(src_lon),maxval(src_lon)
+
   fldname = trim(namsrcgrd(namID))//'.lat'
   call oasis_io_read_field_fromroot(filename,fldname,fld2=fld2)
   icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
@@ -181,6 +196,7 @@ CONTAINS
   enddo; enddo
   if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
      minval(src_lat),maxval(src_lat)
+
   deallocate(fld2)
 
   if (do_corners) then
@@ -210,24 +226,6 @@ CONTAINS
      src_corner_lat = -9999.
   endif
 
-  if (trim(namscrmet(namID)) == 'CONSERV' .and. &
-     & namscrnor(namID)(7:8) == 'TR') then
-     allocate(fld2(nx,ny))
-     filename = 'areas.nc'
-     fldname = trim(namsrcgrd(namID))//'.srf'
-     call oasis_io_read_field_fromroot(filename,fldname,fld2=fld2)
-     icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
-     src_area_true(icnt) = fld2(i,j)
-     enddo; enddo
-     if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
-         minval(src_area_true),maxval(src_area_true)
-     deallocate(fld2)
-     ll_src_area_in = .true.
-  else
-     ll_src_area_in = .false.
-     src_area_true = -9999.
-  end if
-  
   !--- dst data ---
 
   filename = 'grids.nc'
@@ -248,15 +246,13 @@ CONTAINS
   allocate(dst_mask(dst_size))
   allocate(dst_lon (dst_size))
   allocate(dst_lat (dst_size))
-  allocate(dst_area_true (dst_size))
+  allocate(dst_area (dst_size))
   allocate(dst_corner_lon(ncrn_dst,dst_size))
   allocate(dst_corner_lat(ncrn_dst,dst_size))
 
-  allocate(ifld2(nx,ny))
   filename = 'masks.nc'
-  fldname = trim(namdstgrd(namID))//'_with_'//trim(namsrcgrd(namID))//'.msk'
-  if (.NOT. oasis_io_varexists(filename,fldname)) &
-     fldname = trim(namdstgrd(namID))//'.msk'
+  fldname = trim(namdstgrd(namID))//'.msk'
+  allocate(ifld2(nx,ny))
   call oasis_io_read_field_fromroot(filename,fldname,ifld2=ifld2)
   icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
      dst_mask(icnt) = ifld2(i,j)
@@ -266,6 +262,22 @@ CONTAINS
   deallocate(ifld2)
 
   allocate(fld2(nx,ny))
+
+  filename = 'areas.nc'
+  fldname = trim(namdstgrd(namID))//'.srf'
+  if (oasis_io_varexists(filename,fldname)) then
+     ll_dst_area_in = .true.
+     call oasis_io_read_field_fromroot(filename,fldname,fld2=fld2)
+     icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
+        dst_area(icnt) = fld2(i,j)
+     enddo; enddo
+     if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
+         minval(dst_area),maxval(dst_area)
+  else
+     ll_dst_area_in = .false.
+     dst_area = -9999.
+  endif
+
   filename = 'grids.nc'
   fldname = trim(namdstgrd(namID))//'.lon'
   call oasis_io_read_field_fromroot(filename,fldname,fld2=fld2)
@@ -274,6 +286,7 @@ CONTAINS
   enddo; enddo
   if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
      minval(dst_lon),maxval(dst_lon)
+
   fldname = trim(namdstgrd(namID))//'.lat'
   call oasis_io_read_field_fromroot(filename,fldname,fld2=fld2)
   icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
@@ -281,6 +294,7 @@ CONTAINS
   enddo; enddo
   if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
      minval(dst_lat),maxval(dst_lat)
+
   deallocate(fld2)
 
   if (do_corners) then
@@ -310,24 +324,6 @@ CONTAINS
      dst_corner_lat = -9999.
   endif
 
-  if (trim(namscrmet(namID)) == 'CONSERV' .and. &
-     & namscrnor(namID)(7:8) == 'TR') then
-     allocate(fld2(nx,ny))
-     filename = 'areas.nc'
-     fldname = trim(namdstgrd(namID))//'.srf'
-     call oasis_io_read_field_fromroot(filename,fldname,fld2=fld2)
-     icnt = 0; do j = 1,ny; do i = 1,nx; icnt = icnt + 1
-     dst_area_true(icnt) = fld2(i,j)
-     enddo; enddo
-     if (OASIS_debug >= 15) write(nulprt,*) subname,' read ',trim(filename),' ',trim(fldname), &
-         minval(dst_area_true),maxval(dst_area_true)
-     deallocate(fld2)
-     ll_dst_area_in = .true.
-  else
-     ll_dst_area_in = .false.
-     dst_area_true = -9999.
-  end if
-  
   IF (OASIS_debug >= 15) THEN
       WRITE(nulprt,*) subname,' call grid_init '
       CALL oasis_flush(nulprt)
@@ -343,8 +339,8 @@ CONTAINS
        src_lat,  src_lon,  dst_lat,  dst_lon, &
        src_corner_lat, src_corner_lon, &
        dst_corner_lat, dst_corner_lon, &
-       ll_src_area_in, src_area_true,  &
-       ll_dst_area_in, dst_area_true,  &
+       ll_src_area_in, src_area,  &
+       ll_dst_area_in, dst_area,  &
        ilogunit=nulprt,ilogprt=OASIS_debug)
   if (OASIS_debug >= 15) then
       WRITE(nulprt,*) subname,' done grid_init '
@@ -369,13 +365,13 @@ CONTAINS
   deallocate(src_mask)
   deallocate(src_lon)
   deallocate(src_lat)
-  deallocate(src_area_true)
+  deallocate(src_area)
   deallocate(src_corner_lon)
   deallocate(src_corner_lat)
   deallocate(dst_mask)
   deallocate(dst_lon)
   deallocate(dst_lat)
-  deallocate(dst_area_true)
+  deallocate(dst_area)
   deallocate(dst_corner_lon)
   deallocate(dst_corner_lat)
 
