@@ -135,10 +135,10 @@ noted with the string UNUSED and not described.
     section \ref{subsec_mapdata}). As for the other transformations
     and interpolations, different mappings can be specified for the
     different coupling fields.
-  In this case grids.nc, masks.nc and areas.nc
+  In this case {\it grids.nc}, {\it masks.nc}, and {\it areas.nc}
   files are not needed, except if the post-procession global option
   CONSERV is specified in the namcouple. Then the user must provides the
-  areas.nc file.
+  {\it areas.nc} and {\it masks.nc} files.
  
   Since OASIS3-MCT\_2.0, {\tt MAPPING} can be used for higher order
   remapping. Up to 5 different sets of weights (see section
@@ -520,12 +520,14 @@ noted with the string UNUSED and not described.
 
 \item {\bf CONSERV}:
 
-  {\tt CONSERV} performs a global modification of the coupling field.
+  {\tt CONSERV} performs a global modification of the coupling field such
+  that the area integrated fields are conserved.
+  This option is often used when conservation is desired between mapped fields
+  but non conservative interpolation (i.e. bilinear) is carried out.
   This analysis requires the source and target grid mesh areas to be
-  defined in the {\it areas.nc} file or transferred to the coupler with {\tt oasis\_write\_area} (see section
-  \ref{subsubsec_griddef}). {\bf For a correct CONSERV operation,
-    overlapping grid cells on the source grid or on the target grid
-    must be masked.} In the {\it namcouple}, {\tt CONSERV} requires
+  defined in the {\it areas.nc} file.  The areas can be writtent by OASIS method {\tt oasis\_write\_area} (see section
+  \ref{subsubsec_griddef}). The areas should consist of matching units
+  on the source and destination side. {\bf For a correct CONSERV operation, overlapping grid cells on the source grid or on the target grid must be masked.} In the {\it namcouple}, {\tt CONSERV} requires
   one input line with one argument and one optional argument:
 
  \begin{verbatim}

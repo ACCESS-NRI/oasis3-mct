@@ -36,7 +36,7 @@ MODULE mod_oasis_grid
 !             grid cell corners.  part_id is optional and indicates decomposed data 
 !             is provided
 !
-!      subroutine oasis_write_mask(cgrid, nx, ny, mask, part_id)
+!      subroutine oasis_write_mask(cgrid, nx, ny, mask, part_id, companion)
 !             This subroutine writes the mask for a model grid.  part_id is optional 
 !             and indicates decomposed data is provided
 !
@@ -44,7 +44,7 @@ MODULE mod_oasis_grid
 !             This subroutine writes the grid cell areas for a model grid.  part_id 
 !             is optional and indicates decomposed data is provided
 !
-!      subroutine oasis_write_frac(cgrid, nx, ny, frac, part_id)
+!      subroutine oasis_write_frac(cgrid, nx, ny, frac, part_id, companion)
 !             This subroutine writes the grid cell fracs for a model grid.  part_id 
 !             is optional and indicates decomposed data is provided
 !
@@ -141,6 +141,8 @@ MODULE mod_oasis_grid
      logical                :: mask_set   !< flag to track user calls for mask
      logical                :: written    !< flag to indicate grid has been written
      logical                :: terminated !< flag to indicate user grid calls complete
+     character(len=ic_med)  :: mask_companion   !< mask companion grid name
+     character(len=ic_med)  :: frac_companion   !< frac companion grid name
      real(kind=ip_realwp_p),allocatable :: lon(:,:)     !< user specified longitudes
      real(kind=ip_realwp_p),allocatable :: lat(:,:)     !< user specified latitudes
      real(kind=ip_realwp_p),allocatable :: clon(:,:,:)  !< user specified corner longitudes
@@ -185,7 +187,8 @@ CONTAINS
        write(nulprt,*) subname,trim(prism_grid(n)%gridname),' size',prism_grid(n)%nx,prism_grid(n)%ny
        write(nulprt,*) subname,trim(prism_grid(n)%gridname),' set ',prism_grid(n)%grid_set, &
                        prism_grid(n)%corner_set, prism_grid(n)%angle_set, prism_grid(n)%area_set, &
-                       prism_grid(n)%frac_set, prism_grid(n)%mask_set
+                       prism_grid(n)%frac_set, prism_grid(n)%mask_set, &
+                       trim(prism_grid(n)%mask_companion), ' ', trim(prism_grid(n)%frac_companion)
        if (prism_grid(n)%partid > 0 .and. prism_grid(n)%partid < prism_npart) then
           write(nulprt,*) subname,'partid ',trim(prism_grid(n)%gridname),prism_grid(n)%partid, &
                        trim(prism_part(prism_grid(n)%partid)%partname)
@@ -258,6 +261,8 @@ CONTAINS
        prism_grid(:)%written    = .false.
        prism_grid(:)%terminated = .false.
        prism_grid(:)%partid     = -1
+       prism_grid(:)%mask_companion = 'undefined'
+       prism_grid(:)%frac_companion = 'undefined'
     endif
     iwrite = 1   ! just set grids are needed always
     writing_grids_call=1
@@ -662,7 +667,7 @@ CONTAINS
 
 !> User interface to set integer mask values
 
-    SUBROUTINE oasis_write_mask(cgrid, nx, ny, mask, partid)
+    SUBROUTINE oasis_write_mask(cgrid, nx, ny, mask, partid, companion)
 
     !-------------------------------------------------
     ! Routine to create a new masks file or to add a land see mask to an
@@ -676,6 +681,7 @@ CONTAINS
     integer(kind=ip_intwp_p), intent (in) :: ny          !< global ny size
     integer(kind=ip_intwp_p), intent (in) :: mask(:,:)   !< mask array
     integer(kind=ip_intwp_p), intent (in),optional :: partid  !< partition id if nonglobal data
+    character(len=*)        , intent (in),optional :: companion !< companion grid name
     !-------------------------------------------------
     integer(kind=ip_intwp_p) :: GRIDID
     integer(kind=ip_intwp_p) :: ierror
@@ -701,6 +707,7 @@ CONTAINS
 
     prism_grid(gridID)%mask = mask
     prism_grid(gridID)%mask_set = .true.
+    if (present(companion)) prism_grid(gridID)%mask_companion = trim(companion)
     if (present(partid)) then
        if (prism_grid(gridID)%partid > 0 .and. prism_grid(gridID)%partid /= partid) then
           write(nulprt,*) subname,estr,'partid inconsistency',gridID,prism_grid(gridID)%partid,partid
@@ -837,7 +844,7 @@ CONTAINS
 !--------------------------------------------------------------------------
 !> User interface to set frac values for 8 byte reals
 
-    SUBROUTINE oasis_write_frac_r8(cgrid, nx, ny, frac, partid)
+    SUBROUTINE oasis_write_frac_r8(cgrid, nx, ny, frac, partid, companion)
 
     !-------------------------------------------------
     ! Routine to create a new fracs file or to add fracs of a grid to an
@@ -851,6 +858,7 @@ CONTAINS
     integer(kind=ip_intwp_p), intent (in) :: ny          !< global ny size
     real(kind=ip_double_p),   intent (in) :: frac(:,:)   !< fracs
     integer(kind=ip_intwp_p), intent (in),optional :: partid  !< partition id if nonglobal data
+    character(len=*)        , intent (in),optional :: companion !< companion grid name
     !-------------------------------------------------
     integer(kind=ip_intwp_p) :: GRIDID
     integer(kind=ip_intwp_p) :: ierror
@@ -876,6 +884,7 @@ CONTAINS
 
     prism_grid(gridID)%frac = frac
     prism_grid(gridID)%frac_set = .true.
+    if (present(companion)) prism_grid(gridID)%frac_companion = trim(companion)
     if (present(partid)) then
        if (prism_grid(gridID)%partid > 0 .and. prism_grid(gridID)%partid /= partid) then
           write(nulprt,*) subname,estr,'partid inconsistency',gridID,prism_grid(gridID)%partid,partid
@@ -896,7 +905,7 @@ CONTAINS
 
 !> User interface to set frac values for 4 byte reals
 
-    SUBROUTINE oasis_write_frac_r4(cgrid, nx, ny, frac, partid)
+    SUBROUTINE oasis_write_frac_r4(cgrid, nx, ny, frac, partid, companion)
 
     !-------------------------------------------------
     ! Routine to create a new fracs file or to add fracs of a grid to an
@@ -910,6 +919,7 @@ CONTAINS
     integer(kind=ip_intwp_p), intent (in) :: ny          !< global ny size
     real(kind=ip_single_p),   intent (in) :: frac(:,:)   !< fracs
     integer(kind=ip_intwp_p), intent (in),optional :: partid  !< partition id if nonglobal data
+    character(len=*)        , intent (in),optional :: companion !< companion grid name
     !-------------------------------------------------
     real(kind=ip_double_p), allocatable :: frac8(:,:)
     integer(kind=ip_intwp_p) :: ierror
@@ -941,7 +951,11 @@ CONTAINS
                                      mpi_rank_local,' WARNING frac8 alloc'
 
     frac8 = frac
-    call oasis_write_frac_r8(cgrid,nx,ny,frac8,partid=lpartid)
+    if (present(companion)) then
+       call oasis_write_frac_r8(cgrid,nx,ny,frac8,partid=lpartid,companion=trim(companion))
+    else
+       call oasis_write_frac_r8(cgrid,nx,ny,frac8,partid=lpartid)
+    endif
 
     deallocate(frac8)
 
@@ -1289,7 +1303,10 @@ CONTAINS
              else
                rglo = prism_grid(n)%frac
              endif
-             if (write_task) call oasis_io_write_2dgridfld_fromroot(filename,fldname,rglo,nx,ny)
+             if (write_task) then
+                call oasis_io_write_2dgridfld_fromroot(filename,fldname,rglo,nx,ny)
+                call oasis_io_write_fldattr(filename,fldname,'coherent_with_grid',trim(prism_grid(n)%frac_companion))
+             endif
            endif
          endif  ! frac_set
 
@@ -1350,7 +1367,10 @@ CONTAINS
              else
                iglo = prism_grid(n)%mask
              endif
-             if (write_task) call oasis_io_write_2dgridint_fromroot(filename,fldname,iglo,nx,ny)
+             if (write_task) then
+                call oasis_io_write_2dgridint_fromroot(filename,fldname,iglo,nx,ny)
+                call oasis_io_write_fldattr(filename,fldname,'coherent_with_grid',trim(prism_grid(n)%mask_companion))
+             endif
              deallocate(iglo)
            endif
          endif ! mask_set

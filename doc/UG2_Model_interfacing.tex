@@ -490,22 +490,24 @@ Must be called to start the grid writing process.
   needs to be called after {\tt oasis/prism\_write\_grid}.
 
   \vspace{0.2cm}
-\item {\tt CALL oasis\_write\_mask (cgrid, nx\_global, ny\_global, mask, il\_part\_id)}
-\item {\tt CALL prism\_write\_mask (cgrid, nx\_global, ny\_global, mask, il\_part\_id)}
+\item {\tt CALL oasis\_write\_mask (cgrid, nx\_global, ny\_global, mask, il\_part\_id), companion}
+\item {\tt CALL prism\_write\_mask (cgrid, nx\_global, ny\_global, mask, il\_part\_id), companion}
 
   \begin{itemize}
   \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
   \item {\tt mask [INTEGER, DIMENSION(nx,ny) ;IN]} : mask array covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition. (be careful about the OASIS historical convention (!): 0 = not masked (active), 1 = masked (not active))
+  \item {\tt companion [CHARACTER ;IN; OPTIONAL]} : the character string value associated with the mask field attribute ``coherent\_with\_grid''.  This will be written to the {\em masks.nc} netcdf file with the mask field.  It is purely informational and used in cases where the mask field is derived from or consistent with another grid.
   \end{itemize}
   Writes the component grid mask.  The mask field should be consistent with the frac field and will define the 0/1 mask of the grid cell.  The mask field is used by both the {\tt SCRIPR} map generation function and in the {\tt CONSERV} operations if defined.  The mask field is written to the {\em masks.nc} file.
 
   \vspace{0.2cm}
-\item {\tt CALL oasis\_write\_frac (cgrid, nx\_global, ny\_global, frac, il\_part\_id)}
-\item {\tt CALL prism\_write\_frac (cgrid, nx\_global, ny\_global, frac, il\_part\_id)}
+\item {\tt CALL oasis\_write\_frac (cgrid, nx\_global, ny\_global, frac, il\_part\_id), companion}
+\item {\tt CALL prism\_write\_frac (cgrid, nx\_global, ny\_global, frac, il\_part\_id), companion}
 
   \begin{itemize}
   \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
   \item {\tt frac [REAL, DIMENSION(nx,ny) ;IN]} : single or double real frac array covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition.  
+  \item {\tt companion [CHARACTER ;IN; OPTIONAL]} : the character string value associated with the frac field attribute ``coherent\_with\_grid''.  This will be written to the {\em masks.nc} netcdf file with the frac field.  It is purely informational and used in cases where the frac field is derived from or consistent with another grid.
   \end{itemize}
   Writes the component grid fraction.  This should be consistent with the mask field and will define the fraction of the grid cell that is covered by the mask.  The frac field is only used in the {\tt CONSERV} operations and either the mask or frac must be defined by the user for that operation.  If both are defined, they must be consistent.  Note that by OASIS conventions for the mask, a gridcell with mask=0 should have a frac>0 and a gridcell with mask=1 should have a frac=0.  The frac field is written to the {\em masks.nc} file.
 

@@ -77,8 +77,8 @@ module remap_conservative
    !
    !-----------------------------------------------------------------------
 
-   real (kind=dbl_kind), parameter :: north_thresh = 1.45_dbl_kind, & ! threshold for coord transf.
-      south_thresh =-2.00_dbl_kind  ! threshold for coord transf.
+   real (kind=dbl_kind), parameter :: north_thresh = 2.00_dbl_kind, & ! threshold for coord transf.
+                                      south_thresh =-2.00_dbl_kind    ! threshold for coord transf.
 
    integer (kind=int_kind) :: il_nbthreads = 1
 
