@@ -70,19 +70,28 @@ points and {\tt ny} to 1.
   and 1.0 deg.
  
   Cells larger than 180.0 degrees in longitude are not supported.
+  
+  Longitudes and latitudes of grid points or corners can be defined through the {\tt oasis\_write\_grid} or {\tt oasis\_write\_corner} API routines respectively,  see section \ref{subsubsec_griddef}.
  
 \item {\em masks.nc}: contains the masks for all component model grids
   in {\tt INTEGER} arrays. {\bf Be careful to use the historical
-    OASIS convention: 0 -not masked i.e.  active- or 1 -masked
-    i.e. not active- for each grid point}. The array names must be
-  composed of the grid prefix and the suffix ``.msk''. This file, {\em
-    masks} or {\em masks.nc}, is mandatory.
+    OASIS convention: 0 = not masked i.e. active, 1 = masked
+    i.e. not active, for each grid point}. The array names must be
+  composed of the grid prefix and the suffix ``.msk''. Mask can be defined through the {\tt oasis\_write\_mask} API routine, see section \ref{subsubsec_griddef}.
+  
+ File {\em masks.nc} may also contain the grid cell fractions that defines the active (i.e. not masked) part of the cells.  Fractions should be consistent with the mask field. The fraction field is only used in the global {\tt CONSERV} operations. If both a mask and fractions are defined for a grid, they must be consistent; OASIS3-MCT will abort if they are not coherent or if both are missing.  Note that by OASIS conventions for the mask, a gridcell with mask=0 (active) should have a fractions greater than 0 and a gridcell with mask=1 (inactive) should have a fractions equal to 0.   The fraction array name must be composed of the grid prefix and the suffix ``.frc''. Fractions can be defined through the {\tt oasis\_write\_frac} API routine, see section \ref{subsubsec_griddef}.
+  
+ File {\em masks.nc} is mandatory.
 
 \item {\em areas.nc}: this file contains mesh surfaces for the
   component model grids in double precision {\tt REAL} arrays. The
   array names must be composed of the grid prefix and the suffix
   ``.srf''.  The surfaces may be given in any units but they must be
-  all the same. This file {\em areas.nc} is mandatory for the global {\tt
+  the same on the source and target sides; furthermore they must be in square radians if the True Area (TR) correction is activated, see section \ref{subsec_interp}.
+
+  Surfaces can be defined through the {\tt oasis\_write\_area} API routine, see section \ref{subsubsec_griddef}.
+  
+  This file {\em areas.nc} is mandatory for the global {\tt
     CONSERV} post-processing operation;
   it is not required otherwise.
 

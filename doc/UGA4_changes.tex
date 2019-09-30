@@ -13,6 +13,35 @@ have your e-mail added to the list of addresses to which the log files
 of the SVN checkins are automatically sent; contact
 oasishelp@cerfacs.fr if you wish to be added to that list.
 
+\section{Changes between current master OASIS3-MCT version and OASIS3-MCT\_4.0}
+
+\begin{itemize}
+
+\item  {\tt DESTARTR}, {\tt FRACARTR} or {\tt FRACNNTR} options : the ``True Area'' (TR) correction
+
+New options for {\tt SCRIPR CONSERV} to have an exact conservation of the field surface-integrated values, based on the "TRue" (TR) area of the cells. Details can be found in section \ref{subsec_interp} and in \cite{valcke19}. Note that to activate these TR options, the true area of the cell must be provided in the auxiliary file {\it areas.nc} in {\bf square radians}.
+
+\item New {\tt GSSPOS} and {\tt BSSPOS} for global CONSERV
+
+These new options operate as {\tt GLBPOS} and {\tt BASPOS} except that the multiplicative term is computed separately for positive
+      and negative values of the field. More details can be found in section \ref{subsec_cooking} and in \cite'{craig19}.
+
+\item Bugfixes
+
+\begin{enumerate}
+
+\item Argument {\tt id\_var\_nodim} defined as IN in {\tt mod\_oasis\_var.F90} to compile again with NEMO\_4.0 and NEMO trunk (git commit 28f4fe59) 
+
+\item Fix the treatment of the periodicity of the grids (git commits 20127fd9, 68021b13, facc08c1)
+
+\item GAUSWGT remapping: exact calculation of average distance (commit 1df003a1) ; see details in https://cerfacs.fr/wp-content/uploads/2019/08/GlobC-TR-maisonnave-gaussian\_interpolation-2\_2019.pdf
+
+ \item Bugfix ``lcoinc''  : ensures that a condition on coincidence of segments is reinitialised to .false. for each cell. A detailed analysis of the bug that lead to this bugfix condition can be found at the end of the page https://inle.cerfacs.fr/projects/oasis3-mct/wiki/Discussion\_about\_specific\_treatments\_of\_polar\_cells\_in\_scrip\_CONSERV\_interpolation (git commit XXXXXXX).
+
+ \end{enumerate}
+
+\end{itemize}
+
 \section{Changes between OASIS3-MCT\_4.0 and OASIS3-MCT\_3.0}
 
 Different developments were realised to improve the parallel performance of OASIS3-MCT\_4.0. These developments are detailed in \cite{valcke11} .
