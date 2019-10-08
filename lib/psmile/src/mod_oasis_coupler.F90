@@ -1397,19 +1397,57 @@ CONTAINS
               !--------------------------------
               if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4da3')
               status = nf90_open(trim(prism_mapper(mapID)%file),nf90_nowrite,ncid)
+              if (status /= NF90_NOERR) then
+                 write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                 write(nulprt,*) subname,estr,'file not found = ',trim(prism_mapper(mapID)%file)
+                 call oasis_abort(file=__FILE__,line=__LINE__)
+              endif
               if (OASIS_debug >= 15) then
                  status = nf90_inq_dimid(ncid,'dst_grid_size',dimid)
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    write(nulprt,*) subname,estr,'dim not found = ','dst_grid_size'
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
                  status = nf90_inquire_dimension(ncid,dimid,len=gsize)
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
                  write(nulprt,*) subname," DEBUG dst_grid_size ",gsize
                  status = nf90_inq_dimid(ncid,'src_grid_size',dimid)
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    write(nulprt,*) subname,estr,'dim not found = ','src_grid_size'
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
                  status = nf90_inquire_dimension(ncid,dimid,len=gsize)
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
                  write(nulprt,*) subname," DEBUG src_grid_size ",gsize
               endif
-              if (pcpointer%getput == OASIS3_PUT) &
+              if (pcpointer%getput == OASIS3_PUT) then
                  status = nf90_inq_dimid(ncid,'dst_grid_size',dimid)
-              if (pcpointer%getput == OASIS3_GET) &
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    write(nulprt,*) subname,estr,'dim not found = ','dst_grid_size'
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
+              elseif (pcpointer%getput == OASIS3_GET) then
                  status = nf90_inq_dimid(ncid,'src_grid_size',dimid)
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    write(nulprt,*) subname,estr,'dim not found = ','src_grid_size'
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
+              endif
               status = nf90_inquire_dimension(ncid,dimid,len=gsize)
+              if (status /= NF90_NOERR) then
+                 write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                 call oasis_abort(file=__FILE__,line=__LINE__)
+              endif
               if (local_timers_on >= 3) call oasis_timer_stop('cpl_setup_n4da3')
               if (local_timers_on >= 3) call oasis_timer_stop('cpl_setup_n4da')
            endif  ! rank = 0
