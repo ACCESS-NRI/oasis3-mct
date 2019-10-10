@@ -92,8 +92,10 @@ MODULE mod_oasis_parameters
   INTEGER (kind=ip_intwp_p), PARAMETER :: ip_cnone   = 0
   INTEGER (kind=ip_intwp_p), PARAMETER :: ip_cglobal = 1
   INTEGER (kind=ip_intwp_p), PARAMETER :: ip_cglbpos = 2
+  INTEGER (kind=ip_intwp_p), PARAMETER :: ip_cgsspos = 6
   INTEGER (kind=ip_intwp_p), PARAMETER :: ip_cbasbal = 4
   INTEGER (kind=ip_intwp_p), PARAMETER :: ip_cbaspos = 5
+  INTEGER (kind=ip_intwp_p), PARAMETER :: ip_cbsspos = 7
 
 !-----Parallel distribution
 

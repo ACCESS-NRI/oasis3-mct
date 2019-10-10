@@ -135,10 +135,10 @@ noted with the string UNUSED and not described.
     section \ref{subsec_mapdata}). As for the other transformations
     and interpolations, different mappings can be specified for the
     different coupling fields.
-  In this case grids.nc, masks.nc and areas.nc
-  files are not needed, except if the post-procession global option
-  CONSERV is specified in the namcouple. Then the user must provides the
-  areas.nc file.
+  Using {\tt MAPPING}, the files {\it grids.nc}, {\it masks.nc}, and {\it areas.nc}
+  are not needed, except if the post-processing global option
+  CONSERV is specified in the namcouple, in which case
+  {\it areas.nc} and {\it masks.nc} files must be provided.
  
   Since OASIS3-MCT\_2.0, {\tt MAPPING} can be used for higher order
   remapping. Up to 5 different sets of weights (see section
@@ -195,7 +195,7 @@ noted with the string UNUSED and not described.
   in {\tt oasis3/doc/SCRIPusers.pdf} for more details on the
   interpolation algorithms.
   
-  New in OASIS3-MCT\_4.0, an hybrid MPI+OpenMP parallel version of the SCRIP library is available. It relies on the MPI parallel layout of the calling model but only enrols one MPI process per node. The number of OpenMP threads per node is set by a dedicated environment variable OASIS\_OMP\_NUM\_THREADS, and for optimum performance, it is recommended to set this variable to the number of cores of the node. The test\_interpolation environment (see section \ref{subsec_testinterpolation}) in {\tt oasis3-mct/examples/test\_interpolation} gives a practical example on how to use the SCRIP library in parallel to calculate remapping weight-and-address files. The details of the SCRIP parallelisation can be found in \cite{piacentini08} and \cite{valcke11}\footnote{Thanks to some preliminary work, few bugs were fixed in the SCRIP library, in particular in the bounding box definition of the grid cells. This solves an important bug observed in the Pacific near the equator for the bilinear and bicubic interpolations for Cartesian grids. However, given these modifications, one cannot expect to get exactly the same results for the interpolation weight-and-adress remapping files with this new parallel SCRIP version as compared to the previous SCRIP version in OASIS3-MCT\_3.0. We checked in many different cases that the interpolation error is smaller or of the same order than before. We also observed that the parallelisation does not ensure bit reproducible results when varying the number of processes or threads.} .
+  New in OASIS3-MCT\_4.0, an hybrid MPI+OpenMP parallel version of the SCRIP library is available. It relies on the MPI parallel layout of the calling model but only enrols one MPI process per node. The number of OpenMP threads per node is set by a dedicated environment variable OASIS\_OMP\_NUM\_THREADS, and for optimum performance, it is recommended to set this variable to the number of cores on the node. The {\tt test\_interpolation} environment (see section \ref{subsec_testinterpolation}) in {\tt oasis3-mct/examples/test\_interpolation} gives a practical example on how to use the SCRIP library in parallel to calculate remapping weight-and-address files. The details of the SCRIP parallelisation can be found in \cite{piacentini08} and \cite{valcke11}\footnote{Thanks to some preliminary work, few bugs were fixed in the SCRIP library, in particular in the bounding box definition of the grid cells. This solves an important bug observed in the Pacific near the equator for the bilinear and bicubic interpolations for Cartesian grids. However, given these modifications, one cannot expect to get exactly the same results for the interpolation weight-and-adress remapping files with this new parallel SCRIP version as compared to the previous SCRIP version in OASIS3-MCT\_3.0. We checked in many different cases that the interpolation error is smaller or of the same order than before. We also observed that the parallelisation does not ensure bit reproducible results when varying the number of processes or threads.} .
 
   When the SCRIP library performs a remapping, it first checks if the
   file containing the corresponding remapping weights and addresses
@@ -204,11 +204,10 @@ noted with the string UNUSED and not described.
   working directory and is by default called {\tt rmp\_{\it srcg}\_to\_{\it
       tgtg}\_{\it INTTYPE}\_{\it NORMAOPT}.nc}, where {\it srcg} and
   {\it tgtg} are the acronyms of respetively the source and the target
-  grids, {\it INTTYPE} is the interpolation type, i.e. {\tt DISTWGT},
-  {\tt GAUSWGT}, {\tt BILINEAR} ({\bf not BILINEA as in OASIS3.3}) or
-  {\tt CONSERV} and {\it NORMAOPT} is the normalization
-  option, i.e. {\tt DESTAREA}, {\tt FRACAREA} or {\tt FRACNNEI} for
-  {\tt CONSERV} only, see below). One has to take care that the
+  grids, {\it INTTYPE} is the interpolation type (i.e. {\tt DISTWGT},
+  {\tt GAUSWGT}, {\tt BILINEAR} - {\bf not BILINEA as in OASIS3.3} or
+  {\tt CONSERV}), and {\it NORMAOPT} is the normalization
+  option, for {\tt CONSERV} only (i.e. {\tt DESTAREA}, {\tt DESTARTR}, {\tt FRACAREA}, {\tt FRACARTR},  {\tt FRACNNEI} or {\tt FRACNNTR}, see below). One has to take care that the
   remapping file will have the same name even if other details, like
   the grid masks or the {\tt \$MAPLOC} or {\tt \$MAPSTRATEGY} options, 
   are changed. When reusing a remapping file, one has
@@ -360,19 +359,21 @@ noted with the string UNUSED and not described.
       % to be calculated automatically by OASIS3.
     \item {\tt \$CFTYP, \$REST} are as for {\tt DISTWGT}.
     \item {\tt \$NBIN} is the number of restriction bins that can be more than 1 as bin restriction is effectively allowed for {\tt CONSERV}; for details, see \citep{piacentini08}.
-    \item {\tt \$NORM} is the NORMalization option:
+    \item {\tt \$NORM} is the normalization option:
       \begin{itemize}
-      \item {\tt FRACAREA}: The sum of the non-masked source cell
-        intersected areas is used to NORMalise each target cell field
+       \item {\tt FRACAREA} or {\tt FRACARTR}: The sum of the non-masked source cell
+        intersected areas is used to normalise each target cell field
         value: the flux is not locally conserved, but the flux value
-        itself is reasonable.
-      \item {\tt DESTAREA}: The total target cell area is used to
-        NORMalise each target cell field value even if it only partly
+        itself is reasonable. With {\tt FRACARTR}, an additional correction involving the ``true" area of the grid cells
+        provided in the file {\tt areas.nc} is also applied, see details in the paragraph on the ``True Area'' (TR) correction below.
+       \item {\tt DESTAREA} or {\tt DESTARTR}: The total target cell area is used to
+        normalise each target cell field value even if it only partly
         intersects non-masked source grid cells: local flux
         conservation is ensured, but unreasonable flux values may
-        result.
-      \item {\tt FRACNNEI}: as {\tt FRACAREA}, except that an additional unmasked  source nearest neighbour is used for unmasked
-        target cells that intersect only masked source cells.  
+        result. With {\tt DESTARTR}, an additional correction involving the ``true" area of the grid cells
+        provided in the file {\tt areas.nc} is also applied, see details in the paragraph on the ``True Area'' (TR) correction below.
+      \item {\tt FRACNNEI} or {\tt FRACNNTR}: as {\tt FRACAREA} or {\tt FRACARTR}, except that an additional unmasked  source nearest neighbour is used for unmasked
+        target cells that intersect only masked source cells.
       \end{itemize}
     \item {\tt \$ORDER}: {\tt FIRST} or {\tt SECOND} for first or
       second order conservative remapping respectively (see SCRIP 1.4
@@ -390,32 +391,37 @@ noted with the string UNUSED and not described.
       as extra arguments of the {\tt oasis\_put} (see {\tt fld2, fld3}
       in section \ref{prismput}).  Note that {\tt CONSERV/SECOND} is
       not positive definite.
-
     \end{itemize}
 
   \end{itemize}
 
   {\bf Precautions related to the use of the SCRIPR/CONSERV remapping}
-
-  \begin{itemize}
-
-  \item For the 1st order conservative remapping: the weight of a
+ \begin{enumerate}
+ 
+  \item Lambert projection above/below {\tt north\_thresh}/{\tt south\_thresh}
+    
+    For the 1st order conservative remapping, the weight of a
     source cell is proportional to area of the source cell intersected
     by target cell.  Using the divergence theorem, the SCRIP library
     evaluates this area with the line integral along the cell borders
     enclosing the area. As the real shape of the borders is not known
-    (only the location of the 4 corners of each cell is known), the
+    (only the location of the corners of each cell is known), the
     library assumes that the borders are linear in latitude and
     longitude between two corners.  This assumption becomes less valid
-    closer to the pole; for latitudes above the {\tt north\_thresh}
+    closer to the pole. 
+    
+    Therefore for latitudes above the {\tt north\_thresh}
     or below the {\tt south\_thresh} values (see {\tt
       oasis3-mct/lib/scrip/remap\_conserv.F90}, the library evaluates
     the intersection between two border segments using a Lambert
-    equivalent azimuthal projection. However, problems were observed in some
-    cases for the grid cell located around this {\tt north\_thresh} or
-    {\tt south\_thresh} latitude. {\bf So by default, {\tt north\_thresh} and
-    {\tt south\_thresh} are now in OASIS3-MCT\_4.0 by default set to 2.0 and -2.0 respectively}, where as {\tt north\_thresh} was set to 1.45 in previous versions.
-
+    equivalent azimuthal projection.  {\bf However, by default, {\tt \bf north\_thresh} and
+    {\tt \bf south\_thresh} are set to 2.0 and -2.0 respectively and the Lambert projection is not activated.} 
+    (Note that {\tt north\_thresh} was set to 1.45 in previous versions prior to OASIS3-MCT\_4.0.)
+    
+    Of course, these values ca be changed in {\tt oasis3-mct/lib/scrip/remap\_conserv.F90} and OASIS3-MCT has then to be recompiled to consider the updated values.
+    
+    The analysis of the impact of the Lambert projection for specific grids can be found in \cite{valcke19}.
+  
   \item Another limitation of the SCRIP 1st order conservative
     remapping algorithm is that is supposes, for line integral
     calculation, that $sin(latitude)$ is linear in longitude on the
@@ -429,7 +435,9 @@ noted with the string UNUSED and not described.
     to coincide with the corners of its neighbour cell, with no
     ``holes'' between the cells.
   
-  \item If two cells of one same grid overlay, the one with
+  \item Overlying cells
+  
+  If two cells of one same grid overlay, the one with
     the greater numerical index must be masked in {\it
       masks.nc} for a proper conservative remapping.  For example, 
      if the grid cells with {\it i=1} overlays the grid cells with {\it i=imax}, the latter must
@@ -439,17 +447,14 @@ noted with the string UNUSED and not described.
       TREAT\_OVERLAY} which will ensure that these rules are
     respected. This CPP key was introduced in OASIS3.3.
     
-  \item If a target grid cell intersects only masked source cells, it
-    will get a zero value unless the {\tt FRACNNEI}
+  \item If a target grid cell intersects only masked source cells, or falls outside the source grid domain, it
+    will get a zero value unless the {\tt FRACNNEI} or {\tt FRACNNTR}
     normalisation option is used, in which case it will get the
     nearest non masked neighbour value. Note that the option of
       having the value 1.0E+20 assigned to these target grid cell
       intersecting only masked source cells (for easier
       identification) is not yet availble in OASIS3-MCT.
-      
- \item With {\tt FRACNNEI} target grid cell intersecting no source cell (either masked
-    or non masked) at all i.e. falling in a ``hole'' of the source
-    grid will get the non-masked nearest-neighbour value.   
+    
 
     % The target grid mask is never considered in {\tt CONSERV},
     % except with normalisation option {\tt FRACNNEI} (see below). To
@@ -464,8 +469,15 @@ noted with the string UNUSED and not described.
     % (for vector interpolation) are compiled with {\tt
     %   ll\_weightot=.true.}.
     
-   
-  \end{itemize}
+  \end{enumerate}
+  
+  {\bf {\tt \bf DESTARTR}, {\tt \bf FRACARTR} or {\tt \bf FRACNNTR} options : the ``True Area'' (TR) correction}
+  
+The approximations and hypotheses adopted by the SCRIP impact its estimation of the grid cell areas. Therefore, to have an exact conservation of the field surface-integrated values, a correction based on the "TRue" (TR) area of the cells can be applied by choosing {\tt DESTARTR}, {\tt FRACARTR} or {\tt FRACNNTR} options. These are based respectively on {\tt DESTAREA},  {\tt FRACAREA} and  {\tt FRACNNEI} normalisations adding the so-called ``TR correction''. The true area of the cell, i.e. the one considered by the component model itself, must be provided in the auxiliary file {\it areas.nc} in {\bf square radians}. Equations from \cite{chavas 13} (eqn. (27) in particular) are implemented. 
+
+Special care is taken in the implementation for ``polar" cells in the SCRIP sense. The SCRIP detects cells encompassing a pole or cells with a side going through a pole as ``polar" cells and a specific treatment is applied for those cells modifying its area. The resulting estimated area serves as a normalisation factor but its value is not representative of the surface of the cell anymore. For this reason, the TR correction is not activated for those ``polar'' cells. 
+
+More details can be found in section 6 of \cite{valcke19}. A full validation of the TR correction can be found in that report. It is noted there that the TR correction always improves the results even if, in the cases tested, the misfit between the true area and the are evaluated by the SCRIP is always small (except for ``polar'' cells of course). Finally, we note that the fact that the TR correction cannot be applied to the ``polar” cells because of their specific treatement by the SCRIP reduces also its interest.   
 
   % {\bf Precautions related to the use of all SCRIPR remappings}
 
@@ -520,13 +532,24 @@ noted with the string UNUSED and not described.
 
 \item {\bf CONSERV}:
 
-  {\tt CONSERV} performs a global modification of the coupling field.
+  {\tt CONSERV} performs a global modification of the coupling field such
+  that the area integrated fields are conserved.
+ % This option is often used when conservation is desired between mapped fields
+ % but non conservative interpolation (i.e. bilinear) is carried out.
+ 
   This analysis requires the source and target grid mesh areas to be
-  defined in the {\it areas.nc} file or transferred to the coupler with {\tt oasis\_write\_area} (see section
-  \ref{subsubsec_griddef}). {\bf For a correct CONSERV operation,
-    overlapping grid cells on the source grid or on the target grid
-    must be masked.} In the {\it namcouple}, {\tt CONSERV} requires
-  one input line with one argument and one optional argument:
+  defined in the {\it areas.nc} file.  The areas can be writtent with the OASIS API routine {\tt oasis\_write\_area} (see section
+  \ref{subsubsec_griddef}).  {\bf The areas must be expressed in matching units
+  on the source and destination side and; futhermore, these must be square radians if the TR correction is activated} (see paragraph The ``True Area'' (TR) correction in section \ref{subsec_interp}). 
+  
+  A grid cell mask or fractions must be defined for that operation. If both are defined, they must be consistent; OASIS3-MCT will abort if they are not or if both are missing.  Note that by OASIS conventions for the mask, a gridcell with mask=0 (active) should have fractions greater than 0 and a gridcell with mask=1 (inactive) should have fractions equal to 0.  The fraction field is written to the {\em masks.nc} file. 
+  
+ {\bf Best practice for fraction definition in ocean-atmosphere coupling}
+ 
+ In principle, the fractions can be defined for both the source and target grids. But for ocean-atmosphere coupling, we strongly encourage the following best practice for a consistent ocean-atmosphere coupled system. Indeed, to have a well-posed coupled problem, the ocean and the atmospheric total surfaces must be the same allowing global conservation of integrated quantities. To do so, the original ocean mask should be taken as it is from the ocean model. For the atmosphere, cell fractions should be defined by the conservative remapping of [1 - ocean mask] on the atmospheric grid, retaining fractions above a certain threshold, to be fixed by the user. These atmospheric cell fractions should be used in the atmospheric model to define the \% of ocean (water) subsurface to be considered. Then the atmospheric coupling mask should be adapted associating a non-masked index (i.e. 0) to all cells with a water fraction above the chosen threshold. The global water surface as seen by the atmosphere model is then the sum of its cell areas multiplied by its respective cell fractions. Note that invalid masked atmospheric cells should have null ocean fractions.
+If we follow this best practice, the atmospheric cell fractions and mask will be specific to the coupling with each particular ocean grid. As specific attribute named {\tt coherent\_with\_grid} indicating the grid prefix of the {\tt companion} grid may be defined for mask and fractions. If the OASIS API is used to define the mask and fractions, this can be done via the optional argument {\tt companion} indicating the grid prefix of the companion grid (see section \ref{subsubsec_griddef}).
+  
+  In the {\it namcouple}, {\tt CONSERV} requires one input line with one argument and one optional argument:
 
  \begin{verbatim}
 # CONSERV operation
@@ -534,31 +557,49 @@ noted with the string UNUSED and not described.
 \end{verbatim}
   \vspace{-0.5cm} where:
   \begin{itemize}
-  \item {\tt \$CMETH} is the method desired with the following choices
+  \item {\tt \$CMETH} is the method desired with the following choices; a detailed analysis of these choices can be found in \cite{craig19} :
     \begin{itemize}
     \item with {\tt \$CMETH = GLOBAL}, the field is integrated on both
       source and target grids, without considering values of masked
       points, and the residual (target - source) is uniformly
-      distributed on the target grid; this option ensures global
+      distributed on the target grid as an additive term; this option ensures global
       conservation of the field;
-    \item with {\tt \$CMETH = GLBPOS}, the same operation is performed
+    \item with {\tt \$CMETH = GLBPOS}, the same operation as {\tt GLOBAL} is performed
       except that the residual is distributed proportionally to the
-      value of the original field; this option ensures the global
-      conservation of the field and does not change the sign of the
-      field;
+      value of the original field as a multiplicative term; this option ensures the 
+      global conservation of the field, and it does not change the sign of the
+      field if the field is well behaved;  if the field is well behaved, multiplication
+      factors close to 1 are expected.
+    \item with {\tt \$CMETH = GSSPOS}, the same operation as {\tt GLBPOS} is performed
+      except that the multiplicative term is computed separately for positive
+      and negative values of the field; this option ensures the 
+      global conservation of the field and, as {\tt \$GLBPOS}, does not change the sign of the
+      field, but it is more expensive because many extra global sums are required; 
+      this should be used in cases where the area averaged field value tends to 0
+      as these cases can generate poor corrections, even leading
+      to changes of sign, when carried out with the {\tt GLBPOS} option.
     \item with {\tt \$CMETH = BASBAL}, the operation is analogous to
-      {\tt GLOBAL} except that the non masked surface of the source
+      {\tt GLOBAL} as an additive term except the non masked active surface of the source
       and the target grids are taken into account in the calculation
       of the residual; this option does not ensure global conservation
       of the field but ensures that the energy received is
-      proportional to the non masked surface of the target grid;
-    \item with {\tt \$CMETH = BASPOS}, the non masked surface of the
+      proportional to the non masked active surface of the target grid;
+    \item with {\tt \$CMETH = BASPOS}, the operation is analgous to
+      {\tt GLBPOS} as a multiplicative term except the non masked surface of the
       source and the target grids are taken into account and the
       residual is distributed proportionally to the value of the
-      original field; therefore, this option does not ensure global
+      original field; this option does not ensure global
       conservation of the field but ensures that the energy received
       is proportional to the non masked surface of the target grid and
-      it does not change the sign of the field.
+      it does not change the sign of the field if the field is well behaved.
+    \item with {\tt \$CMETH = BSSPOS}, the same operation as {\tt BASPOS} is performed
+      except that the multiplicative term is computed separately for positive
+      and negative values of the field; this option has the same characteristics
+      as {\tt BASPOS} except it does not change the sign of the field, but is
+      more expensive because many extra global sums are required; 
+      this should be used in cases where the area averaged field value tends to 0
+      as these cases can generate poor corrections, even leading
+      to changes of sign, when carried out with the {\tt BASPOS} option.
     \end{itemize}
   \item {\tt \$CONSOPT} is an optional argument specifying the
     algorithm.  {\tt \$CONSOPT} can be {\tt bfb}, {\tt gather}, {\tt lsum16}, {\tt lsum8},

@@ -19,36 +19,37 @@ MODULE mod_oasis
   USE mod_oasis_parameters
   USE mod_oasis_namcouple
 
-  USE mod_oasis_method ,ONLY: oasis_init_comp    
+  USE mod_oasis_method ,ONLY: oasis_init_comp
   USE mod_oasis_method ,ONLY: oasis_terminate
-  USE mod_oasis_method ,ONLY: oasis_enddef        
+  USE mod_oasis_method ,ONLY: oasis_enddef
 
-  USE mod_oasis_part   ,ONLY: oasis_def_partition 
+  USE mod_oasis_part   ,ONLY: oasis_def_partition
+
+  USE mod_oasis_var    ,ONLY: oasis_def_var
   
-  USE mod_oasis_var    ,ONLY: oasis_def_var      
+  USE mod_oasis_getput_interface ,ONLY: oasis_get
+  USE mod_oasis_getput_interface ,ONLY: oasis_put
   
-  USE mod_oasis_getput_interface ,ONLY: oasis_get 
-  USE mod_oasis_getput_interface ,ONLY: oasis_put 
-  
-  USE mod_oasis_grid   ,ONLY: oasis_start_grids_writing 
-  USE mod_oasis_grid   ,ONLY: oasis_write_grid 
+  USE mod_oasis_grid   ,ONLY: oasis_start_grids_writing
+  USE mod_oasis_grid   ,ONLY: oasis_write_grid
   USE mod_oasis_grid   ,ONLY: oasis_write_angle
-  USE mod_oasis_grid   ,ONLY: oasis_write_corner        
-  USE mod_oasis_grid   ,ONLY: oasis_write_mask          
-  USE mod_oasis_grid   ,ONLY: oasis_write_area          
-  USE mod_oasis_grid   ,ONLY: oasis_terminate_grids_writing 
+  USE mod_oasis_grid   ,ONLY: oasis_write_corner
+  USE mod_oasis_grid   ,ONLY: oasis_write_mask
+  USE mod_oasis_grid   ,ONLY: oasis_write_area
+  USE mod_oasis_grid   ,ONLY: oasis_write_frac
+  USE mod_oasis_grid   ,ONLY: oasis_terminate_grids_writing
 
   USE mod_oasis_auxiliary_routines ,ONLY: oasis_get_localcomm
   USE mod_oasis_auxiliary_routines ,ONLY: oasis_set_couplcomm
   USE mod_oasis_auxiliary_routines ,ONLY: oasis_create_couplcomm
   USE mod_oasis_auxiliary_routines ,ONLY: oasis_get_intracomm
-  USE mod_oasis_auxiliary_routines ,ONLY: oasis_get_intercomm 
-  USE mod_oasis_auxiliary_routines ,ONLY: oasis_set_debug     
-  USE mod_oasis_auxiliary_routines ,ONLY: oasis_get_debug     
+  USE mod_oasis_auxiliary_routines ,ONLY: oasis_get_intercomm
+  USE mod_oasis_auxiliary_routines ,ONLY: oasis_set_debug
+  USE mod_oasis_auxiliary_routines ,ONLY: oasis_get_debug
   USE mod_oasis_auxiliary_routines, ONLY: oasis_get_ncpl
   USE mod_oasis_auxiliary_routines, ONLY: oasis_get_freqs
   USE mod_oasis_auxiliary_routines, ONLY: oasis_put_inquire
-  
+
   USE mod_oasis_sys    ,ONLY: oasis_abort
 
   IMPLICIT NONE

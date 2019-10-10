@@ -429,7 +429,9 @@ Grid data files (see section \ref{subsec_griddata}) are required by OASIS3-MCT f
 user before the run or can be written directly at run time by the components with the following routines.
 If a grid data files does not exist, the corresponding routine will create it; if the grid data file exists, the routine can be used to {\bf add} grid definition fields but it will not {\bf overwrite} grid definition fields already existing in the file with the same grid name. 
 
-These routines can be called only by one component process to write the whole grid or by each process holding a part of a grid. In the former case, optional argument {\tt il\_part\_id} is not needed and the arrays (see below) handling the longitudes of the grid points or corners ({\tt lon}, {\tt clon}), the latitudes of the grid points or corners ({\tt lat}, {\tt clat}), the masks ({\tt mask}) and areas ({\tt area}) of the grid cells need to cover the whole grid; in the later case, the {\tt il\_part\_id} returned by {\tt oasis\_def\_partition} needs to be provided as input argument and the arrays need to cover only the local partition of the grid .
+These routines can be called only by one component process to write the whole grid or by each process holding a part of a grid. In the former case, optional argument {\tt il\_part\_id} is not needed and the arrays (see below) handling the longitudes of the grid points or corners ({\tt lon}, {\tt clon}), the latitudes of the grid points or corners ({\tt lat}, {\tt clat}), the masks ({\tt mask}), fracs ({\tt frac}), and areas ({\tt area}) of the grid cells need to cover the whole grid; in the later case, the {\tt il\_part\_id} returned by {\tt oasis\_def\_partition} needs to be provided as input argument and the arrays need to cover only the local partition of the grid.
+
+The field names in the {\em grids.nc}, {\em masks.nc}, and {\em areas.nc} follow a well-defined convention.  The fields are normally 2-dimensional, and each field name consists of the gridname followed by a string that identifies the field.  For instance, the center latitudes for the grid torc will be called torc.lat and the center longitudes will be called torc.lon in the netcdf file.  The {\em grids.nc} file contains the center latitudes (.lat) and longitudes (.lat) as well as the corner latitudes (.cla) and corner longitudes (.clo).  The corner fields have a third dimension associated with the number of corners per gridcell.  The {\em area.nc} file constains the area field (.srf).  The {\em masks.nc} file contains the mask (.msk) and frac (.frc) fields.
 
 \begin{itemize}
 
@@ -488,16 +490,26 @@ Must be called to start the grid writing process.
   needs to be called after {\tt oasis/prism\_write\_grid}.
 
   \vspace{0.2cm}
-\item {\tt CALL oasis\_write\_mask (cgrid, nx\_global, ny\_global, mask, il\_part\_id)}
-\item {\tt CALL prism\_write\_mask (cgrid, nx\_global, ny\_global, mask, il\_part\_id)}
+\item {\tt CALL oasis\_write\_mask (cgrid, nx\_global, ny\_global, mask, il\_part\_id, companion)}
+\item {\tt CALL prism\_write\_mask (cgrid, nx\_global, ny\_global, mask, il\_part\_id, companion)}
 
   \begin{itemize}
   \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
-  \item {\tt mask [INTEGER, DIMENSION(nx,ny) ;IN]} : mask array covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition (be
-    careful about the OASIS historical convention (!): 0 = not masked,
-    1 = masked)
+  \item {\tt mask [INTEGER, DIMENSION(nx,ny) ;IN]} : mask array covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition. Be careful about the OASIS historical convention (!): 0 = not masked (active), 1 = masked (not active).
+  \item {\tt companion [CHARACTER ;IN; OPTIONAL]} : the character string value associated with the mask field attribute ``coherent\_with\_grid''.  This will be written to the {\em masks.nc} netcdf file with the mask field.  It is purely informational and used in cases where the mask field is derived from or consistent with another grid.
   \end{itemize}
-  Writes the component grid mask.
+  Writes the component grid mask.  The mask field should be consistent with the frac field and will define the 0/1 mask of the grid cell.  The mask field is used by both the {\tt SCRIPR} map generation function and in the {\tt CONSERV} operations if defined.  The mask field is written to the {\em masks.nc} file.
+
+  \vspace{0.2cm}
+\item {\tt CALL oasis\_write\_frac (cgrid, nx\_global, ny\_global, frac, il\_part\_id, companion)}
+\item {\tt CALL prism\_write\_frac (cgrid, nx\_global, ny\_global, frac, il\_part\_id, companion)}
+
+  \begin{itemize}
+  \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
+  \item {\tt frac [REAL, DIMENSION(nx,ny) ;IN]} : single or double real frac array covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition.  
+  \item {\tt companion [CHARACTER ;IN; OPTIONAL]} : the character string value associated with the frac field attribute ``coherent\_with\_grid''.  This will be written to the {\em masks.nc} netcdf file with the fraction field.  It is purely informational and used in cases where the frac field is derived from or consistent with another grid.
+  \end{itemize}
+  Writes the component grid cell fractions.  This should be consistent with the mask field and defines the fraction of the grid cell that is active (i.e. not masked).  The fraction field is only used in the {\tt CONSERV} operations. Either the mask or fractions must be defined for that operation.  If both are defined, they must be consistent; OASIS3-MCT will abort if they are not coherent or if both are missing.  Note that by OASIS conventions for the mask, a gridcell with mask=0 (active) should have a fractions greater than 0 and a gridcell with mask=1 (inactive) should have a fractions equal to 0.  The fraction field is written to the {\em masks.nc} file.
 
   \vspace{0.2cm}
 \item {\tt CALL oasis\_write\_area (cgrid, nx\_global, ny\_global, area, il\_part\_id)}
@@ -508,8 +520,8 @@ Must be called to start the grid writing process.
   \item {\tt area [REAL, DIMENSION(nx,ny); IN]} : single or double real array of grid cell
     areas covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition 
   \end{itemize}
-  Writes of the component grid cell areas. Needed only for {\tt CONSERV}
-  operation (see section \ref{subsec_cooking}).
+  Writes of the component grid cell areas. Needed for some {\tt SCRIPR} options and for the {\tt CONSERV}
+  operation (see section \ref{subsec_cooking}).    The area field is written to the {\em areas.nc} file.
 
   \vspace{0.2cm}
 \item {\tt CALL prism\_terminate\_grids\_writing()} or
@@ -517,7 +529,7 @@ Must be called to start the grid writing process.
 
 \end{itemize}
 
-The creation of the different grid data files is effective in the routine
+The creation of the different grid data files is completed in the routine
 oasis\_enddef.
 
 \subsection{Coupling field declaration}

@@ -125,7 +125,7 @@ CONTAINS
 
   IMPLICIT none
 
-  integer(kind=ip_i4_p) :: n,n1,n2,nn,nv,nm,nv1,nv1a,nns,lnn,nc,nf,nvf,npc,r1,ierr
+  integer(kind=ip_i4_p) :: l,n,n1,n2,nn,nv,nm,nv1,nv1a,nns,lnn,nc,nf,nvf,npc,r1,ierr
   integer(kind=ip_i4_p) :: pe,nflds1,nflds2,ncnt
   integer(kind=ip_i4_p) :: part1, part2
   integer(kind=ip_i4_p) :: spart,dpart ! src, dst partitions for mapping
@@ -151,7 +151,8 @@ CONTAINS
   character(len=ic_lvar):: gridname
   character(len=ic_long):: tmp_mapfile
   integer(kind=ip_i4_p) :: flag
-  logical               :: found, exists, found2
+  integer(kind=ip_i4_p) :: kmask,kfrac,karea
+  logical               :: found, exists, found2, rmask, rfrac
   integer(kind=ip_i4_p) :: mynvar
   integer(kind=ip_i4_p) :: nwgts, arrlen
   character(len=ic_lvar):: tmpfld
@@ -1060,10 +1061,10 @@ CONTAINS
 
                  tmp_mapfile = nammapfil(nn)
 
-                 if (trim(tmp_mapfile) == 'idmap' .and. trim(namscrmet(nn)) /= trim(cspval)) then
+                 if (TRIM(tmp_mapfile) == 'idmap' .and. TRIM(namscrmet(nn)) /= TRIM(cspval)) then
                     if (trim(namscrmet(nn)) == 'CONSERV') then
                        tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
-                                     &'_'//trim(namscrmet(nn))//'_'//trim(namscrnor(nn))//'.nc'
+                          &'_'//TRIM(namscrmet(nn))//'_'//TRIM(namscrnor(nn))//'.nc'
                     else
                        tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
                                      &'_'//trim(namscrmet(nn))//'.nc'
@@ -1650,41 +1651,169 @@ CONTAINS
            spart = prism_mapper(mapID)%spart
            dpart = prism_mapper(mapID)%dpart
 
+           !!! REMINDER !!! mask=0 in oasis is an active point mask/=0 is inactive point
+
+           !--- src ---
+
            lsize = mct_gsmap_lsize(prism_part(spart)%gsmap,mpi_comm_local)
-           call mct_avect_init(prism_mapper(mapID)%av_ms,iList='mask',rList='area',lsize=lsize)
+           call mct_avect_init(prism_mapper(mapID)%av_ms,iList='mask',rList='area:frac',lsize=lsize)
            call mct_avect_zero(prism_mapper(mapID)%av_ms)
+           kmask = mct_aVect_indexIA(prism_mapper(mapID)%av_ms,'mask')
+           karea = mct_aVect_indexRA(prism_mapper(mapID)%av_ms,'area')
+           kfrac = mct_aVect_indexRA(prism_mapper(mapID)%av_ms,'frac')
 !           gridname = prism_part(spart)%gridname
-           gridname=prism_mapper(mapID)%srcgrid
-           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
-              prism_part(spart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
-           call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_ms, &
-              prism_part(spart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           gridname=trim(prism_mapper(mapID)%srcgrid)
+           if (oasis_io_varexists('areas.nc',trim(gridname)//'.srf')) then
+              call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_ms, &
+                 prism_part(spart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           else
+              WRITE(nulprt,*) subname,estr,' Missing field '//trim(gridname)//'.srf in areas.nc needed for post-processing CONSERV'
+              CALL oasis_abort(file=__FILE__,line=__LINE__)
+           endif
+           rmask = .false.
+           rfrac = .false.
+           if (oasis_io_varexists('masks.nc',trim(gridname)//'.frc')) then
+              rfrac = .true.
+              call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
+                 prism_part(spart)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real')
+           endif
+           if (oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) then
+              rmask = .true.
+              call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
+                 prism_part(spart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
+           endif
+
+           if (OASIS_debug > 15) then
+              write(nulprt,*) subname,' src rmask, rfrac = ',rmask,rfrac
+           endif
+
+           if (rmask) then
+              if (rfrac) then
+                 ! mask and frac read, continue
+              else
+                 ! mask only, set frac = mask
+                 prism_mapper(mapID)%av_ms%rAttr(kfrac,:) = 0.0_ip_double_p
+                 do l = 1,lsize
+                    if (prism_mapper(mapID)%av_ms%iAttr(kmask,l) == 0) prism_mapper(mapID)%av_ms%rAttr(kfrac,l) = 1.0_ip_double_p
+                 enddo
+              endif
+           else
+              if (rfrac) then
+                 ! frac only, set mask = frac
+                 prism_mapper(mapID)%av_ms%iAttr(kmask,:) = 1
+                 do l = 1,lsize
+                    if (prism_mapper(mapID)%av_ms%rAttr(kfrac,l) /= 0._ip_double_p) prism_mapper(mapID)%av_ms%iAttr(kmask,l) = 0
+                 enddo
+              else
+                 ! no mask, no frac, abort
+                 WRITE(nulprt,*) subname,estr,' Expecting mask or frac or both for grid '//trim(gridname)
+                 CALL oasis_abort(file=__FILE__,line=__LINE__)
+              endif
+           endif
+
+           ! verify consistency between frac and mask, mask=0 frac/=0
+           do l = 1,lsize
+              if ((prism_mapper(mapID)%av_ms%rAttr(kfrac,l) /= 0._ip_double_p .and. prism_mapper(mapID)%av_ms%iAttr(kmask,l) /= 0) .or. &
+                  (prism_mapper(mapID)%av_ms%rAttr(kfrac,l) == 0._ip_double_p .and. prism_mapper(mapID)%av_ms%iAttr(kmask,l) == 0)) then
+                 WRITE(nulprt,*) subname,estr,' Mismatch in mask and frac fields for grid '//trim(gridname)
+                 CALL oasis_abort(file=__FILE__,line=__LINE__)
+              endif
+           enddo
+
+           !--- dst ---
 
            lsize = mct_gsmap_lsize(prism_part(dpart)%gsmap,mpi_comm_local)
-           call mct_avect_init(prism_mapper(mapID)%av_md,iList='mask',rList='area',lsize=lsize)
+           call mct_avect_init(prism_mapper(mapID)%av_md,iList='mask',rList='area:frac',lsize=lsize)
            call mct_avect_zero(prism_mapper(mapID)%av_md)
+           kmask = mct_aVect_indexIA(prism_mapper(mapID)%av_md,'mask')
+           karea = mct_aVect_indexRA(prism_mapper(mapID)%av_md,'area')
+           kfrac = mct_aVect_indexRA(prism_mapper(mapID)%av_md,'frac')
 !           gridname = prism_part(dpart)%gridname
-           gridname=prism_mapper(mapID)%dstgrid
-           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
-              prism_part(dpart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
-           call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_md, &
-              prism_part(dpart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           gridname=trim(prism_mapper(mapID)%dstgrid)
+           if (oasis_io_varexists('areas.nc',trim(gridname)//'.srf')) then
+              call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_md, &
+                 prism_part(dpart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           else
+              WRITE(nulprt,*) subname,estr,' Missing field '//trim(gridname)//'.srf in areas.nc needed for post-processing CONSERV'
+              CALL oasis_abort(file=__FILE__,line=__LINE__)
+           endif
+           rmask = .false.
+           rfrac = .false.
+           if (oasis_io_varexists('masks.nc',trim(gridname)//'.frc')) then
+              rfrac = .true.
+              call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
+                 prism_part(dpart)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real')
+           endif
+           if (oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) then
+              rmask = .true.
+              call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
+                 prism_part(dpart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
+           endif
+
+           if (OASIS_debug > 15) then
+              write(nulprt,*) subname,' dst rmask, rfrac = ',rmask,rfrac
+           endif
+
+           if (rmask) then
+              if (rfrac) then
+                 ! mask and frac read, continue
+              else
+                 ! mask only, set frac = mask
+                 prism_mapper(mapID)%av_md%rAttr(kfrac,:) = 0.0_ip_double_p
+                 do l = 1,lsize
+                    if (prism_mapper(mapID)%av_md%iAttr(kmask,l) == 0) prism_mapper(mapID)%av_md%rAttr(kfrac,l) = 1.0_ip_double_p
+                 enddo
+              endif
+           else
+              if (rfrac) then
+                 ! frac only, set mask = frac
+                 prism_mapper(mapID)%av_md%iAttr(kmask,:) = 1
+                 do l = 1,lsize
+                    if (prism_mapper(mapID)%av_md%rAttr(kfrac,l) /= 0._ip_double_p) prism_mapper(mapID)%av_md%iAttr(kmask,l) = 0
+                 enddo
+              else
+                 ! no mask, no frac, abort
+                 WRITE(nulprt,*) subname,estr,' Expecting mask or frac or both for grid '//trim(gridname)
+                 CALL oasis_abort(file=__FILE__,line=__LINE__)
+              endif
+           endif
+
+           ! verify consistency between frac and mask, mask=0 frac/=0
+           do l = 1,lsize
+              if ((prism_mapper(mapID)%av_md%rAttr(kfrac,l) /= 0._ip_double_p .and. prism_mapper(mapID)%av_md%iAttr(kmask,l) /= 0) .or. &
+                  (prism_mapper(mapID)%av_md%rAttr(kfrac,l) == 0._ip_double_p .and. prism_mapper(mapID)%av_md%iAttr(kmask,l) == 0)) then
+                 WRITE(nulprt,*) subname,estr,' Mismatch in mask and frac fields for grid '//trim(gridname)
+                 CALL oasis_abort(file=__FILE__,line=__LINE__)
+              endif
+           enddo
 
            prism_mapper(mapID)%AVred = .true.
 
            if (OASIS_debug >= 30) then
-              write(nulprt,*) subname,' DEBUG msi ',minval(prism_mapper(mapID)%av_ms%iAttr(:,:)),&
-                              maxval(prism_mapper(mapID)%av_ms%iAttr(:,:)),&
-                              sum(prism_mapper(mapID)%av_ms%iAttr(:,:))
-              write(nulprt,*) subname,' DEBIG msr ',minval(prism_mapper(mapID)%av_ms%rAttr(:,:)),&
-                              maxval(prism_mapper(mapID)%av_ms%rAttr(:,:)),&
-                              sum(prism_mapper(mapID)%av_ms%rAttr(:,:))
-              write(nulprt,*) subname,' DEBUG mdi ',minval(prism_mapper(mapID)%av_md%iAttr(:,:)),&
-                              maxval(prism_mapper(mapID)%av_md%iAttr(:,:)),&
-                              sum(prism_mapper(mapID)%av_md%iAttr(:,:))
-              write(nulprt,*) subname,' DEBUG mdr ',minval(prism_mapper(mapID)%av_md%rAttr(:,:)),&
-                              maxval(prism_mapper(mapID)%av_md%rAttr(:,:)),&
-                              sum(prism_mapper(mapID)%av_md%rAttr(:,:))
+              kmask = mct_aVect_indexIA(prism_mapper(mapID)%av_ms,'mask')
+              karea = mct_aVect_indexRA(prism_mapper(mapID)%av_ms,'area')
+              kfrac = mct_aVect_indexRA(prism_mapper(mapID)%av_ms,'frac')
+              write(nulprt,*) subname,' DEBUG ms mask ',minval(prism_mapper(mapID)%av_ms%iAttr(kmask,:)),&
+                              maxval(prism_mapper(mapID)%av_ms%iAttr(kmask,:)),&
+                              sum(prism_mapper(mapID)%av_ms%iAttr(kmask,:))
+              write(nulprt,*) subname,' DEBIG ms area ',minval(prism_mapper(mapID)%av_ms%rAttr(karea,:)),&
+                              maxval(prism_mapper(mapID)%av_ms%rAttr(karea,:)),&
+                              sum(prism_mapper(mapID)%av_ms%rAttr(karea,:))
+              write(nulprt,*) subname,' DEBIG ms frac ',minval(prism_mapper(mapID)%av_ms%rAttr(kfrac,:)),&
+                              maxval(prism_mapper(mapID)%av_ms%rAttr(kfrac,:)),&
+                              sum(prism_mapper(mapID)%av_ms%rAttr(kfrac,:))
+              kmask = mct_aVect_indexIA(prism_mapper(mapID)%av_md,'mask')
+              karea = mct_aVect_indexRA(prism_mapper(mapID)%av_md,'area')
+              kfrac = mct_aVect_indexRA(prism_mapper(mapID)%av_md,'frac')
+              write(nulprt,*) subname,' DEBUG md mask ',minval(prism_mapper(mapID)%av_md%iAttr(kmask,:)),&
+                              maxval(prism_mapper(mapID)%av_md%iAttr(kmask,:)),&
+                              sum(prism_mapper(mapID)%av_md%iAttr(kmask,:))
+              write(nulprt,*) subname,' DEBUG md area ',minval(prism_mapper(mapID)%av_md%rAttr(karea,:)),&
+                              maxval(prism_mapper(mapID)%av_md%rAttr(karea,:)),&
+                              sum(prism_mapper(mapID)%av_md%rAttr(karea,:))
+              write(nulprt,*) subname,' DEBUG md frac ',minval(prism_mapper(mapID)%av_md%rAttr(kfrac,:)),&
+                              maxval(prism_mapper(mapID)%av_md%rAttr(kfrac,:)),&
+                              sum(prism_mapper(mapID)%av_md%rAttr(kfrac,:))
               CALL oasis_flush(nulprt)
            endif
         endif

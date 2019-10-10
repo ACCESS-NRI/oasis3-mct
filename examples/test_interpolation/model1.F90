@@ -34,6 +34,11 @@ PROGRAM model1
   NAMELIST /grid_source_characteristics/cl_period_src
   NAMELIST /grid_source_characteristics/il_overlap_src
   !
+  CHARACTER(len=4)   :: cl_grd_tgt ! name of the target grid
+  NAMELIST /grid_target_characteristics/cl_grd_tgt
+  !
+  CHARACTER(len=14)  :: cl_msk_nam
+  !
   ! Global grid parameters : 
   INTEGER :: nlon, nlat    ! dimensions in the 2 directions of space
   INTEGER :: il_size
@@ -148,6 +153,7 @@ PROGRAM model1
   ! 
   OPEN(UNIT=70,FILE='name_grids.dat',FORM='FORMATTED')
   READ(UNIT=70,NML=grid_source_characteristics)
+  READ(UNIT=70,NML=grid_target_characteristics)
   CLOSE(70)
   !
   IF (FILE_Debug >= 2) THEN
@@ -171,7 +177,12 @@ PROGRAM model1
   !
   ! Read global grid longitudes, latitudes, corners, mask 
   CALL read_grid(nlon,nlat, data_gridname, cl_grd_src, w_unit, FILE_Debug, gg_lon, gg_lat)
-  CALL read_mask(nlon,nlat, data_maskname, cl_grd_src, w_unit, FILE_Debug, gg_mask)
+  cl_msk_nam = TRIM(cl_grd_src//'_with_'//cl_grd_tgt)
+  IF (inquire_mask(data_maskname,cl_msk_nam,w_unit, FILE_Debug)) THEN
+     CALL read_mask(nlon,nlat, data_maskname, cl_msk_nam, w_unit, FILE_Debug, gg_mask)
+  ELSE
+     CALL read_mask(nlon,nlat, data_maskname, cl_grd_src, w_unit, FILE_Debug, gg_mask)
+  END IF
   !
   IF (FILE_Debug >= 2) THEN
       WRITE(w_unit,*) 'After grid and mask reading'

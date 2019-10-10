@@ -23,7 +23,6 @@ MODULE mod_oasis_namcouple
   private
 
   public oasis_namcouple_init
-
 ! NAMCOUPLE PUBLIC DATA
 
   INTEGER (kind=ip_intwp_p),PARAMETER :: jpeighty = 5000 !< max number of characters to be read 
@@ -80,7 +79,7 @@ MODULE mod_oasis_namcouple
   REAL (kind=ip_realwp_p) ,public,pointer :: namflddad(:)  !< dst additive term
 
   CHARACTER(len=ic_med)   ,public,pointer :: namscrmet(:)  !< scrip method (CONSERV, DISTWGT, BILINEAR, BICUBIC, GAUSWGT)
-  CHARACTER(len=ic_med)   ,public,pointer :: namscrnor(:)  !< scrip conserv normalization (FRACAREA, DESTAREA, FRACNNEI)
+  character(len=ic_med)   ,public,pointer :: namscrnor(:)  !< scrip conserv normalization (FRACAREA, DESTAREA, FRACNNEI, FRACARTR, DESTARTR, FRACNNTR)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrtyp(:)  !< scrip mapping type (SCALAR, VECTOR)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrord(:)  !< scrip conserve order (FIRST, SECOND)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrres(:)  !< scrip search restriction (LATLON, LATITUDE)
@@ -115,6 +114,7 @@ MODULE mod_oasis_namcouple
   CHARACTER(len=4), PARAMETER :: crnlatsuf = '.cla'
   CHARACTER(len=4), PARAMETER :: cmsksuf = '.msk'
   CHARACTER(len=4), PARAMETER :: csursuf = '.srf'
+  CHARACTER(len=4), PARAMETER :: cfrcsuf = '.frc'
   CHARACTER(len=4), PARAMETER :: cangsuf = '.ang'
 ! --- mod_rainbow
   LOGICAL,DIMENSION(:),ALLOCATABLE :: lmapp
@@ -568,8 +568,10 @@ SUBROUTINE oasis_namcouple_init()
               namfldcoo(jf) = trim(cconopt(ig_number_field(jf)))
               IF (cconmet(ig_number_field(jf)) .EQ. 'GLOBAL') namfldcon(jf) = ip_cglobal
               IF (cconmet(ig_number_field(jf)) .EQ. 'GLBPOS') namfldcon(jf) = ip_cglbpos
+              IF (cconmet(ig_number_field(jf)) .EQ. 'GSSPOS') namfldcon(jf) = ip_cgsspos
               IF (cconmet(ig_number_field(jf)) .EQ. 'BASBAL') namfldcon(jf) = ip_cbasbal
               IF (cconmet(ig_number_field(jf)) .EQ. 'BASPOS') namfldcon(jf) = ip_cbaspos
+              IF (cconmet(ig_number_field(jf)) .EQ. 'BSSPOS') namfldcon(jf) = ip_cbsspos
               IF (namfldcon(jf) .EQ. ip_cnone) THEN
                  WRITE(tmpstr1,*) subname,jf,'WARNING: CONSERV option not supported: '//&
                                   &TRIM(cconmet(ig_number_field(jf)))
@@ -1596,7 +1598,7 @@ SUBROUTINE inipar
   INTEGER (kind=ip_intwp_p) il_file_unit, id_error
   INTEGER (kind=ip_intwp_p) il_max_entry_id, il_no_of_entries
   INTEGER (kind=ip_intwp_p) il_i, il_pos
-  LOGICAL llseq, lllag, ll_exist
+  LOGICAL llseq, lllag
   INTEGER lastplace
   INTEGER (kind=ip_intwp_p) :: ib,ilind1,ilind2,ilind
   INTEGER (kind=ip_intwp_p) :: ja,jf,jfn,jz,jm,ilen,idum
@@ -2338,14 +2340,17 @@ SUBROUTINE inipar
               IF (cmap_method(ig_number_field(jf)) .EQ. 'CONSERV') THEN
                  CALL parse(clline, clvari, 6, jpeighty, ilen, __LINE__)
                  READ(clvari, FMT=2009)cnorm_opt(ig_number_field(jf))
-                 IF (cnorm_opt(ig_number_field(jf)) .NE. 'FRACAREA' .AND. &
+                 IF (cnorm_opt(ig_number_field(jf)) .NE. 'FRACAREA' .and. &
                      cnorm_opt(ig_number_field(jf)) .NE. 'DESTAREA' .AND.  &
-                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACNNEI') THEN
+                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACNNEI' .AND. &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACARTR' .AND. &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'DESTARTR' .AND.  &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACNNTR') THEN
                     IF (mpi_rank_global == 0) THEN
                        WRITE(nulprt1,*) '    '
                     ENDIF
                     CALL prtout('ERROR in namcouple for normalize option of field',jf,1)
-                    WRITE(tmpstr1, *) '==> must be FRACAREA, DESTAREA, or FRACNNEI'
+                    write(tmpstr1, *) '==> must be FRACAREA, DESTAREA, FRACNNEI, FRACARTR, DESTARTR, or FRACNNTR'
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
                  ENDIF
 !* Get order of remapping for CONSERV
@@ -2624,10 +2629,12 @@ SUBROUTINE inipar
                  cficbf(ig_number_field(jf))(1:ifcb)//cglatsuf, &
                  cficbf(ig_number_field(jf))(1:ifcb)//cmsksuf,  &
                  cficbf(ig_number_field(jf))(1:ifcb)//csursuf, &
+                 cficbf(ig_number_field(jf))(1:ifcb)//cfrcsuf,  &
                  cficaf(ig_number_field(jf))(1:ifca)//cglonsuf,  &
                  cficaf(ig_number_field(jf))(1:ifca)//cglatsuf, &
                  cficaf(ig_number_field(jf))(1:ifca)//cmsksuf,  &
-                 cficaf(ig_number_field(jf))(1:ifca)//csursuf
+                 cficaf(ig_number_field(jf))(1:ifca)//csursuf,  &
+                 cficaf(ig_number_field(jf))(1:ifca)//cfrcsuf
               WRITE(nulprt1, FMT=3009) 
               WRITE(nulprt1, FMT=3010)
               DO ja = 1, ig_ntrans(ig_number_field(jf))
@@ -2741,10 +2748,12 @@ SUBROUTINE inipar
              /,10X,'  Source latitude file string     = ',A8, &
              /,10X,'  Source mask file string         = ',A8, &
              /,10X,'  Source surface file string      = ',A8, &
+             /,10X,'  Source surf frac.s file string  = ',A8, &
              /,10X,'  Target longitude file string    = ',A8, &
              /,10X,'  Target latitude file string     = ',A8, &
              /,10X,'  Target mask file string         = ',A8, &
-             /,10X,'  Target surface file string      = ',A8,/)
+             /,10X,'  Target surface file string      = ',A8, &
+             /,10X,'  Target surf frac.s file string  = ',A8,/)
  3009 FORMAT(/,10X,'  ANALYSIS PARAMETERS ')
  3010 FORMAT(10X,'  ******************* ',/)
  3011 FORMAT(/,5X,'  ANALYSIS number ',I2,' is ',A8, &

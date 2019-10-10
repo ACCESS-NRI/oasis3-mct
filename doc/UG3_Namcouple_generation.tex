@@ -226,7 +226,7 @@ load balance. More information can be found in the README file in {\tt
   information in the remapping weight file to reduced mapping communication. Option {\tt decomp\_wghtfile}
   will take some extra time in initialization but it should result in faster mapping.
   The default is {\tt decomp\_1d} but it is recommended to test {\tt decomp\_wghtfile} to see if that
-  option improves performance. More details can be found in \cite {craig 18} and in \cite{valcke11}.
+  option improves performance. More details can be found in \cite {craig18} and in \cite{valcke11}.
 
 \item {\tt \$NMATXRD}: Optional (new in OASIS3-MCT\_4.0); on the line below this keyword is a character string
   that indicates the method used to read remapping weights.  There are two options, {\tt orig}
@@ -237,7 +237,7 @@ load balance. More information can be found in the README file in {\tt
   series of exchanges are then done and just the weights needed on
   each process are sent.  The {\tt orig} method sends much more data but is more parallel.  The {\tt ceg}
   method does most of the work on the root process but less data is communicated.  The default option
-  is {\tt ceg}. More details can be found in \cite {craig 18}.
+  is {\tt ceg}. More details can be found in \cite {craig18}.
 
 \item {\tt \$NWGTOPT} : Optional (new in OASIS3-MCT\_4.0); on the line below this keyword is a character string
   that indicates how to handle bad remapping weights.  There are four options \newline
