@@ -163,6 +163,34 @@ END SUBROUTINE read_dimgrid
   !
 END SUBROUTINE read_grid
 
+!****************************************************************************************
+LOGICAL FUNCTION inquire_mask (data_filename, cl_grd, w_unit, FILE_Debug)
+!**************************************************************************************
+   !
+   INTEGER                  :: w_unit,FILE_Debug
+   !
+   INTEGER                  :: il_file_id, il_indice_id
+   !               
+   CHARACTER(len=30)        :: data_filename
+   CHARACTER(len=*)        :: cl_grd ! name of the source grid
+   CHARACTER(len=18)        :: cl_nam ! cl_grd+.lon,+.lat ...
+   !
+   ! Dimensions
+   !
+   CALL hdlerr(NF90_OPEN(data_filename, NF90_NOWRITE, il_file_id), __LINE__ )
+   !
+   cl_nam=TRIM(cl_grd)//".msk" 
+   inquire_mask =  NF90_INQ_VARID(il_file_id, TRIM(cl_nam),  il_indice_id) == NF90_NOERR
+   !
+   CALL hdlerr( NF90_CLOSE(il_file_id), __LINE__ )
+   !
+   IF (FILE_Debug >= 2) THEN
+      WRITE(w_unit,*) 'End of function inquire_mask for ',TRIM(cl_grd)
+      CALL FLUSH(w_unit)
+   ENDIF
+   !
+END FUNCTION inquire_mask
+
   !****************************************************************************************
   SUBROUTINE read_mask (nlon, nlat, &
                         data_filename, cl_grd, w_unit, FILE_Debug, &
@@ -176,8 +204,8 @@ END SUBROUTINE read_grid
   INTEGER, INTENT(in)     :: nlon,nlat
   !
   CHARACTER(len=30)        :: data_filename
-  CHARACTER(len=4)         :: cl_grd ! name of the source grid
-  CHARACTER(len=8)         :: cl_nam ! cl_grd+.lon,+.lat ...
+  CHARACTER(len=*)         :: cl_grd ! name of the source grid
+  CHARACTER(len=18)         :: cl_nam ! cl_grd+.lon,+.lat ...
   !
   INTEGER,  DIMENSION(2)   :: ila_dim
   INTEGER,  DIMENSION(2)   :: ila_what
@@ -189,8 +217,8 @@ END SUBROUTINE read_grid
   !
   CALL hdlerr(NF90_OPEN(data_filename, NF90_NOWRITE, il_file_id), __LINE__ )
   !
-  cl_nam=cl_grd//".msk" 
-  CALL hdlerr( NF90_INQ_VARID(il_file_id, cl_nam,  il_indice_id),    __LINE__ )
+  cl_nam=TRIM(cl_grd)//".msk" 
+  CALL hdlerr( NF90_INQ_VARID(il_file_id, TRIM(cl_nam),  il_indice_id),    __LINE__ )
   !
   ila_what(:)=1
   !

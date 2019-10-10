@@ -1,0 +1,9 @@
+util/make_dir/COMP.err
+util/make_dir/COMP.log
+*.o
+*.mod
+*~
+examples/test_interpolation/model1
+examples/test_interpolation/model2
+examples/test_interpolation/test_interpolation_*
+

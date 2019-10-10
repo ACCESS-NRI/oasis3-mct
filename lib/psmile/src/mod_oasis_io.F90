@@ -28,6 +28,7 @@ MODULE mod_oasis_io
    public :: oasis_io_write_2dgridint_fromroot
    public :: oasis_io_write_2dgridfld_fromroot
    public :: oasis_io_write_3dgridfld_fromroot
+   public :: oasis_io_write_fldattr
    public :: oasis_io_read_field_fromroot
 
 !===========================================================================
@@ -210,6 +211,79 @@ subroutine oasis_io_read_avfld(filename,av,gsmap,mpicom,avfld,filefld,fldtype)
    call oasis_debug_exit(subname)
 
 end subroutine oasis_io_read_avfld
+
+!===============================================================================
+
+!> Write an attribute keyword value pair to a field
+
+subroutine oasis_io_write_fldattr(filename,fldname,keyword,value)
+
+   ! ---------------------------------------
+   ! Designed to work with oasis3 write_grid .
+   ! ---------------------------------------
+
+   implicit none
+
+   character(len=*), intent(in) :: filename   !< file name
+   character(len=*), intent(in) :: fldname    !< field name
+   character(len=*), intent(in) :: keyword    !< attribute name
+   character(len=*), intent(in) :: value      !< attribute value
+
+   !--- local ---
+   integer(ip_i4_p)    :: ncid,dimid,dimid2(2),varid  ! cdf info
+   integer(ip_i4_p)    :: status      ! error code
+   integer(ip_i4_p)    :: ind         ! string index
+   logical             :: exists      ! file existance
+   character(len=ic_med) :: gridname  ! grid name derived from fldname
+
+   character(len=*),parameter :: subname = '(oasis_io_write_fldattr)'
+
+!-------------------------------------------------------------------------------
+!
+!-------------------------------------------------------------------------------
+
+   call oasis_debug_enter(subname)
+
+!   expects to run only on 1 pe.
+!   if (iam == master_task) then
+
+    if (OASIS_debug >= 5) then
+       write(nulprt,*) subname,' write ',trim(filename),' ',trim(fldname)
+       write(nulprt,*) subname,' write ',trim(keyword),' ',trim(value)
+    endif
+
+    ! open file, must already exist
+    inquire(file=trim(filename),exist=exists)
+    if (exists) then
+       status = nf90_open(filename,NF90_WRITE,ncid)
+       IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
+                                                 mpi_rank_local,':',TRIM(nf90_strerror(status))
+       status = nf90_redef(ncid)
+    else
+       write(nulprt,*) subname,estr,'file does not exist'
+       call oasis_abort(file=__FILE__,line=__LINE__)
+    endif
+
+    ! get varid, must already exist
+    status = nf90_inq_varid(ncid,trim(fldname),varid)
+    if (status == nf90_noerr) then
+       status = nf90_put_att(ncid,varid,trim(keyword),trim(value))
+       IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
+                                                 mpi_rank_local,':',TRIM(nf90_strerror(status))
+    else
+       write(nulprt,*) subname,estr,'variable does not exist ',trim(fldname)
+       call oasis_abort(file=__FILE__,line=__LINE__)
+    endif
+
+    status = nf90_close(ncid)
+    IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
+                                              mpi_rank_local,':',TRIM(nf90_strerror(status))
+
+!   endif
+
+   call oasis_debug_exit(subname)
+
+end subroutine oasis_io_write_fldattr
 
 !===============================================================================
 
