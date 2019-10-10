@@ -55,7 +55,7 @@ CONTAINS
 !
 ! !INTERFACE:
 
-  SUBROUTINE remap_bicub_reduced(ld_extrapdone, &
+  SUBROUTINE remap_bicub_reduced(ld_extrapdone, ll_nnei, &
                                  mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
 
       
@@ -71,7 +71,7 @@ CONTAINS
     integer (kind=int_kind), INTENT(in) :: &
        mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
 
-    LOGICAL :: ll_nnei            ! true (default) if extra search is done 
+    LOGICAL, INTENT(in) :: ll_nnei  ! true (default) if extra search is done 
     
     INTEGER (KIND=int_kind), DIMENSION(4,4) :: &
        ila_src_add                ! address for source points non-masked  
@@ -154,8 +154,6 @@ CONTAINS
       WRITE (UNIT = nulou,FMT = *) 'Entering routine remap_bicub_reduced'
       CALL OASIS_FLUSH_SCRIP(nulou)
     ENDIF
-
-    ll_nnei = .true.
 
 #ifdef REMAP_TIMING
     if (ll_timing) call timer_start(2,'remap_bicubic_reduced alloc')

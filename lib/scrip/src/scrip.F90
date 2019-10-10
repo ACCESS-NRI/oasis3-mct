@@ -87,20 +87,20 @@
 !
 !-----------------------------------------------------------------------
 
-      character (char_len), intent(in) :: interp_file1, & ! filename for output remap data (map1)
-                                          map1_name       ! name for mapping from grid1 to grid2
+      character(len=*), intent(in) :: interp_file1, & ! filename for output remap data (map1)
+                                      map1_name       ! name for mapping from grid1 to grid2
 
-      character*8, intent(in) ::          m_method, &     ! choice for mapping method
-                                          n_opt,    &     ! option for normalizing weights
-                                          cons_order      ! conservation order, FIRST or SECOND
+      character(len=*), intent(in) :: m_method, &     ! choice for mapping method
+                                      n_opt,    &     ! option for normalizing weights
+                                      cons_order      ! conservation order, FIRST or SECOND
 
-      LOGICAL ::            lextrapdone   ! logical, true if EXTRAP done on field
+      LOGICAL, intent(in) ::          lextrapdone     ! logical, true if EXTRAP done on field
 
-      REAL (kind=dbl_kind) ::     rl_varmul             ! Gaussian variance (for GAUSWGT)
+      REAL (kind=dbl_kind), intent(in) :: rl_varmul       ! Gaussian variance (for GAUSWGT)
 
-      INTEGER (kind=int_kind) ::   id_scripvoi          ! number of neighbours for DISTWGT and GAUSWGT
+      INTEGER (kind=int_kind), intent(in) :: id_scripvoi  ! number of neighbours for DISTWGT and GAUSWGT
 
-      integer (kind=int_kind) :: mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
+      integer (kind=int_kind), intent(in) :: mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
 
 !-----------------------------------------------------------------------
 !
@@ -111,6 +111,8 @@
       integer (kind=int_kind) :: n             ! dummy counter
 
       integer (kind=int_kind) :: ib            ! dummy counter
+
+      LOGICAL                 :: ll_nnei       ! logical, true if nearest neighbor to be done
 
       character (char_len) :: interp_file2, &  ! filename for output remap data (map2)
                               map2_name,    &  ! name for mapping from grid2 to grid1
@@ -153,6 +155,8 @@
       map_method = m_method
       normalize_opt = n_opt
 
+   !--- map method ---
+
       select case(map_method)
       case ('CONSERV')
         map_type = map_type_conserv
@@ -163,20 +167,36 @@
         else
            stop 'unknown conserve_order '
         endif
-      case ('BILINEAR')
+      case ('BILINEAR','BILINEARNF')
         map_type = map_type_bilinear
-      case ('BICUBIC')
+      case ('BICUBIC','BICUBICNF')
         map_type = map_type_bicubic
-      case ('DISTWGT')
+      case ('DISTWGT','DISTWGTNF')
         map_type = map_type_distwgt
-      case ('GAUSWGT')
+      case ('GAUSWGT','GAUSWGTNF')
         map_type = map_type_gauswgt
       case default
         stop 'unknown mapping method'
       end select
-      
-      if (normalize_opt(1:6) == 'FRACNN') lfracnnei = .true.
-      
+
+   !--- nnei fill option ---
+
+      select case(map_method)
+      case ('BILINEARNF','BICUBICNF','DISTWGTNF','GAUSWGTNF')
+        ll_nnei = .false.
+      case default
+        ll_nnei = .true.
+      end select
+
+      select case (normalize_opt)
+      case ('FRACNNEI','FRACNNTR','DESTNNEI','DESTNNTR')
+        lfracnnei = .true.
+      case default
+        lfracnnei = .false.
+      end select
+
+   !--- CONSERV normalization ---
+
       select case(normalize_opt(1:4))
       case ('NONE')
          norm_opt = norm_opt_none
@@ -236,25 +256,25 @@
           END DO
       case(map_type_bilinear)
           CALL timer_start(1,'remap_bi overall')
-          CALL remap_bi(lextrapdone, &
+          CALL remap_bi(lextrapdone, ll_nnei, &
                         mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
       case(map_type_distwgt)
           CALL timer_start(1,'remap_dist_gaus_wgt overall')
-          CALL remap_dist_gaus_wgt (lextrapdone, id_scripvoi, &
+          CALL remap_dist_gaus_wgt (lextrapdone, ll_nnei, id_scripvoi, &
                                     mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
       case(map_type_gauswgt)
           CALL timer_start(1,'remap_dist_gaus_wgt overall')
-          CALL remap_dist_gaus_wgt (lextrapdone, id_scripvoi, &
+          CALL remap_dist_gaus_wgt (lextrapdone, ll_nnei, id_scripvoi, &
                                     mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map, &
                                     rl_varmul)
       case(map_type_bicubic)
           IF (restrict_TYPE == 'REDUCED') then
               CALL timer_start(1,'remap_bicubic_reduced overall')
-              CALL remap_bicub_reduced(lextrapdone, &
+              CALL remap_bicub_reduced(lextrapdone, ll_nnei, &
                                        mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
           ELSE
               CALL timer_start(1,'remap_bi overall')
-              CALL remap_bi(lextrapdone, &
+              CALL remap_bi(lextrapdone, ll_nnei, &
                             mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
           ENDIF
        case default

@@ -76,7 +76,7 @@ module remap_distance_gaussian_weight
       coslon, sinlon,  & ! cosine, sine of grid lons (for distance) 
       wgtstmp            ! an array to hold the link weight
 
-   logical, parameter :: ll_nnei=.true.
+   logical :: ll_nnei_dgw=.true.
 
    integer (kind=int_kind) :: il_nbthreads = 1
 
@@ -86,7 +86,7 @@ contains
 
    !***********************************************************************
 
-   subroutine remap_dist_gaus_wgt (lextrapdone, num_neighbors, &
+   subroutine remap_dist_gaus_wgt (lextrapdone, ll_nnei_in, num_neighbors, &
                                    mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map, &
                                    r_varmul )
 
@@ -102,13 +102,15 @@ contains
       !
       !-----------------------------------------------------------------------
 
-      logical :: lextrapdone   ! logical, true if EXTRAP done on field
+      logical, INTENT(in) :: lextrapdone   ! logical, true if EXTRAP done on field
 
-      real (kind=dbl_kind),optional :: r_varmul          ! Gaussian variance
+      logical, INTENT(in) :: ll_nnei_in    ! logical if nearest neighbor fill to be done
 
-      integer (kind=int_kind) :: num_neighbors     ! number of neighbours
+      real (kind=dbl_kind), INTENT(in), optional :: r_varmul   ! Gaussian variance
 
-      integer (kind=int_kind) :: mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
+      integer (kind=int_kind), INTENT(in) :: num_neighbors     ! number of neighbours
+
+      integer (kind=int_kind), INTENT(in) :: mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
 
       !-----------------------------------------------------------------------
       !
@@ -178,6 +180,10 @@ contains
          write (UNIT = nulou,FMT = *)'Entering routine remap_dist_gaus_wgt'
          call OASIS_FLUSH_SCRIP(nulou)
       endif
+
+! copy to module data
+      ll_nnei_dgw = ll_nnei_in
+
       !
       !-----------------------------------------------------------------------
       !
@@ -293,7 +299,7 @@ contains
 
 !$OMP PARALLEL NUM_THREADS(il_envthreads) DEFAULT(NONE) &
 !$OMP SHARED(il_envthreads) &
-!$OMP SHARED(lextrapdone,num_neighbors) &
+!$OMP SHARED(lextrapdone,ll_nnei_dgw,num_neighbors) &
 !$OMP SHARED(grid2_mask,grid2_frac) &
 !$OMP SHARED(grid2_center_lat,grid2_center_lon) &
 !$OMP SHARED(grid1_mask) &
@@ -557,7 +563,7 @@ contains
                   icount = icount + 1
                endif
             end do
-            if (ll_nnei) then
+            if (ll_nnei_dgw) then
                if (icount == 0) then
                   if (nlogprt .ge. 2) then
                      write(nulou,*) '    '
@@ -970,7 +976,7 @@ contains
             endif
          endif
 
-         if (ll_nnei) then
+         if (ll_nnei_dgw) then
             !***
             !*** store the non-masked closest neighbour
             !***

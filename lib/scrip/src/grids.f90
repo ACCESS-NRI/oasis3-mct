@@ -187,10 +187,10 @@
       integer(kind=int_kind), intent(in), optional :: ilogunit
       integer(kind=int_kind), intent(in), optional :: ilogprt
 
-      character*8, intent(in) :: m_method, &          ! remapping method
-                                 rst_type, &          ! restriction type
-                                 src_name, &          ! source grid name
-                                 dst_name             ! target grid name
+      character(len=*), intent(in) :: m_method, &          ! remapping method
+                                      rst_type, &          ! restriction type
+                                      src_name, &          ! source grid name
+                                      dst_name             ! target grid name
 
       logical, intent(in) :: lstore_src_area, &  ! store source area from grid file
                              lstore_dst_area     ! store dest area from grid file
@@ -266,13 +266,13 @@
         luse_grid_centers = .false.
         lstore_grid1_area = lstore_src_area
         lstore_grid2_area = lstore_dst_area
-      case ('BILINEAR')
+      case ('BILINEAR','BILINEARNF')
         luse_grid_centers = .true.
-      case ('BICUBIC')
+      case ('BICUBIC','BICUBICNF')
         luse_grid_centers = .true.
-      case ('DISTWGT')
+      case ('DISTWGT','DISTWGTNF')
         luse_grid_centers = .true.
-      case ('GAUSWGT')
+      case ('GAUSWGT','GAUSWGTNF')
         luse_grid_centers = .true.
       case default
         stop 'unknown mapping method'
