@@ -256,9 +256,9 @@ subroutine oasis_io_write_fldattr(filename,fldname,keyword,value)
     inquire(file=trim(filename),exist=exists)
     if (exists) then
        status = nf90_open(filename,NF90_WRITE,ncid)
-       IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
-                                                 mpi_rank_local,':',TRIM(nf90_strerror(status))
+       call check_status(status,subname,__FILE__,__LINE__)
        status = nf90_redef(ncid)
+       call check_status(status,subname,__FILE__,__LINE__)
     else
        write(nulprt,*) subname,estr,'file does not exist'
        call oasis_abort(file=__FILE__,line=__LINE__)
@@ -268,16 +268,14 @@ subroutine oasis_io_write_fldattr(filename,fldname,keyword,value)
     status = nf90_inq_varid(ncid,trim(fldname),varid)
     if (status == nf90_noerr) then
        status = nf90_put_att(ncid,varid,trim(keyword),trim(value))
-       IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
-                                                 mpi_rank_local,':',TRIM(nf90_strerror(status))
+       call check_status(status,subname,__FILE__,__LINE__)
     else
        write(nulprt,*) subname,estr,'variable does not exist ',trim(fldname)
        call oasis_abort(file=__FILE__,line=__LINE__)
     endif
 
     status = nf90_close(ncid)
-    IF (status /= nf90_noerr) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
-                                              mpi_rank_local,':',TRIM(nf90_strerror(status))
+    call check_status(status,subname,__FILE__,__LINE__)
 
 !   endif
 
