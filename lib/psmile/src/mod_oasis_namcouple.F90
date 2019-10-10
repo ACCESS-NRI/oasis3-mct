@@ -2408,7 +2408,8 @@ SUBROUTINE inipar
                  ENDIF 
               ENDIF
 !* Get gaussian variance for GAUSWGT
-              IF (cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGT') THEN
+              IF (cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGT' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGTNF') THEN
                  CALL parse(clline, clvari, 7, jpeighty, ilen, __LINE__)
                  IF (ilen .LE. 0) THEN
                     IF (mpi_rank_global == 0) THEN
