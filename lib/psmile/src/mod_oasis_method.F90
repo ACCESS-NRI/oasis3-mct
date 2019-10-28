@@ -40,7 +40,7 @@ MODULE mod_oasis_method
 CONTAINS
 
 !----------------------------------------------------------------------
-   SUBROUTINE oasis_init_comp(mynummod,cdnam,kinfo)
+   SUBROUTINE oasis_init_comp(mynummod,cdnam,kinfo, config_dir, num_cpl_fields)
 
    ! This is COLLECTIVE, all pes must call
 
@@ -49,6 +49,8 @@ CONTAINS
    INTEGER (kind=ip_intwp_p),intent(out)   :: mynummod     
    CHARACTER(len=*)         ,intent(in)    :: cdnam
    INTEGER (kind=ip_intwp_p),intent(inout),optional :: kinfo
+   CHARACTER(len=*),intent(in),optional :: config_dir
+   INTEGER (kind=ip_intwp_p),intent(inout),optional :: num_cpl_fields
 !  ---------------------------------------------------------
    integer(kind=ip_intwp_p) :: mpi_err
    INTEGER(kind=ip_intwp_p) :: n,nns,iu
@@ -78,10 +80,10 @@ CONTAINS
    lg_mpiflag = .FALSE.
    CALL MPI_Initialized ( lg_mpiflag, mpi_err )
    IF ( .NOT. lg_mpiflag ) THEN
-      if (OASIS_debug >= 0) WRITE (0,FMT='(A)') subname//': Calling MPI_Init'
+      if (OASIS_debug >= 1) WRITE (0,FMT='(A)') subname//': Calling MPI_Init'
       CALL MPI_INIT ( mpi_err )
    else
-      if (OASIS_debug >= 0) WRITE (0,FMT='(A)') subname//': Not Calling MPI_Init'
+      if (OASIS_debug >= 1) WRITE (0,FMT='(A)') subname//': Not Calling MPI_Init'
    ENDIF
 
 #ifdef use_comm_MPI1
@@ -118,11 +120,19 @@ CONTAINS
    !------------------------
 
    IF (mpi_rank_global == 0) THEN
+    if (present(config_dir)) then
+      call oasis_namcouple_init(config_dir=config_dir)
+    else
       call oasis_namcouple_init()
+    endif
    endif
    call oasis_mpi_barrier(mpi_comm_global)
    IF (mpi_rank_global /= 0) THEN
+    if (present(config_dir)) then
+      call oasis_namcouple_init(config_dir=config_dir)
+    else
       call oasis_namcouple_init()
+    endif
    endif
    OASIS_debug = namlogprt
    TIMER_debug = namtlogprt
@@ -156,6 +166,10 @@ CONTAINS
    ENDIF
 
    ALLOCATE(prism_var(mvar))
+
+   if (present(num_cpl_fields)) then
+      num_cpl_fields = mvar
+   endif
 
    ! Store all the names of the fields exchanged in the namcouple
    ! which can be different of namsrcfld(:) and namdstfld(:) if multiple 
@@ -670,11 +684,13 @@ CONTAINS
 
  END SUBROUTINE oasis_get_intracomm
 !----------------------------------------------------------------------
-   SUBROUTINE oasis_enddef(kinfo)
+   SUBROUTINE oasis_enddef(kinfo, runtime, coupling_field_timesteps)
 
    IMPLICIT NONE
 
    INTEGER (kind=ip_intwp_p),intent(inout),optional :: kinfo
+   INTEGER (kind=ip_i4_p),intent(in),optional :: runtime
+   INTEGER (kind=ip_i4_p), dimension(:), intent(in), optional :: coupling_field_timesteps
 !  ---------------------------------------------------------
    integer (kind=ip_intwp_p) :: n
    integer (kind=ip_intwp_p) :: lkinfo
@@ -683,6 +699,23 @@ CONTAINS
 
    call oasis_debug_enter(subname)
    lkinfo = OASIS_OK
+
+   ! Override some values in the namcouple, needs to be done before
+   ! oasis_coupler_setup()
+   if (present(runtime)) then
+      namruntim = runtime
+   endif
+
+   if (present(coupling_field_timesteps)) then
+      if (size(coupling_field_timesteps) /= size(namflddti)) then
+        write(nulprt,*) subname,' ERROR: wrong number of coupling field timesteps'
+        write(nulprt,*) subname, size(coupling_field_timesteps), size(namflddti)
+        call oasis_flush(nulprt)
+        call oasis_abort_noarg()
+      endif
+
+      namflddti(:) = coupling_field_timesteps(:)
+   endif
 
    !------------------------
    !--- write grid info to files one model at a time
