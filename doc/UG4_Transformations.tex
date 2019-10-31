@@ -221,11 +221,11 @@ noted with the string UNUSED and not described.
   \begin{itemize}
 
   \item {\tt DISTWGT} performs a distance weighted nearest-neighbour
-    interpolation (N neighbours) with a nearest neighbor fill for unset target points. 
-    All types of grids are supported.
+    interpolation (N neighbours) with a nearest neighbor fill for non-masked target points
+    that do not receive a value. All types of grids are supported.
 
   \item {\tt DISTWGTNF} performs a distance weighted nearest-neighbour
-    interpolation (N neighbours) WITHOUT the nearest neighbor fill for unset target points. 
+    interpolation (N neighbours) WITHOUT the nearest neighbor fill for non-masked target points. 
     All types of grids are supported.
 
     The configuring line is:
@@ -263,11 +263,11 @@ noted with the string UNUSED and not described.
 
   \item {\tt GAUSWGT} performs a N nearest-neighbour interpolation
     weighted by their distance and a gaussian function with a nearest neighbor fill for
-    unset target points. All grid types are supported.
+    non-masked target points that do not receive a value. All grid types are supported.
 
   \item {\tt GAUSWGTNF} performs a N nearest-neighbour interpolation
     weighted by their distance and a gaussian function WITHOUT the nearest neighbor fill for
-    unset target points. All grid types are supported.
+    non-masked target points. All grid types are supported.
 
     The configuring line is:
   \begin{verbatim}
@@ -293,7 +293,7 @@ noted with the string UNUSED and not described.
     bilinear approximation (see details in chapter 4 of SCRIP 1.4
     documentation SCRIPusers.pdf). Logically-Rectangular (LR) and
     Reduced (D) source grid types are supported.  It also generates
-    interpolation for unset target points with a nearest neighbor fill.
+    interpolation for non-masked target points with a nearest neighbor fill.
 
   \item {\tt BILINEARNF} is identical to {\tt BILINEAR} but without the
     nearest neighbor fill.
@@ -314,7 +314,7 @@ noted with the string UNUSED and not described.
     need to be calculated by the source code and transfered as extra
     arguments of the {\tt oasis\_put} (see {\tt fld2, fld3, fld4} in
     section \ref{prismput}).  Finally, this interpolation will fill
-    unset target points with a nearest neighbor fill.
+    non-masked target points that do not receive a value with a nearest neighbor fill.
 
   \item {\tt BICUBICNF} is identical to {\tt BICUBIC} but without the
     nearest neighbor fill.
