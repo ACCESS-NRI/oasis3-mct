@@ -13,11 +13,11 @@ CPPKEYDECOMP_M2=DECOMP_APPLE
 #
 ### End User configurable options ###
 #
-OBJ_M1 =  routine_hdlerr.o read_all_data.o \
+OBJ_M1 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \
           decomp_def.o gradient_bicubic.o \
           function_ana.o distance_rad.o \
           gradient_conserv.o
-OBJ_M2 =  routine_hdlerr.o read_all_data.o \
+OBJ_M2 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \
           decomp_def_m2.o function_ana.o \
           write_all_fields.o
 #-------------------------------------------------------------------------------
@@ -45,6 +45,8 @@ model2: $(OBJ_M2) model2.o $(LIBPSMILE) Makefile
 # Rules for compilation
 #-------------------------------------------------------------------------------
 #
+routine_model_abort.o :	routine_model_abort.f90
+				$(F90) $(F90FLAGS) -c routine_model_abort.f90
 routine_hdlerr.o :		routine_hdlerr.f90
 				$(F90) $(F90FLAGS) -c routine_hdlerr.f90
 read_all_data.o :		read_all_data.F90
