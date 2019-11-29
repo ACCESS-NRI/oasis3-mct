@@ -472,8 +472,7 @@ Must be called to start the grid writing process.
   \begin{itemize}
   \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
 
-  \item {\tt nc [INTEGER; IN]} : number of corners per grid cell
-    (always 4 in the version)
+  \item {\tt nc [INTEGER; IN]} : number of corners per grid cell (can be more or less than 4)
   \item {\tt clon [REAL, DIMENSION (nx,ny,nc);IN]} : single or double real array of corner
     longitudes covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition (in degrees\_East)
   \item {\tt clat [REAL, DIMENSION (nx,ny,nc);IN]} : single or double real array of corner
@@ -522,6 +521,7 @@ Must be called to start the grid writing process.
   \end{itemize}
   Writes of the component grid cell areas. Needed for some {\tt SCRIPR} options and for the {\tt CONSERV}
   operation (see section \ref{subsec_cooking}).    The area field is written to the {\em areas.nc} file.
+  The surfaces may be given in any units but they must be the same on the source and target sides; furthermore they must be in square radians if the True Area (TR) correction is activated, see section 4.3.
 
   \vspace{0.2cm}
 \item {\tt CALL prism\_terminate\_grids\_writing()} or
@@ -565,7 +565,7 @@ compatibility with OASIS3-MCT\_2.0, they may still call it with any {\tt name} a
     {\it namcouple}); maximum length of 80 characters
   \item {\tt il\_part\_id [INTEGER; IN]}: partition ID returned from {\tt oasis\_def\_partition} (see section
     \ref{subsubsec_Partition})
-  \item {\tt var\_nodims [INTEGER, DIMENSION(2); INOUT]}: var\_nodims(1)
+  \item {\tt var\_nodims [INTEGER, DIMENSION(2); IN]}: var\_nodims(1)
     is not used anymore in OASIS3-MCT so its value can be anything
     but it is still part of the oasis\_def\_var arguments; var\_nodims(2)
     is the number of fields in a bundle (this will be 1 for unbundled
