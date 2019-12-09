@@ -195,7 +195,7 @@ noted with the string UNUSED and not described.
   in {\tt oasis3/doc/SCRIPusers.pdf} for more details on the
   interpolation algorithms.
   
-  New in OASIS3-MCT\_4.0, an hybrid MPI+OpenMP parallel version of the SCRIP library is available. It relies on the MPI parallel layout of the calling model but only enrols one MPI process per node. The number of OpenMP threads per node is set by a dedicated environment variable OASIS\_OMP\_NUM\_THREADS, and for optimum performance, it is recommended to set this variable to the number of cores on the node. The {\tt test\_interpolation} environment (see section \ref{subsec_testinterpolation}) in {\tt oasis3-mct/examples/test\_interpolation} gives a practical example on how to use the SCRIP library in parallel to calculate remapping weight-and-address files. The details of the SCRIP parallelisation can be found in \cite{piacentini08} and \cite{valcke11}\footnote{Thanks to some preliminary work, few bugs were fixed in the SCRIP library, in particular in the bounding box definition of the grid cells. This solves an important bug observed in the Pacific near the equator for the bilinear and bicubic interpolations for Cartesian grids. However, given these modifications, one cannot expect to get exactly the same results for the interpolation weight-and-adress remapping files with this new parallel SCRIP version as compared to the previous SCRIP version in OASIS3-MCT\_3.0. We checked in many different cases that the interpolation error is smaller or of the same order than before. We also observed that the parallelisation does not ensure bit reproducible results when varying the number of processes or threads.} .
+  New in OASIS3-MCT\_4.0, a hybrid MPI+OpenMP parallel version of the SCRIP library is available. It relies on the MPI parallel layout of the calling model but only enrols one MPI process per node. The number of OpenMP threads per node is set by a dedicated environment variable OASIS\_OMP\_NUM\_THREADS, and for optimum performance, it is recommended to set this variable to the number of cores on the node. The {\tt test\_interpolation} environment (see section \ref{subsec_testinterpolation}) in {\tt oasis3-mct/examples/test\_interpolation} gives a practical example on how to use the SCRIP library in parallel to calculate remapping weight-and-address files. The details of the SCRIP parallelisation can be found in \cite{piacentini08} and \cite{valcke11}\footnote{Thanks to some preliminary work, a few bugs were fixed in the SCRIP library, in particular in the bounding box definition of the grid cells. This solves an important bug observed in the Pacific near the equator for the bilinear and bicubic interpolations for Cartesian grids. However, given these modifications, one cannot expect to get exactly the same results for the interpolation weight-and-address remapping files with this new parallel SCRIP version as compared to the previous SCRIP version in OASIS3-MCT\_3.0. We checked in many different cases that the interpolation error is smaller or of the same order than before. We also observed that the parallelisation does not ensure bit reproducible results when varying the number of processes or threads.} .
 
   When the SCRIP library performs a remapping, it first checks if the
   file containing the corresponding remapping weights and addresses
@@ -204,10 +204,12 @@ noted with the string UNUSED and not described.
   working directory and is by default called {\tt rmp\_{\it srcg}\_to\_{\it
       tgtg}\_{\it INTTYPE}\_{\it NORMAOPT}.nc}, where {\it srcg} and
   {\it tgtg} are the acronyms of respetively the source and the target
-  grids, {\it INTTYPE} is the interpolation type (i.e. {\tt DISTWGT},
-  {\tt GAUSWGT}, {\tt BILINEAR} - {\bf not BILINEA as in OASIS3.3} or
-  {\tt CONSERV}), and {\it NORMAOPT} is the normalization
-  option, for {\tt CONSERV} only (i.e. {\tt DESTAREA}, {\tt DESTARTR}, {\tt FRACAREA}, {\tt FRACARTR},  {\tt FRACNNEI} or {\tt FRACNNTR}, see below). One has to take care that the
+  grids, {\it INTTYPE} is the interpolation type (i.e. {\tt DISTWGT}, {\tt DISTWGTNF},
+  {\tt GAUSWGT}, {\tt GAUSWGTNF}, {\tt BILINEAR}, - {\bf not BILINEA as in OASIS3.3}, 
+  {\tt BILINEARNF}, {\tt BICUBIC}, {\tt BICUBICNF}, or
+  {\tt CONSERV}).
+  Then {\it NORMAOPT} is the normalization
+  option, for {\tt CONSERV} only (i.e. {\tt DESTAREA}, {\tt DESTARTR}, {\tt DESTNNEI} {\tt DESTNNTR}, {\tt FRACAREA}, {\tt FRACARTR},  {\tt FRACNNEI} or {\tt FRACNNTR}, see below). One has to take care that the
   remapping file will have the same name even if other details, like
   the grid masks or the {\tt \$MAPLOC} or {\tt \$MAPSTRATEGY} options, 
   are changed. When reusing a remapping file, one has
@@ -219,18 +221,23 @@ noted with the string UNUSED and not described.
   \begin{itemize}
 
   \item {\tt DISTWGT} performs a distance weighted nearest-neighbour
-    interpolation (N neighbours). All types of grids are supported.
+    interpolation (N neighbours) with a nearest neighbor fill for non-masked target points
+    that do not receive a value. All types of grids are supported.
+
+  \item {\tt DISTWGTNF} performs a distance weighted nearest-neighbour
+    interpolation (N neighbours) WITHOUT the nearest neighbor fill for non-masked target points. 
+    All types of grids are supported.
 
     The configuring line is:
 
   \begin{verbatim}
- # SCRIPR (for DISWGT) 
+ # SCRIPR (for DISTWGT or DISTWGTNF) 
      $CMETH $CGRS $CFTYP $REST $NBIN $NV $ASSCMP $PROJCART
 \end{verbatim} 
     where:
     % \vspace{-0.5cm}
     \begin{itemize}
-    \item {\tt \$CMETH = DISTWGT}.
+    \item {\tt \$CMETH = DISTWGT or DISTWGTNF}.
     \item {\tt \$CGRS} is the source grid type ({\tt LR}, {\tt D} or
       {\tt U})- see appendix \ref{subsec_gridtypes}.
 
@@ -244,8 +251,8 @@ noted with the string UNUSED and not described.
     \item {\tt \$REST} is a bin search restriction type: {\tt LATLON} or
       {\tt LATITUDE}, see SCRIP 1.4 documentation SCRIPusers.pdf.
       
-    \item {\tt \$NBIN} the number of restriction bins that must be equal to 1 for {\tt DISTWGT, GAUSWGT, BILINEAR} or {\tt BICUBIC} i.e. the
-      bin restriction is not allowed\footnote{The only exceptions are for Gaussian Reduced ({\tt D}) grids for ( {\tt BILINEAR} and {\tt BICUBIC}; in that case, {\bf if the Gaussian-reduced grid is stored from North to South} the number of bins is the number of latitude circles of the grid (minus one, to be precise), independently of {\tt \$NBIN}; {\bf for Gaussian-reduced grid stored from South to North to South, the bin definition will not work and the interpolation will become a 4 distance-weighted nearest-neighbour for all target points.}}; for details, see \newline \citep{piacentini08}.
+    \item {\tt \$NBIN} the number of restriction bins that must be equal to 1 for {\tt DISTWGT, DISTWGTNF, GAUSWGT, GAUSWGTNF, BILINEAR, BILINEARNF, BICUBIC} or {\tt BICUBICNF} i.e. the
+      bin restriction is not allowed\footnote{The only exceptions are for Gaussian Reduced ({\tt D}) grids for ( {\tt BILINEAR, BILINEARNF, BICUBIC} and {\tt BICUBICNF}; in that case, {\bf if the Gaussian-reduced grid is stored from North to South} the number of bins is the number of latitude circles of the grid (minus one, to be precise), independently of {\tt \$NBIN}; {\bf for Gaussian-reduced grid stored from South to North to South, the bin definition will not work and the interpolation will become a 4 distance-weighted nearest-neighbour for all target points.}}; for details, see \newline \citep{piacentini08}.
       
     \item {\tt \$NV} is the number of neighbours used.
     
@@ -255,12 +262,16 @@ noted with the string UNUSED and not described.
     \end{itemize}
 
   \item {\tt GAUSWGT} performs a N nearest-neighbour interpolation
-    weighted by their distance and a gaussian function. All grid types
-    are supported.
+    weighted by their distance and a gaussian function with a nearest neighbor fill for
+    non-masked target points that do not receive a value. All grid types are supported.
+
+  \item {\tt GAUSWGTNF} performs a N nearest-neighbour interpolation
+    weighted by their distance and a gaussian function WITHOUT the nearest neighbor fill for
+    non-masked target points. All grid types are supported.
 
     The configuring line is:
   \begin{verbatim}
- # SCRIPR (for GAUSWGT)
+ # SCRIPR (for GAUSWGT or GAUSWGTNF)
      $CMETH  $CGRS  $CFTYP  $REST  $NBIN  $NV $VAR
 \end{verbatim}
     %
@@ -269,7 +280,7 @@ noted with the string UNUSED and not described.
     % $
     all entries are as for {\tt DISTWGT}, except that:
     \begin{itemize}
-    \item {\tt \$CMETH = GAUSWGT}
+    \item {\tt \$CMETH = GAUSWGT or GAUSWGTNF}
     \item {\tt \$VAR} defines the weight given to a neighbour source grid
       point as proportional to $exp(-1/2 \cdot d^2/\sigma^2)$ where
       $d$ is the distance between the source and target grid points,
@@ -281,7 +292,11 @@ noted with the string UNUSED and not described.
   \item {\tt BILINEAR} performs an interpolation based on a local
     bilinear approximation (see details in chapter 4 of SCRIP 1.4
     documentation SCRIPusers.pdf). Logically-Rectangular (LR) and
-    Reduced (D) source grid types are supported.
+    Reduced (D) source grid types are supported.  It also generates
+    interpolation for non-masked target points with a nearest neighbor fill.
+
+  \item {\tt BILINEARNF} is identical to {\tt BILINEAR} but without the
+    nearest neighbor fill.
 
   \item {\tt BICUBIC} performs an interpolation based on a local
     bicubic approximation for Logically-Rectangular (LR) grids (see
@@ -298,20 +313,23 @@ noted with the string UNUSED and not described.
     source field (as was the case with OASIS3.3). These 3 extra fields
     need to be calculated by the source code and transfered as extra
     arguments of the {\tt oasis\_put} (see {\tt fld2, fld3, fld4} in
-    section \ref{prismput}).
+    section \ref{prismput}).  Finally, this interpolation will fill
+    non-masked target points that do not receive a value with a nearest neighbor fill.
 
+  \item {\tt BICUBICNF} is identical to {\tt BICUBIC} but without the
+    nearest neighbor fill.
  
-    For {\tt BILINEAR} and {\tt BICUBIC}, the configuring line
+    For {\tt BILINEAR}, {\tt BILINEARNF}, {\tt BICUBIC}, and {\tt BICUBICNF}, the configuring line
     is:
 
   \begin{verbatim}
- # SCRIPR  (for BILINEAR or BICUBIC)
+ # SCRIPR  (for BILINEAR, BILINEARNF, BICUBIC, or BICUBICNF)
      $CMETH  $CGRS  $CFTYP  $REST  $NBIN
 \end{verbatim}
     \vspace{-0.5cm} where:
     % $
     \begin{itemize}
-    \item {\tt \$CMETH = BILINEAR} or {\tt BICUBIC}
+    \item {\tt \$CMETH = BILINEAR}, {\tt BILINEARNF}, {\tt BICUBIC}, or {\tt BICUBICNF}
     \item {\tt \$CGRS} is the source grid type: LR or D.
     \item {\tt \$CFTYP}, {\tt \$REST}, {\tt \$NBIN} are as for {\tt DISTWGT}.
     \end{itemize}
@@ -329,8 +347,16 @@ noted with the string UNUSED and not described.
     \item Non-masked target grid points having all source
       points normally used in the interpolation
       masked: by default, the nearest non-masked source
-      neighbour is used ({\tt ll\_nnei} hard-coded to {\tt .true.} in corresponding SCRIP sources).
+      neighbour is used ({\tt ll\_nnei} is set to {\tt .true.} in the SCRIP run).
       
+    \end{itemize}   
+
+    Note that for {\tt DISTWGTNF}, {\tt GAUSWGTNF}, {\tt BILINEARNF} and {\tt BICUBICNF}:
+    \begin{itemize}
+
+    \item Identical behavior to non-NF options but no nearest non-masked source
+    neighbour fill is done ({\tt ll\_nnei} is set to {\tt .false} in the SCRIP run).
+
     \end{itemize}   
 
   \item {\tt CONSERV} performs 1st or 2nd order conservative
@@ -366,13 +392,15 @@ noted with the string UNUSED and not described.
         value: the flux is not locally conserved, but the flux value
         itself is reasonable. With {\tt FRACARTR}, an additional correction involving the ``true" area of the grid cells
         provided in the file {\tt areas.nc} is also applied, see details in the paragraph on the ``True Area'' (TR) correction below.
+      \item {\tt FRACNNEI} or {\tt FRACNNTR}: as {\tt FRACAREA} or {\tt FRACARTR}, except that an additional unmasked source nearest neighbour is used for unmasked
+        target cells that intersect only masked source cells.
        \item {\tt DESTAREA} or {\tt DESTARTR}: The total target cell area is used to
         normalise each target cell field value even if it only partly
         intersects non-masked source grid cells: local flux
         conservation is ensured, but unreasonable flux values may
         result. With {\tt DESTARTR}, an additional correction involving the ``true" area of the grid cells
         provided in the file {\tt areas.nc} is also applied, see details in the paragraph on the ``True Area'' (TR) correction below.
-      \item {\tt FRACNNEI} or {\tt FRACNNTR}: as {\tt FRACAREA} or {\tt FRACARTR}, except that an additional unmasked  source nearest neighbour is used for unmasked
+      \item {\tt DESTNNEI} or {\tt DESTNNTR}: as {\tt DESTAREA} or {\tt DESTARTR}, except that an additional unmasked source nearest neighbour is used for unmasked
         target cells that intersect only masked source cells.
       \end{itemize}
     \item {\tt \$ORDER}: {\tt FIRST} or {\tt SECOND} for first or
@@ -448,8 +476,8 @@ noted with the string UNUSED and not described.
     respected. This CPP key was introduced in OASIS3.3.
     
   \item If a target grid cell intersects only masked source cells, or falls outside the source grid domain, it
-    will get a zero value unless the {\tt FRACNNEI} or {\tt FRACNNTR}
-    normalisation option is used, in which case it will get the
+    will get a zero value unless the {\tt DESTNNEI}, {\tt DESTNNTR}, {\tt FRACNNEI}, or {\tt FRACNNTR}
+    normalisation options are used, in which case it will get the
     nearest non masked neighbour value. Note that the option of
       having the value 1.0E+20 assigned to these target grid cell
       intersecting only masked source cells (for easier
@@ -471,9 +499,9 @@ noted with the string UNUSED and not described.
     
   \end{enumerate}
   
-  {\bf {\tt \bf DESTARTR}, {\tt \bf FRACARTR} or {\tt \bf FRACNNTR} options : the ``True Area'' (TR) correction}
+  {\bf {\tt \bf DESTARTR}, {\tt \bf DESTNNTR}, {\tt \bf FRACARTR}, or {\tt \bf FRACNNTR} options : the ``True Area'' (TR) correction}
   
-The approximations and hypotheses adopted by the SCRIP impact its estimation of the grid cell areas. Therefore, to have an exact conservation of the field surface-integrated values, a correction based on the "TRue" (TR) area of the cells can be applied by choosing {\tt DESTARTR}, {\tt FRACARTR} or {\tt FRACNNTR} options. These are based respectively on {\tt DESTAREA},  {\tt FRACAREA} and  {\tt FRACNNEI} normalisations adding the so-called ``TR correction''. The true area of the cell, i.e. the one considered by the component model itself, must be provided in the auxiliary file {\it areas.nc} in {\bf square radians}. Equations from \cite{chavas 13} (eqn. (27) in particular) are implemented. 
+The approximations and hypotheses adopted by the SCRIP impact its estimation of the grid cell areas. Therefore, to have an exact conservation of the field surface-integrated values, a correction based on the "TRue" (TR) area of the cells can be applied by choosing {\tt DESTARTR}, {\tt DESTNNTR}, {\tt FRACARTR} or {\tt FRACNNTR} options. These are based respectively on {\tt DESTAREA}, {\tt DESTNNEI}, {\tt FRACAREA} and {\tt FRACNNEI} normalisations adding the so-called ``TR correction''. The true area of the cell, i.e. the one considered by the component model itself, must be provided in the auxiliary file {\it areas.nc} in {\bf square radians}. Equations from \cite{chavas 13} (eqn. (27) in particular) are implemented. 
 
 Special care is taken in the implementation for ``polar" cells in the SCRIP sense. The SCRIP detects cells encompassing a pole or cells with a side going through a pole as ``polar" cells and a specific treatment is applied for those cells modifying its area. The resulting estimated area serves as a normalisation factor but its value is not representative of the surface of the cell anymore. For this reason, the TR correction is not activated for those ``polar'' cells. 
 
