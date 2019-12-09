@@ -1,5 +1,5 @@
 !*********************************************************************************
-SUBROUTINE hdlerr(istatus, line)
+SUBROUTINE hdlerr(status,w_unit,subn,file,line)
   !*********************************************************************************
   use netcdf
   implicit none
@@ -8,13 +8,15 @@ SUBROUTINE hdlerr(istatus, line)
   !
   ! Check for error message from NetCDF call
   !
-  integer, intent(in) :: istatus, line
-  integer             :: ierror
+  integer, intent(in)          :: status, line, w_unit
+  character(len=*), intent(in) :: subn
+  character(len=*), intent(in) :: file
+  integer                      :: ierror
   !
-  IF (istatus .NE. NF90_NOERR) THEN
-      write ( * , * ) 'NetCDF problem at line',line
-      write ( * , * ) 'Stopped '
-      call MPI_Abort ( MPI_COMM_WORLD, 1, ierror )
+  IF (status .NE. NF90_NOERR) THEN
+     write(w_unit,*) 'NetCDF Problem in routine : ',trim(subn)
+     CALL FLUSH(w_unit)
+     call routine_model_abort(w_unit,file,line)
   ENDIF
   !
   RETURN
