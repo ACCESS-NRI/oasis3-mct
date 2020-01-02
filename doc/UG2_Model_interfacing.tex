@@ -280,9 +280,9 @@ they may still call it describing a null partition, i.e. with {\tt ig\_paral(:)=
 
   \vspace{0.2cm}
 \item {\tt CALL oasis\_def\_partition (il\_part\_id, ig\_paral,
-    ierror, isize, name)} or
+    ierror, ig\_size, name)} or
 \item {\tt CALL prism\_def\_partition\_proto (il\_part\_id, ig\_paral,
-    ierror, isize, name)}
+    ierror, ig\_size, name)}
 
   \begin{itemize}
   \item {\tt il\_part\_id [INTEGER; OUT]}: partition ID
@@ -292,10 +292,9 @@ they may still call it describing a null partition, i.e. with {\tt ig\_paral(:)=
     in OASIS3-MCT, 5 types of partition are supported: Serial (no
     partition), Apple, Box, Orange, and Points (see below).
   \item {\tt ierror [INTEGER; OUT]}: returned error code.
-  \item {\tt isize [INTEGER, OPTIONAL, IN]}: Optional argument, mandatory
+  \item {\tt ig\_size [INTEGER, OPTIONAL, IN]}: Optional argument, mandatory
     if the coupling data is exchanged for only a subdomain of the
-    global grid; in this case, {\tt isize} must give the total number of grid points.
-
+    global grid; in this case, {\tt ig\_size} must give the total number of grid points.  
   \item {\tt name [CHARACTER, OPTIONAL, IN]}: Optional argument associating a name to the partition,
     mandatory if oasis\_def\_partition is called either for a grid
     decomposed not across all the processes of a component or if the related
@@ -398,6 +397,7 @@ illustrated.
 \end{figure}
 
 \subsubsection{Points partition}
+\label{subsubsec_pointspart}
 
 This partition is a list of global indices associated with each
 process.  The index naming
@@ -1285,4 +1285,97 @@ Again, the SEQ namecouple setting is only diagnostic and is not
 required.
 
 
+
+\section{A Brief Overview of MCT}
+\label{subsubsec_gridsscalars}
+
+This section will provide a brief overview of OASIS3-MCT for coupling grids, 
+mapping, and the possibility of coupling scalars.
+
+As described elsewhere, OASIS3-MCT leverages the MCT coupling infrastructure
+developed at Argonne National Laboratory.  That infrastructure is designed
+to couple fields on static grids between model components.  The fields
+can be decomposed using MPI across mutiple processes, and the decomposition
+and number of proceses involved can be arbitrary in each component.  MCT
+supports both communication of data between unique MPI non-overlapping 
+communicators and
+within a single MPI communicator, although these two operations are functionally
+independent within MCT.  
+
+MCT also provides the ability to map (aka interpolate or
+regrid) data between grids as long as the interpolation is linear and can
+be computed by a linear sparse matrix multiply.  
+MCT does not compute intepolation weights, but
+it has interfaces that allow those weights to be passed into MCT.  Within
+MCT, mapping and communication are also treated as independent features.
+
+OASIS3-MCT supports both mapping and communication of data thru MCT.  As
+a results, mapping and coupling are implemented, in many ways, as separate
+steps in the underlying implementation.  A coupling field that also requires
+mapping will carry out the mapping on either the source or destination component
+on the associated processes, while coupling between components will be done
+either before or after mapping.  In other words, a coupling field can be 
+interpolated to
+the destination grid on the source processes then communicated to the destination
+component OR a coupling field can be communicated to the destination component
+on the source grid then mapped to the destination grid on the destination 
+component.  At the present time, it is not possible to map the field as part
+of the communication rearrangement, although in theory, that capability should
+be possible to implement in the future, and OASIS3-MCT developers are considering
+it.  The separation of mapping and communication is handled by the OASIS
+layer.  Users only need to be aware of a few options that can be set to fine
+tune the performance of these operations.
+
+OASIS3-MCT also imposes a few other contraints on the usage.  MCT
+does NOT support haloed communication.  There must be a 1-to-1 relationship
+between grid point value on the source grid and on the destination grid.
+A user cannot send a single grid point value to multiple destination gridcells
+or processes via OASIS3-MCT.  The partitions defined by the user that define
+the field decomposition cannot reference the same global gridcell ID more than once.
+
+OASIS3-MCT does not support dynamically varying grids nor dynamically varying 
+decompositions at the present time.  MCT is NOT currently setup to support those 
+features.  In the future, it is possible that some dynamic grid capabilities 
+might be supported thru OASIS3-MCT but requirements and implementation are
+still be assessed.
+
+Both MCT and the OASIS layer on top of MCT have minimal OpenMP support at the
+present time.  Users are generally discouraged from calling into OASIS3-MCT
+from a threaded region.  And it is not possible to define a partition (decomposition)
+across multiple active threads.  Most of the work that OASIS3-MCT does is MPI based
+and related to decomposition rearrangement for communication or mapping.  There
+are some floating point operations in the sparse matrix multiple as well as in
+some of the OASIS transforms.  But generally, these are highly parallel and
+would often not benefit from use of OpenMP.  OASIS3-MCT is designed primarily to
+support large memory parallel applications that require efficient and scalable
+coupling and mapping capabilities.
+
+MCT only supports coupling of integer or floating point data.  Fields based on
+logicals and character strings cannot be coupled.
+
+OASIS3-MCT does not have a distinct feature to support scalar coupling.  By
+scalar coupling, we are thinking of scalar variables such as date and time,
+logical flags, integer or real parameters, or other scalar data that might be
+defined identically across all MPI tasks in a component or even just on the
+root task or a subset of tasks.  
+It is often desirable to communicate scalar data between components
+to coordinate scientific or technical features.  There isn't a feature that
+supports this type of coupling specifically, but it's possible to use the 
+available interfaces.  The most robust implementation is probably to setup
+root to root coupling of scalars between components.  To do so
+
+\begin{itemize}
+\item Determine the number and types of scalars to couple
+\item Allocate an array in each component of that size
+\item Initialize a partition using the POINTS approach (see section \ref{subsubsec_pointspart}) with the size of the array assigned to the root process in each component and no portion of the partition allocated to other processes.  
+\item Define coupling field names for use in both the model components and the namcouple file and declare variables as usual.  Create a set of namcouple inputs.  You will not need any mapping.
+\item Use the {\tt oasis\_get} and {\tt oasis\_put} interfaces to communicate data between components.
+\item Broadcast the scalars after being received if needed.
+\end{itemize}
+
+This can be extended as needed to send or receive from non root processes.  But
+you cannot send the scalar data to multiple processes as this violates the halo
+restriction in MCT.  Users need to be aware which processes contain valid scalar
+data both on the source and destination side and to manage data synchronization 
+between processes within a component outside the OASIS3-MCT layer.
 

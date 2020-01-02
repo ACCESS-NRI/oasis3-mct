@@ -262,24 +262,27 @@ CONTAINS
       elseif (kparal(CLIM_Strategy) == CLIM_Points) then
          nsegs = kparal(CLIM_Segments)
          allocate(start(nsegs),length(nsegs))
-         !--- initialize first segment, nsegs=1,n=1,k=3
-         nsegs = 1
-         n = 1
-         k = n+2
-         start(nsegs)  = kparal(k)
-         length(nsegs) = 1
-         !--- compute rest of segments from n=2,k=4
-         do n = 2,kparal(CLIM_Segments)
-            k = n+2
-            if (kparal(k)-kparal(k-1) == 1) then
-               length(nsegs) = length(nsegs) + 1
-            else
-               nsegs = nsegs + 1
-               start(nsegs)  = kparal(k)
-               length(nsegs) = 1
-            endif
-         enddo
-         numel = nsegs
+         numel = 0
+         if (nsegs > 0) then
+           !--- initialize first segment, nsegs=1,n=1,k=3
+           nsegs = 1
+           n = 1
+           k = n+2
+           start(nsegs)  = kparal(k)
+           length(nsegs) = 1
+           !--- compute rest of segments from n=2,k=4
+           do n = 2,kparal(CLIM_Segments)
+              k = n+2
+              if (kparal(k)-kparal(k-1) == 1) then
+                 length(nsegs) = length(nsegs) + 1
+              else
+                 nsegs = nsegs + 1
+                 start(nsegs)  = kparal(k)
+                 length(nsegs) = 1
+              endif
+           enddo
+           numel = nsegs
+         endif
       else
          write(nulprt,*) subname,estr,'part strategy unknown in def_part = ',kparal(CLIM_Strategy)
          write(nulprt,*) subname,estr,'strategy set in kparal array index ',CLIM_Strategy
