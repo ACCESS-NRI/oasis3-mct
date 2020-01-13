@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 
 from ctypes import *
 import ctypes
@@ -7,9 +7,6 @@ import numpy
 
 cdll.LoadLibrary("libpyoasiscore.so")
 lib=CDLL("libpyoasiscore.so")
-
-lib.init_comp.argtypes=[ctypes.POINTER(ctypes.c_int), c_char_p, ctypes.POINTER(ctypes.c_int), ctypes.c_bool, ctypes.c_int]
-
 
 
 lib.def_partition.argtypes=[ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int), ctypes.c_int, c_char_p]

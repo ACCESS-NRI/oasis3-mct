@@ -82,7 +82,7 @@ CONTAINS
    integer :: il_nodelen
    integer, dimension(:), allocatable :: ila_colors
 !  ---------------------------------------------------------
-
+print *, "meuh1"
    if (present(kinfo)) then
       kinfo = OASIS_OK
    endif
@@ -125,7 +125,7 @@ CONTAINS
    !------------------------
    !> * Set initial output file, need mpi_rank_world
    !------------------------
-
+   
    iu=-1
 
    call oasis_unitsetmin(1024)
@@ -136,21 +136,23 @@ CONTAINS
        WRITE(filename,'(a,i6.6)') 'nout.',mpi_rank_world
        OPEN(nulprt1,file=filename)
    ENDIF
-
+print *, "meuh2"
    !------------------------
    !> * Initialize namcouple.
    !>   First on rank 0 to write error messages
    !>   then on all other ranks.  All tasks will
    !>   read the namcouple file independently.
    !------------------------
-
+print *, "meuh2"
    IF (mpi_rank_world == 0) THEN
       call oasis_namcouple_init()
    endif
+    print *, "meuh2b"
    call oasis_mpi_barrier(mpi_comm_global_world)
    IF (mpi_rank_world /= 0) THEN
       call oasis_namcouple_init()
    endif
+   
    OASIS_debug = namlogprt
    TIMER_debug = namtlogprt
    call oasis_unitsetmin(namuntmin)
@@ -159,13 +161,13 @@ CONTAINS
 
    ! If TIMER_debug < 0 activate LUCIA load balancing analysis
    LUCIA_debug = ABS(MIN(namtlogprt,0))
-
+print *, "meuh3"
    !------------------------
    !> * Check if NFIELDS=0, there is no coupling.
    ! No information must be written in the debug files as
    ! the different structures are not allocated
    !------------------------
-
+   
    IF ( nnamcpl == 0 ) THEN
        IF (mpi_rank_world == 0) THEN
            WRITE (UNIT = nulprt1,FMT = *) subname,wstr, &
@@ -176,7 +178,7 @@ CONTAINS
            CALL oasis_flush(nulprt1)
        ENDIF
    ENDIF
-
+print *, "meuh4"
    !------------------------
    !> * Determine the total number of coupling fields from namcouple.
    !>   Set maxvar parameter and allocate prism_var.
@@ -194,7 +196,7 @@ CONTAINS
    ENDIF
 
    ALLOCATE(prism_var(maxvar))
-
+print *, "meuh5"
    !------------------------
    !> * Store all the names of the fields exchanged in the namcouple
    ! which can be different of namsrcfld(:) and namdstfld(:) if multiple 
@@ -205,7 +207,7 @@ CONTAINS
    ALLOCATE(total_namdstfld(size_namfld))
    total_namsrcfld = ''
    total_namdstfld = ''
-
+   
    m=0
    DO nns = 1,nnamcpl
      n = namsort2nn(nns)
@@ -372,6 +374,7 @@ CONTAINS
    !------------------------
 
    mpi_rank_global = -1
+
 #ifdef use_comm_MPI1
 
    !------------------------
@@ -418,14 +421,15 @@ CONTAINS
    if (.not.oasis_coupled) then
       return
    endif
-
-   CALL MPI_Comm_Size(mpi_comm_global,mpi_size_global,ierr)
+  
+CALL MPI_Comm_Size(mpi_comm_global,mpi_size_global,ierr)
    CALL MPI_Comm_Rank(mpi_comm_global,mpi_rank_global,ierr)
 
    CALL MPI_Comm_Size(mpi_comm_local,mpi_size_local,ierr)
    CALL MPI_Comm_Rank(mpi_comm_local,mpi_rank_local,ierr)
-   mpi_root_local = 0
 
+   mpi_root_local = 0
+print *, "meuh"
 #ifdef use_comm_MPI1
 
    !------------------------
@@ -504,7 +508,6 @@ CONTAINS
    !------------------------
    !> * Open log files
    !------------------------
-
    iu=-1
    CALL oasis_unitget(iu)
    nulprt=iu
