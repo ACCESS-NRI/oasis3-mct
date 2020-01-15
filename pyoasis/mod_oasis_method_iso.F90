@@ -20,10 +20,9 @@ subroutine init_comp_iso(comp_id, comp_name, error, coupled, communicator) bind(
   comp_name_f=string_to_fortran(comp_name)
   coupled_f=coupled
   communicator_f=communicator
-  print *, "=== > name:", comp_name_f, " coupled:", coupled_f, " communicator:", communicator_f
 
   call oasis_init_comp(comp_id_f, comp_name_f, error_f, coupled_f, communicator_f)
-  print *, "=== < id:", comp_id_f, " error:", error_f
+
   comp_id=comp_id_f
   error=error_f
   

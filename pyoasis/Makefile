@@ -9,8 +9,8 @@ FC=mpif90
 CC=mpicc
 CXX=mpic++
 FFLAGS=-fPIC -ffree-form -J${MODULES} 
-CFLAGS=-fPIC -I/usr/include/python2.7
-CPPFLAGS=-fPIC -I/usr/include/python2.7
+CFLAGS=-fPIC -I/usr/include/python3.8
+CPPFLAGS=-fPIC -I/usr/include/python3.8
 LFLAGS=-L/home/igw26125/opt2/lib -L. -Loasis/lib -fPIC
 
 all: liboasis libpyoasiscore.so 
@@ -110,7 +110,7 @@ oasis/lib/libpsmile.MPI1.so:
 	sed -i 's/shr_reprosumx86_fix_end/shr_reprosumx86_fix_end_/g' shr_reprosumx86_.c &&\
 	cp GPTLget_memusage.c GPTLget_memusage_.c &&\
 	sed -i 's/gptlget_memusage_/gptlget_memusage/g' GPTLget_memusage_.c &&\
-	${FC} *.F90 -c -Duse_comm_MPI1 -J${PYOASIS} -ext_names -ffree-line-length-512 -fPIC -I${OASIS}/lib/psmile/include &&\
+	${FC} *.F90 -c -J${PYOASIS} -ext_names -ffree-line-length-512 -fPIC -I${OASIS}/lib/psmile/include &&\
 	${CC} *.c -c -J${PYOASIS}  -fPIC -I${OASIS}/lib/psmile/include &&\
 	${FC} ${LFLAGS} *.o -o ../../lib/libpsmile.MPI1.so -fPIC -shared -lnetcdf -lnetcdff
 
@@ -124,9 +124,9 @@ oasis/lib/libscrip.so:
 	cp ${HOME}/compile_oa3-mct/build/lib/scrip/*.mod ${MODULES} &&\
 	cp ${HOME}/oasis3-mctold/lib/mct/config.h . &&\
 	cp ${HOME}/oasis3-mct/lib/mct/mpeu/*.c . &&\
-	${FC} *.F90 -c -Duse_comm_MPI1 -J${MODULES} -ffree-line-length-512 -fPIC &&\
-	${FC} *.f90 -c -Duse_comm_MPI1 -J${MODULES} -ffree-line-length-512 -fPIC &&\
-	${FC} *.f -c -Duse_comm_MPI1 -J${MODULES} -ffree-line-length-512 -fPIC &&\
+	${FC} *.F90 -c -J${MODULES} -ffree-line-length-512 -fPIC &&\
+	${FC} *.f90 -c -J${MODULES} -ffree-line-length-512 -fPIC &&\
+	${FC} *.f -c -J${MODULES} -ffree-line-length-512 -fPIC &&\
 	${CC} *.c -fPIC -c -I. &&\
 	${FC} ${LFLAGS} *.o -o ../../lib/libscrip.so -fPIC -shared -lnetcdf -lnetcdff
 
@@ -143,7 +143,7 @@ oasis/lib/libsparsematrix.so:
 	cp ${HOME}/oasis3-mct/lib/mct/mct/*.F90 .  &&\
 	cp ${HOME}/compile_oa3-mct/build/lib/mctdir/config.h . &&\
 	cp ${HOME}/oasis3-mct/lib/mct/mpeu/*.c . &&\
-	${FC} *.F90 -c -Duse_comm_MPI1 -J${MODULES} -ffree-line-length-512 -fPIC &&\
+	${FC} *.F90 -c -J${MODULES} -ffree-line-length-512 -fPIC &&\
 	${CC} *.c -fPIC -c -I. &&\
 	${FC} ${LFLAGS} *.o -o ../../lib/libsparsematrix.so -fPIC -shared
 
