@@ -16,11 +16,15 @@ subroutine init_comp_iso(comp_id, comp_name, error, coupled, communicator) bind(
   logical :: coupled_f
   integer :: communicator_f
   
-  integer :: rank
+  integer :: rank, size
   comp_name_f=string_to_fortran(comp_name)
   coupled_f=coupled
   communicator_f=communicator
 
+  call MPI_COMM_RANK(MPI_COMM_WORLD, rank, error_f)
+  call MPI_COMM_SIZE(MPI_COMM_WORLD, size, error_f)
+  print *, "Communicator:", communicator_f, " rank:", rank, " size:", size
+  
   call oasis_init_comp(comp_id_f, comp_name_f, error_f, coupled_f, communicator_f)
 
   comp_id=comp_id_f

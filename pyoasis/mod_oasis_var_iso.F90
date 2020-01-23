@@ -25,13 +25,13 @@ subroutine oasis_def_var_iso(id_nports, cdport, id_part, &
   integer :: kinfo_f
   
   integer :: i
-  
+  return
   cdport_f=string_to_fortran(cdport)
   id_part_f=id_part
   id_var_nodims_f(1)=id_var_nodims(1)
   id_var_nodims_f(2)=id_var_nodims(2)
   kinout_f=kinout
-  do i=1, size(id_var_shape)
+  do i=1, n 
     id_var_shape_f(i)=id_var_shape(i)
   end do
   ktype_f=ktype

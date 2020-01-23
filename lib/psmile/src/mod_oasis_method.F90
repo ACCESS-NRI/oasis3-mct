@@ -406,7 +406,7 @@ CONTAINS
    !> * Reset debug levels
    !  verbose level disabled if load balance analysis
    !------------------------
-
+   
    IF ( LUCIA_debug > 0 .AND. OASIS_debug > 0 ) THEN
       WRITE (UNIT = nulprt1,FMT = *) subname,wstr, &
        ' With LUCIA load balance analysis '
@@ -415,14 +415,14 @@ CONTAINS
       OASIS_debug = 0
       CALL oasis_flush(nulprt1)
    ENDIF
-
+   
    IF (mpi_rank_world == 0) CLOSE(nulprt1)
 
    if (.not.oasis_coupled) then
-      return
+     return
    endif
-  
-CALL MPI_Comm_Size(mpi_comm_global,mpi_size_global,ierr)
+
+   CALL MPI_Comm_Size(mpi_comm_global,mpi_size_global,ierr)
    CALL MPI_Comm_Rank(mpi_comm_global,mpi_rank_global,ierr)
 
    CALL MPI_Comm_Size(mpi_comm_local,mpi_size_local,ierr)

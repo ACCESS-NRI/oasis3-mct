@@ -12,6 +12,7 @@ subroutine get_localcomm_iso(localcomm, kinfo) bind(C)
 
   call oasis_get_localcomm(localcomm_f, kinfo_f)
 
+  localcomm=localcomm_f
   kinfo=kinfo_f
   
 end subroutine get_localcomm_iso
@@ -32,6 +33,7 @@ subroutine create_couplcomm_iso(icpl, allcomm, cplcomm, kinfo) bind(C)
 
   call oasis_create_couplcomm(icpl_f, allcomm_f, cplcomm_f, kinfo_f)
 
+  cplcomm=cplcomm_f
 end subroutine create_couplcomm_iso
 
 

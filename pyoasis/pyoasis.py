@@ -1,8 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import numpy
 from mpi4py import MPI
 
+from ctypes import *
+import ctypes
+
+from enum import Enum
 
 import mod_oasis_method_core
 import mod_oasis_auxiliary_routines_core
@@ -13,24 +17,33 @@ import mod_oasis_getput_interface_core
 import mod_oasis_grid_core
 
 
+
+class params(Enum):
+    OASIS_REAL=4
+    OASIS_OUT=20
+    OASIS_IN=21
+    
+    
+    
 # pyoasis.Array: array of doubles in Fortran ordering
 def Array(data):
     return numpy.asfortranarray(data, dtype=numpy.float64)
 
+def IntArray(data):
+    return numpy.asfortranarray(data, dtype=numpy.int32)
 
 def OasisException(text, error):
     return Exception(text+" ("+str(error)+")")
 
 
 class Component:
-    id=0
     def __init__(self, i_name, coupled=False, communicator=MPI.COMM_WORLD):
         name = i_name
         rv = mod_oasis_method_core.init_comp(name, coupled, communicator)
         error = rv[1]
         if(error < 0):
             raise OasisException("Error initialising component "+name, error)
-        id = rv[0]
+        self.id = rv[0]
     def get_localcomm(self):
         rv = mod_oasis_auxiliary_routines_core.get_localcomm()
         error = rv[1]
@@ -62,7 +75,7 @@ class Component:
         if(error < 0):
             raise OasisException("Error in enddef", error)
     def get_id(self):
-        return id
+        return self.id
 
 def terminate():
     error = mod_oasis_method_core.terminate()
@@ -76,34 +89,39 @@ def oasis_abort(comp_id, routine, message, filename, line, error):
     mod_oasis_sys_core.oasis_abort(component_id, routine, message, filename, line, error)
 
 
-class Partition:
-    def __init__(self, i_ig_size, i_name):
-        ig_size = i_ig_size
+class SerialPartition:
+#    def __init__(self, size, i_name):
+    def __init__(self, size, i_name):
         name = i_name
-        rv = mod_oasis_part_core.def_partition(ig_size, name)
-        error = rv[2]
+        IntArray3=ctypes.c_int*3
+        kparal=IntArray3()
+        kparal[0]=0
+        kparal[1]=0
+        kparal[2]=size
+        ig_size=size
+#        rv = mod_oasis_part_core.def_partition(kparal, ig_size, name)
+        rv = mod_oasis_part_core.def_partition(kparal)
+        error = rv[1]
         if (error < 0):
             raise OasisException("Error in def_partition", error)
-        id_part = rv[0]
-        kparal = rv[1]
+        self.id = rv[0]
 
 
 class Var:
-    def __init__(self, i_id_part, i_cdport, i_id_var_nodims1,
-                 i_id_var_nodims2, i_kinout, i_n, i_ktype):
+    def __init__(self, i_id_part, cdport, i_id_var_nodims1,
+                 i_id_var_nodims2, i_kinout, i_ktype):
         id_part = i_id_part
-        cdport = i_cdport
+        self.name = cdport
         id_var_nodims1 = i_id_var_nodims1
         id_var_nodims2 = i_id_var_nodims2
         kinout = i_kinout
-        n = i_n
         ktype = i_ktype
-        rv = mod_oasis_var_core.def_var(id_part, cdport, id_var_nodims1, id_var_nodims2, kinout, n, ktype)
-        error = rv[2]
+        rv = mod_oasis_var_core.def_var(id_part, self.name, id_var_nodims1, id_var_nodims2, kinout, ktype)
+        error = rv[1]
         if(error < 0):
             raise OasisException("Error in def_var", error)
-        var_id = rv[0]
-        id_var_shape = rv[1]
+        self.id = rv[0]
+ 
 
     def put(kstep, sizes, field):
         mod_oasis_getput_interface_core.put(var_id, kstep, sizes, field)
