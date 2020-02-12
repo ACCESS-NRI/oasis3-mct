@@ -16,7 +16,7 @@ COUPLE          = /space/coquart/oasis3-mct_buildbot
 ARCHDIR         = $(COUPLE)/compile_oa3-mct_pgi_openmpi_openmp
 #
 # MPI library
-MPIDIR      = /usr/local/pgi/linux86-64/17.10/mpi/openmpi-2.1.2
+MPIDIR      = /usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2
 MPIBIN      = $(MPIDIR)/bin
 MPI_INCLUDE = $(MPIDIR)/include
 MPILIB      = -L$(MPIDIR)/lib
