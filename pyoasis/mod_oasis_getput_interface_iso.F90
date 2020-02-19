@@ -1,7 +1,6 @@
 subroutine oasis_put_iso(var_id, &
                          kstep, &
-                         n_dimensions, &
-                         sizes, &
+                         size1, size2, size3, &
                          field, &
                          kinfo) bind(C)
                              
@@ -22,11 +21,9 @@ subroutine oasis_put_iso(var_id, &
 
   integer (c_int), intent(in) :: var_id
   integer (c_int), intent(in) :: kstep
-  integer (c_int), intent(in) :: n_dimensions
-  integer (c_int), intent(in) :: sizes(n_dimensions)
-  real (c_double), intent(in) :: field(product(sizes))
+  integer (c_int), intent(in) :: size1, size2, size3
+  real (c_double), intent(in) :: field(size1*size2*size3)
   integer (c_int), intent(out) :: kinfo
-  
   integer :: var_id_f
   integer :: kstep_f
   integer :: kinfo_f
@@ -36,23 +33,25 @@ subroutine oasis_put_iso(var_id, &
   var_id_f=var_id
   kstep_f=kstep
 
-  select case (n_dimensions)
-    case(1)
-      call oasis_put(var_id_f, kstep_f, field, kinfo_f)
-    case(2)
-      sizes2=sizes
-      call oasis_put(var_id_f, kstep_f, reshape(field, sizes2), kinfo_f)
-    case(3)
-      sizes3=sizes
-      call oasis_put(var_id_f, kstep_f, reshape(field, sizes3), kinfo_f)
-  end select
-  
+  if(size3>1) then
+    sizes3(1)=size1
+    sizes3(2)=size2
+    sizes3(3)=size3
+    call oasis_put(var_id_f, kstep_f, reshape(field, sizes3), kinfo_f)
+  else if(size2>1) then
+    sizes2(1)=size1
+    sizes2(2)=size2   
+    call oasis_put(var_id_f, kstep_f, reshape(field, sizes2), kinfo_f)
+  else
+    call oasis_put(var_id_f, kstep_f, field, kinfo_f)
+  end if
+    
   kinfo=kinfo_f
 end subroutine oasis_put_iso
 
 
 
-subroutine oasis_get_iso(var_id, kstep, n_dimensions, sizes, field, kinfo) bind(C)
+subroutine oasis_get_iso(var_id, kstep, size1, size2, size3, field, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
   use pyoasis
   use mod_oasis
@@ -68,34 +67,36 @@ subroutine oasis_get_iso(var_id, kstep, n_dimensions, sizes, field, kinfo) bind(
   
   integer (c_int), intent(in) :: var_id
   integer (c_int), intent(in) :: kstep
-  integer (c_int), intent(in) :: n_dimensions
-  integer (c_int), intent(in) :: sizes(:)
-  real (c_double), intent(inout) :: field(:)
+  integer (c_int), intent(in) :: size1, size2, size3
+  real (c_double), intent(inout) :: field(size1*size2*size3)
   integer(c_int) , intent(out):: kinfo
-  
   integer :: var_id_f
   integer :: kstep_f
   integer :: kinfo_f
+  integer :: sizes1(1)
   integer :: sizes2(2)
   integer :: sizes3(3)
+  real, allocatable :: field1(:)
   real, allocatable :: field2(:,:)
   real, allocatable :: field3(:,:,:)
   
   var_id_f=var_id
   kstep_f=kstep
-
-  select case (n_dimensions)
-    case(1)
-      call oasis_get(var_id_f, kstep_f, field, kinfo_f)
-    case(2)
-      sizes2=sizes
-      field2=reshape(field, sizes2)
-      call oasis_get(var_id_f, kstep_f, field2, kinfo_f)
-    case(3)
-      sizes3=sizes
-      field3=reshape(field, sizes3)
-      call oasis_get(var_id_f, kstep_f, field3, kinfo_f)
-  end select
+   
+  if(size3>1) then
+    sizes3(1)=size1
+    sizes3(2)=size2
+    sizes3(3)=size3
+    field3=reshape(field, sizes3)
+    call oasis_get(var_id_f, kstep_f, field3, kinfo_f)
+  else if(size2>1) then
+    sizes2(1)=size1
+    sizes2(2)=size2   
+    field2=reshape(field, sizes2)
+    call oasis_get(var_id_f, kstep_f, field2, kinfo_f)
+  else
+    call oasis_get(var_id_f, kstep_f, field, kinfo_f)
+  end if
   
   kinfo=kinfo_f
   

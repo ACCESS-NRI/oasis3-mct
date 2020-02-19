@@ -330,6 +330,7 @@ CONTAINS
            enddo
         enddo
      endif
+     
      if (OASIS_debug >= 5) then
         write(nulprt,*) subname,' BCAST from ',n,mpi_root_global(n)
         call oasis_flush(nulprt)
@@ -837,6 +838,7 @@ CONTAINS
               !--------------------------------
 
               if (namfldops(nn) == ip_exported .or. namfldops(nn) == ip_expout) then
+print *, "XXXXXXXXXXX ", namfldops(nn), " ", ip_exported, " ", namfldops(nn), " ", ip_expout
 ! tcraig allow this now
 !                if (nm == compid) then
 !                   write(nulprt,*) subname,estr,'send recv pair on same model = ', &
@@ -844,11 +846,13 @@ CONTAINS
 !                   call oasis_abort(file=__FILE__,line=__LINE__)
 !                endif
                  if (flag == OASIS_Out .and. allops(nv,nm) /= OASIS_In) then
+print *, "OUT ", allops(nv,nm),  OASIS_In
                     write(nulprt,*) subname,estr,'send recv pair both Out = ', &
                        trim(myfld),' ',trim(otfld)
                     call oasis_abort(file=__FILE__,line=__LINE__)
                  endif
                  if (flag == OASIS_In .and. allops(nv,nm) /= OASIS_Out) then
+print *, "IN"
                     write(nulprt,*) subname,estr,'send recv pair both In = ', &
                        trim(myfld),' ',trim(otfld)
                     call oasis_abort(file=__FILE__,line=__LINE__)
@@ -1128,6 +1132,7 @@ CONTAINS
 
      enddo  ! nfind
   enddo  ! nv1
+  
   if (local_timers_on >= 2) call oasis_timer_stop ('cpl_setup_n3')
   if (local_timers_on >= 1) then
      call oasis_timer_start('cpl_setup_n4_barrier')
@@ -1138,6 +1143,7 @@ CONTAINS
   if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4a')
 
   ! aggregate checkused info across all pes and then check on each component root
+  
   allocate(namsrc_checkused_g(sortnsrc%num))
   call oasis_mpi_max(namsrc_checkused,namsrc_checkused_g,mpi_comm_global,string=trim(subname)//':srccheckused',all=.true.)
   found = .false.
@@ -1147,6 +1153,7 @@ CONTAINS
         found = .true.
      endif
   enddo
+  
 !  call oasis_mpi_barrier(mpi_comm_global)
   if (found) call oasis_abort(file=__FILE__,line=__LINE__)
   deallocate(namsrc_checkused_g)

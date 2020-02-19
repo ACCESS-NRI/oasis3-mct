@@ -71,7 +71,7 @@ contains
     logical :: lwrst
     character(len=*),parameter :: subname = '(oasis_put_r14)'
     !-------------------------------------
-
+ print *, "DUCK put r14"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -137,7 +137,7 @@ contains
     logical :: lwrst
     character(len=*),parameter :: subname = '(oasis_put_r18)'
     !-------------------------------------
-
+    print *, "DUCK put r18"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -204,7 +204,7 @@ contains
     integer(kind=ip_i4_p) :: n, size_fld1
     character(len=*),parameter :: subname = '(oasis_put_r24)'
     !-------------------------------------
-
+ print *, "DUCK put r24"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -328,7 +328,7 @@ contains
     integer(kind=ip_i4_p) :: n, size_fld1
     character(len=*),parameter :: subname = '(oasis_put_r34)'
     !-------------------------------------
-
+ print *, "DUCK put r34"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -434,7 +434,7 @@ contains
     integer(kind=ip_i4_p) :: n, size_fld1
     character(len=*),parameter :: subname = '(oasis_put_r28)'
     !-------------------------------------
-
+ print *, "DUCK put r28"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -557,7 +557,7 @@ contains
     integer(kind=ip_i4_p) :: n, size_fld1
     character(len=*),parameter :: subname = '(oasis_put_r38)'
     !-------------------------------------
-
+ print *, "DUCK put r38"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -816,7 +816,7 @@ contains
     real(kind=ip_r8_p), allocatable :: array(:)
     character(len=*),parameter :: subname = '(oasis_get_r14)'
     !-------------------------------------
-
+ print *, "DUCK get r14"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -861,7 +861,7 @@ contains
     !-------------------------------------
     character(len=*),parameter :: subname = '(oasis_get_r18)'
     !-------------------------------------
-
+ print *, "DUCK get r18"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -899,7 +899,7 @@ contains
     REAL(kind=ip_r8_p), ALLOCATABLE :: array(:)
     character(len=*),parameter :: subname = '(oasis_get_r24)'
     !-------------------------------------
-
+ print *, "DUCK get r24"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -972,7 +972,7 @@ contains
     REAL(kind=ip_r8_p), ALLOCATABLE :: array(:)
     character(len=*),parameter :: subname = '(oasis_get_r34)'
     !-------------------------------------
-
+ print *, "DUCK get r34"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -1034,7 +1034,7 @@ contains
     REAL(kind=ip_r8_p), ALLOCATABLE :: array(:)
     character(len=*),parameter :: subname = '(oasis_get_r28)'
     !-------------------------------------
-
+ print *, "DUCK get r28"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then
@@ -1104,7 +1104,7 @@ contains
     REAL(kind=ip_r8_p), ALLOCATABLE :: array(:)
     character(len=*),parameter :: subname = '(oasis_get_r38)'
     !-------------------------------------
-
+ print *, "DUCK get r38"
     call oasis_debug_enter(subname)
     kinfo = OASIS_OK
     if (.not. oasis_coupled) then

@@ -37,7 +37,7 @@ def OasisException(text, error):
 
 
 class Component:
-    def __init__(self, i_name, coupled=False, communicator=MPI.COMM_WORLD):
+    def __init__(self, i_name, coupled=True, communicator=MPI.COMM_WORLD):
         name = i_name
         rv = mod_oasis_method_core.init_comp(name, coupled, communicator)
         error = rv[1]
@@ -116,6 +116,7 @@ class Var:
         id_var_nodims2 = i_id_var_nodims2
         kinout = i_kinout
         ktype = i_ktype
+
         rv = mod_oasis_var_core.def_var(id_part, self.name, id_var_nodims1, id_var_nodims2, kinout, ktype)
         error = rv[1]
         if(error < 0):
@@ -123,11 +124,11 @@ class Var:
         self.id = rv[0]
  
 
-    def put(kstep, sizes, field):
-        mod_oasis_getput_interface_core.put(var_id, kstep, sizes, field)
+    def put(self, kstep, field):
+        mod_oasis_getput_interface_core.put(self.id, kstep, field)
 
-    def get(kstep, sizes, field):
-        mod_oasis_getput_interface_core.get(var_id, kstep, sizes, field)
+    def get(self, kstep, field):
+        mod_oasis_getput_interface_core.get(self.id, kstep, field)
         
 
 # This is only a temporary wrapping.

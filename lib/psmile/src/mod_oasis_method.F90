@@ -757,7 +757,7 @@ CONTAINS
       call oasis_mpi_barrier(mpi_comm_local, subname)
       call oasis_timer_stop('oasis_enddef_barrier')
    endif
-   
+  
    CALL oasis_timer_start ('oasis_enddef')
    if (local_timers_on) call oasis_timer_start('oasis_enddef_prep')
 
@@ -859,7 +859,7 @@ CONTAINS
       !------------------------
       !>   * Write grid info to files one model at a time
       !------------------------
-
+ 
       if (local_timers_on) call oasis_timer_start('oasis_enddef_write2files')
       call oasis_mpi_barrier(mpi_comm_global)
       do n = 1,prism_amodels
@@ -890,7 +890,10 @@ CONTAINS
       !------------------------
 
       if (local_timers_on) call oasis_timer_start('oasis_enddef_coupler_setup')
+ 
       call oasis_coupler_setup()
+  kinfo=0
+      return    
       IF (OASIS_debug >= 2)  THEN
          WRITE(nulprt,*) subname, ' done prism_coupler_setup '
          CALL oasis_flush(nulprt)
@@ -899,7 +902,7 @@ CONTAINS
           CALL oasis_mem_print(nulprt,subname//':coupler_setup')
       ENDIF
       if (local_timers_on) call oasis_timer_stop('oasis_enddef_coupler_setup')
-
+    
       !------------------------
       !>   * Call advance_init to initialize coupling fields from restarts
       !------------------------

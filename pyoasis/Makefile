@@ -8,9 +8,9 @@ MODULES=${PYOASIS}/oasis/modules
 FC=mpif90
 CC=mpicc
 CXX=mpic++
-FFLAGS=-fPIC -ffree-form -J${MODULES} 
-CFLAGS=-fPIC -I/usr/include/python3.8
-CPPFLAGS=-fPIC -I/usr/include/python3.8
+FFLAGS=-fPIC -ffree-form -J${MODULES} -g2 
+CFLAGS=-fPIC -I/usr/include/python3.8 -g2
+CPPFLAGS=-fPIC -I/usr/include/python3.8 -g2
 LFLAGS=-L/home/igw26125/opt2/lib -L. -Loasis/lib -fPIC
 
 all: liboasis libpyoasiscore.so 
