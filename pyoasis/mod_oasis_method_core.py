@@ -9,7 +9,6 @@ cdll.LoadLibrary("libpyoasiscore.so")
 lib=CDLL("libpyoasiscore.so")
 
 
-
 lib.init_comp.argtypes=[ctypes.POINTER(ctypes.c_int), c_char_p, ctypes.POINTER(ctypes.c_int), ctypes.c_bool, ctypes.c_int]
 def init_comp(comp_name, coupled, communicator):
   comp_id=c_int(0)
@@ -35,7 +34,6 @@ def get_comm_size(communicator):
   error=c_int(0)
   lib.get_comm_size(communicator, comm_size, error)
   return comm_size.value
-
 
 lib.get_comm_rank.argtypes=[ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
 def get_comm_rank(communicator):

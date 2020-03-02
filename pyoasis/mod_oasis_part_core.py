@@ -9,10 +9,8 @@ cdll.LoadLibrary("libpyoasiscore.so")
 lib=CDLL("libpyoasiscore.so")
 
 
-
 lib.def_partition.argtypes=[ctypes.POINTER(ctypes.c_int), ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
 def def_partition(parameters):
-  print("££££££££££££ "+str(parameters))
   id_part=c_int(0)
   kinfo=c_int(0)
   n=len(parameters)
