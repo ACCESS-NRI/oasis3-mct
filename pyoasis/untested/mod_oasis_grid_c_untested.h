@@ -17,13 +17,11 @@ void write_grid(char* cgrid, int nx, int ny, int nlon1, int nlon2, double* lon, 
 
 void write_corner(char* cgrid, int nx, int ny, int nc, int nclon1, int nclon2, int nclon3, double* clon, int nclat1, int nclat2, int nclat3, double* clat, int partid);
 
-
 void write_mask(char* cgrid, int nx, int ny, int nmask1, int nmask2, int* mask, int partid);
 
 void write_area(char* cgrid, int nx, int ny, int narea1, int narea2, double* area, int partid);
 
 void terminate_grids_writing();
-
 
 
 #endif

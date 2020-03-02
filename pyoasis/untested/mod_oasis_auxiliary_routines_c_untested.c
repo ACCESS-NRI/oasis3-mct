@@ -20,3 +20,23 @@ void get_intercomm(int new_comm, char* cdnam, int* error){
 void get_intracomm(int new_comm, char* cdnam, int* error){
   get_intracomm_iso(&new_comm, &cdnam, error);   
 }
+
+void set_debug(int debug, int* kinfo){
+  oasis_set_debug_iso(&debug, kinfo);   
+}
+
+void get_debug(int* debug, int* kinfo){
+  oasis_get_debug_iso(debug, kinfo);
+}
+
+void put_inquire(int varid, int msec,int* kinfo){
+  oasis_put_inquire_iso(&varid, &msec, kinfo);  
+}
+
+void get_ncpl(int varid, int* ncpl, int* kinfo){
+  oasis_get_ncpl_iso(&varid, ncpl, kinfo);  
+}
+
+void get_freqs(int varid, int mop, int ncpl, int* cpl_freqs, int* kinfo){
+  oasis_get_freqs_iso(&varid, &mop, &ncpl, &cpl_freqs, kinfo);
+}
