@@ -9,7 +9,6 @@ cdll.LoadLibrary("libpyoasiscore.so")
 lib=CDLL("libpyoasiscore.so")
 
 
-
 lib.def_var.argtypes=[ctypes.POINTER(ctypes.c_int), c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
 def def_var(id_part, cdport, id_var_nodims1, id_var_nodims2, kinout, ktype):
   id_nports=c_int(0)
