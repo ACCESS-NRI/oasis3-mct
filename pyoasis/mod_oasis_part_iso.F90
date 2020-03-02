@@ -14,9 +14,9 @@ subroutine oasis_def_partition_iso(id_part, n, parameters, kinfo) bind(C)
   
   integer :: i
 
-call oasis_def_partition(id_part_f, parameters, kinfo_f)
-  id_part=id_part_f
+  call oasis_def_partition(id_part_f, parameters, kinfo_f)
   
+  id_part=id_part_f
   kinfo=kinfo_f
 end subroutine oasis_def_partition_iso
 

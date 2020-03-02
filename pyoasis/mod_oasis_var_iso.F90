@@ -25,6 +25,7 @@ subroutine oasis_def_var_iso(id_nports, cdport, id_part, &
   integer :: kinfo_f
   
   integer :: i
+  
   cdport_f=string_to_fortran(cdport)
   id_part_f=id_part
   id_var_nodims_f(1)=id_var_nodims1

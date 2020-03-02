@@ -24,7 +24,6 @@ subroutine init_comp_iso(comp_id, comp_name, error, coupled, communicator) bind(
 
   comp_id=comp_id_f
   error=error_f
-  
 end subroutine init_comp_iso
 
 
@@ -37,11 +36,11 @@ subroutine enddef_iso(kinfo) bind(C)
   integer :: kinfo_f
 
   kinfo_f=kinfo
+  
   call oasis_enddef(kinfo_f)
+  
   kinfo=kinfo_f
-
 end subroutine enddef_iso
-
 
 
 subroutine terminate_iso(kinfo) bind(C)
@@ -55,9 +54,7 @@ subroutine terminate_iso(kinfo) bind(C)
   kinfo_f=kinfo
   call oasis_terminate(kinfo_f)
   kinfo=kinfo_f
-
 end subroutine terminate_iso
-
 
 
 subroutine get_comm_size_iso(communicator, comm_size, error) bind(C)
@@ -71,12 +68,11 @@ subroutine get_comm_size_iso(communicator, comm_size, error) bind(C)
   
   communicator_f=communicator
   
-  CALL mpi_comm_size(communicator_f, comm_size_f, error_f)
+  call mpi_comm_size(communicator_f, comm_size_f, error_f)
   
   comm_size=comm_size_f
   error=error_f
 end subroutine get_comm_size_iso
-
 
 
 subroutine get_comm_rank_iso(communicator, comm_rank, error) bind(C)
@@ -90,7 +86,7 @@ subroutine get_comm_rank_iso(communicator, comm_rank, error) bind(C)
   
   communicator_f=communicator
   
-  CALL mpi_comm_rank(communicator_f, comm_rank_f, error_f)
+  call mpi_comm_rank(communicator_f, comm_rank_f, error_f)
   
   comm_rank=comm_rank_f
   error=error_f
