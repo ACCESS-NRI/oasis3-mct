@@ -20,7 +20,7 @@ print("Local communicator: " + str(local_comm))
 coupl_comm = comp.create_couplcomm(1, local_comm)
 print("Coupling communicator: " + str(coupl_comm))
 
-partition=pyoasis.SerialPartition(3, "partition")
+partition=pyoasis.SerialPartition(10)
 print("Partition id: " + str(partition.id))
 
 variable=pyoasis.Var(partition.id, "FRECVATM", 1, 1, pyoasis.params.OASIS_IN.value, pyoasis.params.OASIS_REAL.value)
@@ -29,7 +29,7 @@ print("Variable id: " + str(variable.id))
 comp.enddef()
 
 date=int(0);
-field=pyoasis.Array([0,0,0])
+field=pyoasis.Array([0,0,0,0,0,0,0,0,0,0])
 variable.get(date, field);
  
 print("Received data: "+str(field))

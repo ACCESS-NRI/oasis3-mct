@@ -388,7 +388,7 @@ contains
     logical, parameter :: local_timers_on = .false.
     character(len=*),parameter :: subname = '(oasis_advance_run)'
 !   ----------------------------------------------------------------
-
+print *, "1111111111111111111111111111111111111111111111111"
     call oasis_debug_enter(subname)
 
     !----------------------------------------------------------------
@@ -686,7 +686,7 @@ contains
        ! is possible.  Allow 1*dt for synchronous operations,
        ! 2*dt for asynchronous operations
        !------------------------------------------------
-
+print *, "22222222222222222222222222222222222222222222222222222222"
        do n = 1,prism_mcoupler
        do npc = 1,2
        if (npc == 1) pcpointmp => prism_coupler_put(n)

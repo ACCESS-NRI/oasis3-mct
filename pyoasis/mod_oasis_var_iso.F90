@@ -35,7 +35,7 @@ subroutine oasis_def_var_iso(id_nports, cdport, id_part, &
     id_var_shape_f(i)=id_var_shape(i)
   end do
   ktype_f=ktype
-print *, "AAAAAAA ", cdport_f, id_part_f, id_var_nodims_f, id_var_shape_f, ktype_f
+
   call oasis_def_var(id_nports_f, cdport_f, id_part_f, &
   id_var_nodims_f, kinout_f, id_var_shape_f, ktype_f, kinfo_f)
 

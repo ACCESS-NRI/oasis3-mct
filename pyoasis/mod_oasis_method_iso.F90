@@ -57,3 +57,41 @@ subroutine terminate_iso(kinfo) bind(C)
   kinfo=kinfo_f
 
 end subroutine terminate_iso
+
+
+
+subroutine get_comm_size_iso(communicator, comm_size, error) bind(C)
+  use iso_c_binding, only: c_int
+  implicit none
+  include "mpif.h"
+  integer (c_int), intent(in) :: communicator
+  integer (c_int), intent(out) :: error, comm_size
+
+  integer communicator_f, comm_size_f, error_f 
+  
+  communicator_f=communicator
+  
+  CALL mpi_comm_size(communicator_f, comm_size_f, error_f)
+  
+  comm_size=comm_size_f
+  error=error_f
+end subroutine get_comm_size_iso
+
+
+
+subroutine get_comm_rank_iso(communicator, comm_rank, error) bind(C)
+  use iso_c_binding, only: c_int
+  implicit none
+  include "mpif.h"
+  integer (c_int), intent(in) :: communicator
+  integer (c_int), intent(out) :: error, comm_rank
+
+  integer communicator_f, comm_rank_f, error_f 
+  
+  communicator_f=communicator
+  
+  CALL mpi_comm_rank(communicator_f, comm_rank_f, error_f)
+  
+  comm_rank=comm_rank_f
+  error=error_f
+end subroutine get_comm_rank_iso

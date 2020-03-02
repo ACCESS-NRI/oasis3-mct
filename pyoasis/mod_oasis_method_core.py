@@ -29,4 +29,17 @@ def terminate():
   lib.terminate(error)
   return error.value
 
+lib.get_comm_size.argtypes=[ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
+def get_comm_size(communicator):
+  comm_size=c_int(0)
+  error=c_int(0)
+  lib.get_comm_size(communicator, comm_size, error)
+  return comm_size.value
 
+
+lib.get_comm_rank.argtypes=[ctypes.c_int, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int)]
+def get_comm_rank(communicator):
+  comm_rank=c_int(0)
+  error=c_int(0)
+  lib.get_comm_rank(communicator, comm_rank, error)
+  return comm_rank.value

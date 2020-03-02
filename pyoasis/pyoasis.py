@@ -32,17 +32,21 @@ def Array(data):
 def IntArray(data):
     return numpy.asfortranarray(data, dtype=numpy.int32)
 
+def OasisException(text):
+    return Exception(text)
+
 def OasisException(text, error):
-    return Exception(text+" ("+str(error)+")")
+    return OasisException(text+" ("+str(error)+")")
 
 
 class Component:
-    def __init__(self, i_name, coupled=True, communicator=MPI.COMM_WORLD):
-        name = i_name
-        rv = mod_oasis_method_core.init_comp(name, coupled, communicator)
+    def __init__(self, i_name, coupled=True, i_communicator=MPI.COMM_WORLD):
+        self.name = i_name
+        self.communicator=i_communicator
+        rv = mod_oasis_method_core.init_comp(self.name, coupled, self.communicator)
         error = rv[1]
         if(error < 0):
-            raise OasisException("Error initialising component "+name, error)
+            raise OasisException("Error initialising component "+self.name, error)
         self.id = rv[0]
     def get_localcomm(self):
         rv = mod_oasis_auxiliary_routines_core.get_localcomm()
@@ -76,6 +80,15 @@ class Component:
             raise OasisException("Error in enddef", error)
     def get_id(self):
         return self.id
+    def get_comm_size(self):
+        return mod_oasis_method_core.get_comm_size(self.communicator.py2f());
+    def get_comm_rank(self):
+        return mod_oasis_method_core.get_comm_rank(self.communicator.py2f());
+    def get_localcomm_size(self):
+        return mod_oasis_method_core.get_comm_size(self.get_localcomm());
+    def get_localcomm_rank(self):
+        return mod_oasis_method_core.get_comm_rank(self.get_localcomm());
+     
 
 def terminate():
     error = mod_oasis_method_core.terminate()
@@ -90,22 +103,60 @@ def oasis_abort(comp_id, routine, message, filename, line, error):
 
 
 class SerialPartition:
-#    def __init__(self, size, i_name):
-    def __init__(self, size, i_name):
-        name = i_name
-        IntArray3=ctypes.c_int*3
-        kparal=IntArray3()
-        kparal[0]=0
-        kparal[1]=0
-        kparal[2]=size
-        ig_size=size
-#        rv = mod_oasis_part_core.def_partition(kparal, ig_size, name)
-        rv = mod_oasis_part_core.def_partition(kparal)
+    def __init__(self, size):
+        parameters=IntArray([0, 0, size]);
+        rv = mod_oasis_part_core.def_partition(parameters)
         error = rv[1]
         if (error < 0):
             raise OasisException("Error in def_partition", error)
         self.id = rv[0]
 
+
+class ApplePartition:
+    def __init__(self, offset, size):
+        parameters=IntArray([1, offset, size]);
+        rv = mod_oasis_part_core.def_partition(parameters)
+        error = rv[1]
+        if (error < 0):
+            raise OasisException("Error in def_partition", error)
+        self.id = rv[0]
+
+class BoxPartition:
+    def __init__(self, global_offset, local_extent_x, local_extent_y, global_extent_x):
+        parameters=IntArray([2, global_offset, local_extent_x, local_extent_y, global_extent_x]);
+        rv = mod_oasis_part_core.def_partition(parameters)
+        error = rv[1]
+        if (error < 0):
+            raise OasisException("Error in def_partition", error)
+        self.id = rv[0]
+        
+class OrangePartition:
+    def __init__(self, offsets, extents):
+        n=len(offsets)
+        if(len(extents)!=n):
+          raise OasisException("The number of offsets must be the same as the number of extents")  
+        parameters1=[3, n]
+        for i in range(n):
+          parameters1.append(offsets[i])
+          parameters1.append(extents[i])
+        parameters2=IntArray(parameters1)
+        rv = mod_oasis_part_core.def_partition(parameters2)
+        error = rv[1]
+        if (error < 0):
+            raise OasisException("Error in def_partition", error)
+        self.id = rv[0]
+        
+class PointsPartition:
+    def __init__(self, global_indices):
+        parameters1=[4, len(global_indices)]
+        for index in global_indices:
+          parameters1.append(index)
+        parameters2=IntArray(parameters1)
+        rv = mod_oasis_part_core.def_partition(parameters2)
+        error = rv[1]
+        if (error < 0):
+            raise OasisException("Error in def_partition", error)
+        self.id = rv[0]
 
 class Var:
     def __init__(self, i_id_part, cdport, i_id_var_nodims1,

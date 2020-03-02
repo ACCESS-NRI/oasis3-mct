@@ -14,3 +14,11 @@ void enddef(int* kinfo){
 void terminate(int* kinfo){
   terminate_iso(kinfo);
 }
+
+void get_comm_size(int communicator, int* comm_size, int* error){
+  get_comm_size_iso(&communicator, comm_size, error);  
+}
+
+void get_comm_rank(int communicator, int* comm_rank, int* error){
+  get_comm_rank_iso(&communicator, comm_rank, error);  
+}
