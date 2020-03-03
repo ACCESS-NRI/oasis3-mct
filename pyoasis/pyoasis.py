@@ -14,8 +14,6 @@ import mod_oasis_sys_core
 import mod_oasis_part_core
 import mod_oasis_var_core
 import mod_oasis_getput_interface_core
-import mod_oasis_grid_core
-
 
 
 class params(Enum):
@@ -23,8 +21,7 @@ class params(Enum):
     OASIS_OUT=20
     OASIS_IN=21
     
-    
-    
+
 # pyoasis.Array: array of doubles in Fortran ordering
 def Array(data):
     return numpy.asfortranarray(data, dtype=numpy.float64)
@@ -48,6 +45,10 @@ class Component:
         if(error < 0):
             raise OasisException("Error initialising component "+self.name, error)
         self.id = rv[0]
+    def get_name(self):
+        return self.name
+    def get_id(self):
+        return self.id
     def get_localcomm(self):
         rv = mod_oasis_auxiliary_routines_core.get_localcomm()
         error = rv[1]
@@ -78,8 +79,6 @@ class Component:
         error = mod_oasis_method_core.enddef();
         if(error < 0):
             raise OasisException("Error in enddef", error)
-    def get_id(self):
-        return self.id
     def get_comm_size(self):
         return mod_oasis_method_core.get_comm_size(self.communicator.py2f());
     def get_comm_rank(self):
@@ -102,35 +101,30 @@ def oasis_abort(comp_id, routine, message, filename, line, error):
     mod_oasis_sys_core.oasis_abort(component_id, routine, message, filename, line, error)
 
 
-class SerialPartition:
-    def __init__(self, size):
-        parameters=IntArray([0, 0, size]);
+class Partition:
+    def set(self, parameters):
         rv = mod_oasis_part_core.def_partition(parameters)
         error = rv[1]
         if (error < 0):
             raise OasisException("Error in def_partition", error)
         self.id = rv[0]
 
+class SerialPartition(Partition):
+    def __init__(self, size):
+        parameters=IntArray([0, 0, size])
+        self.set(parameters)
 
-class ApplePartition:
+class ApplePartition(Partition):
     def __init__(self, offset, size):
         parameters=IntArray([1, offset, size]);
-        rv = mod_oasis_part_core.def_partition(parameters)
-        error = rv[1]
-        if (error < 0):
-            raise OasisException("Error in def_partition", error)
-        self.id = rv[0]
+        self.set(parameters)        
 
-class BoxPartition:
+class BoxPartition(Partition):
     def __init__(self, global_offset, local_extent_x, local_extent_y, global_extent_x):
         parameters=IntArray([2, global_offset, local_extent_x, local_extent_y, global_extent_x]);
-        rv = mod_oasis_part_core.def_partition(parameters)
-        error = rv[1]
-        if (error < 0):
-            raise OasisException("Error in def_partition", error)
-        self.id = rv[0]
+        self.set(parameters)
         
-class OrangePartition:
+class OrangePartition(Partition):
     def __init__(self, offsets, extents):
         n=len(offsets)
         if(len(extents)!=n):
@@ -140,23 +134,15 @@ class OrangePartition:
           parameters1.append(offsets[i])
           parameters1.append(extents[i])
         parameters2=IntArray(parameters1)
-        rv = mod_oasis_part_core.def_partition(parameters2)
-        error = rv[1]
-        if (error < 0):
-            raise OasisException("Error in def_partition", error)
-        self.id = rv[0]
+        self.set(parameters2)
         
-class PointsPartition:
+class PointsPartition(Partition):
     def __init__(self, global_indices):
         parameters1=[4, len(global_indices)]
         for index in global_indices:
           parameters1.append(index)
         parameters2=IntArray(parameters1)
-        rv = mod_oasis_part_core.def_partition(parameters2)
-        error = rv[1]
-        if (error < 0):
-            raise OasisException("Error in def_partition", error)
-        self.id = rv[0]
+        self.set(parameters2)
 
 class Var:
     def __init__(self, i_id_part, cdport, i_id_var_nodims1,
@@ -167,62 +153,12 @@ class Var:
         id_var_nodims2 = i_id_var_nodims2
         kinout = i_kinout
         ktype = i_ktype
-
         rv = mod_oasis_var_core.def_var(id_part, self.name, id_var_nodims1, id_var_nodims2, kinout, ktype)
         error = rv[1]
         if(error < 0):
             raise OasisException("Error in def_var", error)
         self.id = rv[0]
- 
-
     def put(self, kstep, field):
         mod_oasis_getput_interface_core.put(self.id, kstep, field)
-
     def get(self, kstep, field):
         mod_oasis_getput_interface_core.get(self.id, kstep, field)
-        
-
-# This is only a temporary wrapping.
-# These functions will be combined into objects.
-def write_grid(cgrid, nx, ny, nlon1, nlon2, lon, nlat1, nlat2, lat, partid=-1):
-    mod_oasis_grid_core.write_grid(cgrid, nx, ny, nlon1, nlon2, lon, nlat1, nlat2, lat, partid)
-    
-def  write_corner(cgrid, nx, ny, nc, nclon1, nclon2, nclon3, clon, nclat1, nclat2, nclat3, clat, partid):
-    mod_oasis_grid_core.write_corner(cgrid, nx, ny, nc, nclon1, nclon2, nclon3, clon, nclat1, nclat2, nclat3, clat, partid)
-    
-def write_area(cgrid, nx, ny, narea1, narea2, area, partid=-1):
-    mod_oasis_grid_core.write_area(cgrid, nx, ny, narea1, narea2, area, partid)
-
-def terminate_grids_writing():
-    mod_oasis_grid_core.terminate_grids_writing()
-    
-def set_debug(debug):
-    error=mod_oasis_auxiliary_routines_core.set_debug(debug)
-    if(error<0):
-        raise OasisException("Error in set_debug", error)
-    
-def get_debug():
-    rv=mod_oasis_auxiliary_routines_core.get_debug()
-    error=rv[0]
-    if(error<0):
-        raise OasisException("Error in get_debug", error)
-    debug=rv[1]
-    return debug
-
-def put_inquire(varid, msec):
-    error=mod_oasis_auxiliary_routines_core.put_inquire(varid, msec)
-    if(error<0):
-        raise OasisException("Error in put_inquire", error)    
-    
-def get_ncpl(varid):
-    rv=get_ncpl(varid)
-    error=rv[1]
-    if(error<0):
-        raise OasisException("Error in get_ncpl", error)
-    ncpl=rv[0]
-    return ncpl
-
-def get_freqs(varid, mop, ncpl, cpl_freqs):
-    error=mod_oasis_auxiliary_routines_core.get_freqs(varid, mop, ncpl, cpl_freqs)
-    if(error<0):
-        raise OasisException("Error in get_freqs", error)   
