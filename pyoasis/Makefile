@@ -16,30 +16,24 @@ LFLAGS=-L/home/igw26125/opt2/lib -L. -Loasis/lib -fPIC
 all: liboasis libpyoasiscore.so 
 
 
-
-
-libpyoasiscore.so: pyoasis.o mod_oasis_auxiliary_routines_iso.o mod_oasis_getput_interface_iso.o mod_oasis_method_iso.o mod_oasis_part_iso.o mod_oasis_sys_iso.o mod_oasis_var_iso.o mod_oasis_grid_iso.o mod_oasis_auxiliary_routines_c.o mod_oasis_getput_interface_c.o mod_oasis_method_c.o mod_oasis_part_c.o mod_oasis_sys_c.o mod_oasis_var_c.o mod_oasis_grid_c.o pyoasis.o
+libpyoasiscore.so: pyoasis.o mod_oasis_auxiliary_routines_iso.o mod_oasis_getput_interface_iso.o mod_oasis_method_iso.o mod_oasis_part_iso.o mod_oasis_sys_iso.o mod_oasis_var_iso.o mod_oasis_auxiliary_routines_c.o mod_oasis_getput_interface_c.o mod_oasis_method_c.o mod_oasis_part_c.o mod_oasis_sys_c.o mod_oasis_var_c.o pyoasis.o
 	${CC} mod_oasis_auxiliary_routines_iso.o\
               mod_oasis_getput_interface_iso.o\
               mod_oasis_method_iso.o\
               mod_oasis_part_iso.o\
               mod_oasis_sys_iso.o\
               mod_oasis_var_iso.o\
-              mod_oasis_grid_iso.o\
               mod_oasis_auxiliary_routines_c.o\
               mod_oasis_getput_interface_c.o\
               mod_oasis_method_c.o\
               mod_oasis_part_c.o\
               mod_oasis_sys_c.o\
               mod_oasis_var_c.o\
-              mod_oasis_grid_c.o\
               pyoasis.o\
               ${LFLAGS} -lpsmile.MPI1 -lscrip -lsparsematrix -shared -lnetcdf -lnetcdff -shared -o libpyoasiscore.so
 
 
 # C
-mod_oasis_grid_c.o: mod_oasis_grid_c.h mod_oasis_grid_c.c
-	${CC} mod_oasis_grid_c.c -c ${CFLAGS}
 
 mod_oasis_part_c.o: mod_oasis_part_c.h mod_oasis_part_c.c
 	${CC} mod_oasis_part_c.c -c ${CFLAGS}
@@ -61,9 +55,6 @@ mod_oasis_method_c.o: mod_oasis_method_c.h mod_oasis_method_c.c
 
 
 # ISO C Fortran
-
-mod_oasis_grid_iso.o: mod_oasis_grid_iso.F90 pyoasis.mod
-	${FC} mod_oasis_grid_iso.F90 -c ${FFLAGS}
 
 mod_oasis_getput_interface_iso.o: mod_oasis_getput_interface_iso.F90 pyoasis.mod
 	${FC} mod_oasis_getput_interface_iso.F90 -c ${FFLAGS}

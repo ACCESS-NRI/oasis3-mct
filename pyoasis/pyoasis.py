@@ -66,8 +66,7 @@ class Component:
         return localcomm
 
     def create_couplcomm(self, coupling_process_flag, comm):
-        rv = mod_oasis_auxiliary_routines_core.create_couplcomm
-        (coupling_process_flag, comm)
+        rv = mod_oasis_auxiliary_routines_core.create_couplcomm(coupling_process_flag, comm)
         error = rv[1]
         if(error < 0):
             raise OasisException("Error in get_couplcomm", error)
