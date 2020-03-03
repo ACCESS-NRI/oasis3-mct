@@ -7,7 +7,7 @@ from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 
-component_name = "model3a"
+component_name = "sender-box"
 print("Component name: " + component_name)
 
 comp = pyoasis.Component(component_name, True, comm)
