@@ -21,7 +21,6 @@ coupl_comm = comp.create_couplcomm(1, local_comm)
 print("Coupling communicator: " + str(coupl_comm))
 
 rank = comp.get_localcomm_rank()
-size = comp.get_localcomm_size()
 
 global_offsets = [0, 2, 8, 10]
 partition = pyoasis.BoxPartition(global_offsets[rank], 2, 2, 4)
