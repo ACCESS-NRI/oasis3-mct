@@ -88,6 +88,9 @@ pyoasis.o: pyoasis.F90
 liboasis: oasis/lib/libpsmile.MPI1.so oasis/lib/libscrip.so oasis/lib/libsparsematrix.so
 
 oasis/lib/libpsmile.MPI1.so:
+	mkdir -p oasis/src/psmile &&\
+	mkdir -p ${MODULES} &&\
+	mkdir -p oasis/lib &&\
 	cd oasis/src/psmile &&\
 	rm -f *.o *.so *.F90  &&\
 	cp ${HOME}/compile_oa3-mct/build/lib/psmile.MPI1/mod_oasis.mod ${MODULES} &&\
@@ -101,11 +104,14 @@ oasis/lib/libpsmile.MPI1.so:
 	sed -i 's/shr_reprosumx86_fix_end/shr_reprosumx86_fix_end_/g' shr_reprosumx86_.c &&\
 	cp GPTLget_memusage.c GPTLget_memusage_.c &&\
 	sed -i 's/gptlget_memusage_/gptlget_memusage/g' GPTLget_memusage_.c &&\
-	${FC} *.F90 -c -Duse_comm_MPI1 -J${PYOASIS} -ext_names -ffree-line-length-512 -fPIC -I${OASIS}/lib/psmile/include &&\
-	${CC} *.c -c -J${PYOASIS}  -fPIC -I${OASIS}/lib/psmile/include &&\
+	${FC} *.F90 -c -Duse_comm_MPI1 -J${MODULES} -ext_names -ffree-line-length-512 -fPIC -I${OASIS}/lib/psmile/include &&\
+	${CC} *.c -c -J${MODULES}  -fPIC -I${OASIS}/lib/psmile/include &&\
 	${FC} ${LFLAGS} *.o -o ../../lib/libpsmile.MPI1.so -fPIC -shared -lnetcdf -lnetcdff
 
 oasis/lib/libscrip.so:
+	mkdir -p oasis/src/scrip &&\
+	mkdir -p ${MODULES} &&\
+	mkdir -p oasis/lib &&\
 	cd oasis/src/scrip &&\
 	rm -f *.o *.so *.F90 *.h *.c &&\
         cp ${HOME}/compile_oa3-mct/build/lib/psmile.MPI1/mod_oasis.mod ${PYOASIS} &&\
@@ -122,6 +128,9 @@ oasis/lib/libscrip.so:
 	${FC} ${LFLAGS} *.o -o ../../lib/libscrip.so -fPIC -shared -lnetcdf -lnetcdff
 
 oasis/lib/libsparsematrix.so:
+	mkdir -p oasis/src/sparsematrix &&\
+	mkdir -p ${MODULES} &&\
+	mkdir -p oasis/lib &&\
 	cd oasis/src/sparsematrix &&\
 	rm -f *.o *.so *.F90 *.h *.c  &&\
         cp ${HOME}/compile_oa3-mct/build/lib/psmile.MPI1/mod_oasis.mod ${MODULES}  &&\
