@@ -1,8 +1,11 @@
-%.o: %.mod 
+%.o: %.mod
 
-PREFIX=${HOME}/opt
-OASIS=${HOME}/oasis3-mct/
+OASIS=${HOME}/oasis3-mct
 PYOASIS=${OASIS}/pyoasis
+
+SRC_C=${PYOASIS}/src/c
+SRC_F=${PYOASIS}/src/fortran_isoc
+
 MODULES=${PYOASIS}/oasis/modules
 
 FC=mpif90
@@ -13,69 +16,73 @@ CFLAGS=-fPIC -I/usr/include/python3.8 -g2
 CPPFLAGS=-fPIC -I/usr/include/python3.8 -g2
 LFLAGS=-L/home/igw26125/opt2/lib -L. -Loasis/lib -fPIC
 
-all: liboasis libpyoasiscore.so 
+PREFIX=${HOME}/opt
 
 
-libpyoasiscore.so: pyoasis.o mod_oasis_auxiliary_routines_iso.o mod_oasis_getput_interface_iso.o mod_oasis_method_iso.o mod_oasis_part_iso.o mod_oasis_sys_iso.o mod_oasis_var_iso.o mod_oasis_auxiliary_routines_c.o mod_oasis_getput_interface_c.o mod_oasis_method_c.o mod_oasis_part_c.o mod_oasis_sys_c.o mod_oasis_var_c.o pyoasis.o
-	${CC} mod_oasis_auxiliary_routines_iso.o\
-              mod_oasis_getput_interface_iso.o\
-              mod_oasis_method_iso.o\
-              mod_oasis_part_iso.o\
-              mod_oasis_sys_iso.o\
-              mod_oasis_var_iso.o\
-              mod_oasis_auxiliary_routines_c.o\
-              mod_oasis_getput_interface_c.o\
-              mod_oasis_method_c.o\
-              mod_oasis_part_c.o\
-              mod_oasis_sys_c.o\
-              mod_oasis_var_c.o\
-              pyoasis.o\
-              ${LFLAGS} -lpsmile.MPI1 -lscrip -lsparsematrix -shared -lnetcdf -lnetcdff -shared -o libpyoasiscore.so
+all: liboasis ${SRC_C}/libpyoasiscore.so 
+
+
+${SRC_C}/libpyoasiscore.so: ${SRC_F}/mod_oasis_auxiliary_routines_iso.o ${SRC_F}/mod_oasis_getput_interface_iso.o ${SRC_F}/mod_oasis_method_iso.o ${SRC_F}/mod_oasis_part_iso.o ${SRC_F}/mod_oasis_sys_iso.o ${SRC_F}/mod_oasis_var_iso.o ${SRC_C}/mod_oasis_auxiliary_routines_c.o ${SRC_C}/mod_oasis_getput_interface_c.o ${SRC_C}/mod_oasis_method_c.o ${SRC_C}/mod_oasis_part_c.o ${SRC_C}/mod_oasis_sys_c.o ${SRC_C}/mod_oasis_var_c.o ${SRC_F}/pyoasis.o
+	cd ${SRC_C} &&\
+        ${CC} ../fortran_isoc/mod_oasis_auxiliary_routines_iso.o\
+        ../fortran_isoc/mod_oasis_getput_interface_iso.o\
+        ../fortran_isoc/mod_oasis_method_iso.o\
+        ../fortran_isoc/mod_oasis_part_iso.o\
+        ../fortran_isoc/mod_oasis_sys_iso.o\
+        ../fortran_isoc/mod_oasis_var_iso.o\
+        mod_oasis_auxiliary_routines_c.o\
+        mod_oasis_getput_interface_c.o\
+        mod_oasis_method_c.o\
+        mod_oasis_part_c.o\
+        mod_oasis_sys_c.o\
+        mod_oasis_var_c.o\
+        ../fortran_isoc/pyoasis.o\
+        ${LFLAGS} -lpsmile.MPI1 -lscrip -lsparsematrix -shared -lnetcdf -lnetcdff -shared -o libpyoasiscore.so
 
 
 # C
 
-mod_oasis_part_c.o: mod_oasis_part_c.h mod_oasis_part_c.c
-	${CC} mod_oasis_part_c.c -c ${CFLAGS}
+${SRC_C}/mod_oasis_part_c.o: ${SRC_C}/mod_oasis_part_c.h ${SRC_C}/mod_oasis_part_c.c
+	cd ${SRC_C} && ${CC} mod_oasis_part_c.c -c ${CFLAGS}
 
-mod_oasis_oasis_var_c.o: mod_oasis_var_c.h mod_oasis_var_c.c
-	${CC} mod_oasis_var_c.c -c ${CFLAGS}
+${SRC_C}/mod_oasis_oasis_var_c.o: ${SRC_C}/mod_oasis_var_c.h ${SRC_C}/mod_oasis_var_c.c
+	cd ${SRC_C} && ${CC} mod_oasis_var_c.c -c ${CFLAGS}
 
-mod_oasis_getput_interface_c.o: mod_oasis_getput_interface_c.h mod_oasis_getput_interface_c.c
-	${CC} mod_oasis_getput_interface_c.c -c ${CFLAGS}
+${SRC_C}/mod_oasis_getput_interface_c.o: ${SRC_C}/mod_oasis_getput_interface_c.h ${SRC_C}/mod_oasis_getput_interface_c.c
+	cd ${SRC_C} && ${CC} mod_oasis_getput_interface_c.c -c ${CFLAGS}
 
-mod_oasis_auxiliary_routines_c.o: mod_oasis_auxiliary_routines_c.h mod_oasis_auxiliary_routines_c.c
-	${CC} mod_oasis_auxiliary_routines_c.c -c ${CFLAGS}
+${SRC_C}/mod_oasis_auxiliary_routines_c.o: ${SRC_C}/mod_oasis_auxiliary_routines_c.h ${SRC_C}/mod_oasis_auxiliary_routines_c.c
+	cd ${SRC_C} && ${CC} mod_oasis_auxiliary_routines_c.c -c ${CFLAGS}
 
-mod_oasis_sys_c.o: mod_oasis_sys_c.h mod_oasis_sys_c.c
-	${CC} mod_oasis_sys_c.c -c ${CFLAGS}
+${SRC_C}/mod_oasis_sys_c.o: ${SRC_C}/mod_oasis_sys_c.h ${SRC_C}/mod_oasis_sys_c.c
+	cd ${SRC_C} && ${CC} mod_oasis_sys_c.c -c ${CFLAGS}
 
-mod_oasis_method_c.o: mod_oasis_method_c.h mod_oasis_method_c.c
-	${CC} mod_oasis_method_c.c -c ${CFLAGS}
+${SRC_C}/mod_oasis_method_c.o: ${SRC_C}/mod_oasis_method_c.h ${SRC_C}/mod_oasis_method_c.c
+	cd ${SRC_C} && ${CC} mod_oasis_method_c.c -c ${CFLAGS}
 
 
 # ISO C Fortran
 
-mod_oasis_getput_interface_iso.o: mod_oasis_getput_interface_iso.F90 pyoasis.mod
-	${FC} mod_oasis_getput_interface_iso.F90 -c ${FFLAGS}
+${SRC_F}/mod_oasis_getput_interface_iso.o: ${SRC_F}/mod_oasis_getput_interface_iso.F90 
+	cd ${SRC_F} && ${FC} mod_oasis_getput_interface_iso.F90 -c ${FFLAGS}
 
-mod_oasis_var_iso.o: mod_oasis_var_iso.F90 pyoasis.mod
-	${FC} mod_oasis_var_iso.F90 -c ${FFLAGS}
+${SRC_F}/mod_oasis_var_iso.o: ${SRC_F}/mod_oasis_var_iso.F90 
+	cd ${SRC_F} && ${FC} mod_oasis_var_iso.F90 -c ${FFLAGS}
 
-mod_oasis_part_iso.o: mod_oasis_part_iso.F90 pyoasis.mod
-	${FC} mod_oasis_part_iso.F90 -c ${FFLAGS}
+${SRC_F}/mod_oasis_part_iso.o: ${SRC_F}/mod_oasis_part_iso.F90 
+	cd ${SRC_F} && ${FC} mod_oasis_part_iso.F90 -c ${FFLAGS}
 
-mod_oasis_auxiliary_routines_iso.o: mod_oasis_auxiliary_routines_iso.F90 pyoasis.mod
-	${FC} mod_oasis_auxiliary_routines_iso.F90 -c ${FFLAGS}
+${SRC_F}/mod_oasis_auxiliary_routines_iso.o: ${SRC_F}/mod_oasis_auxiliary_routines_iso.F90
+	cd ${SRC_F} && ${FC} mod_oasis_auxiliary_routines_iso.F90 -c ${FFLAGS}
 
-mod_oasis_sys_iso.o: mod_oasis_sys_iso.F90 pyoasis.mod
-	${FC} mod_oasis_sys_iso.F90 -c ${FFLAGS}
+${SRC_F}/mod_oasis_sys_iso.o: ${SRC_F}/mod_oasis_sys_iso.F90 
+	cd ${SRC_F} && ${FC} mod_oasis_sys_iso.F90 -c ${FFLAGS}
 
-mod_oasis_method_iso.o: mod_oasis_method_iso.F90
-	${FC} -c mod_oasis_method_iso.F90  ${FFLAGS}
+${SRC_F}/mod_oasis_method_iso.o: ${SRC_F}/mod_oasis_method_iso.F90
+	cd ${SRC_F} && ${FC} -c mod_oasis_method_iso.F90  ${FFLAGS}
 
-pyoasis.o: pyoasis.F90
-	${FC}  -c pyoasis.F90
+${SRC_F}/pyoasis.o: ${SRC_F}/pyoasis.F90
+	cd ${SRC_F} && ${FC} -c pyoasis.F90
 
 
 # Shared libraries for OASIS
@@ -155,7 +162,9 @@ clean:
 	rm -f oasis/src/psmile/*.o
 	rm -f oasis/src/scrip/*.o
 	rm -f oasis/src/sparsematrix/*.o
-
+	rm -f ${SRC_F}/*.o
+	rm -r ${SRC_C}/*.o
+	rm -r ${SRC_C}/libpyoasiscore.so
 
 # Installation
 
@@ -165,6 +174,7 @@ install:
 	mkdir -p ${PREFIX}/bin
 	mkdir -p ${PREFIX}/modules
 	cp -v oasis/lib/*.so ${PREFIX}/lib
-	cp -v libpyoasiscore.so ${PREFIX}/lib
-	cp -v python/* ${PREFIX}/modules
-	cp -v *.mod oasis/modules
+	cp -v ${SRC_F}/pyoasis.mod ${PREFIX}/modules
+	cp -v ${SRC_C}/libpyoasiscore.so  ${PREFIX}/lib
+	cp -v src/python/* ${PREFIX}/modules
+
