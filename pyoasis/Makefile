@@ -166,5 +166,5 @@ install:
 	mkdir -p ${PREFIX}/modules
 	cp -v oasis/lib/*.so ${PREFIX}/lib
 	cp -v libpyoasiscore.so ${PREFIX}/lib
-	cp -v *.py ${PREFIX}/modules
+	cp -v python/* ${PREFIX}/modules
 	cp -v *.mod oasis/modules
