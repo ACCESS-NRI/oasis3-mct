@@ -1,46 +1,48 @@
 #!/usr/bin/python3
 
-from ctypes import *
-import ctypes
+"""OASIS send/receive (put/get) user interfaces"""
 
-import numpy
+import ctypes
+from ctypes import c_int, cdll, CDLL
+
 
 cdll.LoadLibrary("libpyoasiscore.so")
-lib = CDLL("libpyoasiscore.so")
+LIB = CDLL("libpyoasiscore.so")
 
 
 def get_sizes(field):
+    """Creates an array containing the dimensions of multidimensional fields"""
     sizes = list(field.shape)
-    n = 3 - len(sizes)
-    for i in range(n):
+    n_dimensions_left = 3 - len(sizes)
+    for i in range(n_dimensions_left):
         sizes.append(1)
     return sizes
 
 
-lib.put.argtypes = [ctypes.c_int, ctypes.c_int,  ctypes.c_int,
+LIB.put.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
                     ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
                     ctypes.POINTER(ctypes.c_int)]
 
 
 def put(var_id, kstep, field):
+    """Send 8-byte multidimensional field"""
     sizes = get_sizes(field)
-    length = sizes[0]*sizes[1]*sizes[2]
     error = c_int(0)
     p_field = field.ctypes.data
-    lib.put(var_id, kstep, sizes[0], sizes[1], sizes[2],
+    LIB.put(var_id, kstep, sizes[0], sizes[1], sizes[2],
             p_field, error)
     return error.value
 
 
-lib.get.argtypes = [ctypes.c_int, ctypes.c_int,  ctypes.c_int, ctypes.c_int,
+LIB.get.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
                     ctypes.c_int, ctypes.c_void_p,
                     ctypes.POINTER(ctypes.c_int)]
 
 
 def get(var_id, kstep, field):
+    """Receive 8-byte multidimensional field"""
     sizes = get_sizes(field)
-    length = sizes[0]*sizes[1]*sizes[2]
     error = c_int(0)
     p_field = field.ctypes.data
-    lib.get(var_id, kstep, sizes[0], sizes[1], sizes[2], p_field, error)
+    LIB.get(var_id, kstep, sizes[0], sizes[1], sizes[2], p_field, error)
     return error.value

@@ -27,18 +27,18 @@ local_size = int(n_points/comm_size)
 offset = comm_rank*local_size
 
 partition = pyoasis.ApplePartition(offset, local_size)
-print("Partition id: " + str(partition.id))
+print("Partition id: " + str(partition.get_id()))
 
-variable = pyoasis.Var(partition.id, "FSENDOCN", 1, 1,
-                       pyoasis.params.OASIS_OUT.value,
-                       pyoasis.params.OASIS_REAL.value)
-print("Variable id: " + str(variable.id))
+variable = pyoasis.Var(partition.get_id(), "FSENDOCN", 1, 1,
+                       pyoasis.OasisParameters.OASIS_OUT.value,
+                       pyoasis.OasisParameters.OASIS_REAL.value)
+print("Variable id: " + str(variable.get_id()))
 
 comp.enddef()
 
 date = int(0)
 
-field = pyoasis.Array(numpy.zeros(local_size))
+field = pyoasis.FloatArray(numpy.zeros(local_size))
 
 for i in range(local_size):
     field[i] = offset + i

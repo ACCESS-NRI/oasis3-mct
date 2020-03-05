@@ -1,18 +1,19 @@
 #!/usr/bin/python3
 
-from ctypes import *
-import ctypes
+"""System type methods"""
 
-import numpy
+import ctypes
+from ctypes import cdll, CDLL, c_int, c_char_p
 
 cdll.LoadLibrary("libpyoasiscore.so")
-lib = CDLL("libpyoasiscore.so")
+LIB = CDLL("libpyoasiscore.so")
 
 
-lib.oasis_abort.argtypes = [ctypes.c_int, c_char_p, c_char_p, c_char_p,
+LIB.oasis_abort.argtypes = [ctypes.c_int, c_char_p, c_char_p, c_char_p,
                             c_int, c_int]
 
 
 def oasis_abort(comp_id, routine, message, filename, line, error):
-    lib.oasis_abort(comp_id, routine.encode(), message.encode(),
+    """OASIS abort method, publicly available to users"""
+    LIB.oasis_abort(comp_id, routine.encode(), message.encode(),
                     filename.encode(), line, error)

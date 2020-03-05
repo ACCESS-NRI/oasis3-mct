@@ -21,18 +21,18 @@ print("Coupling communicator: " + str(coupl_comm))
 n_points = 16
 
 partition = pyoasis.SerialPartition(n_points)
-print("Partition id: " + str(partition.id))
+print("Partition id: " + str(partition.get_id()))
 
-variable = pyoasis.Var(partition.id, "FSENDOCN", 1, 1,
-                       pyoasis.params.OASIS_OUT.value,
-                       pyoasis.params.OASIS_REAL.value)
-print("Variable id: " + str(variable.id))
+variable = pyoasis.Var(partition.get_id(), "FSENDOCN", 1, 1,
+                       pyoasis.OasisParameters.OASIS_OUT.value,
+                       pyoasis.OasisParameters.OASIS_REAL.value)
+print("Variable id: " + str(variable.get_id()))
 
 comp.enddef()
 
 date = int(0)
 
-field = pyoasis.Array(range(n_points))
+field = pyoasis.FloatArray(range(n_points))
 
 variable.put(date, field)
 

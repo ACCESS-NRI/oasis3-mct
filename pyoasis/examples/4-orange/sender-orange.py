@@ -31,18 +31,18 @@ offsets = [offset]
 extents = [extent]
 
 partition = pyoasis.OrangePartition(offsets, extents)
-print("Partition id: " + str(partition.id))
+print("Partition id: " + str(partition.get_id()))
 
-variable = pyoasis.Var(partition.id, "FSENDOCN", 1, 1,
-                       pyoasis.params.OASIS_OUT.value,
-                       pyoasis.params.OASIS_REAL.value)
-print("Variable id: " + str(variable.id))
+variable = pyoasis.Var(partition.get_id(), "FSENDOCN", 1, 1,
+                       pyoasis.OasisParameters.OASIS_OUT.value,
+                       pyoasis.OasisParameters.OASIS_REAL.value)
+print("Variable id: " + str(variable.get_id()))
 
 comp.enddef()
 
 date = int(0)
 
-field = pyoasis.Array(numpy.zeros(extent))
+field = pyoasis.FloatArray(numpy.zeros(extent))
 for i in range(extent):
     field[i] = offset + i
 

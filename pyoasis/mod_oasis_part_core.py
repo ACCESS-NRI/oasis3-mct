@@ -1,23 +1,25 @@
 #!/usr/bin/python3
 
-from ctypes import *
-import ctypes
+"""OASIS partition data and methods"""
 
-import numpy
+import ctypes
+from ctypes import cdll, CDLL, c_int
+
 
 cdll.LoadLibrary("libpyoasiscore.so")
-lib = CDLL("libpyoasiscore.so")
+LIB = CDLL("libpyoasiscore.so")
 
 
-lib.def_partition.argtypes = [ctypes.POINTER(ctypes.c_int),
+LIB.def_partition.argtypes = [ctypes.POINTER(ctypes.c_int),
                               ctypes.c_int, ctypes.POINTER(ctypes.c_int),
                               ctypes.POINTER(ctypes.c_int)]
 
 
 def def_partition(parameters):
+    """The OASIS user interface to define partitions"""
     id_part = c_int(0)
     kinfo = c_int(0)
-    n = len(parameters)
-    p = (ctypes.c_int * n)(*parameters)
-    lib.def_partition(id_part, n, p, kinfo)
+    n_parameters = len(parameters)
+    p_parameters = (ctypes.c_int * n_parameters)(*parameters)
+    LIB.def_partition(id_part, n_parameters, p_parameters, kinfo)
     return (id_part.value, kinfo.value)
