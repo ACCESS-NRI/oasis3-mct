@@ -60,14 +60,14 @@ program sender_serial
     return
   endif
 
-  do i=0, n_points-1
+  do i=1, n_points
     field(i)=i
   end do
 	
   date=0
-print *, "BEFORE PUT"	
-call oasis_put(var_id, date, field, kinfo)
-print *, "AFTER PUT"	
+	
+  call oasis_put(var_id, date, field, kinfo)
+	
   if(kinfo<0) then
     print *, "Error in oasis_put: ", kinfo
     return

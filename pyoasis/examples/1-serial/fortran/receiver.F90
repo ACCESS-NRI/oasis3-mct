@@ -81,7 +81,7 @@ program receiver
 
   epsilon=1e-8
   error=0
-  do i = 0, n_points-1
+  do i = 1, n_points
     error=error+abs(field(i)-i)
   end do
   if(error<epsilon) then

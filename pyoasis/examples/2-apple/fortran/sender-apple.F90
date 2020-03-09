@@ -68,8 +68,8 @@ program sender_apple
     return
   endif
 
-  do i=0, local_size
-    field(i)=i
+  do i=1, local_size
+    field(i)=i-1
   end do
 	
   date=0
