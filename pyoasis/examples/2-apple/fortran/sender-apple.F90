@@ -1,4 +1,4 @@
-program sender_serial
+program sender_apple
   use mod_oasis
   implicit none
   integer :: i, kinfo
@@ -86,4 +86,5 @@ program sender_serial
     print *, "Error in oasis_terminate: ", kinfo
   endif
 
-end program sender_serial 
+end program sender_apple
+
