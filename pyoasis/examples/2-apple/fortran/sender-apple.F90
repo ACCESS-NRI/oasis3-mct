@@ -7,7 +7,7 @@ program sender_apple
   integer :: part_params(3), offset, local_size
   integer :: comm_size, comm_rank
   integer :: var_id, var_nodims(2), var_actual_shape(1), date
-  character(len=13) :: comp_name = "sender-serial"
+  character(len=13) :: comp_name = "sender-apple"
   character(len=8) :: var_name = "FSENDOCN"
   real :: field(4)
 
@@ -69,7 +69,7 @@ program sender_apple
   endif
 
   do i=1, local_size
-    field(i)=i-1
+    field(i)=offset+i
   end do
 	
   date=0
