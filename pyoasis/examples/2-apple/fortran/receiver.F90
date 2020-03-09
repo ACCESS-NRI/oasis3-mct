@@ -61,19 +61,18 @@ program receiver
   endif
 	
   date=0
-	print *, "BEFORE GET"
- call oasis_get(var_id, date, field, kinfo)
- print *, "AFTER GET"
+
+  do i=1, n_points
+    field(i)=0
+  end do
+  
+  call oasis_get(var_id, date, field, kinfo)
+
   if(kinfo<0) then
     print *, "Error in oasis_get: ", kinfo
     return
   endif
 
-  
-  do i=0, n_points-1
-    field(i)=i
-  end do
-  
   call oasis_terminate(kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_terminate: ", kinfo
@@ -82,7 +81,7 @@ program receiver
   epsilon=1e-8
   error=0
   do i = 1, n_points
-    error=error+abs(field(i)-i)
+     error=error+abs(field(i)-i)
   end do
   if(error<epsilon) then
     print *, "Data received successfully" 

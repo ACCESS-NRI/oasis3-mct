@@ -1,14 +1,16 @@
-program receiver
+program sender_box
   use mod_oasis
   implicit none
   integer :: i, kinfo
   integer :: comp_id, local_comm, coupl_comm
   integer :: n_points, var_type, part_id
-  integer :: part_params(3)
+  integer :: part_params(5), offsets(4), local_size
+  integer :: comm_size, comm_rank
   integer :: var_id, var_nodims(2), var_actual_shape(1), date
-  character(len=8) :: comp_name = "receiver"
-  character(len=8) :: var_name = "FRECVATM"
-  real :: field(16), error, epsilon
+  character(len=13) :: comp_name = "sender-box"
+  character(len=8) :: var_name = "FSENDOCN"
+  real :: field(4)
+  real :: data(16)
 
   print *, "Component name: ", comp_name
 	
@@ -34,8 +36,16 @@ program receiver
   endif
   print *, "coupl_comm ", coupl_comm
 
+  call mpi_comm_size(local_comm, comm_size, kinfo)
+  call mpi_comm_rank(local_comm, comm_rank, kinfo)
+  
   n_points=16
-  part_params=(/0, 0, n_points/)
+  
+  local_size=n_points/comm_size
+
+  offsets=(/0, 2, 8, 10/)
+
+  part_params=(/2, offsets(comm_rank+1), 2, 2, 4/)
   call oasis_def_partition(part_id, part_params, kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_def_partition: ", kinfo
@@ -46,7 +56,7 @@ program receiver
   var_nodims=(/1, 1/)
   var_actual_shape=1
   print *, "var_name: ", var_name
-  call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_IN, &
+  call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_OUT, &
                     var_actual_shape, OASIS_REAL, kinfo)
   if(kinfo<0 .or. var_id<0) then
     print *, "Error in oasis_def_partition: ", kinfo
@@ -58,18 +68,19 @@ program receiver
   if(kinfo<0) then
     print *, "Error in oasis_enddef: ", kinfo
     return
-  endif
+ endif
+ 
+  data=(/1, 2, 5, 6, 3, 4, 7, 8, 9, 10, 13, 14, 11, 12, 15, 16/)
+  do i=1, local_size
+    field(i)=data(comm_rank*local_size+i)
+  end do
 	
   date=0
-
-  do i=1, n_points
-    field(i)=0
-  end do
   
-  call oasis_get(var_id, date, field, kinfo)
+  call oasis_put(var_id, date, field, kinfo)
 
   if(kinfo<0) then
-    print *, "Error in oasis_get: ", kinfo
+    print *, "Error in oasis_put: ", kinfo
     return
   endif
 
@@ -78,13 +89,4 @@ program receiver
     print *, "Error in oasis_terminate: ", kinfo
   endif
 
-  epsilon=1e-8
-  error=0
-  do i = 1, n_points
-     error=error+abs(field(i)-i)
-  end do
-  if(error<epsilon) then
-    print *, "Data received successfully" 
-  endif
-
-end program receiver
+end program sender_box 
