@@ -27,8 +27,7 @@ partition = pyoasis.BoxPartition(global_offsets[rank], 2, 2, 4)
 print("Partition id: " + str(partition.get_id()))
 
 variable = pyoasis.Var(partition.get_id(), "FSENDOCN", 1, 1,
-                       pyoasis.OasisParameters.OASIS_OUT.value,
-                       pyoasis.OasisParameters.OASIS_REAL.value)
+                       pyoasis.OasisParameters.OASIS_OUT.value)
 print("Variable id: " + str(variable.get_id()))
 
 comp.enddef()

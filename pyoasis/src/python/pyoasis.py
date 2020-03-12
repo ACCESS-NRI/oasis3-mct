@@ -13,9 +13,7 @@ import mod_oasis_getput_interface_core
 
 
 class OasisParameters(Enum):
-   
-    OASIS_REAL = 4
-    OASIS_DOUBLE = 8
+    """"""  
     OASIS_OUT = 20
     OASIS_IN = 21
 
@@ -261,16 +259,15 @@ class Var:
                             the variable data 
     """
     def __init__(self, i_id_part, cdport, i_id_var_nodims1,
-                 i_id_var_nodims2, i_kinout, i_ktype):
+                 i_id_var_nodims2, i_kinout):
         """Constructor"""
         id_part = i_id_part
         self.name = cdport
         id_var_nodims1 = i_id_var_nodims1
         id_var_nodims2 = i_id_var_nodims2
         kinout = i_kinout
-        ktype = i_ktype
         return_value = mod_oasis_var_core.def_var(id_part, self.name, id_var_nodims1,
-                                                  id_var_nodims2, kinout, ktype)
+                                                  id_var_nodims2, kinout)
         error = return_value[1]
         if error < 0:
             raise OasisException("Error in def_var", error)
