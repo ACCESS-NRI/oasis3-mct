@@ -4,6 +4,30 @@ import mod_oasis_auxiliary_routines_core
 import mod_oasis_grid_core
 
 
+class Component(object):
+    def set_couplcomm(self, localcomm):
+        error = mod_oasis_auxiliary_routines_core.set_couplcomm(localcomm)
+        if error < 0:
+            raise OasisException("Error in set_couplcomm", error)
+
+    def get_intercomm(self, other_model_name):
+        return_value = mod_oasis_auxiliary_routines_core.get_intercomm(other_model_name)
+        new_communicator=return_value[0]
+        error=return_value[1]
+        if error < 0:
+            raise OasisException("Error in get_intercomm", error)
+        return new_communicator
+
+    def get_intracomm(self, other_model_name):
+        return_value = mod_oasis_auxiliary_routines_core.get_intracomm(other_model_name)
+        new_communicator=return_value[0]
+        error=return_value[1]
+        if error < 0:
+            raise OasisException("Error in get_intracomm", error)
+        return new_communicator
+
+
+
 def OasisException(text):
     return Exception(text)
 
