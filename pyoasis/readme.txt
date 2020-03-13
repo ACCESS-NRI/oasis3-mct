@@ -1,32 +1,24 @@
-Makefile
-========
-It was necessary to add the flag -ffree-line-length-512 in order to compile the Oasis source code. This is done in make.stfc used by make.inc
+pyOASIS - A Python wrapper for OASIS
 
-The makefile also contains a hack that modifies the source code in order to solve issues involving underscores. It also creates shared libraries compiled with the -fPIC flag. This is a temporary solution till the required changes are introduced in Oasis.
+Authors: Philippe Gambron, Rupert Ford
+Copyright (C) 2019 UKRI - STFC
 
-
-pyoasis.F90
-===========
-Contains functions to convert character strings between C and Fortran
+See the documentation of OASIS
+<http://www.cerfacs.fr/oa4web/oasis3-mct_4.0/oasis3mct_UserGuide.pdf>
+for instructions about how to obtain the software.
 
 
-_iso.F90 files
-==============
-Wrappers in Fortran using ISO C bindings of the corresponding .F90 files in Oasis
 
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as 
+published by the Free Software Foundation, either version 3 of the 
+License, or any later version.
 
-_c.h, _c.c files
-================
-Wrappers in C of the corresponding files
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Lesser General Public License for more details.
 
-
-_core.py
-========
-Wrapper in Python of the corresponding files. This is a basic wrapper using c types.
-
-
-pyoasis.py
-==========
-Object-oriented Oasis wrapper concisting of classes and throwing exceptions
-
-
+A copy of the GNU Lesser General Public License, version 3, is supplied
+with this program, in the file lgpl-3.0.txt. It is also available at 
+<https://www.gnu.org/licenses/lgpl-3.0.html>.

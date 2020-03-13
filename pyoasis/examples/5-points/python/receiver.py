@@ -25,18 +25,18 @@ n_points = 16
 partition = pyoasis.SerialPartition(n_points)
 print("Partition id: " + str(partition.get_id()))
 
-variable = pyoasis.Var(partition.get_id(), "FRECVATM", 1, 1,
+variable = pyoasis.Var("FRECVATM", partition.get_id(), [1, 1,],
                        pyoasis.OasisParameters.OASIS_IN.value)
 print("Variable id: " + str(variable.get_id()))
 
 comp.enddef()
 
 date = int(0)
-field = pyoasis.FloatArray(numpy.zeros(n_points))
+field = pyoasis.Array(numpy.zeros(n_points))
 
 variable.get(date, field)
 
-expected_field = pyoasis.FloatArray(range(n_points))
+expected_field = pyoasis.Array(range(n_points))
 epsilon = 1e-8
 error = abs((field-expected_field).sum())
 if(error < epsilon):

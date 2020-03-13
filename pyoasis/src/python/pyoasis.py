@@ -1,5 +1,24 @@
 #!/usr/bin/python3
 
+# pyOASIS - A Python wrapper for OASIS
+# Authors: Philippe Gambron, Rupert Ford
+# Copyright (C) 2019 UKRI - STFC
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as 
+# published by the Free Software Foundation, either version 3 of the 
+# License, or any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Lesser General Public License for more details.
+
+# A copy of the GNU Lesser General Public License, version 3, is supplied
+# with this program, in the file lgpl-3.0.txt. It is also available at 
+# <https://www.gnu.org/licenses/lgpl-3.0.html>.
+
+
 from enum import Enum
 import numpy
 from mpi4py import MPI
@@ -13,19 +32,21 @@ import mod_oasis_getput_interface_core
 
 
 class OasisParameters(Enum):
-    """"""  
+    """
+    Enumeration of parameters used by OASIS (values: OASIS_OUT, \
+    OASIS_IN)
+    """  
     OASIS_OUT = 20
     OASIS_IN = 21
 
 
-# pyoasis.Array: array of doubles in Fortran ordering
-def FloatArray(data):
+def Array(data):
+    """
+    Numpy array of double precision floating point numbers in Fortran ordering
+
+    :param data: any object that be used to initialise a numpy array
+    """
     return numpy.asfortranarray(data, dtype=numpy.float64)
-
-
-def IntArray(data):
-    """Creates a numpy array containing doubles in Fortran ordering."""
-    return numpy.asfortranarray(data, dtype=numpy.int32)
 
 
 def OasisException(text, error):
@@ -34,12 +55,12 @@ def OasisException(text, error):
 
 
 class Component(object):
-    """Component that will be coupled by OASIS
+    """
+    Component that will be coupled by OASIS
 
     :param string name: name of the component
     :param bool coupled: whether the component will be coupled (default: True)
     :param mpi4py.MPI.Intracomm communicator: global MPI communicator (default: MPI.COMM_WORLD)
-
     :raises OasisException: if OASIS is unable to initialise the component
     """
     def __init__(self, i_name, coupled=True, i_communicator=MPI.COMM_WORLD):
@@ -62,7 +83,7 @@ class Component(object):
 
     def get_id(self):
         """
-        :returns: the interger number identifying the component
+        :returns: the component ID
         """
         return self.id_component
 
@@ -79,33 +100,39 @@ class Component(object):
         localcomm = return_value[0]
         return localcomm
 
-    def create_couplcomm(self, coupling_process_flag, comm):
+    def create_couplcomm(self, icpl, allcomm):
         """
         Creates the coupling communicator.
         
-        :param int coupling_process_flag: coupling prodess flag
+        :param int icpl: coupling process flag
         :param int comm: communicator
 
-        :raises OasisException: if OASIS is unable to create the communicator
+        :raises OasisException: if OASIS is unable to create the coupling \
+                                communicator
 
         """
-        return_value = mod_oasis_auxiliary_routines_core.create_couplcomm(
-            coupling_process_flag, comm)
+        return_value = mod_oasis_auxiliary_routines_core.create_couplcomm(icpl, 
+                                                                          allcomm)
         error = return_value[1]
         if error < 0:
             raise OasisException("Error in get_couplcomm", error)
-        couplcomm = return_value[0]
-        return couplcomm
+        cplcomm = return_value[0]
+        return cplcomm
 
     def enddef(self):
-        """Ends the initialisation of the component."""
+        """
+        Ends the initialisation of the component.
+
+        :raises OasisException: if OASIS is unable to end the \
+                                initialisation
+        """
         error = mod_oasis_method_core.enddef()
         if error < 0:
             raise OasisException("Error in enddef", error)
 
     def get_comm_size(self):
         """
-        :returns: the size of the global communicator.
+        :returns: the size of the global communicator
         """
         return mod_oasis_auxiliary_routines_core.get_comm_size(self.communicator.py2f())
 
@@ -132,7 +159,7 @@ def terminate():
     """
     Ends the coupling.
 
-    :raises OasisException: if OASIS fails in terminating the coupling
+    :raises OasisException: if OASIS is unable to end the coupling
     """
     error = mod_oasis_method_core.terminate()
     if error < 0:
@@ -165,13 +192,12 @@ class SerialPartition(Partition):
     """
     Serial partition
     
-    :param int size:
-    
-    :raises OasisException: if OASIS fails to initialise the partition
+    :param int size: number of points in the partition
+    :raises OasisException: if OASIS is unable to initialise the partition
     """
     def __init__(self, size):
         """Constructor"""
-        parameters = IntArray([0, 0, size])
+        parameters = [0, 0, size]
         self.set(parameters)
 
 
@@ -179,14 +205,14 @@ class ApplePartition(Partition):
     """
     Apple partition
  
-    :param int offset:   
-    :param int size:  
+    :param int offset: offset according to the global index 
+    :param int size: number of points in the partition  
 
-    :raises OasisException: if OASIS fails to initialise the partition
+    :raises OasisException: if OASIS is unable to initialise the partition
     """
     def __init__(self, offset, size):
         """Constructor"""
-        parameters = IntArray([1, offset, size])
+        parameters = [1, offset, size]
         self.set(parameters)
 
 
@@ -194,17 +220,19 @@ class BoxPartition(Partition):
     """
     Box partition
  
-    :param int global_offset:   
-    :param int local_extent_x:
-    :param int local_extent_y:  
-    :param int global_extent_x:
-    :raises OasisException: if OASIS fails to initialise the partition
+    :param int global_offset: offset according to the global index   
+    :param int local_extent_x: extent in the x direction of the local \
+                               partition
+    :param int local_extent_y: extent in the y direction of the local \
+                               partition 
+    :param int global_extent_x: global extent in the x direction
+    :raises OasisException: if OASIS is unable to initialise the partition
     """
     def __init__(self, global_offset, local_extent_x, local_extent_y,
                  global_extent_x):
         """Constructor"""
-        parameters = IntArray([2, global_offset, local_extent_x,
-                               local_extent_y, global_extent_x])
+        parameters = [2, global_offset, local_extent_x, local_extent_y, 
+                      global_extent_x]
         self.set(parameters)
 
 
@@ -212,62 +240,60 @@ class OrangePartition(Partition):
     """
     Orange partition
  
-    :param offsets:   
-    :type offsets list of integers:
-    :param extents:   
-    :type extents list of integers:
-    :raises OasisException: if OASIS fails to initialise the partition
+    :param offsets: list of offsets according to the global index  
+    :type offsets: list of integers
+    :param extents: list of the partition extents  
+    :type extents: list of integers
+    :raises OasisException: if OASIS is unable to initialise the partition
     """
     def __init__(self, offsets, extents):
         """Constructor"""
         n_offsets = len(offsets)
         if len(extents) != n_offsets:
             raise OasisException("Number of offsets != number of extents", -1)
-        parameters1 = [3, n_offsets]
+        parameters = [3, n_offsets]
         for i in range(n_offsets):
-            parameters1.append(offsets[i])
-            parameters1.append(extents[i])
-        parameters2 = IntArray(parameters1)
-        self.set(parameters2)
+            parameters.append(offsets[i])
+            parameters.append(extents[i])
+        self.set(parameters)
 
 
 class PointsPartition(Partition):
     """
-    Orange partition
+    Points partition
  
     :param global_indices: list containing the global indices of the \
                            points in the partition    
-    :type global_induces list of integers:
-    :raises OasisException: if OASIS fails to initialise the partition
+    :type global_indices: list of integers
+    :raises OasisException: if OASIS is unable to initialise the partition
     """
     def __init__(self, global_indices):
         """Constructor"""
-        parameters1 = [4, len(global_indices)]
+        parameters = [4, len(global_indices)]
         for index in global_indices:
-            parameters1.append(index)
-        parameters2 = IntArray(parameters1)
-        self.set(parameters2)
+            parameters.append(index)
+        self.set(parameters)
 
 
 class Var:
     """
     Variable data
 
-    :param int id_part: partition ID
     :param string cdport: name
+    :param int id_part: partition ID
+    :param id_var_nodims: rank and number of bundles
+    :type id_var_nodims: list of 2 integers
+    :param kinout: flag indicating whether the data is outgoing \
+                   or ingoing
+    :type kinout: pyoasis.OasisParameter
     :raises OasisException: if OASIS is unable to initialise \
                             the variable data 
     """
-    def __init__(self, i_id_part, cdport, i_id_var_nodims1,
-                 i_id_var_nodims2, i_kinout):
+    def __init__(self, cdport, id_part, id_var_nodims, kinout):
         """Constructor"""
-        id_part = i_id_part
         self.name = cdport
-        id_var_nodims1 = i_id_var_nodims1
-        id_var_nodims2 = i_id_var_nodims2
-        kinout = i_kinout
-        return_value = mod_oasis_var_core.def_var(id_part, self.name, id_var_nodims1,
-                                                  id_var_nodims2, kinout)
+        return_value = mod_oasis_var_core.def_var(id_part, self.name, id_var_nodims, 
+                                                  kinout)
         error = return_value[1]
         if error < 0:
             raise OasisException("Error in def_var", error)
@@ -278,19 +304,27 @@ class Var:
         :returns: ID of variable data
         """
         return self.var_id
+    
+    def get_name(self):
+        """
+        :returns: name of variable data
+        """
+        return self.name
 
     def put(self, kstep, field):
         """
         Sends data to another model.
+
         :param int kstep: model time (in seconds)
-        :param pyoasis.Array: field data
+        :param pyoasis.Array field: data
         """
         mod_oasis_getput_interface_core.put(self.var_id, kstep, field)
 
     def get(self, kstep, field):
         """
         Gets data from another model.
+
         :param int kstep: model time (in seconds)
-        :param pyoasis.Array: field data
+        :param pyoasis.Array field: data
         """
         mod_oasis_getput_interface_core.get(self.var_id, kstep, field)

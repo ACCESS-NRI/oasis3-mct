@@ -23,7 +23,7 @@ n_points = 16
 partition = pyoasis.SerialPartition(n_points)
 print("Partition id: " + str(partition.get_id()))
 
-variable = pyoasis.Var(partition.get_id(), "FSENDOCN", 1, 1,
+variable = pyoasis.Var("FSENDOCN", partition.get_id(), [1, 1],
                        pyoasis.OasisParameters.OASIS_OUT.value)
 print("Variable id: " + str(variable.get_id()))
 
@@ -31,7 +31,7 @@ comp.enddef()
 
 date = int(0)
 
-field = pyoasis.FloatArray(range(n_points))
+field = pyoasis.Array(range(n_points))
 
 variable.put(date, field)
 

@@ -35,7 +35,7 @@ for i in range(local_size):
 partition = pyoasis.PointsPartition(indices)
 print("Partition id: " + str(partition.get_id()))
 
-variable = pyoasis.Var(partition.get_id(), "FSENDOCN", 1, 1,
+variable = pyoasis.Var("FSENDOCN", partition.get_id(), [1, 1],
                        pyoasis.OasisParameters.OASIS_OUT.value)
 print("Variable id: " + str(variable.get_id()))
 
@@ -43,7 +43,7 @@ comp.enddef()
 
 date = int(0)
 
-field = pyoasis.FloatArray(indices)
+field = pyoasis.Array(indices)
 
 variable.put(date, field)
 
