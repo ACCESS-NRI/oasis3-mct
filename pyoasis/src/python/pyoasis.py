@@ -100,17 +100,21 @@ class Component(object):
         localcomm = return_value[0]
         return localcomm
 
-    def create_couplcomm(self, icpl, allcomm):
+    def create_couplcomm(self, icpl, allcomm=None):
         """
         Creates the coupling communicator.
         
         :param int icpl: coupling process flag
-        :param int comm: communicator
+        :param int comm: communicator (default: local communicator)
 
         :raises OasisException: if OASIS is unable to create the coupling \
                                 communicator
 
         """
+
+        if allcomm is None:
+            allcomm=self.get_localcomm()
+        
         return_value = mod_oasis_auxiliary_routines_core.create_couplcomm(icpl, 
                                                                           allcomm)
         error = return_value[1]
