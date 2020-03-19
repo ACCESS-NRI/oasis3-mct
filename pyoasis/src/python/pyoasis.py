@@ -31,6 +31,15 @@ import mod_oasis_var_core
 import mod_oasis_getput_interface_core
 
 
+class OasisException(Exception):
+    def __init__(self, text, error):
+        super(OasisException, self).__init__(text + " (" + str(error)+ ")")
+
+class PyOasisException(Exception):
+    def __init__(self, text):
+        super(PyOasisException, self).__init__(text)
+
+
 class OasisParameters(Enum):
     """
     Enumeration of parameters used by OASIS (values: OASIS_OUT, \
@@ -45,13 +54,44 @@ def Array(data):
     Numpy array of double precision floating point numbers in Fortran ordering
 
     :param data: any object that can be used to initialise a numpy array
+
+    :raises PyOasisException: if a Numpy array cannot be initialised
     """
-    return numpy.asfortranarray(data, dtype=numpy.float64)
+    try:
+        return numpy.asfortranarray(data, dtype=numpy.float64)
+    except:
+        raise PyOasisException("Unable to initialise the Numpy array")
+    
 
+class OasisException(Exception):
+    """Exception from OASIS"""
+    def __init__(self, text, error):
+        super(OasisException, self).__init__(text + " (" + str(error)+ ")")
 
-def OasisException(text, error):
-    """Creates an exception with an error code."""
-    return OasisException(text+" ("+str(error)+")")
+class PyOasisException(Exception):
+    """Exception raised by pyOASIS"""
+    def __init__(self, text):
+        super(PyOasisException, self).__init__(text)
+        
+def check_types(types, arguments):
+    """Checks the arguments of a function."""
+    if len(arguments) != len(types):
+        raise PyOasisException("The function requires "
+                               +str(len(types))+" arguments.")
+    i=0
+    for (t, a) in zip(types, arguments):
+        if t == list:
+            for element in a:
+                if type(element) != int:
+                    raise PyOasisException(
+                          "The elements of the list in argument "
+                          +str(i)+" must be integers.")
+        else:
+           if type(a) != t:
+               raise PyOasisException("Argument "+str(i)
+                                      +" must be of type "+str(t)+".")
+
+        i=i+1
 
 
 class Component(object):
@@ -65,6 +105,8 @@ class Component(object):
     """
     def __init__(self, i_name, coupled=True, i_communicator=MPI.COMM_WORLD):
         """Constructor"""
+        check_types([str, bool, MPI.Intracomm],
+                    [i_name, coupled, i_communicator])
         self.name = i_name
         self.communicator = i_communicator
         return_value = mod_oasis_method_core.init_comp(self.name, coupled,
@@ -111,9 +153,10 @@ class Component(object):
                                 communicator
 
         """
-
+        
         if allcomm is None:
             allcomm=self.get_localcomm()
+        check_types([int, int], [icpl, allcomm]);
         
         return_value = mod_oasis_auxiliary_routines_core.create_couplcomm(icpl, 
                                                                           allcomm)
@@ -174,6 +217,8 @@ def terminate():
 # was a clash with another function name
 def oasis_abort(component_id, routine, message, filename, line, error):
     """Aborts OASIS."""
+    check_types([int, str, str, str, int, int],
+                [component_id, routine, message, filename, line, error])
     mod_oasis_sys_core.oasis_abort(component_id, routine, message, filename,
                                    line, error)
 
@@ -201,6 +246,7 @@ class SerialPartition(Partition):
     """
     def __init__(self, size):
         """Constructor"""
+        check_types([int], [size])
         parameters = [0, 0, size]
         self.set(parameters)
 
@@ -216,6 +262,7 @@ class ApplePartition(Partition):
     """
     def __init__(self, offset, size):
         """Constructor"""
+        check_types([int, int], [offset, size])
         parameters = [1, offset, size]
         self.set(parameters)
 
@@ -235,6 +282,9 @@ class BoxPartition(Partition):
     def __init__(self, global_offset, local_extent_x, local_extent_y,
                  global_extent_x):
         """Constructor"""
+        check_types([int, int, int, int],
+                    [global_offset, local_extent_x, local_extent_y,
+                     global_extent_x])
         parameters = [2, global_offset, local_extent_x, local_extent_y, 
                       global_extent_x]
         self.set(parameters)
@@ -252,9 +302,10 @@ class OrangePartition(Partition):
     """
     def __init__(self, offsets, extents):
         """Constructor"""
+        check_types([list, list], [offsets, extents])
         n_offsets = len(offsets)
         if len(extents) != n_offsets:
-            raise OasisException("Number of offsets != number of extents", -1)
+            raise PyOasisException("Number of offsets != number of extents")
         parameters = [3, n_offsets]
         for i in range(n_offsets):
             parameters.append(offsets[i])
@@ -273,6 +324,7 @@ class PointsPartition(Partition):
     """
     def __init__(self, global_indices):
         """Constructor"""
+        check_types([list], [global_indices])
         parameters = [4, len(global_indices)]
         for index in global_indices:
             parameters.append(index)
@@ -295,6 +347,8 @@ class Var:
     """
     def __init__(self, cdport, id_part, id_var_nodims, kinout):
         """Constructor"""
+        check_types([str, int, list, int],
+                    [cdport, id_part, id_var_nodims, kinout])
         self.name = cdport
         return_value = mod_oasis_var_core.def_var(id_part, self.name, id_var_nodims, 
                                                   kinout)
@@ -322,6 +376,7 @@ class Var:
         :param int kstep: model time (in seconds)
         :param pyoasis.Array field: data
         """
+        check_types([int, numpy.ndarray], [kstep, field])
         mod_oasis_getput_interface_core.put(self.var_id, kstep, field)
 
     def get(self, kstep, field):
@@ -331,4 +386,5 @@ class Var:
         :param int kstep: model time (in seconds)
         :param pyoasis.Array field: data
         """
+        check_types([int, numpy.ndarray], [kstep, field])
         mod_oasis_getput_interface_core.get(self.var_id, kstep, field)
