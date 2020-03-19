@@ -44,7 +44,7 @@ def Array(data):
     """
     Numpy array of double precision floating point numbers in Fortran ordering
 
-    :param data: any object that be used to initialise a numpy array
+    :param data: any object that can be used to initialise a numpy array
     """
     return numpy.asfortranarray(data, dtype=numpy.float64)
 
@@ -83,7 +83,7 @@ class Component(object):
 
     def get_id(self):
         """
-        :returns: the component ID
+        :returns: the component identifier
         """
         return self.id_component
 
@@ -188,7 +188,7 @@ class Partition(object):
             raise OasisException("Error in def_partition", error)
         self.partition_id = return_value[0]
     def get_id(self):
-        """Returns partition ID."""
+        """Returns the partition identifier."""
         return self.partition_id
 
 
@@ -284,7 +284,7 @@ class Var:
     Variable data
 
     :param string cdport: name
-    :param int id_part: partition ID
+    :param int id_part: partition identifier
     :param id_var_nodims: rank and number of bundles
     :type id_var_nodims: list of 2 integers
     :param kinout: flag indicating whether the data is outgoing \
@@ -305,7 +305,7 @@ class Var:
 
     def get_id(self):
         """
-        :returns: ID of variable data
+        :returns: the identifier of the variable data
         """
         return self.var_id
     

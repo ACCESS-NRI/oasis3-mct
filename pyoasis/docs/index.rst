@@ -11,7 +11,9 @@ Introduction
 
 pyOASIS is a Python wrapper for OASIS written using ctypes
 and ISO C bindings to Fortran. It provides an object-oriented
-interface to OASIS.
+interface to OASIS. This allows users to write models in Python
+or to couple a model written in Python to another one, written
+in Fortran.
 
 It is part of the distribution of OASIS. See
 http://www.cerfacs.fr/oa4web/oasis3-mct_4.0/oasis3mct_UserGuide.pdf
@@ -137,12 +139,18 @@ while, in the receiver, it is recovered by
     field = pyoasis.Array(numpy.zeros(n_points))
     variable.get(time_in_the_model, field)
 
-The time in the model must be the same in both cases. The full source
-code as well as the namcouple file and a script to run this example are
-in the directory ``pyoasis/examples/1-serial/python``.
+The time in the model must be the same for the two components.
+
+Finally the coupling ends with
+::
+   pyoasis.terminate()
+   
+The full source code as well as the namcouple file and a script
+to run this example are in the directory
+``pyoasis/examples/1-serial/python``.
 
 
-Apple and Orange partitions
+Apple and orange partitions
 +++++++++++++++++++++++++++
 
 In this example, both models run as several processes. In the
@@ -171,6 +179,54 @@ while , in the receiver,
    variable.get(date, field)
 
 The complete example can be found in ``examples/6-apple_and_orange/python``.
+
+
+Fortran and Python interoperability
++++++++++++++++++++++++++++++++++++
+
+In order to illustrate the possibility to couple models written in Python and
+in Fortran, we repeat the previous example where, this time, the sender
+has been written in Fortran.
+
+The sender consists in an analogous sequence.
+
+-Initialisation of the component
+::
+   call oasis_init_comp(comp_id, comp_name, kinfo)
+
+-Creation of the coupling communicator from the one used by the component
+::
+   call oasis_get_localcomm(local_comm, kinfo)
+   call oasis_create_couplcomm(1, local_comm, coupl_comm, kinfo)
+
+-Initialisation of the apple partition with the relevant offset and
+local size
+::
+   part_params=(/1, offset, local_size/)
+   call oasis_def_partition(part_id, part_params, kinfo)
+
+-Creation of the variable data
+::
+   var_nodims=(/1, 1/)
+   var_actual_shape=1
+   call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_OUT,
+		      var_actual_shape, OASIS_REAL, kinfo)
+
+-End of the definition of the component
+::
+   call oasis_enddef(kinfo)
+
+-Transmission of the local part of the data to the other component
+::
+   call oasis_put(var_id, date, field, kinfo)
+
+-End of the coupling
+::
+   call oasis_terminate(kinfo)
+
+The complete example can be found in
+``pyoasis/examples/7-fortran_and_python``.
+
 
    
 Acknowledgments
