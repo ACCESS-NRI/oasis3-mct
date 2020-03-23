@@ -107,6 +107,9 @@ class Component(object):
         """Constructor"""
         check_types([str, bool, MPI.Intracomm],
                     [i_name, coupled, i_communicator])
+        if len(i_name)==0:
+            raise PyOasisException("Component name empty.")
+        
         self.name = i_name
         self.communicator = i_communicator
         return_value = mod_oasis_method_core.init_comp(self.name, coupled,
@@ -153,11 +156,12 @@ class Component(object):
                                 communicator
 
         """
-        
         if allcomm is None:
             allcomm=self.get_localcomm()
         check_types([int, int], [icpl, allcomm]);
-        
+        if allcomm<0:
+            raise PyOasisException("Communicator <0.")   
+
         return_value = mod_oasis_auxiliary_routines_core.create_couplcomm(icpl, 
                                                                           allcomm)
         error = return_value[1]
@@ -247,6 +251,9 @@ class SerialPartition(Partition):
     def __init__(self, size):
         """Constructor"""
         check_types([int], [size])
+        if size<=0:
+            raise PyOasisException("Size must be <=0.")
+
         parameters = [0, 0, size]
         self.set(parameters)
 
@@ -263,6 +270,11 @@ class ApplePartition(Partition):
     def __init__(self, offset, size):
         """Constructor"""
         check_types([int, int], [offset, size])
+        if offset<0:
+            raise PyOasisException("Offset <0.")
+        if size<=0:
+            raise PyOasisException("Size <=0.")
+
         parameters = [1, offset, size]
         self.set(parameters)
 
@@ -285,6 +297,18 @@ class BoxPartition(Partition):
         check_types([int, int, int, int],
                     [global_offset, local_extent_x, local_extent_y,
                      global_extent_x])
+        if global_offset<0:
+            raise PyOasisException("Global offset <0.")
+
+        if local_extent_x<=0:
+            raise PyOasisException("Local extent in x-direction <=0.")
+
+        if local_extent_y<=0:
+            raise PyOasisException("Local extent in y-direction <=0.")
+        if global_extent_x<=0:
+            raise PyOasisException("Global extent in x-direction <=0.")
+
+
         parameters = [2, global_offset, local_extent_x, local_extent_y, 
                       global_extent_x]
         self.set(parameters)
@@ -306,6 +330,12 @@ class OrangePartition(Partition):
         n_offsets = len(offsets)
         if len(extents) != n_offsets:
             raise PyOasisException("Number of offsets != number of extents")
+        for offset in offsets:
+            if offset<0:
+                raise PyOasisException("Offset <0.")
+        for size in sizes:
+            if size<=0:
+                raise PyOasisException("Size <=0.")
         parameters = [3, n_offsets]
         for i in range(n_offsets):
             parameters.append(offsets[i])
@@ -325,6 +355,9 @@ class PointsPartition(Partition):
     def __init__(self, global_indices):
         """Constructor"""
         check_types([list], [global_indices])
+        if len(global_indices)==0:
+            raise PyoasisException("Global indices list empty.")
+
         parameters = [4, len(global_indices)]
         for index in global_indices:
             parameters.append(index)
@@ -349,6 +382,13 @@ class Var:
         """Constructor"""
         check_types([str, int, list, int],
                     [cdport, id_part, id_var_nodims, kinout])
+        if len(cdport):
+            raise PyOasisException("Name empty.")
+        if id_part<0:
+            raise PyOasisException("Partition identifier <0.")
+        if not (kinout==OasisParameters.OASIS_IN 
+                or kinout==OasisParameters.OASIS_OUT):
+            raise PyOasisException("kinout parameter neither OASIS_IN or OASIS_OUT.")
         self.name = cdport
         return_value = mod_oasis_var_core.def_var(id_part, self.name, id_var_nodims, 
                                                   kinout)
