@@ -1,3 +1,0 @@
-export PYOASIS_ROOT=/home/igw26125/opt
-export LD_LIBRARY_PATH=${PYOASIS_ROOT}/lib:${LD_LIBRARY_PATH}
-export PYTHONPATH=${PYOASIS_ROOT}/modules:${PYTHONPATH}
