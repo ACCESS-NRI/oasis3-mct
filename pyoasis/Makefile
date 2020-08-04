@@ -167,6 +167,7 @@ clean:
 	rm -f ${SRC_C}/*.o
 	rm -f ${SRC_C}/libpyoasiscore.so
 
+
 # Installation
 
 install:
@@ -189,3 +190,9 @@ install:
 	@echo The command \"source init.sh\" has to be be issued
 	@echo before using pyOASIS. Alternatively, these lines
 	@echo should be added to your \~/.bashrc file. 
+
+
+# Test
+
+test:
+	cd src/python && pytest
