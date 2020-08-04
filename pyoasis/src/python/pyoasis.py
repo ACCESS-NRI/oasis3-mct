@@ -333,9 +333,9 @@ class OrangePartition(Partition):
         for offset in offsets:
             if offset<0:
                 raise PyOasisException("Offset <0.")
-        for size in sizes:
-            if size<=0:
-                raise PyOasisException("Size <=0.")
+        for extent in extents:
+            if extent<=0:
+                raise PyOasisException("Extent <=0.")
         parameters = [3, n_offsets]
         for i in range(n_offsets):
             parameters.append(offsets[i])
