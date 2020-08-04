@@ -1,10 +1,3 @@
-OPT=${HOME}/opt
-OASIS=${HOME}/oasis3-mct/
-PYOASIS=${OASIS}/pyoasis
-
-
-export C_INCLUDE_PATH=${PYOASIS}:${OPT}/include:/usr/local/lib:${C_INCLUDE_PATH}
-export CPLUS_INCLUDE_PATH=${OPT}/include:${CPLUS_INCLUDE_PATH}
-export LD_LIBRARY_PATH=${PYOASIS}:${OPT}/lib:${LD_LIBRARY_PATH}
-export PYTHONPATH=${OPT}/modules:${PYTHONPATH}
-export PATH=${OPT}/bin:${PATH}
+export PYOASIS_ROOT=/home/igw26125/opt
+export LD_LIBRARY_PATH=${PYOASIS_ROOT}/lib:${LD_LIBRARY_PATH}
+export PYTHONPATH=${PYOASIS_ROOT}/modules:${PYTHONPATH}

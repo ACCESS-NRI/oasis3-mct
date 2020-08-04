@@ -14,7 +14,7 @@ CXX=mpic++
 FFLAGS=-fPIC -ffree-form -J${MODULES} -g2 
 CFLAGS=-fPIC -I/usr/include/python3.8 -g2
 CPPFLAGS=-fPIC -I/usr/include/python3.8 -g2
-LFLAGS=-L/home/igw26125/opt2/lib -L. -Loasis/lib -fPIC
+LFLAGS=-L${PYOASIS}/oasis/lib -L. -Loasis/lib -fPIC
 
 PREFIX=${HOME}/opt
 
@@ -83,7 +83,7 @@ ${SRC_F}/mod_oasis_method_iso.o: ${SRC_F}/mod_oasis_method_iso.F90
 
 ${SRC_F}/pyoasis.o: ${SRC_F}/pyoasis.F90
 	cd ${SRC_F} && ${FC} -c pyoasis.F90
-
+	cp ${SRC_F}/pyoasis.mod ${MODULES}
 
 # Shared libraries for OASIS
 # Hack to change the source code to solve underscore issues and
@@ -126,7 +126,7 @@ oasis/lib/libscrip.so:
 	cp ${HOME}/oasis3-mct/lib/scrip/src/*.f90 . &&\
 	cp ${HOME}/oasis3-mct/lib/scrip/src/*.f . &&\
 	cp ${HOME}/compile_oa3-mct/build/lib/scrip/*.mod ${MODULES} &&\
-	cp ${HOME}/oasis3-mctold/lib/mct/config.h . &&\
+	cp ${HOME}/oasis3-mct/lib/mct/config.h . &&\
 	cp ${HOME}/oasis3-mct/lib/mct/mpeu/*.c . &&\
 	${FC} *.F90 -c -Duse_comm_MPI1 -J${MODULES} -ffree-line-length-512 -fPIC &&\
 	${FC} *.f90 -c -Duse_comm_MPI1 -J${MODULES} -ffree-line-length-512 -fPIC &&\
@@ -163,8 +163,9 @@ clean:
 	rm -f oasis/src/scrip/*.o
 	rm -f oasis/src/sparsematrix/*.o
 	rm -f ${SRC_F}/*.o
-	rm -r ${SRC_C}/*.o
-	rm -r ${SRC_C}/libpyoasiscore.so
+	rm -f ${SRC_F}/pyoasis.mod
+	rm -f ${SRC_C}/*.o
+	rm -f ${SRC_C}/libpyoasiscore.so
 
 # Installation
 
@@ -176,5 +177,15 @@ install:
 	cp -v oasis/lib/*.so ${PREFIX}/lib
 	cp -v ${SRC_F}/pyoasis.mod ${PREFIX}/modules
 	cp -v ${SRC_C}/libpyoasiscore.so  ${PREFIX}/lib
-	cp -v src/python/* ${PREFIX}/modules
-
+	cp -v src/python/*.py ${PREFIX}/modules
+	echo export PYOASIS_ROOT=${PREFIX} > init.sh
+	echo export LD_LIBRARY_PATH=\$${PYOASIS_ROOT}/lib:\$${LD_LIBRARY_PATH} >> init.sh
+	echo export PYTHONPATH=\$${PYOASIS_ROOT}/modules:\$${PYTHONPATH} >> init.sh
+	@echo ======================================================
+	@echo The following lines have been put in the file init.sh.
+	@echo
+	@cat init.sh
+	@echo
+	@echo The command \"source init.sh\" has to be be issued
+	@echo before using pyOASIS. Alternatively, these lines
+	@echo should be added to your \~/.bashrc file. 
