@@ -382,12 +382,12 @@ class Var:
         """Constructor"""
         check_types([str, int, list, int],
                     [cdport, id_part, id_var_nodims, kinout])
-        if len(cdport):
+        if len(cdport) == 0:
             raise PyOasisException("Name empty.")
         if id_part<0:
             raise PyOasisException("Partition identifier <0.")
-        if not (kinout==OasisParameters.OASIS_IN 
-                or kinout==OasisParameters.OASIS_OUT):
+        if not (kinout == OasisParameters.OASIS_IN.value 
+                or kinout == OasisParameters.OASIS_OUT.value):
             raise PyOasisException("kinout parameter neither OASIS_IN or OASIS_OUT.")
         self.name = cdport
         return_value = mod_oasis_var_core.def_var(id_part, self.name, id_var_nodims, 

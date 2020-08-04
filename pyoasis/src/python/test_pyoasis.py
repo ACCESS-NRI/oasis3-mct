@@ -49,9 +49,9 @@ def test_ApplePartition():
 def test_BoxPartition():
     pyoasis.mod_oasis_part_core.def_partition=returns_2_zeros
     global_offset = 0
-    local_extent_x = 0
-    local_extent_y = 0
-    global_extent_x = 0
+    local_extent_x = 10
+    local_extent_y = 10
+    global_extent_x = 10
     box_partition=pyoasis.BoxPartition(global_offset, local_extent_x,
                                        local_extent_y, global_extent_x)
     assert box_partition.get_id() >= 0
