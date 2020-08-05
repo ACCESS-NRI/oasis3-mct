@@ -23,17 +23,20 @@ from enum import Enum
 import numpy
 from mpi4py import MPI
 
-import mod_oasis_method_core
-import mod_oasis_auxiliary_routines_core
-import mod_oasis_sys_core
-import mod_oasis_part_core
-import mod_oasis_var_core
-import mod_oasis_getput_interface_core
+
+import mod_oasis_method
+import mod_oasis_auxiliary_routines
+import mod_oasis_sys
+import mod_oasis_part
+import mod_oasis_var
+import mod_oasis_getput_interface
+
 
 
 class OasisException(Exception):
     def __init__(self, text, error):
         super(OasisException, self).__init__(text + " (" + str(error)+ ")")
+
 
 class PyOasisException(Exception):
     def __init__(self, text):
@@ -112,7 +115,7 @@ class Component(object):
         
         self.name = i_name
         self.communicator = i_communicator
-        return_value = mod_oasis_method_core.init_comp(self.name, coupled,
+        return_value = mod_oasis_method.init_comp(self.name, coupled,
                                                        self.communicator)
         error = return_value[1]
         if error < 0:
@@ -138,7 +141,7 @@ class Component(object):
         :raises OasisException: if OASIS is unable to return the local\
                                 communicator 
         """
-        return_value = mod_oasis_auxiliary_routines_core.get_localcomm()
+        return_value = mod_oasis_auxiliary_routines.get_localcomm()
         error = return_value[1]
         if error < 0:
             raise OasisException("Error in get_localcomm", error)
@@ -162,7 +165,7 @@ class Component(object):
         if allcomm<0:
             raise PyOasisException("Communicator <0.")   
 
-        return_value = mod_oasis_auxiliary_routines_core.create_couplcomm(icpl, 
+        return_value = mod_oasis_auxiliary_routines.create_couplcomm(icpl, 
                                                                           allcomm)
         error = return_value[1]
         if error < 0:
@@ -177,7 +180,7 @@ class Component(object):
         :raises OasisException: if OASIS is unable to end the \
                                 initialisation
         """
-        error = mod_oasis_method_core.enddef()
+        error = mod_oasis_method.enddef()
         if error < 0:
             raise OasisException("Error in enddef", error)
 
@@ -185,26 +188,45 @@ class Component(object):
         """
         :returns: the size of the global communicator
         """
-        return mod_oasis_auxiliary_routines_core.get_comm_size(self.communicator.py2f())
+        return_value = mod_oasis_auxiliary_routines.get_comm_size(self.communicator.py2f())
+        error = return_value[1]
+        if (error < 0):
+            raise OasisException("Unable to obtain the size of the global communicator")
+        size = return_value[0]
+        return size
 
     def get_comm_rank(self):
         """
         :returns: the rank in the global comminucator
         """
-        return mod_oasis_auxiliary_routines_core.get_comm_rank(self.communicator.py2f())
+        return_value = mod_oasis_auxiliary_routines.get_comm_rank(self.communicator.py2f())
+        error = return_value[1]
+        if (error < 0):
+            raise OasisException("Unable to obtain the rank of the global communicator")
+        rank = return_value[0]
+        return rank
 
     def get_localcomm_size(self):
         """
         :returns: the size of the local communicator
         """
-        return mod_oasis_auxiliary_routines_core.get_comm_size(self.get_localcomm())
+        return_value = mod_oasis_auxiliary_routines.get_comm_size(self.get_localcomm())
+        error = return_value[1]
+        if (error < 0):
+            raise OasisException("Unable to obtain the size of the global communicator")
+        size = return_value[0]
+        return size
 
     def get_localcomm_rank(self):
         """
         :returns: the rank in the local communicator
         """
-        return mod_oasis_auxiliary_routines_core.get_comm_rank(self.get_localcomm())
-
+        return_value = mod_oasis_auxiliary_routines.get_comm_rank(self.get_localcomm())
+        error = return_value[1]
+        if (error < 0):
+            raise OasisException("Unable to obtain the rank in the local communicator")
+        rank = return_value[0]
+        return rank
 
 def terminate():
     """
@@ -212,7 +234,7 @@ def terminate():
 
     :raises OasisException: if OASIS is unable to end the coupling
     """
-    error = mod_oasis_method_core.terminate()
+    error = mod_oasis_method.terminate()
     if error < 0:
         raise OasisException("Error in terminate", error)
 
@@ -223,7 +245,7 @@ def oasis_abort(component_id, routine, message, filename, line, error):
     """Aborts OASIS."""
     check_types([int, str, str, str, int, int],
                 [component_id, routine, message, filename, line, error])
-    mod_oasis_sys_core.oasis_abort(component_id, routine, message, filename,
+    mod_oasis_sys.oasis_abort(component_id, routine, message, filename,
                                    line, error)
 
 
@@ -231,7 +253,7 @@ class Partition(object):
     """Base class handling a partition"""
     def set(self, parameters):
         """Sets up the partition. Will be called by the inherited classes."""
-        return_value = mod_oasis_part_core.def_partition(parameters)
+        return_value = mod_oasis_part.def_partition(parameters)
         error = return_value[1]
         if error < 0:
             raise OasisException("Error in def_partition", error)
@@ -378,20 +400,22 @@ class Var:
     :raises OasisException: if OASIS is unable to initialise \
                             the variable data 
     """
-    def __init__(self, cdport, id_part, id_var_nodims, kinout):
+    def __init__(self, cdport, partition, id_var_nodims, kinout):
         """Constructor"""
-        check_types([str, int, list, int],
-                    [cdport, id_part, id_var_nodims, kinout])
+        
+        check_types([str, list, OasisParameters],
+                    [cdport, id_var_nodims, kinout])
         if len(cdport) == 0:
             raise PyOasisException("Name empty.")
+        id_part = partition.get_id()
         if id_part<0:
             raise PyOasisException("Partition identifier <0.")
-        if not (kinout == OasisParameters.OASIS_IN.value 
-                or kinout == OasisParameters.OASIS_OUT.value):
+        if not (kinout == OasisParameters.OASIS_IN 
+                or kinout == OasisParameters.OASIS_OUT):
             raise PyOasisException("kinout parameter neither OASIS_IN or OASIS_OUT.")
         self.name = cdport
-        return_value = mod_oasis_var_core.def_var(id_part, self.name, id_var_nodims, 
-                                                  kinout)
+        return_value = mod_oasis_var.def_var(id_part, self.name, id_var_nodims, 
+                                                  kinout.value)
         error = return_value[1]
         if error < 0:
             raise OasisException("Error in def_var", error)
@@ -417,7 +441,9 @@ class Var:
         :param pyoasis.Array field: data
         """
         check_types([int, numpy.ndarray], [kstep, field])
-        mod_oasis_getput_interface_core.put(self.var_id, kstep, field)
+        error = mod_oasis_getput_interface.put(self.var_id, kstep, field)
+        if (error < 0):
+          raise OasisException("Error in sending data from another component")
 
     def get(self, kstep, field):
         """
@@ -427,4 +453,6 @@ class Var:
         :param pyoasis.Array field: data
         """
         check_types([int, numpy.ndarray], [kstep, field])
-        mod_oasis_getput_interface_core.get(self.var_id, kstep, field)
+        error = mod_oasis_getput_interface.get(self.var_id, kstep, field)
+        if (error < 0):
+          raise OasisException("Error in getting data from another component")

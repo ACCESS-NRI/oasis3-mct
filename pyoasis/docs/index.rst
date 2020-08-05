@@ -41,7 +41,9 @@ line by
      make PREFIX=other_location install
 
 Before using pyOASIS, certain environment variables have to be modified.
-This can be done by executing the relevant script with the command
+This can be done by executing the relevant script (which was created
+during the installation according to the location where the software
+has been placed) with the command
 ::
     source init.sh
 

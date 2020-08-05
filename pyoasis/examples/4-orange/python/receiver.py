@@ -25,8 +25,8 @@ n_points = 16
 partition = pyoasis.SerialPartition(n_points)
 print("Partition id: " + str(partition.get_id()))
 
-variable = pyoasis.Var("FRECVATM", partition.get_id(), [1, 1,],
-                       pyoasis.OasisParameters.OASIS_IN.value)
+variable = pyoasis.Var("FRECVATM", partition, [1, 1,],
+                       pyoasis.OasisParameters.OASIS_IN)
 print("Variable id: " + str(variable.get_id()))
 
 comp.enddef()
