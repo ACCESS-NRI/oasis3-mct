@@ -50,37 +50,203 @@ has been placed) with the command
 Alternatively, its contents, which are also displayed at the end of the
 installation, should be copied to your ~/.bashrc file.
 
+pyOASIS can be tested by issuing the following command
+::
+   make test
 
-API reference
+
+Using pyOASIS
 -------------
 
-The class **Component** manages a component that will be coupled
-by OASIS. The data can be split in various ways corresponding to the
-classes **SerialPartition**, **ApplePartition**, **BoxPartition**,
-**OrangePartition** and **PointsPartition** (see the OASIS documentation
-for more details). Finally the data is handled by the class **Var**.
+Code structure
+++++++++++++++
 
-.. autoclass:: pyoasis.Component
-               :members:
+The source code of pyOASIS is in the directory ``src``.
+First, the OASIS Fortran code is wrapped in Fortran using ISO-C
+bindings. The corresponding source files are in the subdirectory
+``src/fortran_isoc``. The file names are the same as the
+corresponding ones in the original source code but ending in iso.F90.
+Subsequently, the Fortran with ISO-C bindings is wrapped in C. This time,
+the source code is in ``src/c``. Like before, the names of the files are
+the same as the corresponding FORTRAN ones, but ending in _iso.c. Finally,
+the C is wrapped in Python in the directory ``src/python``. A low-level
+wrapper is made of the same file names but ending in .py while the
+high-level wrapper is contained in
+the file ``pyoasis.py``. This is the object-oriented wrapper that is to be
+accessed by the users. It raises 2 types of exceptions.
+``OasisExceptions`` are raised when OASIS returns an error code while
+a ``PyOasisException`` is thrown when an error has been detected in
+pyOASIS.
 
-.. autofunction:: pyoasis.terminate
-	      
-.. autoclass:: pyoasis.SerialPartition
 
-.. autoclass:: pyoasis.ApplePartition
+Initialising MPI
+++++++++++++++++
 
-.. autoclass:: pyoasis.BoxPartition
-	       
-.. autoclass:: pyoasis.OrangePartition
+OASIS couples models which communicate using MPI. As a consequence, an
+MPI communicator must be initialised before components are created. This
+is done using ``mpi4py`` with the following code.
+::
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
 
-.. autoclass:: pyoasis.PointsPartition
 
-.. autofunction:: pyoasis.OasisParameters
+Creating a component
+++++++++++++++++++++
 
-.. autofunction:: pyoasis.Array
+In pyOASIS, components are instances of the ``Component`` class. To
+initliase a component, its name has to be supplied as well as a
+coupling flag and a communicator.
+::
+    import pyoasis
+    component_name = "component"
+    coupling_flag = True
+    communicator = MPI.COMM_WORLD
+    comp = pyoasis.Component(component_name, coupling_flag, communicator)
 
-.. autoclass:: pyoasis.Var
-               :members:
+The arguments of the constructor have default values. By default, the
+component is coupled and ``MPI.COMM_WORLD`` is used as a communicator.
+As a consequence, the following code is equivalent to the one above.
+::
+    comp = pyoasis.Component(component_name)
+
+
+Creating a partition
+++++++++++++++++++++
+
+
+The data can be partitioned in various ways.
+These correspond to the  **SerialPartition**, **ApplePartition**,
+**BoxPartition**, **OrangePartition** and **PointsPartition**
+classes which are inherited from the **Partition** abstract class.
+
+The simplest situation is the serial partitioning where all the data is
+held by a single process and only the number of points has to be
+specified.
+::
+    n_points = 16
+    serial_partition = pyoasis.SerialPartition(n_points)
+
+In the case of the apple partitioning, each process contains a segment
+of a linear domain. To initialise such a partitioning, an offset has to
+be supplied for each rank as well as the number of data points that
+will be stored locally. The following example, if run with 4 processes,
+will produce 4 consecutive local segments containing 4 data points.
+::
+    component_name = "component"
+    comp = pyoasis.Component(component_name)
+    rank = comp.get_localcomm_rank()
+    size = comp.get_localcomm_size()
+    n_points = 16
+    local_size = int(n_points/comm_size)
+    offset = comm_rank * local_size
+    partition = pyoasis.ApplePartition(offset, local_size)
+
+When we use the box partitioning, a 2-dimensional domain is split
+into several reactangles. The global offset, local extents in the x and
+y directions and the global extent in the x direction have to be supplied
+to the constructor. The global offset is the index of the corner of the local
+rectangle. For example, we can split a 4x4 square domain into 4 2x2 parts with
+the following code that will have to be executed using 4 processes. The
+offset is computed from the global and local domain sizes as well as
+the rank.
+::
+    rank = comp.get_localcomm_rank()
+    n_global_points_per_side = 4
+    n_partitions_per_side = 2  
+    local_extent = n_global_points_per_side / n_partitions_per_side
+    i_partition_x = rank / n_partitions_per_side
+    i_partition_y = rank % n_partitions_per_side
+    global_offset =   i_partition_x * n_global_points_per_side * local_extent
+                    + i_partition_y * local_extent 
+    global_extent_x = n_global_points_per_side
+    partition = pyoasis.BoxPartition(global_offset, local_extent, local_extent,
+                                     global_extent_x)
+
+
+The orange partitioning consists of several segments of a linear domain.
+As a consequence, a list of offsets and local sizes have to be provided.
+In this example, each process contains 2 consecutive segments of 2 points
+::
+    size = comp.get_localcomm_size()
+    rank = comp.get_localcomm_rank() 
+    n_segments_per_rank = 2
+    n_points_per_segment = 2
+    offset_beginning = rank * n_segments_per_rank * n_points_per_segment
+    offset = [offset_beginning, offset_beginning + n_points_per_segment]
+    extents = [n_points_per_segment, n_points_per_segment]
+    partition = pyoasis.OrangePartition(offsets, extents)
+
+
+The last type of partitioning is the points one, where we have to
+specify, in a list, the global indices of the points stored by the
+process.
+::
+    global_indices=[0, 1, 2, 3]
+    partition = pyoasis.PointsPartition(global_indices)
+
+See the OASIS documentation for more information about the various
+types of partitioning.
+
+
+Initialising the data
++++++++++++++++++++++
+
+The data is handled by the class **Var**. Its constructor requires
+the name, as is appears in the ``namcouple`` file, the partition, the rank
+with which we wish to communicate and a flag indicating whether the
+data is incoming or outgoing. The latter is an enumerated type and can
+have the values ``pyoasis.OasisParameters.OASIS_OUT`` or
+``pyoasis.OasisParameters.OASIS_IN``. In the following example, we wish
+to send data to a process having the rank 1 and we use a partition that was
+previously created.
+::
+    data_name = "name"
+    destination_rank = 1
+    variable = pyoasis.Var(data_name, partition, destination_rank,
+                           pyoasis.OasisParameters.OASIS_OUT)
+
+Once the partitioning and the variable data have been initalised, we can
+end the definition of the component. It is necessary to carry out this
+step only at this point.
+::
+    comp.enddef()
+
+
+Sending and receiving data
+++++++++++++++++++++++++++
+
+The data has to be contained in a ``pyoasis.Array`` object. This is a
+numpy array but ordered in the Fortran way.
+::
+    field = pyoasis.Array(range(n_points))
+
+We must also define a time associated with the data. The other process
+expects data having a similar time.
+::
+    date = int(0)
+
+The data is sent with the following function.
+::
+    variable.put(date, field)
+
+Conversely, it can be received with the function
+::
+    variable.get(date, field)
+
+It expects data carrying the same date and will fill the
+``pyOASIS.Array`` object.
+
+Finally, we can terminate the coupling with
+::
+    pyoasis.terminate()
+
+Exceptions
+++++++++++
+
+When an error occurs in OASIS and the code coupler returns an error
+code, an ``OasisException`` is raised. On the other hand, when an
+error is caught by the pyOASIS wrapper, such as an incorrect parameter
+or a wrong type, a ``PyOasisException`` is raised.
 
 
 Examples
@@ -155,8 +321,9 @@ to run this example are in the directory
 Apple and orange partitions
 +++++++++++++++++++++++++++
 
-In this example, both models run as several processes. In the
-sender, the data is split according to the apple partitioning
+In this example, both models run as several processes. The beginning
+of the code is identical to the previous example. We will highlight
+only the differences. In the sender, the data is split according to the apple partitioning
 ::
     partition = pyoasis.ApplePartition(offset, local_size)
 
@@ -186,9 +353,8 @@ The complete example can be found in ``examples/6-apple_and_orange/python``.
 Fortran and Python interoperability
 +++++++++++++++++++++++++++++++++++
 
-In order to illustrate the possibility to couple models written in Python and
-in Fortran, we repeat the previous example where, this time, the sender
-has been written in Fortran.
+In order to illustrate the possibility to couple models written in Python and in Fortran, we repeat the previous example where, this time, the sender
+has been written in Fortran. The receiver is the same as above.
 
 The sender consists in an analogous sequence.
 
@@ -230,6 +396,37 @@ The complete example can be found in
 ``pyoasis/examples/7-fortran_and_python``.
 
 
+API reference
+-------------
+
+The class **Component** manages a component that will be coupled
+by OASIS. The data can be split in various ways corresponding to the
+classes **SerialPartition**, **ApplePartition**, **BoxPartition**,
+**OrangePartition** and **PointsPartition** (see the OASIS documentation
+for more details). Finally the data is handled by the class **Var**.
+
+.. autoclass:: pyoasis.Component
+               :members:
+
+.. autofunction:: pyoasis.terminate
+	      
+.. autoclass:: pyoasis.SerialPartition
+
+.. autoclass:: pyoasis.ApplePartition
+
+.. autoclass:: pyoasis.BoxPartition
+	       
+.. autoclass:: pyoasis.OrangePartition
+
+.. autoclass:: pyoasis.PointsPartition
+
+.. autofunction:: pyoasis.OasisParameters()
+
+.. autofunction:: pyoasis.Array
+
+.. autoclass:: pyoasis.Var
+               :members:
+		  
    
 Acknowledgments
 ---------------

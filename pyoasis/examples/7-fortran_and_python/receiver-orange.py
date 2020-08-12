@@ -17,7 +17,7 @@ print("Component id: " + str(comp.get_id()))
 local_comm = comp.get_localcomm()
 print("Local communicator: " + str(local_comm))
 
-coupl_comm = comp.create_couplcomm(1, local_comm)
+coupl_comm = comp.create_couplcomm(local_comm)
 print("Coupling communicator: " + str(coupl_comm))
 
 comm_rank = comp.get_localcomm_rank()
@@ -35,7 +35,7 @@ extents = [extent]
 partition = pyoasis.OrangePartition(offsets, extents)
 print("Partition id: " + str(partition.get_id()))
 
-variable = pyoasis.Var("FRECVATM", partition, [1, 1,],
+variable = pyoasis.Var("FRECVATM", partition, 1,
                        pyoasis.OasisParameters.OASIS_IN)
 print("Variable id: " + str(variable.get_id()))
 
