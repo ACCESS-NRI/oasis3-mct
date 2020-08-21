@@ -194,5 +194,10 @@ install:
 
 # Test
 
-test:
-	cd src/python && pytest
+test: wrappertest completetest
+
+wrappertest: wrappertest
+	cd tests && pytest
+
+completetest: 
+	cd tests/apple_and_orange/ && bash run.sh

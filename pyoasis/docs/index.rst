@@ -11,8 +11,9 @@ Introduction
 
 pyOASIS is a Python wrapper for OASIS written using ctypes
 and ISO C bindings to Fortran. It provides an object-oriented
-interface to OASIS. This allows users to write models in Python
-or to couple a model written in Python to another one, written
+interface to OASIS. This allows users to write and couple models
+written in Python
+or to couple models written in Python with models written
 in Fortran.
 
 It is part of the distribution of OASIS. See
@@ -28,7 +29,8 @@ Installation
 
 Once the installation of OASIS is complete, pyOASIS can be installed
 by carrying out the following procedure from the ``oasis3-mct``
-directory.
+directory. pyOASIS also makes use of ``mpi4py`` which should be present 
+on the system.
 ::
     cd pyoasis
     make
@@ -54,6 +56,11 @@ pyOASIS can be tested by issuing the following command
 ::
    make test
 
+This will execute two types of tests. The first is a test of pyOASIS
+using ``pytest``. The second one is a full test of the wrapper and 
+OASIS, involving communication between two components. These are located
+in the directory ``tests``.
+
 
 Using pyOASIS
 -------------
@@ -65,54 +72,70 @@ The source code of pyOASIS is in the directory ``src``.
 First, the OASIS Fortran code is wrapped in Fortran using ISO-C
 bindings. The corresponding source files are in the subdirectory
 ``src/fortran_isoc``. The file names are the same as the
-corresponding ones in the original source code but ending in iso.F90.
+corresponding ones in the original source code but ending in ``_iso.F90``.
 Subsequently, the Fortran with ISO-C bindings is wrapped in C. This time,
-the source code is in ``src/c``. Like before, the names of the files are
-the same as the corresponding FORTRAN ones, but ending in _iso.c. Finally,
+the source code is in ``src/c``. As before, the names of the files are
+the same as the corresponding Fortran ones, but ending in ``_iso.c``. Finally,
 the C is wrapped in Python in the directory ``src/python``. A low-level
-wrapper is made of the same file names but ending in .py while the
-high-level wrapper is contained in
-the file ``pyoasis.py``. This is the object-oriented wrapper that is to be
-accessed by the users. It raises 2 types of exceptions.
-``OasisExceptions`` are raised when OASIS returns an error code while
-a ``PyOasisException`` is thrown when an error has been detected in
-pyOASIS.
-
-
-Initialising MPI
-++++++++++++++++
-
-OASIS couples models which communicate using MPI. As a consequence, an
-MPI communicator must be initialised before components are created. This
-is done using ``mpi4py`` with the following code.
-::
-    from mpi4py import MPI
-    comm = MPI.COMM_WORLD
+wrapper is made using the same filenames as the Fortran ones but ending in
+``.py``. A higher level object-oriented wrapper is contained in
+the file ``pyoasis.py``. This higher level wrapper provides the pyOASIS
+interface. pyOASIS raises 2 types of exceptions.
+An **OasisException** is raised when the OASIS Fortran library returns an
+error code while a **PyOasisException** is raised when an error has been
+detected in pyOASIS.
 
 
 Creating a component
 ++++++++++++++++++++
 
-In pyOASIS, components are instances of the ``Component`` class. To
-initliase a component, its name has to be supplied as well as a
-coupling flag and a communicator.
+In pyOASIS, components are instances of the **Component** class. To
+initiliase a component, its name has to be supplied along with a coupling flag.
 ::
     import pyoasis
+    component_name = "component"
+    coupling_flag = True
+    comp = pyoasis.Component(component_name, coupling_flag)
+
+The arguments of the constructor have default values. For example, by default, the component is coupled. As a consequence, the following code is equivalent to the one above.
+::
+    comp = pyoasis.Component(component_name)
+
+
+Using MPI
++++++++++
+
+OASIS couples models which communicate using MPI. As a consequence, an
+MPI communicator must be initialised before components are created. 
+This is done in the background by pyOASIS. However it is also possible 
+to use one's communicator which has to be created with ``mpi4py``.
+In these conditions, the initialisation of the component becomes:
+::
+    import pyoasis
+    from mpi4py import MPI
+    comm = MPI.COMM_WORLD
     component_name = "component"
     coupling_flag = True
     communicator = MPI.COMM_WORLD
     comp = pyoasis.Component(component_name, coupling_flag, communicator)
 
-The arguments of the constructor have default values. By default, the
-component is coupled and ``MPI.COMM_WORLD`` is used as a communicator.
-As a consequence, the following code is equivalent to the one above.
+The contrast with the code above shows that the constructor had yet another default argument and that ``MPI.COMM_WORLD`` is used in the abence of a specified communicator.
+
+We can access the communicators from pyOASIS. From example, the 
+following piece of code displays the rank of each process in the 
+local and global communicators.
 ::
-    comp = pyoasis.Component(component_name)
+    import pyoasis
+    comp = pyoasis.Component("component")
+    print("Hello world from process " + str(comp.get_comm_rank()) 
+          + " of " +  str(comp.get_comm_size())+ " in the global communicator")
+    print("aaa Hello world from process " + str(comp.get_localcomm_rank()) 
+          + " of " +  str(comp.get_localcomm_size())+ " in the local communicator")
+    pyoasis.terminate()
 
 
 Creating a partition
 ++++++++++++++++++++
-
 
 The data can be partitioned in various ways.
 These correspond to the  **SerialPartition**, **ApplePartition**,
@@ -142,7 +165,7 @@ will produce 4 consecutive local segments containing 4 data points.
     partition = pyoasis.ApplePartition(offset, local_size)
 
 When we use the box partitioning, a 2-dimensional domain is split
-into several reactangles. The global offset, local extents in the x and
+into several rectangles. The global offset, local extents in the x and
 y directions and the global extent in the x direction have to be supplied
 to the constructor. The global offset is the index of the corner of the local
 rectangle. For example, we can split a 4x4 square domain into 4 2x2 parts with
@@ -165,7 +188,7 @@ the rank.
 
 The orange partitioning consists of several segments of a linear domain.
 As a consequence, a list of offsets and local sizes have to be provided.
-In this example, each process contains 2 consecutive segments of 2 points
+In this example, each process contains 2 consecutive segments of 2 points.
 ::
     size = comp.get_localcomm_size()
     rank = comp.get_localcomm_rank() 
@@ -177,7 +200,7 @@ In this example, each process contains 2 consecutive segments of 2 points
     partition = pyoasis.OrangePartition(offsets, extents)
 
 
-The last type of partitioning is the points one, where we have to
+The last type of partitioning is points, where we have to
 specify, in a list, the global indices of the points stored by the
 process.
 ::
@@ -205,23 +228,40 @@ previously created.
     variable = pyoasis.Var(data_name, partition, destination_rank,
                            pyoasis.OasisParameters.OASIS_OUT)
 
-Once the partitioning and the variable data have been initalised, we can
-end the definition of the component. It is necessary to carry out this
-step only at this point.
+In the case of the receiving model, the code is:
+::
+    data_name = "name"
+    origin_rank = 0
+    variable = pyoasis.Var(data_name, partition, origin_rank,
+                           pyoasis.OasisParameters.OASIS_IN)
+
+We must end the definition of the component by calling the ``enddef()``
+method.
 ::
     comp.enddef()
+
+However this must be done only once the partitioning and the variable data have been initalised.
 
 
 Sending and receiving data
 ++++++++++++++++++++++++++
 
-The data has to be contained in a ``pyoasis.Array`` object. This is a
-numpy array but ordered in the Fortran way.
+pyOASIS expects data to be provided as a **pyoasis.Array** object.
+This is a Numpy array but ordered in the Fortran way.
+In C, multidimensional arrays store data in row-major order where
+contiguous elements are accessed by incrementing the rightmost index
+while varying the other indices will correspond to increasing strides in
+memory as we use indices further towards the left. By default, Numpy arrays
+use that ordering as well. Fortran, on the other hand, uses column-major
+order. In that case, contiguous elements are accessed by incrementing
+the leftmost index. **pyoasis.Array** objects use the same ordering as
+Fortran. As a consequence, it is not necessary to transform data in order to
+use it in the OASIS Fortran library.
 ::
     field = pyoasis.Array(range(n_points))
 
-We must also define a time associated with the data. The other process
-expects data having a similar time.
+We must also associate a time to the data. If the receiving model
+specifies that same time as this model then it receives the data.
 ::
     date = int(0)
 
@@ -229,14 +269,14 @@ The data is sent with the following function.
 ::
     variable.put(date, field)
 
-Conversely, it can be received with the function
+Conversely, it is received with the function
 ::
     variable.get(date, field)
 
 It expects data carrying the same date and will fill the
-``pyOASIS.Array`` object.
+**pyoasis.Array** object.
 
-Finally, we can terminate the coupling with
+Finally, we can terminate pyOASIS coupling with
 ::
     pyoasis.terminate()
 
@@ -244,9 +284,29 @@ Exceptions
 ++++++++++
 
 When an error occurs in OASIS and the code coupler returns an error
-code, an ``OasisException`` is raised. On the other hand, when an
+code, an **OasisException** is raised. On the other hand, when an
 error is caught by the pyOASIS wrapper, such as an incorrect parameter
-or a wrong type, a ``PyOasisException`` is raised.
+or a wrong argument type, a **PyOasisException** is raised.
+
+In the following example, where we attempt to initialise a component,
+a **PyOasisException** will be raised if the user supplies an empty
+name or a component of the wrong type. On the other hand, if a problem
+occurs in OASIS, an **OasisException** is raised.
+::
+    try:
+        comp = pyoasis.Component("name")
+    except (pyoasis.OasisException, pyoasis.OasisException) as exception:
+        pyoasis.pyoasis_abort(exception)
+
+A more complete example involving exceptions can be found in
+``test/apple_and_orange``, in the files ``receiver-orange.py`` and
+``sender-apple.py``. These are used to fully test pyOASIS and provide
+a complete error interception. However, there are cases where OASIS will
+abort before pyOASIS can raise an exception. This happens, for instance,
+when the name of the variable data is inconsistent with the contents of
+the ``namcouple`` file. However, in such a case, one can rely on the error
+interception taking place in OASIS that will describe the issue in the log
+files.
 
 
 Examples
@@ -405,6 +465,12 @@ classes **SerialPartition**, **ApplePartition**, **BoxPartition**,
 **OrangePartition** and **PointsPartition** (see the OASIS documentation
 for more details). Finally the data is handled by the class **Var**.
 
+.. autoclass:: pyoasis.OasisException
+
+.. autoclass:: pyoasis.PyOasisException
+
+.. autofunction:: pyoasis.pyoasis_abort
+
 .. autoclass:: pyoasis.Component
                :members:
 
@@ -431,7 +497,7 @@ for more details). Finally the data is handled by the class **Var**.
 Acknowledgments
 ---------------
 
-This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 824084.
+This work has been financed by the ISENES3 project which has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 824084.
 
 .. image:: euflag.png
 	   

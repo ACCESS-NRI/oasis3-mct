@@ -22,6 +22,7 @@
 from enum import Enum
 import numpy
 from mpi4py import MPI
+import traceback
 
 
 import mod_oasis_method
@@ -67,12 +68,12 @@ def Array(data):
     
 
 class OasisException(Exception):
-    """Exception from OASIS"""
+    """Exception raised when OASIS returns an error code"""
     def __init__(self, text, error):
         super(OasisException, self).__init__(text + " (" + str(error)+ ")")
 
 class PyOasisException(Exception):
-    """Exception raised by pyOASIS"""
+    """Exception raised by pyOASIS when an incorrect parameter is supplied"""
     def __init__(self, text):
         super(PyOasisException, self).__init__(text)
         
@@ -90,11 +91,11 @@ def check_types(types, arguments):
                           "The elements of the list in argument "
                           +str(i)+" must be integers.")
         else:
-           if type(a) != t:
+           if not isinstance(a, t): 
                raise PyOasisException("Argument "+str(i)
                                       +" must be of type "+str(t)+".")
 
-        i=i+1
+        i = i+1
 
 
 class Component(object):
@@ -105,21 +106,22 @@ class Component(object):
     :param bool coupled: whether the component will be coupled (default: True)
     :param mpi4py.MPI.Intracomm communicator: global MPI communicator (default: MPI.COMM_WORLD)
     :raises OasisException: if OASIS is unable to initialise the component
+    :raises PyOasisException: if an incorrect parameter is supplied
     """
-    def __init__(self, i_name, coupled=True, i_communicator=MPI.COMM_WORLD):
+    def __init__(self, name, coupled=True, communicator=MPI.COMM_WORLD):
         """Constructor"""
         check_types([str, bool, MPI.Intracomm],
-                    [i_name, coupled, i_communicator])
-        if len(i_name)==0:
+                    [name, coupled, communicator])
+        if len(name) == 0:
             raise PyOasisException("Component name empty.")
         
-        self.name = i_name
-        self.communicator = i_communicator
-        return_value = mod_oasis_method.init_comp(self.name, coupled,
-                                                       self.communicator)
+        self._name = name
+        self._communicator = communicator
+        return_value = mod_oasis_method.init_comp(self._name, coupled,
+                                                       self._communicator)
         error = return_value[1]
         if error < 0:
-            raise OasisException("Error initialising component "+self.name,
+            raise OasisException("Error initialising component "+self._name,
                                  error)
         self.id_component = return_value[0]
 
@@ -128,7 +130,7 @@ class Component(object):
         :returns: the name of the component
         :rtype: string
         """
-        return self.name
+        return self._name
 
     def get_id(self):
         """
@@ -159,12 +161,12 @@ class Component(object):
         :rtype: int
         :raises OasisException: if OASIS is unable to create the coupling \
                                 communicator
-
+        :raises PyOasisException: if an incorrect parameter is supplied
         """
         if allcomm is None:
-            allcomm=self.get_localcomm()
+            allcomm = self.get_localcomm()
         check_types([int], [allcomm]);
-        if allcomm<0:
+        if allcomm < 0:
             raise PyOasisException("Communicator <0.")   
         icpl=1
         return_value = mod_oasis_auxiliary_routines.create_couplcomm(icpl, 
@@ -193,7 +195,7 @@ class Component(object):
         :raises OasisException: if OASIS is unable to obtain the \
                                 size of the global communicator
         """
-        return_value = mod_oasis_auxiliary_routines.get_comm_size(self.communicator.py2f())
+        return_value = mod_oasis_auxiliary_routines.get_comm_size(self._communicator.py2f())
         error = return_value[1]
         if (error < 0):
             raise OasisException("Unable to obtain the size of the global communicator")
@@ -207,7 +209,7 @@ class Component(object):
         :raises OasisException: if OASIS is unable to obtain the \
                                 rank in the global communicator
         """
-        return_value = mod_oasis_auxiliary_routines.get_comm_rank(self.communicator.py2f())
+        return_value = mod_oasis_auxiliary_routines.get_comm_rank(self._communicator.py2f())
         error = return_value[1]
         if (error < 0):
             raise OasisException("Unable to obtain the rank of the global communicator")
@@ -242,7 +244,7 @@ class Component(object):
         rank = return_value[0]
         return rank
     def __str__(self):
-        return "Component: name: " + self.name + ", id: " + str(self.id_component)
+        return "Component: name: " + self._name + ", id: " + str(self.id_component)
 
 def terminate():
     """
@@ -264,13 +266,27 @@ def oasis_abort(component_id, routine, message, filename, line, error):
     mod_oasis_sys.oasis_abort(component_id, routine, message, filename,
                                    line, error)
 
+def pyoasis_abort(exception):
+    """
+    Terminates cleanly the execution of OASIS and pyOASIS
+    while dsiplaying an error message and the context  in which 
+    the exception was raised.
+
+    :param Exception exception: exception to be handled
+    :raises PyOasisException: if an incorrect parameter is supplied
+    """
+    check_types([Exception], [exception])
+    print(traceback.format_exc())
+    mod_oasis_sys.oasis_abort(0, "", str(exception), "", 0, 0)
+
 
 class Partition(object):
     """Base class handling a partition"""
     def set(self, parameters):
         """Sets up the partition. Will be called by the inherited classes.
         :raises: OasisException if OASIS is unable to initialise the\
-        partition       
+        partition
+        :raises PyOasisException: if an incorrect parameter is supplied        
 """
         return_value = mod_oasis_part.def_partition(parameters)
         error = return_value[1]
@@ -291,12 +307,13 @@ class SerialPartition(Partition):
     
     :param int size: number of points in the partition
     :raises OasisException: if OASIS is unable to initialise the partition
+    :raises PyOasisException: if an incorrect parameter is supplied
     """
     def __init__(self, size):
         """Constructor"""
         check_types([int], [size])
-        if size<=0:
-            raise PyOasisException("Size must be <=0.")
+        if size <= 0:
+            raise PyOasisException("Size must be >0.")
 
         parameters = [0, 0, size]
         self.set(parameters)
@@ -310,13 +327,14 @@ class ApplePartition(Partition):
     :param int size: number of points in the partition  
 
     :raises OasisException: if OASIS is unable to initialise the partition
+    :raises PyOasisException: if an incorrect parameter is supplied
     """
     def __init__(self, offset, size):
         """Constructor"""
         check_types([int, int], [offset, size])
-        if offset<0:
+        if offset < 0:
             raise PyOasisException("Offset <0.")
-        if size<=0:
+        if size <= 0:
             raise PyOasisException("Size <=0.")
 
         parameters = [1, offset, size]
@@ -334,6 +352,7 @@ class BoxPartition(Partition):
                                partition 
     :param int global_extent_x: global extent in the x direction
     :raises OasisException: if OASIS is unable to initialise the partition
+    :raises PyOasisException: if an incorrect parameter is supplied
     """
     def __init__(self, global_offset, local_extent_x, local_extent_y,
                  global_extent_x):
@@ -341,15 +360,15 @@ class BoxPartition(Partition):
         check_types([int, int, int, int],
                     [global_offset, local_extent_x, local_extent_y,
                      global_extent_x])
-        if global_offset<0:
+        if global_offset < 0:
             raise PyOasisException("Global offset <0.")
 
-        if local_extent_x<=0:
+        if local_extent_x <= 0:
             raise PyOasisException("Local extent in x-direction <=0.")
 
-        if local_extent_y<=0:
+        if local_extent_y <= 0:
             raise PyOasisException("Local extent in y-direction <=0.")
-        if global_extent_x<=0:
+        if global_extent_x <= 0:
             raise PyOasisException("Global extent in x-direction <=0.")
 
 
@@ -367,6 +386,7 @@ class OrangePartition(Partition):
     :param extents: list of the partition extents  
     :type extents: list of integers
     :raises OasisException: if OASIS is unable to initialise the partition
+    :raises PyOasisException: if an incorrect parameter is supplied
     """
     def __init__(self, offsets, extents):
         """Constructor"""
@@ -375,10 +395,10 @@ class OrangePartition(Partition):
         if len(extents) != n_offsets:
             raise PyOasisException("Number of offsets != number of extents")
         for offset in offsets:
-            if offset<0:
+            if offset < 0:
                 raise PyOasisException("Offset <0.")
         for extent in extents:
-            if extent<=0:
+            if extent <= 0:
                 raise PyOasisException("Extent <=0.")
         parameters = [3, n_offsets]
         for i in range(n_offsets):
@@ -395,11 +415,12 @@ class PointsPartition(Partition):
                            points in the partition    
     :type global_indices: list of integers
     :raises OasisException: if OASIS is unable to initialise the partition
+    :raises PyOasisException: if an incorrect parameter is supplied
     """
     def __init__(self, global_indices):
         """Constructor"""
         check_types([list], [global_indices])
-        if len(global_indices)==0:
+        if len(global_indices) == 0:
             raise PyoasisException("Global indices list empty.")
 
         parameters = [4, len(global_indices)]
@@ -421,22 +442,25 @@ class Var:
     :type kinout: pyoasis.OasisParameter
     :raises OasisException: if OASIS is unable to initialise \
                             the variable data 
+    :raises PyOasisException: if an incorrect parameter is supplied
     """
     def __init__(self, cdport, partition, rank, kinout):
         """Constructor"""
         
-        check_types([str, int, OasisParameters],
-                    [cdport, rank, kinout])
+        check_types([str, Partition, int, OasisParameters],
+                    [cdport, partition, rank, kinout])
         if len(cdport) == 0:
             raise PyOasisException("Name empty.")
         id_part = partition.get_id()
-        if id_part<0:
+        if id_part < 0:
             raise PyOasisException("Partition identifier <0.")
+        if rank < 0:
+            raise PyOasisException("Rank identifier <0.")
         if not (kinout == OasisParameters.OASIS_IN 
                 or kinout == OasisParameters.OASIS_OUT):
             raise PyOasisException("kinout parameter neither OASIS_IN or OASIS_OUT.")
         self.name = cdport
-        id_var_nodims=[rank, 1]
+        id_var_nodims = [rank, 1]
         return_value = mod_oasis_var.def_var(id_part, self.name, id_var_nodims, 
                                                   kinout.value)
         error = return_value[1]
@@ -466,11 +490,12 @@ class Var:
         :param pyoasis.Array field: data
         :raises: OasisException if OASIS is unable to send \
         data to the other component
+        :raises PyOasisException: if an incorrect parameter is supplied 
         """
         check_types([int, numpy.ndarray], [kstep, field])
         error = mod_oasis_getput_interface.put(self.var_id, kstep, field)
         if (error < 0):
-          raise OasisException("Error in sending data from another component")
+          raise OasisException("Error in sending data to another component", error)
 
     def get(self, kstep, field):
         """
@@ -480,11 +505,12 @@ class Var:
         :param pyoasis.Array field: data
         :raises: OasisException if OASIS is unable to receive \
         data from the other component
+        :raises PyOasisException: if an incorrect parameter is supplied
         """
         check_types([int, numpy.ndarray], [kstep, field])
         error = mod_oasis_getput_interface.get(self.var_id, kstep, field)
         if (error < 0):
-          raise OasisException("Error in getting data from another component")
+          raise OasisException("Error in getting data from another component", error)
 
     def __str__(self):
         return "Variable data: name: " + self.name + ", id: " + str(self.var_id)

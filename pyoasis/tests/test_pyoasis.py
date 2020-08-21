@@ -1,0 +1,467 @@
+#!/usr/bin/python3
+
+# pyOASIS - A Python wrapper for OASIS
+# Authors: Philippe Gambron, Rupert Ford
+# Copyright (C) 2019 UKRI - STFC
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as 
+# published by the Free Software Foundation, either version 3 of the 
+# License, or any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Lesser General Public License for more details.
+
+# A copy of the GNU Lesser General Public License, version 3, is supplied
+# with this program, in the file lgpl-3.0.txt. It is also available at 
+# <https://www.gnu.org/licenses/lgpl-3.0.html>.
+
+
+import pytest
+import numpy
+import pyoasis
+
+
+# Functions for monkeypatching
+def returns_zero(*args):
+    return 0
+
+def returns_2_zeros(*args):
+    return [0, 0]
+
+def returns_error(*args):
+    return -1
+
+def returns_2errors(*args):
+    return [-1, -1]
+
+
+# Compoment class
+# Constructor
+
+# Wrong type for 1st argument
+def test_Component_constructor1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        comp = pyoasis.Component(42, True)
+
+# Wrong type for 2nd argument        
+def test_component_constructor2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        comp = pyoasis.Component("name", 42)
+
+# Wrong type for 3rd argument
+def test_component_constructor3():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        comp = pyoasis.Component("name", True, 42)
+
+# Empty name        
+def test_component_constructor4():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        comp = pyoasis.Component("")
+
+# Failure
+def test_component_constructor5():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2errors
+        comp = pyoasis.Component("name")
+
+        
+# create_couplcomm
+# Wrong argument type
+def test_component_create_couplcomm():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2_zeros
+        comp = pyoasis.Component("name")
+        couplcomm =  comp.create_couplcomm("abc")
+
+# Failure
+def test_component_create_couplcomm2():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2errors
+        comp = pyoasis.Component("name")
+        couplcomm =  comp.create_couplcomm() 
+
+        
+# Various functions        
+def test_Component_various_functions():
+    pyoasis.mod_oasis_method.init_comp=returns_2_zeros
+    pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2_zeros
+    pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2_zeros
+    pyoasis.mod_oasis_auxiliary_routines.get_comm_size = returns_2_zeros
+    pyoasis.mod_oasis_auxiliary_routines.get_comm_rank = returns_2_zeros
+    pyoasis.mod_oasis_auxiliary_routines.get_localcomm_size = returns_2_zeros
+    pyoasis.mod_oasis_auxiliary_routines.get_localcomm_rank = returns_2_zeros
+    comp = pyoasis.Component("name")
+    assert comp.get_name() == "name"
+    assert comp.get_id() == 0
+    assert comp.get_localcomm() == 0
+    assert comp.create_couplcomm() == 0 
+    assert comp.get_comm_size() == 0
+    assert comp.get_comm_rank() == 0
+    assert comp.get_localcomm_size() == 0
+    assert comp.get_localcomm_rank() == 0
+
+
+# SerialPartition
+# Constructor
+
+# Wrong argument type
+def test_SerialPartition_constructor1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.SerialPartition("abc")
+
+# Wrong argument value
+def test_SerialPartition_constructor2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.SerialPartition(-1)
+
+# Failure
+def test_SerialPartition_constructor3():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2errors
+        partition = pyoasis.SerialPartition(4)
+
+# get_id
+def test_SerialPartition_get_id():
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    partition = pyoasis.SerialPartition(4)
+    assert partition.get_id() == 0
+
+    
+# ApplePartition
+# Constructor
+
+# Wrong 1st argument type
+def test_ApplePartition_constructor1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.ApplePartition("abc", 4)
+
+# Wrong 2nd argument type
+def test_ApplePartition_constructor2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.ApplePartition(0, "abc")
+
+# Wrong 1st argument value
+def test_ApplePartition_constructor3():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.ApplePartition(-1, 4)
+
+# Wrong 2nd argument value
+def test_ApplePartition_constructor4():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.ApplePartition(0, -1)
+
+# Failure
+def test_ApplePartition_constructor5():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2errors
+        partition = pyoasis.ApplePartition(0, 4)
+
+# get_id
+def test_ApplePartition_get_id():
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    partition = pyoasis.ApplePartition(0, 4)
+    assert partition.get_id() == 0
+    
+    
+# BoxPartition
+# Constructor
+
+# Wrong 1st argument type
+def test_BoxPartition_constructor1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.BoxPartition("abc", 10, 10, 10)
+
+# Wrong 2nd argument type
+def test_BoxPartition_constructor2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.BoxPartition(0, "abc", 10, 10)
+        
+# Wrong 3rd argument type
+def test_BoxPartition_constructor3():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.BoxPartition(0, 10, "abc", 10)
+
+# Wrong 4th argument type
+def test_BoxPartition_constructor4():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.BoxPartition(0, 10, 10, "abc")
+
+# Wrong 1st argument value
+def test_BoxPartition_constructor5():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.BoxPartition(-1, 10, 10, 10)
+
+# Wrong 2nd argument value
+def test_BoxPartition_constructor6():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.BoxPartition(0, -1, 10, 10)
+        
+# Wrong 3rd argument value
+def test_BoxPartition_constructor7():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.BoxPartition(0, 10, -1, 10)
+
+# Wrong 4th argument value
+def test_BoxPartition_constructor8():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.BoxPartition(0, 10, 10, -1)
+
+# Failure
+def test_BoxPartition_constructor9():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2errors
+        partition = pyoasis.BoxPartition(0, 10, 10, 10)
+        
+# get_id
+def test_BoxPartition_get_id():
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    partition = pyoasis.BoxPartition(0, 10, 10, 10)
+    assert partition.get_id() == 0
+
+
+# OrangePartition
+# Constructor
+
+# Wrong 1st argument type
+def test_OrangePartition_constructor1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.OrangePartition("abc", [2, 2])
+
+# Wrong 1st argument type
+def test_OrangePartition_constructor2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.OrangePartition(["a", "b"], [2, 2])
+
+# Wrong 2nd argument type
+def test_OrangePartition_constructor3():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.OrangePartition([0, 0], "abc")
+
+# Wrong 2nd argument type
+def test_OrangePartition_constructor4():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.OrangePartition([0, 2], ["a", "b"])
+        
+# Wrong 1st argument value
+def test_OrangePartition_constructor1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.OrangePartition([-1, 2], [2, 2])
+
+# Wrong 2nd argument value
+def test_OrangePartition_constructor2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.OrangePartition([0, 2], [-1, 2])
+
+# Failure
+def test_OrangePartition_constructor3():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2errors
+        partition = pyoasis.OrangePartition([0, 2], [2, 2])
+
+# get_id
+def test_OrangePartition_get_id():
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    partition = pyoasis.OrangePartition([0, 2], [2, 2])
+    assert partition.get_id() == 0
+
+
+# PointsPartition
+# Constructor
+
+# Wrong 1st argument type
+def test_PointsPartition_constructor1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.PointsPartition("abc")
+
+# Wrong 1st argument type
+def test_PointsPartition_constructor2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.PointsPartition(["abc", "abc"])
+
+# Failure
+def test_PointsPartition_constructor3():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2errors
+        partition = pyoasis.PointsPartition([0, 1])
+        
+# get_id
+def test_PointsPartition_get_id():
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    partition = pyoasis.PointsPartition([0, 1])
+    assert partition.get_id() == 0
+
+    
+# Var
+# Constructor
+
+# Wrong type 1st argument
+def test_Var_constructor1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var(42, partition, 0, pyoasis.OasisParameters.OASIS_OUT)  
+
+# Wrong type 2nd argument
+def test_Var_constructor2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", 42, 0, pyoasis.OasisParameters.OASIS_OUT)      
+
+# Wrong type 3rd argument
+def test_Var_constructor3():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, "abc", pyoasis.OasisParameters.OASIS_OUT)
+
+# Wrong type 4th argument
+def test_Var_constructor4():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, 0, 42)  
+
+# Wrong value 1st argument
+def test_Var_constructor5():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("", partition, 0, pyoasis.OasisParameters.OASIS_OUT)  
+
+# Wrong value 3rd argument
+def test_Var_constructor6():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, -1, pyoasis.OasisParameters.OASIS_OUT)
+
+# Failure
+def test_Var_constructor7():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2errors
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_OUT)      
+
+# get_id
+def test_Var_get_id():
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    pyoasis.mod_oasis_var.def_var = returns_2_zeros
+    partition = pyoasis.SerialPartition(4)
+    var = pyoasis.Var("name", partition, 0, pyoasis.OasisParameters.OASIS_OUT)
+    assert var.get_id() == 0
+
+# get_name
+def test_Var_get_name():
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    pyoasis.mod_oasis_var.def_var = returns_2_zeros
+    partition = pyoasis.SerialPartition(4)
+    name = "name"
+    var = pyoasis.Var(name, partition, 1, pyoasis.OasisParameters.OASIS_OUT)
+    assert var.get_name() == "name"
+
+# put
+# Wrong type 1st argument
+def test_Var_put1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        pyoasis.mod_oasis_getput_interface.put=returns_zero
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_OUT)
+        field = pyoasis.Array(range(4))
+        var.put("abc", field)
+
+# Wrong type 2nd argument
+def test_Var_put2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        pyoasis.mod_oasis_getput_interface.put=returns_zero
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_OUT)
+        field = pyoasis.Array(range(4))
+        var.put(0, 42)
+
+# Failure
+def test_Var_put3():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        pyoasis.mod_oasis_getput_interface.put = returns_error
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_OUT)
+        field = pyoasis.Array(range(4))
+        var.put(0, field)
+
+# get
+# Wrong type 1st argument
+def test_Var_get1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        pyoasis.mod_oasis_getput_interface.get = returns_zero
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_IN)
+        field = pyoasis.Array(numpy.zeros(4))
+        var.get("abc", field)
+      
+# Wrong type 2nd argument
+def test_Var_get2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        pyoasis.mod_oasis_getput_interface.get = returns_zero
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_IN)
+        field = pyoasis.Array(numpy.zeros(4))
+        var.get(0, 42)
+
+# Failure
+def test_Var_get3():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        pyoasis.mod_oasis_getput_interface.get = returns_error
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_IN)
+        field = pyoasis.Array(numpy.zeros(4))
+        var.get(0, field)    
