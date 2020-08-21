@@ -124,7 +124,7 @@ In this case, the global communicator used is MPI.COMM_WORLD.
     pyoasis.terminate()
 
 
-If the user wants to use their own communicator, this can be passed 
+If the user wants to use his own communicator, this can be passed 
 to the **Component** class through the communicator
 optional argument. This should be created with ``mpi4py``.
 ::
@@ -408,7 +408,7 @@ receives its share of the data as previously. In the sender, we have
       field[i] = offset + i
    variable.put(date, field)  
 
-while , in the receiver, 
+while, in the receiver, 
 ::
    date = int(0)
    field = pyoasis.Array(numpy.zeros(extent))
