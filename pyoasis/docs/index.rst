@@ -90,48 +90,53 @@ Creating a component
 ++++++++++++++++++++
 
 In pyOASIS, components are instances of the **Component** class. To
-initiliase a component, its name has to be supplied along with a coupling flag.
+initialise a component, its name has to be supplied.
+::
+    import pyoasis
+    component_name = "component"
+    comp = pyoasis.Component(component_name)
+
+It is also possible to provide an optional ``coupling_flag`` argument which
+defaults to coupled.
 ::
     import pyoasis
     component_name = "component"
     coupling_flag = True
     comp = pyoasis.Component(component_name, coupling_flag)
 
-The arguments of the constructor have default values. For example, by default, the component is coupled. As a consequence, the following code is equivalent to the one above.
-::
-    comp = pyoasis.Component(component_name)
-
 
 Using MPI
 +++++++++
 
-OASIS couples models which communicate using MPI. As a consequence, an
-MPI communicator must be initialised before components are created. 
-This is done in the background by pyOASIS. However it is also possible 
-to use one's communicator which has to be created with ``mpi4py``.
-In these conditions, the initialisation of the component becomes:
+OASIS couples models which communicate using MPI. By default, the
+**Component** class will set up MPI internally and provides methods
+to get access to information such as rank and number of processes.
+In this case, the global communicator used is MPI.COMM_WORLD.
 ::
     import pyoasis
-    from mpi4py import MPI
-    comm = MPI.COMM_WORLD
-    component_name = "component"
-    coupling_flag = True
-    communicator = MPI.COMM_WORLD
-    comp = pyoasis.Component(component_name, coupling_flag, communicator)
-
-The contrast with the code above shows that the constructor had yet another default argument and that ``MPI.COMM_WORLD`` is used in the abence of a specified communicator.
-
-We can access the communicators from pyOASIS. From example, the 
-following piece of code displays the rank of each process in the 
-local and global communicators.
-::
-    import pyoasis
+    
     comp = pyoasis.Component("component")
+    
     print("Hello world from process " + str(comp.get_comm_rank()) 
           + " of " +  str(comp.get_comm_size())+ " in the global communicator")
     print("aaa Hello world from process " + str(comp.get_localcomm_rank()) 
           + " of " +  str(comp.get_localcomm_size())+ " in the local communicator")
     pyoasis.terminate()
+
+
+If the user wants to use their own communicator, this can be passed 
+to the **Component** class through the communicator
+optional argument. This should be created with ``mpi4py``.
+::
+    import pyoasis
+    from mpi4py import MPI
+    
+    comm = MPI.COMM_WORLD
+
+    component_name = "component"
+    coupling_flag = True
+    communicator = MPI.COMM_WORLD
+    comp = pyoasis.Component(component_name, coupling_flag, communicator)
 
 
 Creating a partition
@@ -284,7 +289,7 @@ Exceptions
 ++++++++++
 
 When an error occurs in OASIS and the code coupler returns an error
-code, an **OasisException** is raised. On the other hand, when an
+code, an **OasisException** is raised and when an
 error is caught by the pyOASIS wrapper, such as an incorrect parameter
 or a wrong argument type, a **PyOasisException** is raised.
 
@@ -295,17 +300,19 @@ occurs in OASIS, an **OasisException** is raised.
 ::
     try:
         comp = pyoasis.Component("name")
-    except (pyoasis.OasisException, pyoasis.OasisException) as exception:
+    except (pyoasis.OasisException, pyoasis.PyOasisException) as exception:
         pyoasis.pyoasis_abort(exception)
 
 A more complete example involving exceptions can be found in
 ``test/apple_and_orange``, in the files ``receiver-orange.py`` and
-``sender-apple.py``. These are used to fully test pyOASIS and provide
-a complete error interception. However, there are cases where OASIS will
+``sender-apple.py``. These are used to test pyOASIS with a working
+example involving two components communicating and can show how
+exceptions might be handled in a real code. There are cases
+where OASIS will
 abort before pyOASIS can raise an exception. This happens, for instance,
 when the name of the variable data is inconsistent with the contents of
 the ``namcouple`` file. However, in such a case, one can rely on the error
-interception taking place in OASIS that will describe the issue in the log
+interception taking place in OASIS which will describe the issue in the log
 files.
 
 

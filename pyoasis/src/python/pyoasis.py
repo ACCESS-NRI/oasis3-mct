@@ -488,8 +488,9 @@ class Var:
 
         :param int kstep: model time (in seconds)
         :param pyoasis.Array field: data
-        :raises: OasisException if OASIS is unable to send \
-        data to the other component
+
+        :raises OasisException: if OASIS is unable to send \
+         data to the other component
         :raises PyOasisException: if an incorrect parameter is supplied 
         """
         check_types([int, numpy.ndarray], [kstep, field])
@@ -503,7 +504,8 @@ class Var:
 
         :param int kstep: model time (in seconds)
         :param pyoasis.Array field: data
-        :raises: OasisException if OASIS is unable to receive \
+
+        :raises OasisException: if OASIS is unable to receive \
         data from the other component
         :raises PyOasisException: if an incorrect parameter is supplied
         """
