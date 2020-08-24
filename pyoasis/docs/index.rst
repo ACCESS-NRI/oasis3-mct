@@ -56,10 +56,10 @@ pyOASIS can be tested by issuing the following command
 ::
    make test
 
-This will execute two types of tests. The first is a test of pyOASIS
-using ``pytest``. The second one is a full test of the wrapper and 
-OASIS, involving communication between two components. These are located
-in the directory ``tests``.
+This will execute two types of tests. The first one is a series of tests
+of the wrapper itself using ``pytest``. The second one does a test of
+pyOASIS and OASIS that involves communication between two components.
+They are located in the directory ``tests``.
 
 
 Using pyOASIS
