@@ -71,7 +71,6 @@ def test_component_constructor5():
         pyoasis.mod_oasis_method.init_comp = returns_2errors
         comp = pyoasis.Component("name")
 
-        
 # create_couplcomm
 # Wrong argument type
 def test_component_create_couplcomm():
@@ -81,15 +80,42 @@ def test_component_create_couplcomm():
         comp = pyoasis.Component("name")
         couplcomm =  comp.create_couplcomm("abc")
 
-# Failure
+# create_couplcomm
+# Wrong argument value
 def test_component_create_couplcomm2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2_zeros
+        comp = pyoasis.Component("name")
+        couplcomm =  comp.create_couplcomm(-1)
+
+# create_couplcomm
+# Wrong argument value
+def test_component_create_couplcomm3():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2errors
         comp = pyoasis.Component("name")
-        couplcomm =  comp.create_couplcomm() 
+        couplcomm =  comp.create_couplcomm()
 
-        
+# get_localcomm
+# failure
+def test_Component_get_localcomm():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2errors
+        comp = pyoasis.Component("name")
+        localcomm =  comp.get_localcomm() 
+
+# create_couplcomm
+# failure
+def test_Component_get_create_couplcomm():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2errors
+        comp = pyoasis.Component("name")
+        localcomm =  comp.get_localcomm() 
+
 # Various functions        
 def test_Component_various_functions():
     pyoasis.mod_oasis_method.init_comp=returns_2_zeros
@@ -109,7 +135,67 @@ def test_Component_various_functions():
     assert comp.get_localcomm_size() == 0
     assert comp.get_localcomm_rank() == 0
 
+# enddef
+# failure
+def test_Component_enddef():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_method.enddef = returns_error
+        comp = pyoasis.Component("name")
+        localcomm =  comp.enddef()
 
+# get_comm_size
+# failure
+def test_Component_get_comm_size():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.get_comm_size = returns_2errors
+        comp = pyoasis.Component("name")
+        size =  comp.get_comm_size()
+
+# get_comm_rank
+# failure
+def test_Component_get_comm_rank():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.get_comm_rank = returns_2errors
+        comp = pyoasis.Component("name")
+        rank = comp.get_comm_rank()
+
+# get_localcomm_size
+# failure
+def test_Component_get_localcomm_size():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.get_comm_size = returns_2errors
+        comp = pyoasis.Component("name")
+        size = comp.get_localcomm_size()
+
+# __str__
+def test_Component_str():
+    pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+    name = "name"
+    comp = pyoasis.Component(name)
+    line = str(comp)
+    assert line.find(comp.get_name()) >=0
+    assert line.find(str(comp.get_id())) >=0
+    
+# get_localcomm_rank
+# Failure
+def test_Component_get_localcomm_rank():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.get_comm_rank = returns_2errors
+        comp = pyoasis.Component("name")
+        rank = comp.get_localcomm_rank()
+
+# terminate
+# Failure
+def test_terminate():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.terminate = returns_error
+        pyoasis.terminate()
+        
 # SerialPartition
 # Constructor
 
@@ -137,7 +223,15 @@ def test_SerialPartition_get_id():
     partition = pyoasis.SerialPartition(4)
     assert partition.get_id() == 0
 
-    
+# __str__
+def test_SerialPartition_str():
+    pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    partition = pyoasis.SerialPartition(4)
+    line = str(partition)
+    assert line.find(str(partition.get_id())) >=0
+
+                     
 # ApplePartition
 # Constructor
 
@@ -177,6 +271,14 @@ def test_ApplePartition_get_id():
     partition = pyoasis.ApplePartition(0, 4)
     assert partition.get_id() == 0
     
+# __str__
+def test_ApplePartition_str():
+    pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    partition = pyoasis.ApplePartition(0, 4)
+    line = str(partition)
+    assert line.find(str(partition.get_id())) >=0
+
     
 # BoxPartition
 # Constructor
@@ -281,8 +383,14 @@ def test_OrangePartition_constructor2():
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         partition = pyoasis.OrangePartition([0, 2], [-1, 2])
 
-# Failure
+# Inconsistent list sizes
 def test_OrangePartition_constructor3():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        partition = pyoasis.OrangePartition([0, 2, 4], [2, 2])
+
+# Failure
+def test_OrangePartition_constructor4():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_part.def_partition = returns_2errors
         partition = pyoasis.OrangePartition([0, 2], [2, 2])
@@ -309,8 +417,15 @@ def test_PointsPartition_constructor2():
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         partition = pyoasis.PointsPartition(["abc", "abc"])
 
-# Failure
+# Empty list
 def test_PointsPartition_constructor3():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        points = []
+        partition = pyoasis.PointsPartition(points)
+
+# Failure
+def test_PointsPartition_constructor4():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_part.def_partition = returns_2errors
         partition = pyoasis.PointsPartition([0, 1])
@@ -371,10 +486,10 @@ def test_Var_constructor6():
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, -1, pyoasis.OasisParameters.OASIS_OUT)
+        var = pyoasis.Var("name", partition, -1, pyoasis.OasisParameters.OASIS_OUT)  
 
 # Failure
-def test_Var_constructor7():
+def test_Var_constructor8():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         pyoasis.mod_oasis_var.def_var = returns_2errors
@@ -465,3 +580,14 @@ def test_Var_get3():
         var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_IN)
         field = pyoasis.Array(numpy.zeros(4))
         var.get(0, field)    
+
+# __str__
+def test_SerialPartition_str():
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    pyoasis.mod_oasis_var.def_var = returns_2_zeros
+    pyoasis.mod_oasis_getput_interface.get = returns_zero
+    partition = pyoasis.SerialPartition(4)
+    var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_IN)
+    line = str(var)
+    assert line.find(var.get_name()) >=0
+    assert line.find(str(var.get_id())) >=0     

@@ -198,7 +198,7 @@ class Component(object):
         return_value = mod_oasis_auxiliary_routines.get_comm_size(self._communicator.py2f())
         error = return_value[1]
         if (error < 0):
-            raise OasisException("Unable to obtain the size of the global communicator")
+            raise OasisException("Unable to obtain the size of the global communicator", error)
         size = return_value[0]
         return size
 
@@ -212,7 +212,7 @@ class Component(object):
         return_value = mod_oasis_auxiliary_routines.get_comm_rank(self._communicator.py2f())
         error = return_value[1]
         if (error < 0):
-            raise OasisException("Unable to obtain the rank of the global communicator")
+            raise OasisException("Unable to obtain the rank of the global communicator", error)
         rank = return_value[0]
         return rank
 
@@ -226,7 +226,7 @@ class Component(object):
         return_value = mod_oasis_auxiliary_routines.get_comm_size(self.get_localcomm())
         error = return_value[1]
         if (error < 0):
-            raise OasisException("Unable to obtain the size of the global communicator")
+            raise OasisException("Unable to obtain the size of the global communicator", error)
         size = return_value[0]
         return size
 
@@ -240,7 +240,7 @@ class Component(object):
         return_value = mod_oasis_auxiliary_routines.get_comm_rank(self.get_localcomm())
         error = return_value[1]
         if (error < 0):
-            raise OasisException("Unable to obtain the rank in the local communicator")
+            raise OasisException("Unable to obtain the rank in the local communicator", error)
         rank = return_value[0]
         return rank
     def __str__(self):
@@ -421,7 +421,7 @@ class PointsPartition(Partition):
         """Constructor"""
         check_types([list], [global_indices])
         if len(global_indices) == 0:
-            raise PyoasisException("Global indices list empty.")
+            raise PyOasisException("Global indices list empty.")
 
         parameters = [4, len(global_indices)]
         for index in global_indices:
