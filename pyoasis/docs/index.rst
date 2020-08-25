@@ -80,10 +80,7 @@ the C is wrapped in Python in the directory ``src/python``. A low-level
 wrapper is made using the same filenames as the Fortran ones but ending in
 ``.py``. A higher level object-oriented wrapper is contained in
 the file ``pyoasis.py``. This higher level wrapper provides the pyOASIS
-interface. pyOASIS raises 2 types of exceptions.
-An **OasisException** is raised when the OASIS Fortran library returns an
-error code while a **PyOasisException** is raised when an error has been
-detected in pyOASIS.
+interface.
 
 
 Creating a component
@@ -124,7 +121,7 @@ In this case, the global communicator used is MPI.COMM_WORLD.
     pyoasis.terminate()
 
 
-If the user wants to use his own communicator, this can be passed 
+If the user wants to use his or her own communicator, this can be passed 
 to the **Component** class through the communicator
 optional argument. This should be created with ``mpi4py``.
 ::
@@ -135,8 +132,7 @@ optional argument. This should be created with ``mpi4py``.
 
     component_name = "component"
     coupling_flag = True
-    communicator = MPI.COMM_WORLD
-    comp = pyoasis.Component(component_name, coupling_flag, communicator)
+    comp = pyoasis.Component(component_name, coupling_flag, comm)
 
 
 Creating a partition
@@ -348,14 +344,14 @@ differ. In the sender, the variable data is initialised
 by
 ::
     variable = pyoasis.Var("FSENDOCN", partition.get_id(), [1, 1],
-                          pyoasis.OasisParameters.OASIS_OUT.value)
+                          pyoasis.OasisParameters.OASIS_OUT)
 
 whereas, in the receiver, we have
 ::
     variable = pyoasis.Var("FRECVATM", partition.get_id(), [1, 1,],
-                          pyoasis.OasisParameters.OASIS_IN.value)
+                          pyoasis.OasisParameters.OASIS_IN)
 		       
-where the last flag is instead ``pyoasis.OasisParameters.OASIS_IN.value``
+where the last flag is instead ``pyoasis.OasisParameters.OASIS_IN``
 to indicate that, in this case, the data will be incoming.
 
 In both scripts, the initialisation of the component ends by
