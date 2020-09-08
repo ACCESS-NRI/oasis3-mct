@@ -1,0 +1,90 @@
+###############################################################################
+#
+# NFIELDS : total number of fields being exchanged.
+#
+ $NFIELDS
+         8
+ $END
+#
+###############################################################################
+# 
+# RUNTIME (<I8)
+#         total simulated time for the actual run in seconds
+#         the value will be set before the actual integration
+#
+ $RUNTIME
+           21600
+ $END
+#
+###############################################################################
+#
+ $NLOGPRT
+   1  0
+ $END
+#
+$NMATXRD
+ceg
+#
+$NMAPDEC
+decomp_wghtfile
+#
+$NWGTOPT
+abort_on_bad_index
+$END
+###############################################################################
+#
+ $STRINGS
+#
+###############################################################################
+# Groupled fields
+SC3GR1M21:SC3GR1M22 RC3GR2M21:RC3GR2M22 1 7200 3 ocean.nc EXPOUT
+96 72 15212 1 lmdz icos
+P  0  P  0
+CHECKIN MAPPING CHECKOUT
+INT=1
+rmp_lmdz_to_icos_DISTWGT.nc src bfb
+INT=1
+# Single field
+SC3GR1M23 RC3GR2M23 1 7200 3 ocean.nc EXPOUT
+96 72 15212 1 lmdz icos
+P  0  P  0
+CHECKIN MAPPING CHECKOUT
+INT=1
+rmp_lmdz_to_icos_DISTWGT.nc src bfb
+INT=1
+# Bundles
+SC3GR1M2B RC3GR2M2B 1 7200 3 ocean.nc EXPOUT
+96 72 15212 1 lmdz icos
+P  0  P  0
+CHECKIN MAPPING CHECKOUT
+INT=1
+rmp_lmdz_to_icos_DISTWGT.nc src bfb
+INT=1
+#
+###############################################################################
+# Grouped fields
+SC3GR2M21:SC3GR2M22 RC3GR1M21:RC3GR1M22 1 7200 3 ocean.nc EXPOUT
+15212 1 96 72 icos lmdz
+P  0  P  0
+CHECKIN MAPPING CHECKOUT
+INT=1
+rmp_icos_to_lmdz_DISTWGT.nc src bfb
+INT=1
+# Single field
+SC3GR2M23 RC3GR1M23 1 7200 3 ocean.nc EXPOUT
+15212 1 96 72 icos lmdz
+P  0  P  0
+CHECKIN MAPPING CHECKOUT
+INT=1
+rmp_icos_to_lmdz_DISTWGT.nc src bfb
+INT=1
+# Bundles
+SC3GR2M2B RC3GR1M2B 1 7200 3 ocean.nc EXPOUT
+15212 1 96 72 icos lmdz
+P  0  P  0
+CHECKIN MAPPING CHECKOUT
+INT=1
+rmp_icos_to_lmdz_DISTWGT.nc src bfb
+INT=1
+##########################################################################
+ $END

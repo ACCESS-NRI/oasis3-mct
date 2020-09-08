@@ -1,0 +1,352 @@
+#!/bin/ksh
+#set -xv
+######################################################################
+# OASIS3-MCT_4.0 compiled with -qopenmp
+############### User's section #######################################
+##
+## - Define architecture 
+arch=machine_test  # linux_pgi_openmpi, linux_gfortran_opnempi, 
+                   # nemo_lenovo_intel_impi, kraken_intel_impi, beaufix_intel_impi 
+                   # machine_test (==tioman pgi openmpi)
+platform=$arch
+MPILIB=MPI1      # MPI1
+user=`whoami`
+#
+## - Define paths
+srcdir=`pwd`
+datadir=$srcdir/data_oasis3
+casename=`basename $srcdir`
+pathname=`dirname $srcdir`
+echo $arch
+echo $casename
+#
+# - Toy models: Define number of processes to run each executable
+#               and name of executables
+#
+#name of the executables
+    exe1=model1
+    exe2=model2
+    exe3=model3
+# number of processes for each executable
+    nproc_exe1=0
+    nproc_exe2=6
+    nproc_exe3=0
+#
+# Stiff pgi 18.7
+if [ ${arch} == linux_pgi_openmpi ] || [ ${arch} == linux_pgi_openmpi_openmp ]; then
+    MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun
+    rundir=$srcdir/work_${casename}_${exe1}_${nproc_exe1}_${exe2}_${nproc_exe2}_${exe3}_${nproc_exe3}
+# Fundy gfortran
+elif [ ${arch} == linux_gfortran_openmpi ] || [ ${arch} == linux_gfortran_openmpi_openmp ]; then
+    MPIRUN=/usr/lib64/openmpi/bin/mpirun
+    rundir=$srcdir/work_${casename}_${exe1}_${nproc_exe1}_${exe2}_${nproc_exe2}_${exe3}_${nproc_exe3}
+# Nemo_lenovo
+elif [ ${arch} == nemo_lenovo_intel_impi ] || [ ${arch} == nemo_lenovo_intel_impi_openmp ]; then
+    rundir=$srcdir/work_${casename}_${exe1}_${nproc_exe1}_${exe2}_${nproc_exe2}_${exe3}_${nproc_exe3}
+# Kraken
+elif [ ${arch} == kraken_intel_impi ] || [ ${arch} == kraken_intel_impi_openmp ]; then
+    rundir=$srcdir/work_${casename}_${exe1}_${nproc_exe1}_${exe2}_${nproc_exe2}_${exe3}_${nproc_exe3}
+# Beaufix M-F
+elif [ ${arch} == beaufix_intel_impi ] || [ ${arch} == beaufix_intel_impi_openmp ]; then
+    rundir=$srcdir/work_${casename}_${exe1}_${nproc_exe1}_${exe2}_${nproc_exe2}_${exe3}_${nproc_exe3}
+# Machine_test (for developments, here tioman pgi 18.7)
+elif [ ${arch} == machine_test ]; then
+    MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun
+    rundir=$srcdir/work_${casename}_${exe1}_${nproc_exe1}_${exe2}_${nproc_exe2}_${exe3}_${nproc_exe3}
+fi
+
+############### End of user's section ################################
+
+echo ''
+echo '*****************************************************************'
+echo '*** '$casename' : '$run
+echo ''
+echo 'Rundir       :' $rundir
+echo 'Architecture :' $arch
+echo 'User         : '$user
+echo ''
+echo $exe1' runs on '$nproc_exe1 'processes'
+echo $exe2' runs on '$nproc_exe2 'processes'
+echo $exe3' runs on '$nproc_exe3 'processes'
+echo ''
+echo ''
+######################################################################
+###
+### 1. Copy source example directory containing everything needed
+###    into rundir
+
+cd $srcdir
+mkdir -p $rundir
+
+cp -f $srcdir/$exe1 $rundir/.
+cp -f $srcdir/$exe2 $rundir/.
+cp -f $srcdir/$exe3 $rundir/.
+
+# namcouple used copied in script run_examples_oa3-mct_buildbot 
+cp -f $datadir/namcouple $rundir/namcouple
+#
+ln -sf $datadir/areas.nc $rundir/.
+ln -sf $datadir/grids.nc $rundir/.
+ln -sf $datadir/masks.nc $rundir/.
+
+ln -sf $datadir/rmp_icos_to_lmdz_DISTWGT.nc $rundir/.
+ln -sf $datadir/rmp_lmdz_to_icos_DISTWGT.nc $rundir/.
+#
+cd $rundir
+#
+######################################################################
+###
+### 3. Creation of configuration scripts (not for Fedora 26 computers)
+#
+###---------------------------------------------------------------------
+### NEMO_LENOVO_INTELMPI
+###---------------------------------------------------------------------
+if [ ${arch} == nemo_lenovo_intel_impi ]; then
+
+  cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash -l
+#Partition
+#SBATCH --partition prod
+# Nom du job
+#SBATCH --job-name $casename
+# Temps limite du job
+#SBATCH --time=00:30:00
+#SBATCH --output=$rundir/$casename.o
+#SBATCH --error=$rundir/$casename.e
+# Nombre de noeuds et de processus MPI
+#SBATCH --nodes=1 --ntasks-per-node=24
+#SBATCH --distribution cyclic
+
+cd $rundir
+
+ulimit -s unlimited
+module purge
+module load compiler/intel/2015.2.164 mkl/2015.2.164 mpi/intelmpi/5.0.3.048
+#
+time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 : -np $nproc_exe3 ./$exe3
+#
+EOF
+
+###----------------------------------------------------------------------------
+### NEMO_LENOVO_INTELMPI_OPENMP : run hybride OpenMP+MPI (toy_interpolation)
+###----------------------------------------------------------------------------
+elif [ ${arch} == nemo_lenovo_intel_impi_openmp ]; then
+
+  echo "We run on Nemo_lenovo OpenMP+MPI"
+  echo "Prescribe : N=2, nprocs/by node=2, ntasks/by proc=12"
+
+  cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash -l
+#Partition
+#SBATCH --partition prod
+# Nom du job
+#SBATCH --job-name $casename
+# Time limit for the job
+#SBATCH --time=00:30:00
+#SBATCH --output=$rundir/$casename.o
+#SBATCH --error=$rundir/$casename.e
+# Number of nodes
+#SBATCH --nodes=2
+# Number of MPI tasks per node
+#SBATCH --ntasks-per-node=2
+# Number of OpenMP threads per MPI task
+#SBATCH --cpus-per-task=12
+
+cd $rundir
+
+export KMP_STACKSIZE=1GB
+export I_MPI_PIN_DOMAIN=omp
+#export I_MPI_PIN_DOMAIN=socket
+export I_MPI_WAIT_MODE=enable
+export KMP_AFFINITY=verbose,granularity=fine,compact
+export OASIS_OMP_NUM_THREADS=12
+
+time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 : -np $nproc_exe3 ./$exe3
+EOF
+
+###---------------------------------------------------------------------
+### KRAKEN_INTEL_IMPI
+###---------------------------------------------------------------------
+elif [ ${arch} == kraken_intel_impi ]; then
+
+  cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash -l
+#SBATCH --partition prod
+# Nom du job
+#SBATCH --job-name $casename
+# Temps limite du job
+#SBATCH --time=00:30:00
+#SBATCH --output=$rundir/$casename.o
+#SBATCH --error=$rundir/$casename.e
+# Nombre de noeuds et de processus
+#SBATCH --nodes=$nnodes --ntasks-per-node=36
+#SBATCH --distribution cyclic
+
+cd $rundir
+
+ulimit -s unlimited
+module purge
+module load compiler/intel/18.0.1.163
+module load mpi/intelmpi/2018.1.163
+module load lib/netcdf-fortran/4.4.4_impi
+module load lib/netcdf-c/4.6.1_impi
+#
+#
+time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 : -np $nproc_exe3 ./$exe3
+#
+EOF
+
+###------------------------------------------------------------------------
+### KRAKEN_INTEL_IMPI_OPENMP : run hybride OpenMP+MPI (toy_interpolation)
+###------------------------------------------------------------------------
+elif [ ${arch} == kraken_intel_impi_openmp ]; then
+
+
+  cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash -l
+#Partition
+#SBATCH --partition prod
+# Nom du job
+#SBATCH --job-name $casename
+# Time limit for the job
+#SBATCH --time=00:30:00
+#SBATCH --output=$rundir/$casename.o
+#SBATCH --error=$rundir/$casename.e
+# Number of nodes
+#SBATCH --nodes=2
+# Number of MPI tasks per node
+#SBATCH --ntasks-per-node=2
+# Number of OpenMP threads per MPI task
+#SBATCH --cpus-per-task=18
+
+cd $rundir
+module purge
+module load compiler/intel/18.0.1.163
+module load mpi/intelmpi/2018.1.163
+module load lib/netcdf-fortran/4.4.4_impi
+module load lib/netcdf-c/4.6.1_impi
+
+export KMP_STACKSIZE=1GB
+export I_MPI_PIN_DOMAIN=omp
+#export I_MPI_PIN_DOMAIN=socket
+export I_MPI_WAIT_MODE=enable
+export KMP_AFFINITY=verbose,granularity=fine,compact
+export OASIS_OMP_NUM_THREADS=18
+export OMP_NUM_THREADS=18
+
+time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2  : -np $nproc_exe3 ./$exe3
+EOF
+
+
+###---------------------------------------------------------------------
+### BEAUFIX INTELIMPI
+###---------------------------------------------------------------------
+elif [ $arch == beaufix_intel_impi ]; then
+
+  (( nproc = $nproc_exe1 + $nproc_exe2 + $nproc_exe3 ))
+
+  cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash
+# Nom du job
+#SBATCH --job-name $casename
+# Time limit for the job
+#SBATCH --time=01:00:00
+#SBATCH -p  normal64        # partition/queue
+#SBATCH -N $nnodes          # number of nodes
+#SBATCH -n $nproc           # number of procs
+#SBATCH -o job.out%j
+#SBATCH -o job.err%j
+#SBATCH --exclusive
+
+ulimit -s unlimited
+cd $rundir
+module load intel/16.1.150
+module load intelmpi/5.1.2.150
+module load netcdf/4.4.0 
+#
+time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2  : -np $nproc_exe3 ./$exe3
+#
+EOF
+
+###------------------------------------------------------------------------
+### BEAUFIX_INTELMPI_OPENMP : run hybride OpenMP+MPI (toy_interpolation)
+###------------------------------------------------------------------------
+elif [ $arch == beaufix_intel_impi_openmp ] ; then
+ 
+  cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash
+#SBATCH --exclusive
+#SBATCH --partition=normal64
+#SBATCH --job-name $casename
+# Time limit for the job
+#SBATCH --time=01:00:00
+#SBATCH -o $rundir/$casename.o
+#SBATCH -e $rundir/$casename.e
+# Number of nodes
+#SBATCH --nodes=2
+# Number of MPI tasks per node
+#SBATCH --ntasks-per-node=2
+# Number of threads per MPI task ombre de thread openmp par proc MPI = nombre de coeur par proc
+#SBATCH --cpus_per_task=20
+
+ulimit -s unlimited
+cd $rundir
+module load intel/16.1.150
+module load intelmpi/5.1.2.150
+module load netcdf/4.3.0 
+#
+export KMP_STACKSIZE=1GB
+export I_MPI_WAIT_MODE=enable
+export KMP_AFFINITY=verbose,granularity=fine,compact
+export OASIS_OMP_NUM_THREADS=20
+export OMP_NUM_THREADS=20
+#
+time mpirun -np ${nproc_exe1} ./$exe1 : -np ${nproc_exe2} ./$exe2 : -np $nproc_exe3 ./$exe3
+#
+
+EOF
+
+fi 
+
+######################################################################
+###
+### 4. Execute the model
+# Stiff and Fundy
+if [ $arch == linux_pgi_openmpi ] || [ $arch == linux_pgi_openmpi_openmp ] || [ $arch == linux_gfortran_openmpi ] || [ ${arch} == linux_gfortran_openmpi_openmp ] ; then
+    export OMP_NUM_THREADS=1
+    # ulimit -s unlimited : deja positionne a cause du . /usr/local/bin/setuprogenv.sh dans le .bashrc
+    if [ $nproc_exe2 == 0 ] && [ $nproc_exe3 == 0 ]; then
+    $MPIRUN -np $nproc_exe1 ./$exe1 > runjob.err
+    elif [ $nproc_exe1 == 0 ] && [ $nproc_exe3 == 0 ]; then
+    $MPIRUN -np $nproc_exe2 ./$exe2 > runjob.err
+    elif [ $nproc_exe3 == 0 ]; then
+    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err   
+    else
+    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 : -np $nproc_exe3 ./$exe3 > runjob.err
+    fi
+elif [ ${arch} == nemo_lenovo_intel_impi ]  || [ ${arch} == nemo_lenovo_intel_impi_openmp ] || [ ${arch} == kraken_intel_impi ]  || [ ${arch} == kraken_intel_impi_openmp ]; then
+    echo 'Submitting the job to queue using sbatch'
+    sbatch $rundir/run_$casename.$arch
+    squeue -u $USER 
+elif [ $arch == beaufix_intel_impi ] || [ ${platform} == beaufix_intel_impi_openmp ]; then
+    echo 'Submitting the job to queue using sbatch'
+    sbatch $rundir/run_$casename.$arch
+    squeue -u $user 
+elif [ $arch == machine_test ]; then
+    export OMP_NUM_THREADS=1
+    # ulimit -s unlimited : deja positionne a cause du . /usr/local/bin/setuprogenv.sh dans le .bashrc
+    if [ $nproc_exe2 == 0 ] && [ $nproc_exe3 == 0 ]; then
+    $MPIRUN -np $nproc_exe1 ./$exe1 > runjob.err
+    elif [ $nproc_exe1 == 0 ] && [ $nproc_exe3 == 0 ]; then
+    $MPIRUN -np $nproc_exe2 ./$exe2 > runjob.err
+    elif [ $nproc_exe3 == 0 ]; then
+    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err   
+    else
+    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 : -np $nproc_exe3 ./$exe3 > runjob.err
+    fi
+fi
+
+echo $casename 'is executed or submitted to queue.'
+echo 'Results are found in rundir : '$rundir 
+
+######################################################################
