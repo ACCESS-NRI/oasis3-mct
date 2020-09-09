@@ -1,4 +1,3 @@
-
 !> Advances the OASIS coupling
 
 MODULE mod_oasis_advance
@@ -15,7 +14,6 @@ MODULE mod_oasis_advance
     USE mod_oasis_io
     USE mod_oasis_mpi
     USE mod_oasis_reprosum
-    USE mod_oasis_load_balancing
     USE mod_oasis_load_balancing
     USE mct_mod
 
