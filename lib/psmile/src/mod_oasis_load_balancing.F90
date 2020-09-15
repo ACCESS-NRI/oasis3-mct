@@ -391,6 +391,7 @@ module mod_oasis_load_balancing
          integer(ip_i4_p), allocatable   :: ig_globSize(:)
 
          real(ip_double_p) :: soonest_start, latest_stop, timer_max
+         real(ip_double_p) :: clock_spread
          real(ip_double_p) :: bk_ev_min, bk_ev_max
          real(ip_double_p) :: wtg_time, cmp_time
          real(ip_double_p) :: null_r, dlb_time
@@ -456,6 +457,11 @@ module mod_oasis_load_balancing
             !
             soonest_start = MINVAL(dg_simu_wtimer(1:mpi_size_global*2-1:2))
             latest_stop   = MAXVAL(dg_simu_wtimer(2:mpi_size_global*2:2))
+
+            !
+            ! Check clock synchronisation
+            !
+            clock_spread = latest_stop - MINVAL(dg_simu_wtimer(2:mpi_size_global*2:2))
 
             WRITE(nullucia,*) ' '
             WRITE(nullucia,*) ' ------------------------------'
@@ -551,7 +557,7 @@ module mod_oasis_load_balancing
             ! partitionning in the same component
             DO n = 1, mpi_rank_local
                IF ( ig_globSize(n) /= ievent ) THEN
-                 write(nulprt,*) ' Non identical number of events across processes of the same component. We stop '
+                 write(nulprt,*) subname, ' Non identical number of events across processes of the same component. We stop '
                  call oasis_abort(file=__FILE__,line=__LINE__)
                ENDIF
             ENDDO
@@ -562,10 +568,18 @@ module mod_oasis_load_balancing
             ! the same component.
             ! This array is the memory bound of the LB analysis : 
             !  size = DOUBLE * nb_events * nb_process_per_component
+            WRITE(nulprt,'(a16,a42,f13.3)') subname,' Main allocation for timeline. Size (KB): ', &
+                                         DBLE(ievent*mpi_size_local*8)/1000.
+                               
+            call flush(nulprt)
+
 
             ALLOCATE ( tl_global_timer(ievent,mpi_size_local), stat=ierror )
-            IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
-                                     mpi_rank_local,' ERROR allocating component timeline '
+            IF (ierror /= 0) then
+               WRITE(nulprt,*) subname,' model :',compid,' proc :',&
+                               mpi_rank_local,' ERROR allocating component timeline '
+               call oasis_abort(file=__FILE__,line=__LINE__)
+            ENDIF
 
             ! Every process of every component is sending its timeline to the
             ! component master process
@@ -970,6 +984,12 @@ module mod_oasis_load_balancing
             WRITE(nullucia,*) ' '
             WRITE(nullucia,*) ' Total time of this load balancing analysis: '
             WRITE(nullucia,'(a9,f8.3)') '       : ', MPI_WTIME() - dlb_time
+            WRITE(nullucia,*) ' '
+            WRITE(nullucia,*) ' ------------------------------'
+            WRITE(nullucia,*) ' '
+            WRITE(nullucia,*) ' Clock spread after synchronise '
+            WRITE(nullucia,*) ' .i.e. node clocks synchronisation (s) : '
+            WRITE(nullucia,'(a9,f12.8)') '       : ', clock_spread
             WRITE(nullucia,*) ' '
             WRITE(nullucia,*) ' ------------------------------'
 
