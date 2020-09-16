@@ -334,7 +334,10 @@ module mod_oasis_load_balancing
          IF ( ikind == LB_TERM ) THEN
             eventid = 3
          ELSE
-            eventid = FINDLOC(local_table_lb,icoupler,1)
+            eventid = 1
+            DO WHILE ( local_table_lb(eventid) /= icoupler )
+               eventid = eventid + 1
+            ENDDO
          ENDIF
 
          IF (OASIS_Debug >= 10) THEN
