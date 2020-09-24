@@ -2344,7 +2344,7 @@ subroutine cplfind(num, fldlist, fld, ifind, nfind)
 
    !--- local ---
    integer(IN)    :: is,ie,im
-   logical        :: found
+   logical        :: found,check
 
    !--- formats ---
    character(*),parameter :: subName = '(cplfind) '
@@ -2397,13 +2397,31 @@ subroutine cplfind(num, fldlist, fld, ifind, nfind)
        is = im
        ie = im
        if (is > 1) then
-          do while (fld == fldlist(is-1) .and. is > 1)
-             is = is - 1
+          check = .true.
+          do while (check)
+             if (is > 1) then
+                if (fld /= fldlist(is-1)) then
+                   check = .false.
+                else
+                   is = is - 1
+                endif
+             else
+                check = .false.
+             endif
           enddo
        endif
        if (ie < num) then
-          do while (fld == fldlist(ie+1) .and. ie < num)
-             ie = ie + 1
+          check = .true.
+          do while (check)
+             if (ie < num) then
+                if (fld /= fldlist(ie+1)) then
+                   check = .false.
+                else
+                   ie = ie + 1
+                endif
+             else
+                check = .false.
+             endif
           enddo
        endif
        ifind = is

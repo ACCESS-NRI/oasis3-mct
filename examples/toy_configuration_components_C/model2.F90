@@ -215,7 +215,7 @@ PROGRAM model2
 
     ng=1
     grid_pmin(ng) = 0
-    grid_pmax(ng) = 0
+    grid_pmax(ng) = 1
     icpl = MPI_UNDEFINED
     if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) icpl = 1
         call MPI_COMM_SPLIT(localcomm, icpl, 1, subcomm(ng), ierror)
@@ -249,7 +249,7 @@ PROGRAM model2
         var_num(8,ng) = 5 
 
     ng=2
-    grid_pmin(ng) = 1
+    grid_pmin(ng) = 2
     grid_pmax(ng) = 2
     icpl = MPI_UNDEFINED
     if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) icpl = 1
@@ -289,7 +289,7 @@ PROGRAM model2
   ! Reading global dimensions of the global grid
 
   do ng=1,ngrid
-  	if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
+    if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
     CALL read_dimgrid(nlon(ng), nlat(ng), TRIM(data_gridname), TRIM(cl_grd_tgt(ng)), w_unit, FILE_Debug)
     IF (FILE_Debug >= 2) THEN
        write(w_unit,*) ' Comp_num : ',comp_num, ' grid : ',TRIM(cl_grd_tgt(ng)),nlon(ng),nlat(ng)
@@ -319,7 +319,9 @@ PROGRAM model2
        ! APPLE partition
        il_paral_size=3
        ALLOCATE(il_paral(il_paral_size))
-       call def_local_partition_ssea_icos (il_paral,il_paral_size,nlon(ng),nlat(ng),dpe,dpes,w_unit)
+       il_paral(1)=1
+       il_paral(2)=0
+       il_paral(3)=nlon(ng)
        il_extentx(ng)=il_paral(3)
        il_extenty(ng)=1 
 
@@ -448,18 +450,36 @@ PROGRAM model2
 
 
       IF (FILE_Debug >= 2) THEN
-         WRITE(w_unit,*) 'After grid reading for grid : ',TRIM(cl_grd_tgt(ng))
+         WRITE(w_unit,*) 'After reading grid : ',TRIM(cl_grd_tgt(ng))
          CALL FLUSH(w_unit)
       ENDIF
     !
     DO n = 1,nvar(ng)
-        ! Necessary as for example here icos not used to exchange any coupling fields
+        !
         if (var_id(n,ng) /= -1) then
         ! SENT FIEDLS
         if (sr == 1 .and. var_out(n,ng)) then
            ! 
-           IF (TRIM(var_name(n,ng)) == 'SC3GR1M2B' .OR. &
-               TRIM(var_name(n,ng)) == 'SC3GR2M2B') THEN
+           ! Send other fields
+           IF (TRIM(var_name(n,ng)) /= 'SC3GR1M2B' .AND. &
+               TRIM(var_name(n,ng)) /= 'SC3GR2M2B') THEN
+              field(:,:) =  ib*(2.-COS(dp_pi*(ACOS(COS(l_lat(:,:)*dp_pi/180.)* &
+                            COS(l_lon(:,:)*dp_pi/180.))/dp_length)))
+              ! Calculate global min and max on all pes
+              if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field(:,:),fmin,fmax,fsum,subcomm(ng),il_extentx, il_extenty)
+              if (mype == 0) WRITE(w_unit,12) 'tcx other fields sent ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
+              if (mype == 0) WRITE(w_unit,10) 'tcx other fields min max ',itap_sec,fmin,fmax,fsum
+
+              if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
+              CALL oasis_put(var_id(n,ng),itap_sec, field, ierror)
+              IF ( ierror .NE. OASIS_Ok .AND. ierror .LT. OASIS_Sent) THEN
+                  WRITE (w_unit,*) 'oasis_put abort by model2 compid ',comp_id
+                  CALL oasis_abort(comp_id,comp_name(comp_num),'Problem at line 305')
+              ENDIF
+              endif
+
+            ELSEIF (TRIM(var_name(n,ng)) == 'SC3GR1M2B' .OR. &
+                    TRIM(var_name(n,ng)) == 'SC3GR2M2B') THEN
               ! Send bundle field
               do nl = 1,var_num(n,ng)
                  field_b(:,:,nl) =  ib*(2.-COS(dp_pi*(ACOS(COS(l_lat(:,:)*dp_pi/180.)* &
@@ -477,34 +497,33 @@ PROGRAM model2
                   CALL oasis_abort(comp_id,comp_name(comp_num),'Problem at line 305')
               ENDIF
               endif
-           ELSE
-              ! Send other fields
-              field(:,:) =  ib*(2.-COS(dp_pi*(ACOS(COS(l_lat(:,:)*dp_pi/180.)* &
-                            COS(l_lon(:,:)*dp_pi/180.))/dp_length)))
-              ! Calculate global min and max on all pes
-              if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field(:,:),fmin,fmax,fsum,subcomm(ng),il_extentx, il_extenty)
-              if (mype == 0) WRITE(w_unit,12) 'tcx other fields sent ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
-              if (mype == 0) WRITE(w_unit,10) 'tcx other fields min max ',itap_sec,fmin,fmax,fsum
-              
-              if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
-              CALL oasis_put(var_id(n,ng),itap_sec, field, ierror)
-              IF ( ierror .NE. OASIS_Ok .AND. ierror .LT. OASIS_Sent) THEN
-                  WRITE (w_unit,*) 'oasis_put abort by model2 compid ',comp_id
-                  CALL oasis_abort(comp_id,comp_name(comp_num),'Problem at line 305')
-              ENDIF
-              endif
-           ENDIF   
+          ENDIF
 
       ! Receive fields      
       elseif (sr == 2 .and. .not. var_out(n,ng)) then
            field_b=field_ini
            field=field_ini
            ! 
-           IF (TRIM(var_name(n,ng)) == 'RC3GR1M2B' .OR. &
-               TRIM(var_name(n,ng)) == 'RC3GR2M2B') THEN
+           ! Get other fields
+          if (TRIM(var_name(n,ng)) /= 'RC3GR1M2B' .AND. &
+              TRIM(var_name(n,ng)) /= 'RC3GR2M2B') THEN
+              if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
+              CALL oasis_get(var_id(n,ng),itap_sec, field, ierror)
+              endif
+              ! Calculate global min and max on all pes
+               if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field(:,:),fmin,fmax,fsum,subcomm(ng),il_extentx, il_extenty)
+               if (mype == 0) WRITE(w_unit,12) 'tcx other fields received ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
+               if (mype == 0)  WRITE(w_unit,10) 'tcx other fields min max ',itap_sec,fmin,fmax,fsum
+               IF ( ierror .NE. OASIS_Ok .AND. ierror .LT. OASIS_Recvd) THEN
+                  WRITE (w_unit,*) 'oasis_get abort by model2 compid ',comp_id
+                  CALL oasis_abort(comp_id,comp_name(comp_num),'Problem at line 316')
+               ENDIF
+
+          elseif (TRIM(var_name(n,ng)) == 'RC3GR1M2B' .OR. &
+                  TRIM(var_name(n,ng)) == 'RC3GR2M2B') THEN
 
               ! Get bundle fields
-           	  if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
+              if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
               CALL oasis_get(var_id(n,ng),itap_sec, field_b, ierror)
               endif
               ! Calculate global min and max on all pes
@@ -517,19 +536,6 @@ PROGRAM model2
                   WRITE (w_unit,*) 'oasis_get abort by model2 compid ',comp_id
                   CALL oasis_abort(comp_id,comp_name(comp_num),'Problem at line 316')
               ENDIF
-           ELSE   
-              ! Get other fields
-           	  if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
-              CALL oasis_get(var_id(n,ng),itap_sec, field, ierror)
-              endif
-              ! Calculate global min and max on all pes
-               if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field(:,:),fmin,fmax,fsum,subcomm(ng),il_extentx, il_extenty)
-               if (mype == 0) WRITE(w_unit,12) 'tcx other fields received ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
-               if (mype == 0)  WRITE(w_unit,10) 'tcx other fields min max ',itap_sec,fmin,fmax,fsum
-               IF ( ierror .NE. OASIS_Ok .AND. ierror .LT. OASIS_Recvd) THEN
-                  WRITE (w_unit,*) 'oasis_get abort by model2 compid ',comp_id
-                  CALL oasis_abort(comp_id,comp_name(comp_num),'Problem at line 316')
-               ENDIF
            ENDIF
 
          ! endif var_id(n,ng) /= -1
@@ -540,11 +546,11 @@ PROGRAM model2
     ENDDO
     ! Enddo grids
   enddo 
-  ! enddo sr
     DEALLOCATE(field_b)
     DEALLOCATE(field)
     DEALLOCATE(l_lon)
     DEALLOCATE(l_lat)
+    ! enddo sr
     enddo
     ! End time step
   ENDDO
