@@ -9,6 +9,7 @@ MODULE mod_oasis_part
    USE mod_oasis_sys
    USE mod_oasis_mpi
    USE mod_oasis_timer
+   USE mod_oasis_load_balancing
    USE mct_mod
 
    implicit none
@@ -100,6 +101,9 @@ CONTAINS
 
    call oasis_timer_start('part_definition')
 
+   if (ABS(LUCIA_debug) > 0 ) &
+      CALL oasis_lb_measure(-1,LB_PART)
+
    prism_npart = prism_npart + 1
    if (prism_npart > mpart) then
       write(nulprt,*) subname,estr,'prism_npart too large = ',prism_npart,mpart
@@ -127,6 +131,9 @@ CONTAINS
 
    allocate(prism_part(prism_npart)%kparal(size(kparal)))
    prism_part(prism_npart)%kparal = kparal
+
+   if (ABS(LUCIA_debug) > 0 ) &
+      CALL oasis_lb_measure(-1,LB_PART)
 
    call oasis_timer_stop('part_definition')
 

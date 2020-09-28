@@ -1,4 +1,3 @@
-
 !> Advances the OASIS coupling
 
 MODULE mod_oasis_advance
@@ -15,6 +14,7 @@ MODULE mod_oasis_advance
     USE mod_oasis_io
     USE mod_oasis_mpi
     USE mod_oasis_reprosum
+    USE mod_oasis_load_balancing
     USE mct_mod
 
     IMPLICIT NONE
@@ -1156,6 +1156,8 @@ contains
 
              write(tstring,'(A,I3.3)') 'wrst_',cplid
              if (local_timers_on) call oasis_timer_start(tstring)
+             if (ABS(LUCIA_debug) > 0 ) &
+                CALL oasis_lb_measure(cplid,LB_RST)
              call oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny)
              if (pcpointer%aVon(2)) &
@@ -1170,6 +1172,8 @@ contains
              if (pcpointer%aVon(5)) &
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre='av5_')
+             if (ABS(LUCIA_debug) > 0 ) &
+                CALL oasis_lb_measure(cplid,LB_RST)
              if (local_timers_on) call oasis_timer_stop(tstring)
              if (OASIS_debug >= 2) then
                 lstring = mct_avect_exportRList2c(pcpointer%avect1)
@@ -1248,9 +1252,11 @@ contains
                    if (local_timers_on) call oasis_timer_stop(trim(tstring)//'_prebarrier')
                 endif
                 if (local_timers_on) call oasis_timer_start(tstring)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before interpo ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_MAP)
                 call mct_avect_zero(pcpointer%avect1m)
                 if (detailed_map_timing) then
                    call oasis_advance_map(pcpointer%avect1, &
@@ -1265,9 +1271,11 @@ contains
                         pcpointer%avect3,pcpointer%avect4, &
                         pcpointer%avect5)
                 endif
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  interpo ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_MAP)
                 if (local_timers_on) call oasis_timer_stop(tstring)
                 write(tstring,'(A,I3.3)') 'psnd_',cplid
                 call oasis_debug_note(subname//' put send')
@@ -1277,14 +1285,18 @@ contains
                                    maxval(pcpointer%avect1m%rAttr)
                 endif
                 if (local_timers_on) call oasis_timer_start(tstring)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before MPI put ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_PUT)
                 call mct_waitsend(prism_router(rouid)%router)
                 call mct_isend(pcpointer%avect1m,prism_router(rouid)%router,tag)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  MPI put ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_PUT)
                 if (local_timers_on) call oasis_timer_stop(tstring)
              ELSE
                 write(tstring,'(A,I3.3)') 'psnd_',cplid
@@ -1295,14 +1307,18 @@ contains
                                    maxval(pcpointer%avect1%rAttr)
                 endif
                 if (local_timers_on) call oasis_timer_start(tstring)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before MPI put ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_PUT)
                 call mct_waitsend(prism_router(rouid)%router)
                 call mct_isend(pcpointer%avect1,prism_router(rouid)%router,tag)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  MPI put ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_PUT)
                 if (local_timers_on) call oasis_timer_stop(tstring)
              ENDIF
           elseif (getput == OASIS3_GET) then
@@ -1324,13 +1340,17 @@ contains
                 write(tstring,'(A,I3.3)') 'grcv_',cplid
                 if (local_timers_on) call oasis_timer_start(tstring)
                 call mct_avect_zero(pcpointer%avect1m)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before MPI get ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_GET)
                 call mct_recv(pcpointer%avect1m,prism_router(rouid)%router,tag)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  MPI get ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_GET)
                 if (local_timers_on) call oasis_timer_stop(tstring)
                 if (OASIS_debug >= 20) then
                    write(nulprt,*) subname,' DEBUG get af recv = ',cplid,&
@@ -1345,9 +1365,11 @@ contains
                    if (local_timers_on) call oasis_timer_stop(trim(tstring)//'_prebarrier')
                 endif
                 if (local_timers_on) call oasis_timer_start(tstring)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before interpo ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_MAP)
                 call mct_avect_zero(pcpointer%avect1)
                 if (detailed_map_timing) then
                    call oasis_advance_map(pcpointer%avect1m, &
@@ -1356,9 +1378,11 @@ contains
                    call oasis_advance_map(pcpointer%avect1m, &
                         pcpointer%avect1,prism_mapper(mapid),conserv,consopt)
                 endif
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  interpo ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_MAP)
                 if (local_timers_on) call oasis_timer_stop(tstring)
                 if (OASIS_debug >= 20) then
                    write(nulprt,*) subname,' DEBUG get af map = ',cplid,&
@@ -1370,13 +1394,17 @@ contains
                 call oasis_debug_note(subname//' get recv')
                 call mct_avect_zero(pcpointer%avect1)
                 if (local_timers_on) call oasis_timer_start(tstring)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before MPI get ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_GET)
                 call mct_recv(pcpointer%avect1,prism_router(rouid)%router,tag)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  MPI get ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_GET)
                 if (local_timers_on) call oasis_timer_stop(tstring)
                 if (OASIS_debug >= 20) then
                    write(nulprt,*) subname,' DEBUG get af recv = ',cplid,&
@@ -1427,8 +1455,12 @@ contains
                 call oasis_flush(nulprt)
              endif
              write(fstring,'(A,I2.2)') '_'//trim(compnm)//'_',cplid
+             if (ABS(LUCIA_debug) > 0 ) &
+                CALL oasis_lb_measure(cplid,LB_OUT)
              call oasis_io_write_avfbf(pcpointer%avect1,prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
                 nx,ny,msec,fstring)
+             if (ABS(LUCIA_debug) > 0 ) &
+                CALL oasis_lb_measure(cplid,LB_OUT)
              if (local_timers_on) call oasis_timer_stop(tstring)
 
              if (OASIS_debug >= 30) then
@@ -1517,6 +1549,8 @@ contains
           call oasis_debug_note(subname//' loctrans restart write')
           write(tstring,'(A,I3.3)') 'wtrn_',cplid
           if (local_timers_on) call oasis_timer_start(tstring)
+          if (ABS(LUCIA_debug) > 0 ) &
+             CALL oasis_lb_measure(cplid,LB_TRN)
           WRITE(vstring,'(a,i6.6,a)') 'loc',pcpointer%namID,'_cnt'
           CALL oasis_io_write_array(rstfile2,prism_part(partid)%mpicom,iarray=pcpointer%avcnt,&
                                     ivarname=TRIM(vstring))
@@ -1543,6 +1577,8 @@ contains
              CALL oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
           endif
+          if (ABS(LUCIA_debug) > 0 ) &
+             CALL oasis_lb_measure(cplid,LB_TRN)
           if (local_timers_on) call oasis_timer_stop(tstring)
           if (OASIS_debug >= 2) then
              lstring = mct_avect_exportRList2c(pcpointer%avect1)
@@ -1595,6 +1631,8 @@ contains
                 endif
                 write(tstring,'(A,I3.3)') 'grin_',cplid
                 if (local_timers_on) call oasis_timer_start(tstring)
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_READ)
                 if (trim(inpfile) /= trim(cspval)) then
                    call oasis_io_read_avfbf(pcpointer%avect1,prism_part(partid)%pgsmap,prism_part(partid)%mpicom,&
                                             msec,filename=trim(inpfile))
@@ -1603,6 +1641,8 @@ contains
                    call oasis_io_read_avfbf(pcpointer%avect1,prism_part(partid)%pgsmap,prism_part(partid)%mpicom,&
                                             msec,f_string=fstring)
                 endif
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_READ)
                 if (local_timers_on) call oasis_timer_stop(tstring)
              endif
              if (OASIS_debug >= 2) then
