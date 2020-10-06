@@ -3011,7 +3011,7 @@ SUBROUTINE oasis_mpi_reducelists(linp1,comm,cntout,lout1,callstr,fastcheck,fastc
    !> * Log2 reduction of linp over tasks to root
    !-----------------------------------------------
 
-   maxloops = int(sqrt(float(commsize+1)))+1
+   maxloops = int(log(float(commsize+1)/log(2.)))+1
    do m = 1,maxloops
 
       kfac = 2**m
