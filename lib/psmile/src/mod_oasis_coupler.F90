@@ -2071,8 +2071,16 @@ CONTAINS
      DO nc = 1, prism_mcoupler
         IF (prism_coupler_put(nc)%valid) THEN
            !
+           IF ( prism_coupler_put(nc)%comp == compid .AND. &
+                prism_part((prism_coupler_put(nc)%partid))%lsize == 0 .AND. &
+                mpi_rank_local == 0 ) THEN
+              WRITE(nulprt,*) subname, ' WARNING: component self exchange, not involving master process. Load balancing analysis impossible '
+              CALL oasis_lb_stop
+           ENDIF
+           !
            nb_cpl_ts = prism_coupler_put(nc)%maxtime/prism_coupler_put(nc)%dt
-           WRITE(nulprt,*) ' nb_cpl_ts ', nb_cpl_ts
+           IF (OASIS_debug >= 2) &
+              WRITE(nulprt,'(A11,I2,A16)') ' LB: Define ', nb_cpl_ts, ' coupling events'
 
            imain_kind_lb = LB_PUT
            IF ( .NOT. prism_coupler_put(nc)%sndrcv ) imain_kind_lb = LB_OUT
@@ -2091,8 +2099,16 @@ CONTAINS
         ENDIF
         IF (prism_coupler_get(nc)%valid) THEN
            !
+           IF ( prism_coupler_get(nc)%comp == compid .AND. &
+                prism_part((prism_coupler_get(nc)%partid))%lsize == 0 .AND. &
+                mpi_rank_local == 0 ) THEN
+              WRITE(nulprt,*) subname, ' WARNING: component self exchange, not involving master process. Load balancing analysis impossible '
+              CALL oasis_lb_stop
+           ENDIF
+           !
            nb_cpl_ts = prism_coupler_get(nc)%maxtime/prism_coupler_get(nc)%dt
-           WRITE(nulprt,*) ' nb_cpl_ts ', nb_cpl_ts
+           IF (OASIS_debug >= 2) &
+              WRITE(nulprt,'(A11,I2,A16)') ' LB: Define ', nb_cpl_ts, ' coupling events'
 
            imain_kind_lb = LB_GET
            IF ( .NOT. prism_coupler_get(nc)%sndrcv ) imain_kind_lb = LB_READ
@@ -2104,6 +2120,7 @@ CONTAINS
            CALL oasis_lb_define(nc, imain_kind_lb, prism_coupler_get(nc)%namID, &
                                 prism_coupler_get(nc)%comp, nb_cpl_ts, &
                                 lmap = lmap, lout = lout )
+
         ENDIF
      ENDDO
 

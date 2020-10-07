@@ -39,6 +39,7 @@ module mod_oasis_load_balancing
    public oasis_lb_define
    public oasis_lb_measure
    public oasis_lb_print
+   public oasis_lb_stop
 
    !> Storage for timer data
    type timeline_lb
@@ -100,7 +101,7 @@ module mod_oasis_load_balancing
    real(ip_double_p) :: dl_simu_wtimer(2)
 
    integer(kind=ip_i4_p) :: ievent
-
+   logical ::               ldo_lb_analysis = .TRUE.
 
    contains
 
@@ -305,6 +306,10 @@ module mod_oasis_load_balancing
             IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
                                      mpi_rank_local,' WARNING allocate '
 
+            ! ensure zero values if irregulat event number across processes
+            local_timeline(:)%kind = LB_UNDF ; local_timeline(:)%field = LB_UNDF
+            local_timeline(:)%cntp = LB_UNDF ; local_timeline(:)%timer = 0.
+
             ! Fill the timeline array with initialisation measurements
             local_timeline(1:4)%timer = r_init_timers(1:4)
             local_timeline(1:2)%kind = LB_PART
@@ -411,6 +416,8 @@ module mod_oasis_load_balancing
          real(kind=ip_double_p), allocatable :: g_lb_diag_buff(:,:)
 
          real(kind=ip_double_p), allocatable :: tl_sum_kind (:,:,:) 
+
+         logical :: lcontinue
 !
 ! 
          ! Make measurement of the time spend waiting the beginning of the
@@ -429,6 +436,15 @@ module mod_oasis_load_balancing
          dlb_time = MPI_WTIME()
 
          dl_simu_wtimer(2) = dlb_time
+
+         ! Check if the analysis is possible
+         call MPI_AllReduce(ldo_lb_analysis, lcontinue, 1, MPI_LOGICAL, MPI_LAND, &
+                            mpi_comm_global, ierror)
+
+         IF (.NOT. lcontinue ) THEN
+            WRITE(nulprt,*) subname, ' WARNING: Load balancing analysis impossible '
+            return
+         ENDIF
 
          !  ----------
          !  FIRST STEP
@@ -527,7 +543,8 @@ module mod_oasis_load_balancing
          DEALLOCATE( local_table_lb, local_coupler_lb, local_counterpart_lb )
 
          IF (OASIS_Debug >= 10) THEN
-            write(nulprt,*) subname,' gather size ', ievent, mpi_comm_local
+            write(nulprt,*) subname,' gather size (events) ', ievent
+            write(nulprt,*) subname,' communicator size ', mpi_size_local
             call flush(nulprt)
          ENDIF
 
@@ -666,6 +683,7 @@ module mod_oasis_load_balancing
             ENDIF
 
             ! only "before" event characteristics are saved ("after" have the same)
+            write(nulprt,*) subname,' put netcdf ievent ', ievent ; call flush(nulprt)
             ierror = nf90_put_var(ncid,ncvarid(3),&
                         local_timeline(1:ievent-1:2)%kind)
             IF (OASIS_Debug >= 2) THEN
@@ -1005,6 +1023,21 @@ module mod_oasis_load_balancing
 
 
       end subroutine oasis_lb_print
+
+! --------------------------------------------------------------------------------
+
+!>  stop measurement
+
+      subroutine oasis_lb_stop 
+
+         implicit none
+
+         integer(ip_i4_p) :: ierror
+         character(len=*),parameter :: subname = '(oasis_timer_stop)'
+! 
+         ldo_lb_analysis = .FALSE.
+
+      end subroutine oasis_lb_stop
 
 ! --------------------------------------------------------------------------------
 end module mod_oasis_load_balancing
