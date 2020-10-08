@@ -60,7 +60,16 @@
 ##########################################################################
  
 import netCDF4
-import json
+try:
+    import json
+    has_json = True
+except:
+    has_json = False
+try:
+    import yaml
+    has_yaml = True
+except:
+    has_yaml = False
 import sys, os
 import time
 import numpy as np
@@ -71,14 +80,26 @@ from matplotlib.backend_bases import MouseEvent
 import math
 
 if len(sys.argv) == 1:
-    print(">>> Missing json configuration file name")
+    print(">>> Missing configuration file name")
     exit(1)
 
-try:
-    jf = open(sys.argv[1])
-    config = json.load(jf)
-except:
-    print(">>> Problem loading json configuration {}".format(sys.argv[1]))
+config_ok = False
+if has_json:
+    try:
+        jf = open(sys.argv[1])
+        config = json.load(jf)
+        config_ok = True
+    except:
+        pass
+if (not config_ok) and has_yaml:
+    try:
+        jf = open(sys.argv[1])
+        config = yaml.load(jf)
+        config_ok = True
+    except:
+        pass        
+if not config_ok:    
+    print(">>> Problem loading configuration file {}".format(sys.argv[1]))
     exit(1)
 
 initime = time.time()
