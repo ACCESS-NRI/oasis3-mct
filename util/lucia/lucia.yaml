@@ -1,9 +1,9 @@
 ---
 Components:
-- Name: Ocean
-  File: timeline_pim_.nc
 - Name: Atmo
   File: timeline_pam_.nc
+- Name: Ocean
+  File: timeline_pim_.nc
 - Name: Xios
   File: timeline_poum.nc
 Plots:
