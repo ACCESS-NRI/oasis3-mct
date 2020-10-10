@@ -201,15 +201,19 @@ noted with the string UNUSED and not described.
   file containing the corresponding remapping weights and addresses
   exists; if it exists, it reads them from the file; if not, it
   calculates them and store them in a file. The file is created in the
-  working directory and is by default called {\tt rmp\_{\it srcg}\_to\_{\it
-      tgtg}\_{\it INTTYPE}\_{\it NORMAOPT}.nc}, where {\it srcg} and
-  {\it tgtg} are the acronyms of respetively the source and the target
+  working directory and is by default called 
+  {\tt rmp\_{\it srcg}\_to\_{\it tgtg}\_{\it INTTYPE}\_{\it NORMAOPT}.nc}, 
+  {\tt rmp\_{\it srcg}\_to\_{\it tgtg}\_{\it INTTYPE}\_{\it NBRS}.nc}, or 
+  {\tt rmp\_{\it srcg}\_to\_{\it tgtg}\_{\it INTTYPE}.nc}.  
+  {\it srcg} and {\it tgtg} are the acronyms of respetively the source and the target
   grids, {\it INTTYPE} is the interpolation type (i.e. {\tt DISTWGT}, {\tt DISTWGTNF},
   {\tt GAUSWGT}, {\tt GAUSWGTNF}, {\tt BILINEAR}, - {\bf not BILINEA as in OASIS3.3}, 
   {\tt BILINEARNF}, {\tt BICUBIC}, {\tt BICUBICNF}, or
   {\tt CONSERV}).
   Then {\it NORMAOPT} is the normalization
-  option, for {\tt CONSERV} only (i.e. {\tt DESTAREA}, {\tt DESTARTR}, {\tt DESTNNEI} {\tt DESTNNTR}, {\tt FRACAREA}, {\tt FRACARTR},  {\tt FRACNNEI} or {\tt FRACNNTR}, see below). One has to take care that the
+  option, for {\tt CONSERV} only (i.e. {\tt DESTAREA}, {\tt DESTARTR}, {\tt DESTNNEI} {\tt DESTNNTR}, {\tt FRACAREA}, {\tt FRACARTR},  {\tt FRACNNEI} or {\tt FRACNNTR}, see below). {\it NBRS} are the number of
+  neighbors used for {\tt DISTWGT}, {\tt DISTWGTNF}, {\tt GAUSWGT}, or {\tt GAUSWGTNF} only.
+  One has to take care that the
   remapping file will have the same name even if other details, like
   the grid masks or the {\tt \$MAPLOC} or {\tt \$MAPSTRATEGY} options, 
   are changed. When reusing a remapping file, one has

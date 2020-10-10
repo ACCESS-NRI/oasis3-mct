@@ -150,13 +150,14 @@ CONTAINS
   character(len=ic_xxl) :: otfldlist  ! field list for other model
   integer(kind=ip_i4_p) :: nx,ny
   character(len=ic_lvar):: gridname
-  character(len=ic_long):: tmp_mapfile
+  character(len=ic_long):: tmp_mapfile, tmp_mapfile2
   integer(kind=ip_i4_p) :: flag
   integer(kind=ip_i4_p) :: kmask,kfrac,karea
   logical               :: found, exists, found2, rmask, rfrac
   integer(kind=ip_i4_p) :: mynvar
   integer(kind=ip_i4_p) :: nwgts, arrlen
   character(len=ic_lvar):: tmpfld
+  character(len=ic_lvar):: tmpstr
   type(prism_coupler_type),pointer :: pcpointer
   type(prism_coupler_type),pointer :: pcpntpair
   integer(kind=ip_i4_p) :: ifind,nfind
@@ -231,6 +232,7 @@ CONTAINS
   prism_nmapper = 0
   prism_mapper(:)%nwgts = 0
   prism_mapper(:)%file  = ""
+  prism_mapper(:)%file2 = ""
   prism_mapper(:)%loc   = ""
   prism_mapper(:)%opt   = ""
   prism_mapper(:)%optval= ""
@@ -1063,14 +1065,21 @@ CONTAINS
                  ENDIF
 
                  tmp_mapfile = nammapfil(nn)
+                 tmp_mapfile2 = ''
 
                  if (TRIM(tmp_mapfile) == 'idmap' .and. TRIM(namscrmet(nn)) /= TRIM(cspval)) then
                     if (trim(namscrmet(nn)) == 'CONSERV') then
                        tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
                           &'_'//TRIM(namscrmet(nn))//'_'//TRIM(namscrnor(nn))//'.nc'
+                    elseif (namscrnbr(nn) > 0) then
+                       write(tmpstr,'(i0)') namscrnbr(nn)
+                       tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
+                          &'_'//TRIM(namscrmet(nn))//'_'//TRIM(tmpstr)//'.nc'
+                       tmp_mapfile2 = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
+                          &'_'//TRIM(namscrmet(nn))//'.nc'
                     else
                        tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
-                                     &'_'//trim(namscrmet(nn))//'.nc'
+                          &'_'//trim(namscrmet(nn))//'.nc'
                     endif
                  endif
 
@@ -1091,6 +1100,17 @@ CONTAINS
                              if (flag == OASIS_Out .and. prism_mapper(n)%spart == part1) mapID = n
                           endif
                        enddo
+                       ! check if tmp_mapfile2 matches if tmp_mapfile does not
+                       if (mapID < 1 .and. tmp_mapfile2 /= '') then
+                       do n = 1,prism_nmapper
+                          if (trim(prism_mapper(n)%file)== trim(tmp_mapfile2) .and. &
+                              trim(prism_mapper(n)%loc ) == trim(nammaploc(nn)) .and. &
+                              trim(prism_mapper(n)%opt ) == trim(nammapopt(nn))) then
+                             if (flag == OASIS_In  .and. prism_mapper(n)%dpart == part1) mapID = n
+                             if (flag == OASIS_Out .and. prism_mapper(n)%spart == part1) mapID = n
+                          endif
+                       enddo
+                       endif
                        !--------------------------------
                        !>       * Or get ready to initialize a new mapper
                        !--------------------------------
@@ -1103,6 +1123,7 @@ CONTAINS
                           endif
                           mapID = prism_nmapper
                           prism_mapper(mapID)%file = trim(tmp_mapfile)
+                          prism_mapper(mapID)%file2= trim(tmp_mapfile2)
                           prism_mapper(mapID)%loc  = trim(nammaploc(nn))
                           prism_mapper(mapID)%opt  = trim(nammapopt(nn))
                           prism_mapper(mapID)%srcgrid = trim(namsrcgrd(nn))
@@ -1369,6 +1390,15 @@ CONTAINS
               if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4da')
               if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4da1')
               inquire(file=trim(prism_mapper(mapID)%file),exist=exists)
+              if (.not. exists .and. prism_mapper(mapid)%file2 /= '') then
+                 ! if file2 exists, but not file, set file = file2
+                 inquire(file=trim(prism_mapper(mapID)%file2),exist=exists)
+                 if (exists) then
+                    write(nulprt,*) subname,' found old mapname, using ', &
+                       trim(prism_mapper(mapID)%file2),' instead of ', trim(prism_mapper(mapID)%file)
+                    prism_mapper(mapID)%file = prism_mapper(mapID)%file2
+                 endif
+              endif
               if (local_timers_on >= 3) call oasis_timer_stop('cpl_setup_n4da1')
               if (OASIS_debug >= 15) then
                  write(nulprt,*) subname,' DEBUG ci: inquire mapfile ',&

@@ -37,6 +37,7 @@ MODULE mod_oasis_map
      type(mct_sMatP),pointer :: sMatP(:)  !< stores mapping data such as weights
      integer(kind=ip_i4_p) :: nwgts       !< number of weights in weights file
      character(len=ic_long):: file        !< file to read/write
+     character(len=ic_long):: file2       !< alternate file to read/write
      character(len=ic_med) :: loc         !< location setting, src or dst model
      character(len=ic_med) :: opt         !< optimization setting, bfb, sum, or opt
      character(len=ic_med) :: optval      !< mct map setting, src or dst, derived from opt
