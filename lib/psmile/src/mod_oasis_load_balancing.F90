@@ -397,6 +397,7 @@ module mod_oasis_load_balancing
 
          integer(ip_i4_p), allocatable   :: pair_field_cntp(:)
          integer(ip_i4_p), allocatable   :: ig_globSize(:)
+         integer(ip_i4_p), allocatable   :: write_timeline(:)
 
          real(kind=ip_double_p) :: null_r, dlb_time
          real(kind=ip_double_p) :: soonest_start, latest_stop, clock_spread
@@ -555,6 +556,11 @@ module mod_oasis_load_balancing
                              null_r, 0, MPI_REAL, 0, mpi_comm_local, ierror)
 
          ELSE
+ 
+            ! to avoid unexplained error with PGI compiler
+            ALLOCATE(write_timeline(ievent/2), stat=ierror)
+            IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
+                                     mpi_rank_local,' WARNING allocating tmp array '
 
             ALLOCATE(ig_globSize(mpi_size_local), stat=ierror)
             IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
@@ -698,6 +704,7 @@ module mod_oasis_load_balancing
                write(nulprt,*) subname,' put netcdf var timeline', ierror ; call flush(nulprt)
             ENDIF
 
+
             IF (OASIS_Debug >= 10) THEN
                write(nulprt,*) subname, 'check kind  values', local_timeline(:)%kind
                write(nulprt,*) subname, 'check field values', local_timeline(:)%field
@@ -706,24 +713,25 @@ module mod_oasis_load_balancing
             ENDIF
 
             ! only "before" event characteristics are saved ("after" have the same)
-            write(nulprt,*) subname,' put netcdf ievent ', ievent ; call flush(nulprt)
-            ierror = nf90_put_var(ncid,ncvarid(3),&
-                        local_timeline(1:ievent-1:2)%kind)
+            write_timeline(1:ievent/2) = local_timeline(1:ievent-1:2)%kind
+            ierror = nf90_put_var(ncid,ncvarid(3),write_timeline)
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' put netcdf var kind', ierror ; call flush(nulprt)
             ENDIF
 
-            ierror = nf90_put_var(ncid,ncvarid(4),&
-                        local_timeline(1:ievent-1:2)%field)
+            write_timeline(1:ievent/2) = local_timeline(1:ievent-1:2)%field
+            ierror = nf90_put_var(ncid,ncvarid(4),write_timeline)
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' put netcdf var field', ierror ; call flush(nulprt)
             ENDIF
 
-            ierror = nf90_put_var(ncid,ncvarid(5),&
-                        local_timeline(1:ievent-1:2)%cntp)
+            write_timeline(1:ievent/2) = local_timeline(1:ievent-1:2)%cntp
+            ierror = nf90_put_var(ncid,ncvarid(5),write_timeline)
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' put netcdf var counterpart model', ierror ; call flush(nulprt)
             ENDIF
+
+            DEALLOCATE(write_timeline)
 
             ierror = nf90_close(ncid)
             IF (OASIS_Debug >= 2) THEN
