@@ -124,8 +124,15 @@ if has_json:
 if (not config_ok) and has_yaml:
     try:
         jf = open(sys.argv[1])
-        config = yaml.load(jf)
-        config_ok = True
+        try:
+            config = yaml.load(jf, loader=yaml.FullLoader)
+            config_ok = True
+        except:
+            try:
+                config = yaml.load(jf)
+                config_ok = True
+            except:
+                pass
     except:
         pass        
 if not config_ok:    
