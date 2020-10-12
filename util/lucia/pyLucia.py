@@ -125,7 +125,7 @@ if (not config_ok) and has_yaml:
     try:
         jf = open(sys.argv[1])
         try:
-            config = yaml.load(jf, loader=yaml.FullLoader)
+            config = yaml.load(jf, Loader=yaml.FullLoader)
             config_ok = True
         except:
             try:
