@@ -8,7 +8,7 @@
 #
 #   Input:  - timeline files produced by the OASIS coupler
 #             ( load balancing measurement option required )
-#           - json configuration file (see example below )
+#           - json or yaml configuration file (see example below )
 #
 #   Output: - timeline plot of OASIS coupling events
 #             (in graphical format file and visulaisation GUI)
@@ -28,10 +28,10 @@
 ###
 #    {
 #       "Components":[
-#           {"Name":"Ocean",
-#            "File":"timeline_oce.nc"},
 #           {"Name":"Atmo",
 #            "File":"timeline_atm.nc"},
+#           {"Name":"Ocean",
+#            "File":"timeline_oce.nc"},
 #           {"Name":"IOserver",
 #            "File":"timeline_ios.nc"}
 #       ],
@@ -56,11 +56,50 @@
 #   }
 #
 #
+##########################################################################
+#
+#  yaml config file example
+#
+###
+#    ---
+#    Components:
+#    - Name: Atmo
+#      File: timeline_pam_.nc
+#    - Name: Ocean
+#      File: timeline_pim_.nc
+#    - Name: Xios
+#      File: timeline_poum.nc
+#    Plots:
+#      Kind: True
+#      Field: True
+#      Component: True
+#    #TimeRange:
+#    #  minFrac: 0.25
+#    #  maxFrac: 0.5
+#    #  minTime: 10
+#    #  maxTime: 40
+#    Rendering:
+#      Display: True
+#      File: Lucia.png
+#      EventsBounds: False
+#    Fields:
+#    - Heat
+#    - Rain
+#    - Love
 #
 ##########################################################################
  
 import netCDF4
-import json
+try:
+    import json
+    has_json = True
+except:
+    has_json = False
+try:
+    import yaml
+    has_yaml = True
+except:
+    has_yaml = False
 import sys, os
 import time
 import numpy as np
@@ -71,15 +110,35 @@ from matplotlib.backend_bases import MouseEvent
 import math
 
 if len(sys.argv) == 1:
-    print(">>> Missing json configuration file name")
+    print(">>> Missing configuration file name")
     exit(1)
 
-try:
-    jf = open(sys.argv[1])
-    config = json.load(jf)
-except:
-    print(">>> Problem loading json configuration {}".format(sys.argv[1]))
+config_ok = False
+if has_json:
+    try:
+        jf = open(sys.argv[1])
+        config = json.load(jf)
+        config_ok = True
+    except:
+        pass
+if (not config_ok) and has_yaml:
+    try:
+        jf = open(sys.argv[1])
+        try:
+            config = yaml.load(jf, loader=yaml.FullLoader)
+            config_ok = True
+        except:
+            try:
+                config = yaml.load(jf)
+                config_ok = True
+            except:
+                pass
+    except:
+        pass        
+if not config_ok:    
+    print(">>> Problem loading configuration file {}".format(sys.argv[1]))
     exit(1)
+jf.close()
 
 initime = time.time()
 
@@ -88,11 +147,12 @@ if nbplots == 0:
     print("No plots selected")
     exit()
 
+
 files = []
-cnam = []
+cnam_in = []
 for cp in config["Components"]:
     files.append(cp["File"])
-    cnam.append(cp["Name"])
+    cnam_in.append(cp["Name"])
 
 if "Fields" in config:
     fieldlb = ["Oasis"]+config["Fields"]
@@ -105,7 +165,10 @@ if dofile:
     else:
         dofile = False
 
-af = [netCDF4.Dataset(fi,'r') for fi in files]
+af_in = [netCDF4.Dataset(fi,'r') for fi in files]
+comp_id = [int(tf.getncattr('component_id'))-1 for tf in af_in]
+cnam = [cnam_in[id] for id in comp_id]
+af = [af_in[id] for id in comp_id]
 
 udpal = "Palette" in config["Rendering"]
 if udpal:
@@ -122,6 +185,7 @@ for i,tf in enumerate(af):
     tstop   = tf.variables['timer_stop'][:,:].flatten()
     if config["Plots"]["Kind"]:
         kind    = tf.variables['kind'][:]
+        kindlb  = tf.variables['kind'].getncattr('flag_meanings').split()
     if config["Plots"]["Field"]:
         field   = tf.variables['field'][:]
     if config["Plots"]["Component"]:
@@ -233,7 +297,6 @@ cmap_name = "mycolor"
 
 compolb = ['Oasis']+cnam
 compopc = [0]+cprocs
-kindlb = ["UNDEF", "PUT", "GET", "MAP", "OUT", "READ", "RST", "TRN", "PART", "ENDF", "TERM"]
 plotnb = 0
 
 if config["Plots"]["Kind"]:
