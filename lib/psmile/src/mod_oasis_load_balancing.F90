@@ -45,7 +45,7 @@ module mod_oasis_load_balancing
    type timeline_lb
       !
       ! timer
-      real(ip_double_p)     :: timer
+      real(ip_single_p)     :: timer
       !
       ! kind of the measured quantity 
       integer(kind=ip_i4_p) :: kind
@@ -279,9 +279,9 @@ module mod_oasis_load_balancing
          integer(kind=ip_i4_p), SAVE :: event_index = 1   ! Timeline array index
 
          ! Special array to temporarily store timings of initialisation events
-         real(ip_double_p), SAVE :: r_init_timers(LB_NB_INIT_TIMING*2)
+         real(ip_single_p), SAVE :: r_init_timers(LB_NB_INIT_TIMING*2)
 
-         real(ip_double_p) :: dmeas  ! measurement
+         real(ip_single_p) :: dmeas  ! measurement
 
          ! kind of timing : TRUE = before event, FALSE = after event
          logical, SAVE :: tic_tac = .TRUE.
@@ -397,25 +397,24 @@ module mod_oasis_load_balancing
 
          integer(ip_i4_p), allocatable   :: pair_field_cntp(:)
          integer(ip_i4_p), allocatable   :: ig_globSize(:)
+         integer(ip_i4_p), allocatable   :: write_timeline(:)
 
-         real(ip_double_p) :: soonest_start, latest_stop, timer_max
-         real(ip_double_p) :: clock_spread
-         real(ip_double_p) :: bk_ev_min, bk_ev_max
-         real(ip_double_p) :: wtg_time, cmp_time
-         real(ip_double_p) :: null_r, dlb_time
+         real(kind=ip_double_p) :: null_r, dlb_time
+         real(kind=ip_double_p) :: soonest_start, latest_stop, clock_spread
 
-
-         real(kind=ip_double_p) :: lb_diag_buff(diag_nb)
-         real(kind=ip_double_p) :: bk_ev_tmp(2)
+         real(kind=ip_single_p) :: timer_max
+         real(kind=ip_single_p) :: bk_ev_min, bk_ev_max
+         real(kind=ip_single_p) :: wtg_time, cmp_time
+         real(kind=ip_single_p) :: lb_diag_buff(diag_nb)
+         real(kind=ip_single_p) :: bk_ev_tmp(2)
 
          real(kind=ip_double_p), allocatable :: dg_simu_wtimer(:)
-         real(kind=ip_double_p), allocatable :: bk_avg(:)
-         real(kind=ip_double_p), allocatable :: bk_minval(:), bk_maxval(:)
-
-         real(kind=ip_double_p), pointer     :: tl_global_timer(:,:)
          real(kind=ip_double_p), allocatable :: g_lb_diag_buff(:,:)
 
-         real(kind=ip_double_p), allocatable :: tl_sum_kind (:,:,:) 
+         real(kind=ip_single_p), allocatable :: bk_avg(:)
+         real(kind=ip_single_p), allocatable :: bk_minval(:), bk_maxval(:)
+         real(kind=ip_single_p), pointer     :: tl_global_timer(:,:)
+         real(kind=ip_single_p), allocatable :: tl_sum_kind (:,:,:) 
 
          logical :: lcontinue
 !
@@ -553,10 +552,15 @@ module mod_oasis_load_balancing
             CALL MPI_Gather(ievent, 1, MPI_INT, n, 0, MPI_INT, &
                              0, mpi_comm_local, ierror)
 
-            CALL MPI_Gather( local_timeline(:)%timer, ievent, MPI_DOUBLE, &
-                             null_r, 0, MPI_DOUBLE, 0, mpi_comm_local, ierror)
+            CALL MPI_Gather( local_timeline(:)%timer, ievent, MPI_REAL, &
+                             null_r, 0, MPI_REAL, 0, mpi_comm_local, ierror)
 
          ELSE
+ 
+            ! to avoid unexplained error with PGI compiler
+            ALLOCATE(write_timeline(ievent/2), stat=ierror)
+            IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
+                                     mpi_rank_local,' WARNING allocating tmp array '
 
             ALLOCATE(ig_globSize(mpi_size_local), stat=ierror)
             IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
@@ -603,8 +607,8 @@ module mod_oasis_load_balancing
 
             ! Every process of every component is sending its timeline to the
             ! component master process
-            CALL MPI_Gather( local_timeline(:)%timer, ievent, MPI_DOUBLE, &
-                             tl_global_timer, ievent, MPI_DOUBLE, &
+            CALL MPI_Gather( local_timeline(:)%timer, ievent, MPI_REAL, &
+                             tl_global_timer, ievent, MPI_REAL, &
                              0, mpi_comm_local, ierror)
 
 
@@ -615,6 +619,12 @@ module mod_oasis_load_balancing
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' open netcdf file ', ierror; call flush(nulprt)
             ENDIF
+
+            ierror = nf90_put_att(ncid, NF90_GLOBAL, 'source', &
+                                  "OASIS coupler instrumented for load balancing analysis")
+            ierror = nf90_put_att(ncid, NF90_GLOBAL, 'title', &
+                                  "OASIS event (nx) timeline on every MPI process (ny) ")
+            ierror = nf90_put_att(ncid, NF90_GLOBAL, 'component_id', compid )
 
             IF (OASIS_Debug >= 10) THEN
                WRITE(nulprt,*) subname,' global timeline (max 100,100)', &
@@ -632,30 +642,49 @@ module mod_oasis_load_balancing
                write(nulprt,*) subname,' define netcdf dim ', ierror ; call flush(nulprt)
             ENDIF
 
-            ierror = nf90_def_var(ncid,'timer_strt',NF90_DOUBLE,ncdimid(:),ncvarid(1))
+            ierror = nf90_def_var(ncid,'timer_strt',NF90_FLOAT,ncdimid(:),ncvarid(1))
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' define netcdf var ', ierror ; call flush(nulprt)
             ENDIF
+            ierror = nf90_put_att(ncid, ncvarid(1), 'long_name', "Start of OASIS event")
+            ierror = nf90_put_att(ncid, ncvarid(1), 'units', "seconds since OASIS initialisation")
 
-            ierror = nf90_def_var(ncid,'timer_stop',NF90_DOUBLE,ncdimid(:),ncvarid(2))
+            ierror = nf90_def_var(ncid,'timer_stop',NF90_FLOAT,ncdimid(:),ncvarid(2))
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' define netcdf var ', ierror ; call flush(nulprt)
             ENDIF
+            ierror = nf90_put_att(ncid, ncvarid(2), 'long_name', "End of OASIS event")
+            ierror = nf90_put_att(ncid, ncvarid(2), 'units', "seconds since OASIS initialisation")
 
             ierror = nf90_def_var(ncid,'kind',NF90_INT,ncdimid(1),ncvarid(3))
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' define netcdf var ', ierror ; call flush(nulprt)
             ENDIF
+            ierror = nf90_put_att(ncid, ncvarid(3), 'long_name', "Kind of OASIS event")
+            ierror = nf90_put_att(ncid, ncvarid(3), 'standard_name', "Kind")
+            ierror = nf90_put_att(ncid, ncvarid(3), 'flag_values', &
+                                  "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")
+            ierror = nf90_put_att(ncid, ncvarid(3), 'flag_meanings', &
+                                  "UNDF PUT GET MAP OUT READ RST TRN PART ENDF TERM")
+            ierror = nf90_put_att(ncid, ncvarid(3), 'comment', &
+                                  "undefined send receive map file_output file_input restart_writing partial_restart_writing partition_def end_def terminate")
+
 
             ierror = nf90_def_var(ncid,'field',NF90_INT,ncdimid(1),ncvarid(4))
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' define netcdf var ', ierror ; call flush(nulprt)
             ENDIF
+            ierror = nf90_put_att(ncid, ncvarid(4), 'long_name', "OASIS field name ID")
+            ierror = nf90_put_att(ncid, ncvarid(4), 'standard_name', "Field")
+            ierror = nf90_put_att(ncid, ncvarid(4), 'comment', "Sequence follows namcouple order ")
 
             ierror = nf90_def_var(ncid,'component',NF90_INT,ncdimid(1),ncvarid(5))
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' define netcdf var ', ierror ; call flush(nulprt)
             ENDIF
+            ierror = nf90_put_att(ncid, ncvarid(5), 'long_name', "Counterpart coupled component ID")
+            ierror = nf90_put_att(ncid, ncvarid(5), 'standard_name', "Component")
+            ierror = nf90_put_att(ncid, ncvarid(5), 'comment', "Sequence follows component MPI rank in global communicator ")
 
             ierror = nf90_enddef(ncid)
             IF (OASIS_Debug >= 2) THEN
@@ -675,6 +704,7 @@ module mod_oasis_load_balancing
                write(nulprt,*) subname,' put netcdf var timeline', ierror ; call flush(nulprt)
             ENDIF
 
+
             IF (OASIS_Debug >= 10) THEN
                write(nulprt,*) subname, 'check kind  values', local_timeline(:)%kind
                write(nulprt,*) subname, 'check field values', local_timeline(:)%field
@@ -683,24 +713,25 @@ module mod_oasis_load_balancing
             ENDIF
 
             ! only "before" event characteristics are saved ("after" have the same)
-            write(nulprt,*) subname,' put netcdf ievent ', ievent ; call flush(nulprt)
-            ierror = nf90_put_var(ncid,ncvarid(3),&
-                        local_timeline(1:ievent-1:2)%kind)
+            write_timeline(1:ievent/2) = local_timeline(1:ievent-1:2)%kind
+            ierror = nf90_put_var(ncid,ncvarid(3),write_timeline)
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' put netcdf var kind', ierror ; call flush(nulprt)
             ENDIF
 
-            ierror = nf90_put_var(ncid,ncvarid(4),&
-                        local_timeline(1:ievent-1:2)%field)
+            write_timeline(1:ievent/2) = local_timeline(1:ievent-1:2)%field
+            ierror = nf90_put_var(ncid,ncvarid(4),write_timeline)
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' put netcdf var field', ierror ; call flush(nulprt)
             ENDIF
 
-            ierror = nf90_put_var(ncid,ncvarid(5),&
-                        local_timeline(1:ievent-1:2)%cntp)
+            write_timeline(1:ievent/2) = local_timeline(1:ievent-1:2)%cntp
+            ierror = nf90_put_var(ncid,ncvarid(5),write_timeline)
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' put netcdf var counterpart model', ierror ; call flush(nulprt)
             ENDIF
+
+            DEALLOCATE(write_timeline)
 
             ierror = nf90_close(ncid)
             IF (OASIS_Debug >= 2) THEN
@@ -748,7 +779,7 @@ module mod_oasis_load_balancing
                ! event
                bk_minval(:) = MINVAL ( tl_global_timer(:,:), dim=2)
                bk_maxval(:) = MAXVAL ( tl_global_timer(:,:), dim=2)
-               bk_avg(:)    = SUM ( tl_global_timer(:,:), dim=2) / DBLE(mpi_size_local)
+               bk_avg(:)    = SUM ( tl_global_timer(:,:), dim=2) / REAL(mpi_size_local,4)
 
                DEALLOCATE(tl_global_timer)
 
@@ -913,12 +944,12 @@ module mod_oasis_load_balancing
                IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
                                      mpi_rank_local,' WARNING allocating diagnostic buffer '
 
-               g_lb_diag_buff(:,1) = lb_diag_buff(:)
+               g_lb_diag_buff(:,1) = DBLE(lb_diag_buff(:))
 
             ELSE
 
                ! Send information to master root
-               call oasis_mpi_send(lb_diag_buff,0,lb_tag,mpi_comm_global,'oasis_lb_print')
+               call oasis_mpi_send(DBLE(lb_diag_buff),0,lb_tag,mpi_comm_global,'oasis_lb_print')
             ENDIF
 
             IF ( ALLOCATED(pair_field_cntp) ) DEALLOCATE(pair_field_cntp)
