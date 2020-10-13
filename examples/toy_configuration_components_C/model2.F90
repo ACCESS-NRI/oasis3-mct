@@ -432,6 +432,8 @@ PROGRAM model2
 
     do sr = 1,2     ! send = 1, recv = 2, to make sure there are no deadlocks
     DO ng=1,ngrid
+      dpe  = mype - grid_pmin(ng)
+      dpes = grid_pmax(ng)-grid_pmin(ng)+1
       ! Allocate the local fields sent and received by the components 
       ALLOCATE(field_b(il_extentx(ng), il_extenty(ng), nlev), STAT=ierror )
       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_recv_b, line 307'
@@ -443,6 +445,7 @@ PROGRAM model2
       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating l_lat, line 502'
 
       ! Read local grid longitudes, latitudes to calculate analytical function
+      if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
       CALL read_grid(nlon(ng), nlat(ng), il_offsetx(ng)+1, il_offsety(ng)+1, &
                     il_extentx(ng), il_extenty(ng), &
                     TRIM(cl_grd_tgt(ng)), TRIM(data_gridname), w_unit, FILE_Debug, &
@@ -453,6 +456,7 @@ PROGRAM model2
          WRITE(w_unit,*) 'After reading grid : ',TRIM(cl_grd_tgt(ng))
          CALL FLUSH(w_unit)
       ENDIF
+      endif
     !
     DO n = 1,nvar(ng)
         !
@@ -466,9 +470,9 @@ PROGRAM model2
               field(:,:) =  ib*(2.-COS(dp_pi*(ACOS(COS(l_lat(:,:)*dp_pi/180.)* &
                             COS(l_lon(:,:)*dp_pi/180.))/dp_length)))
               ! Calculate global min and max on all pes
-              if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field(:,:),fmin,fmax,fsum,subcomm(ng),il_extentx, il_extenty)
-              if (mype == 0) WRITE(w_unit,12) 'tcx other fields sent ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
-              if (mype == 0) WRITE(w_unit,10) 'tcx other fields min max ',itap_sec,fmin,fmax,fsum
+              if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field(:,:),fmin,fmax,fsum,subcomm(ng),il_extentx(ng), il_extenty(ng))
+              if (dpe == 0) WRITE(w_unit,12) 'tcx other fields sent ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
+              if (dpe == 0) WRITE(w_unit,10) 'tcx other fields min max ',itap_sec,fmin,fmax,fsum
 
               if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
               CALL oasis_put(var_id(n,ng),itap_sec, field, ierror)
@@ -485,9 +489,9 @@ PROGRAM model2
                  field_b(:,:,nl) =  ib*(2.-COS(dp_pi*(ACOS(COS(l_lat(:,:)*dp_pi/180.)* &
                                     COS(l_lon(:,:)*dp_pi/180.))/dp_length)))
                  ! Calculate global min and max on all pes
-                 if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field_b(:,:,nl),fmin,fmax,fsum,subcomm(ng),il_extentx, il_extenty)
-                 if (mype == 0) WRITE(w_unit,12) 'tcx bundle field sent ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
-                 if (mype == 0) WRITE(w_unit,11) 'tcx bundle min max : ',itap_sec,nl,fmin,fmax,fsum
+                 if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field_b(:,:,nl),fmin,fmax,fsum,subcomm(ng),il_extentx(ng), il_extenty(ng))
+                 if (dpe == 0) WRITE(w_unit,12) 'tcx bundle field sent ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
+                 if (dpe == 0) WRITE(w_unit,11) 'tcx bundle min max : ',itap_sec,nl,fmin,fmax,fsum
               enddo
 
               if (mype >= grid_pmin(ng) .and. mype <= grid_pmax(ng)) then
@@ -511,9 +515,9 @@ PROGRAM model2
               CALL oasis_get(var_id(n,ng),itap_sec, field, ierror)
               endif
               ! Calculate global min and max on all pes
-               if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field(:,:),fmin,fmax,fsum,subcomm(ng),il_extentx, il_extenty)
-               if (mype == 0) WRITE(w_unit,12) 'tcx other fields received ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
-               if (mype == 0)  WRITE(w_unit,10) 'tcx other fields min max ',itap_sec,fmin,fmax,fsum
+               if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field(:,:),fmin,fmax,fsum,subcomm(ng),il_extentx(ng), il_extenty(ng))
+               if (dpe == 0) WRITE(w_unit,12) 'tcx other fields received ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
+               if (dpe == 0)  WRITE(w_unit,10) 'tcx other fields min max ',itap_sec,fmin,fmax,fsum
                IF ( ierror .NE. OASIS_Ok .AND. ierror .LT. OASIS_Recvd) THEN
                   WRITE (w_unit,*) 'oasis_get abort by model2 compid ',comp_id
                   CALL oasis_abort(comp_id,comp_name(comp_num),'Problem at line 316')
@@ -528,9 +532,9 @@ PROGRAM model2
               endif
               ! Calculate global min and max on all pes
               do nl = 1,var_num(n,ng)
-                 if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field_b(:,:,nl),fmin,fmax,fsum,subcomm(ng),il_extentx, il_extenty)
-                 if (mype == 0) WRITE(w_unit,12) 'tcx bundle received ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
-                 if (mype == 0)  WRITE(w_unit,11) 'tcx bundle min max ',itap_sec,nl,fmin,fmax,fsum
+                 if (subcomm(ng) /= MPI_COMM_NULL) CALL flddiag(field_b(:,:,nl),fmin,fmax,fsum,subcomm(ng),il_extentx(ng), il_extenty(ng))
+                 if (dpe == 0) WRITE(w_unit,12) 'tcx bundle received ',trim(comp_name(comp_num)),TRIM(var_name(n,ng)),TRIM(cl_grd_tgt(ng))
+                 if (dpe == 0)  WRITE(w_unit,11) 'tcx bundle min max ',itap_sec,nl,fmin,fmax,fsum
               enddo
               IF ( ierror .NE. OASIS_Ok .AND. ierror .LT. OASIS_Recvd) THEN
                   WRITE (w_unit,*) 'oasis_get abort by model2 compid ',comp_id
@@ -560,8 +564,8 @@ PROGRAM model2
       CALL FLUSH(w_unit)
   ENDIF
   !
-10 FORMAT(3X,A,3X,I8,3X,F10.5,3X,F10.5,3X,F20.7)
-11 FORMAT(3X,A,3X,I8,3X,I3,3X,F10.5,3X,F10.5,3X,F20.7)
+10 FORMAT(3X,A,3X,I8,3X,F20.7,3X,F20.7,3X,F20.7)
+11 FORMAT(3X,A,3X,I8,3X,I3,3X,F20.7,3X,F20.7,3X,F20.7)
 12 FORMAT(3X,A,3X,A,3X,A,3X,A)
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !         TERMINATION 
