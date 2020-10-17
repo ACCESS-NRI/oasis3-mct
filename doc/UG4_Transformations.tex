@@ -372,7 +372,7 @@ noted with the string UNUSED and not described.
     The configuring line is:
   \begin{verbatim}
  # SCRIPR (for CONSERV)
-     $CMETH  $CGRS  $CFTYP  $REST  $NBIN  $NORM  $ORDER 
+     $CMETH  $CGRS  $CFTYP  $REST  $NBIN  $NORM  $ORDER $NTHRESH $STHRESH
 \end{verbatim}
     % $
     \vspace{-0.5cm} where:
@@ -423,6 +423,18 @@ noted with the string UNUSED and not described.
       as extra arguments of the {\tt oasis\_put} as {\tt fld2} and {\tt fld3}
       respectively (see section \ref{prismput}). Note that {\tt CONSERV/SECOND} is
       not positive definite.
+    \item {\tt \$NTHRESH} is the value of the northern latitude threshold in radians 
+      where conservative area computation switches from linear boundaries in
+      longitude and latitude at the equator to a Lambert equivalent azimuthal projection
+      toward the north pole.  This value is optional and the default is 2.0 
+      radians (>90 degrees) which means the Lambert projection is 
+      never invoked.  If this value is set, {\tt \$STHRESH} must be set as well.
+    \item {\tt \$STHRESH}  is the value of the southern latitude threshold in radians 
+      where conservative area computation switches from linear boundaries in
+      longitude and latitude at the equator to a Lambert equivalent azimuthal projection
+      toward the south pole.  This value is optional and the default is -2.0 
+      radians (< -90 degrees) which means the Lambert projection is 
+      never invoked.  If this value is set, {\tt \$NTHRESH} must be set as well.
     \end{itemize}
 
   \end{itemize}
@@ -447,10 +459,12 @@ noted with the string UNUSED and not described.
       oasis3-mct/lib/scrip/remap\_conserv.F90}, the library evaluates
     the intersection between two border segments using a Lambert
     equivalent azimuthal projection.  {\bf However, by default, {\tt \bf north\_thresh} and
-    {\tt \bf south\_thresh} are set to 2.0 and -2.0 respectively and the Lambert projection is not activated.} 
+    {\tt \bf south\_thresh} are set to 2.0 and -2.0 radians respectively and the Lambert projection is not activated.} 
     (Note that {\tt north\_thresh} was set to 1.45 in previous versions prior to OASIS3-MCT\_4.0.)
-    
-    Of course, these values ca be changed in {\tt oasis3-mct/lib/scrip/remap\_conserv.F90} and OASIS3-MCT has then to be recompiled to consider the updated values.
+
+    The value of the north and south threshhold can be defined in the 
+    namcouple file via the {\tt \$NTHRESH} and {\tt \$STHRESH} optional settings
+    on the SCRIPR input line.
     
     The analysis of the impact of the Lambert projection for specific grids can be found in \cite{valcke19}.
   
