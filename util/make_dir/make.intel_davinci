@@ -36,6 +36,8 @@ f90         = $(F90)
 f           = $(F90)
 CC          = mpicc -I$(MPI_INCLUDE)
 LD          = $(MPIBIN)/mpiifort $(MPILIB)
+DYNOPT      = -fPIC
+LDDYNOPT    = -shared
 AR          = ar
 ARFLAGS     = -ruv
 #
@@ -62,6 +64,8 @@ FLIBS		= $(NETCDF_LIBRARY)
 BINDIR          = $(ARCHDIR)/bin
 # LIBBUILD      : contains a directory for each library
 LIBBUILD        = $(ARCHDIR)/build/lib
+# LIBBUILDDYN      : contains a directory for each shared library
+LIBBUILDDYN     = $(ARCHDIR)/build-shared/lib
 # INCPSMILE     : includes all *o and *mod for each library
 INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/scrip  -I$(LIBBUILD)/mct 
 

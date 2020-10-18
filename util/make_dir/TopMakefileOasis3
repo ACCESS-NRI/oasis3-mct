@@ -20,15 +20,24 @@ LIBSRC  = $(COUPLE)/lib
 # Log and error files for compiling
 LOG = $(COUPLE)/util/make_dir/COMP.log
 ERR = $(COUPLE)/util/make_dir/COMP.err
+# Log and error files for compiling
+LOGDYN = $(COUPLE)/util/make_dir/COMP-shared.log
+ERRDYN = $(COUPLE)/util/make_dir/COMP-shared.err
 #
 #######
-default: 
-	 rm -f $(LOG) $(ERR)
-	 $(MAKEf) makedirs
-	 $(MAKEf) makemct
-	 $(MAKEf) makelibs
-	 $(MAKEf) makepsmile
-#
+default: static-lib
+
+with-shared-lib: static-lib shared-lib
+
+static-lib: oasis3_psmile
+
+shared-lib: 
+	 rm -f $(LOGDYN) $(ERRDYN)
+	 $(MAKEf) makedirsdyn
+	 $(MAKEf) makemctdyn
+	 $(MAKEf) makelibsdyn
+	 $(MAKEf) makepsmiledyn
+
 oasis3_psmile:
 	rm -f $(LOG) $(ERR)
 	$(MAKEf) makedirs
@@ -37,54 +46,94 @@ oasis3_psmile:
 	$(MAKEf) makepsmile
 #
 realclean:
-	$(MAKEf) cleanlibs
+	$(MAKEf) cleanlibs cleansharedlibs
 #
 # Rules for creating build and library directories
 #
 makedirs:
-	@mkdir -p $(ARCHDIR)/build/lib/scrip
-	@mkdir -p $(ARCHDIR)/build/lib/mctdir
-	@mkdir -p $(ARCHDIR)/build/lib/mct
-	@mkdir -p $(ARCHDIR)/build/lib/psmile.$(CHAN)
+	@mkdir -p $(LIBBUILD)/scrip
+	@mkdir -p $(LIBBUILD)/mctdir
+	@mkdir -p $(LIBBUILD)/mct
+	@mkdir -p $(LIBBUILD)/psmile.$(CHAN)
+	@mkdir -p $(ARCHDIR)/lib
+
+makedirsdyn:
+	@mkdir -p $(LIBBUILDDYN)/scrip
+	@mkdir -p $(LIBBUILDDYN)/mctdir
+	@mkdir -p $(LIBBUILDDYN)/mct
+	@mkdir -p $(LIBBUILDDYN)/psmile.$(CHAN)
 	@mkdir -p $(ARCHDIR)/lib
 #
 # Rules for compiling mpeu/mct library
 # 
 makemct:
 	@echo "=> Compiling library mpeu and mct"
-	(cd $(ARCHDIR)/build/lib/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
+	(cd $(LIBBUILD)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
          ./configure MPIFC="$(F90)" FC="$(F90)" CC="$(CC)" \
          1>> $(LOG) 2>> $(ERR) ;\
          $(MAKE) 1>> $(LOG) 2>> $(ERR) ; \
          cp -f ./*/lib*.a   $(ARCHDIR)/lib/; \
-         cp -f ./*/*.o    $(ARCHDIR)/build/lib/mct/; \
-         cp -f ./*/*.mod  $(ARCHDIR)/build/lib/mct/;)
+         cp -f ./*/*.o    $(LIBBUILD)/mct/; \
+         cp -f ./*/*.mod  $(LIBBUILD)/mct/;)
+#
+makemctdyn:
+	@echo "=> Compiling shared library mpeu and mct"
+	(cd $(LIBBUILDDYN)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
+         ./configure MPIFC="$(F90) $(DYNOPT)" FC="$(F90) $(DYNOPT)" CC="$(CC) $(DYNOPT)" \
+         1>> $(LOGDYN) 2>> $(ERRDYN) ;\
+         $(MAKE) 1>> $(LOGDYN) 2>> $(ERRDYN) ; \
+	 $(F90) $(DYNOPT) $(LDFLAGS) $(LDDYNOPT) \
+         -o $(ARCHDIR)/lib/libsparsematrix.so ./*/*.o $(NETCDF_LIBRARY); \
+         cp -f ./*/*.o    $(LIBBUILDDYN)/mct/; \
+         cp -f ./*/*.mod  $(LIBBUILDDYN)/mct/;)
 #
 # Rules for compiling the libraries scrip and psmile
 #
 makelibs:
 	@echo "=> Compiling library scrip"
-	(cd $(ARCHDIR)/build/lib/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
+	(cd $(LIBBUILD)/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
          $(modifmakefile) ; $(MAKE) all 1>> $(LOG) 2>> $(ERR) )
+
+makelibsdyn:
+	@echo "=> Compiling shared library scrip"
+	(cd $(LIBBUILDDYN)/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
+         $(modifmakefile) ; $(MAKE) shared 1>> $(LOGDYN) 2>> $(ERRDYN) )
 
 makepsmile:
 	@echo "=> Compiling library psmile"
-	(cd $(ARCHDIR)/build/lib/psmile.$(CHAN) ; \
+	(cd $(LIBBUILD)/psmile.$(CHAN) ; \
          cp -f $(LIBSRC)/psmile/src/Makefile . ; $(modifmakefile) ; \
          $(MAKE) all 1>> $(LOG) 2>> $(ERR) )
+
+makepsmiledyn:
+	@echo "=> Compiling shared library psmile"
+	(cd $(LIBBUILDDYN)/psmile.$(CHAN) ; \
+         cp -f $(LIBSRC)/psmile/src/Makefile . ; $(modifmakefile) ; \
+         $(MAKE) shared 1>> $(LOGDYN) 2>> $(ERRDYN) )
 #
 # Rules for cleaning
 #
 cleanlibs:
 	@echo cleaning oasis3-mct libraries
-	rm -f $(ARCHDIR)/build/lib/scrip/*
-	rm -f $(ARCHDIR)/build/lib/mct/*
-	rm -f -r $(ARCHDIR)/build/lib/mctdir/*
-	rm -f $(ARCHDIR)/build/lib/psmile.$(CHAN)/*
+	rm -f $(LIBBUILD)/scrip/*
+	rm -f $(LIBBUILD)/mct/*
+	rm -f -r $(LIBBUILD)/mctdir/*
+	rm -f $(LIBBUILD)/psmile.$(CHAN)/*
 	rm -f $(ARCHDIR)/lib/libscrip.a
 	rm -f $(ARCHDIR)/lib/libmct.a
 	rm -f $(ARCHDIR)/lib/libmpeu.a
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).a
+
+cleansharedlibs:
+	@echo cleaning oasis3-mct shared libraries
+	rm -f $(LIBBUILDDYN)/scrip/*
+	rm -f $(LIBBUILDDYN)/mct/*
+	rm -f -r $(LIBBUILDDYN)/mctdir/*
+	rm -f $(LIBBUILDDYN)/psmile.$(CHAN)/*
+	rm -f $(ARCHDIR)/lib/libscrip.so
+	rm -f $(ARCHDIR)/lib/libmct.so
+	rm -f $(ARCHDIR)/lib/libmpeu.so
+	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).so
 #
 ## Some rules to modify/add variables in makefiles
 #

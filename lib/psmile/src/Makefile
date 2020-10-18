@@ -9,18 +9,30 @@ VPATH 	= .:$(COUPLE)/lib/psmile/src:\
 
 LIBRARY = $(ARCHDIR)/lib/libpsmile.${CHAN}.a
 
+DYNLIBRARY = $(ARCHDIR)/lib/libscrip.so
+
 clean:
 	rm -f i.* *.o *.mod
 
 all:	$(LIBRARY)
 
+shared:	$(DYNLIBRARY)
+
+$(LIBRARY): PREBUILTDIR := $(LIBBUILD)
 $(LIBRARY): $(OBJS1) 
 	$(AR) $(ARFLAGS) $(LIBRARY) $(OBJS1) 
 
+$(DYNLIBRARY): PREBUILTDIR := $(LIBBUILDDYN)
+$(DYNLIBRARY): F90FLAGS += $(DYNOPT)
+$(DYNLIBRARY): CCFLAGS += $(DYNOPT)
+$(DYNLIBRARY): LDFLAGS += $(DYNOPT) $(LDDYNOPT)
+$(DYNLIBRARY): $(OBJS1)  $(OBJS3) $(OBJS4)
+	$(F90) $(LDFLAGS) -o $(DYNLIBRARY) $(OBJS1) $(OBJS3) $(OBJS4) $(NETCDF_LIBRARY)
+
 INCLS = -I$(COUPLE)/lib/psmile/include \
-        -I$(ARCHDIR)/build/lib/mct \
-        -I$(ARCHDIR)/build/lib/scrip \
-        -I$(ARCHDIR)/build/lib/pio
+        -I$(PREBUILTDIR)/mct \
+        -I$(PREBUILTDIR)/scrip \
+        -I$(PREBUILTDIR)/pio
 
 INCLSC = -I$(COUPLE)/lib/psmile/include
 .SUFFIXES:
@@ -47,7 +59,7 @@ mod_psmile_io.o: mod_psmile_io.F90
 #mct_mod.o: $(ARCHDIR)/build/lib/mct/mct_mod.o
 #	cp -p $(ARCHDIR)/build/lib/mct/mct_mod.o .
 mct_mod.o: 
-	cp -p $(ARCHDIR)/build/lib/mct/mct_mod.o .
+	cp -p $(PREBUILTDIR)/mct/mct_mod.o .
 
 #
 # ALL dependencies ...

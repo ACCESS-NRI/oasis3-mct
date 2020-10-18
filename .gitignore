@@ -1,5 +1,7 @@
 util/make_dir/COMP.err
 util/make_dir/COMP.log
+util/make_dir/COMP-shared.err
+util/make_dir/COMP-shared.log
 *.o
 *.mod
 *~
