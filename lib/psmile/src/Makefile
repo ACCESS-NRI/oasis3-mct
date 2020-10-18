@@ -9,7 +9,7 @@ VPATH 	= .:$(COUPLE)/lib/psmile/src:\
 
 LIBRARY = $(ARCHDIR)/lib/libpsmile.${CHAN}.a
 
-DYNLIBRARY = $(ARCHDIR)/lib/libscrip.so
+DYNLIBRARY = $(ARCHDIR)/lib/libpsmile.${CHAN}.so
 
 clean:
 	rm -f i.* *.o *.mod
