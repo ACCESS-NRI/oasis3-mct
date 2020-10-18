@@ -20,9 +20,12 @@ LIBSRC  = $(COUPLE)/lib
 # Log and error files for compiling
 LOG = $(COUPLE)/util/make_dir/COMP.log
 ERR = $(COUPLE)/util/make_dir/COMP.err
-# Log and error files for compiling
+# Log and error files for compiling the shared libraries
 LOGDYN = $(COUPLE)/util/make_dir/COMP-shared.log
 ERRDYN = $(COUPLE)/util/make_dir/COMP-shared.err
+# Log and error files for compiling PyOasis
+LOGPYO = $(COUPLE)/util/make_dir/COMP-pyoasis.log
+ERRPYO = $(COUPLE)/util/make_dir/COMP-pyoasis.err
 #
 #######
 default: static-lib
@@ -32,21 +35,27 @@ with-shared-lib: static-lib shared-lib
 static-lib: oasis3_psmile
 
 shared-lib: 
-	 rm -f $(LOGDYN) $(ERRDYN)
+	 @rm -f $(LOGDYN) $(ERRDYN)
 	 $(MAKEf) makedirsdyn
 	 $(MAKEf) makemctdyn
 	 $(MAKEf) makelibsdyn
 	 $(MAKEf) makepsmiledyn
 
 oasis3_psmile:
-	rm -f $(LOG) $(ERR)
+	@rm -f $(LOG) $(ERR)
 	$(MAKEf) makedirs
 	$(MAKEf) makemct
 	$(MAKEf) makelibs
 	$(MAKEf) makepsmile
+
+pyoasis: shared-lib
+	@rm -f $(LOGPYO) $(ERRPYO)
+	$(MAKEf) makedirspy
+	$(MAKEf) makepyoasis
+
 #
 realclean:
-	$(MAKEf) cleanlibs cleansharedlibs
+	$(MAKEf) cleanlibs cleansharedlibs cleanpyoasis
 #
 # Rules for creating build and library directories
 #
@@ -62,13 +71,19 @@ makedirsdyn:
 	@mkdir -p $(LIBBUILDDYN)/mctdir
 	@mkdir -p $(LIBBUILDDYN)/mct
 	@mkdir -p $(LIBBUILDDYN)/psmile.$(CHAN)
+	@mkdir -p $(ARCHDIR)/mod
+
 	@mkdir -p $(ARCHDIR)/lib
+
+makedirspy:
+	@mkdir -p $(LIBBUILDPYO)
+	@mkdir -p $(ARCHDIR)/python
 #
 # Rules for compiling mpeu/mct library
 # 
 makemct:
 	@echo "=> Compiling library mpeu and mct"
-	(cd $(LIBBUILD)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
+	@(cd $(LIBBUILD)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
          ./configure MPIFC="$(F90)" FC="$(F90)" CC="$(CC)" \
          1>> $(LOG) 2>> $(ERR) ;\
          $(MAKE) 1>> $(LOG) 2>> $(ERR) ; \
@@ -78,7 +93,7 @@ makemct:
 #
 makemctdyn:
 	@echo "=> Compiling shared library mpeu and mct"
-	(cd $(LIBBUILDDYN)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
+	@(cd $(LIBBUILDDYN)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
          ./configure MPIFC="$(F90) $(DYNOPT)" FC="$(F90) $(DYNOPT)" CC="$(CC) $(DYNOPT)" \
          1>> $(LOGDYN) 2>> $(ERRDYN) ;\
          $(MAKE) 1>> $(LOGDYN) 2>> $(ERRDYN) ; \
@@ -91,25 +106,47 @@ makemctdyn:
 #
 makelibs:
 	@echo "=> Compiling library scrip"
-	(cd $(LIBBUILD)/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
+	@(cd $(LIBBUILD)/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
          $(modifmakefile) ; $(MAKE) all 1>> $(LOG) 2>> $(ERR) )
 
 makelibsdyn:
 	@echo "=> Compiling shared library scrip"
-	(cd $(LIBBUILDDYN)/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
+	@(cd $(LIBBUILDDYN)/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
          $(modifmakefile) ; $(MAKE) shared 1>> $(LOGDYN) 2>> $(ERRDYN) )
 
 makepsmile:
 	@echo "=> Compiling library psmile"
-	(cd $(LIBBUILD)/psmile.$(CHAN) ; \
+	@(cd $(LIBBUILD)/psmile.$(CHAN) ; \
          cp -f $(LIBSRC)/psmile/src/Makefile . ; $(modifmakefile) ; \
          $(MAKE) all 1>> $(LOG) 2>> $(ERR) )
 
 makepsmiledyn:
 	@echo "=> Compiling shared library psmile"
-	(cd $(LIBBUILDDYN)/psmile.$(CHAN) ; \
+	@(cd $(LIBBUILDDYN)/psmile.$(CHAN) ; \
          cp -f $(LIBSRC)/psmile/src/Makefile . ; $(modifmakefile) ; \
          $(MAKE) shared 1>> $(LOGDYN) 2>> $(ERRDYN) )
+#
+# Rules for compiling the libraries scrip and psmile
+#
+makepyoasis:
+	@echo "=> Compiling the python libraries and wrappers"
+	@(cd $(LIBBUILDPYO) ; \
+	 cp -f -r -p $(COUPLE)/pyoasis/Makefile .; $(modifmakefile) ; \
+         $(MAKE) install 1>> $(LOGPYO) 2>> $(ERRPYO) )
+	@echo export PYOASIS_ROOT=${ARCHDIR} > init.sh
+	@echo export LD_LIBRARY_PATH=\$${PYOASIS_ROOT}/lib:\$${LD_LIBRARY_PATH} >> init.sh
+	@echo export PYTHONPATH=\$${PYOASIS_ROOT}/modules:\$${PYTHONPATH} >> init.sh
+	@echo
+	@echo ======================================================
+	@echo The following lines have been put in the file init.sh.
+	@echo
+	@cat init.sh
+	@echo
+	@echo The command \"source init.sh\" has to be be issued
+	@echo before using pyOASIS. Alternatively, these lines
+	@echo should be added to your \~/.bashrc file. 
+	@echo ======================================================
+	@echo
 #
 # Rules for cleaning
 #
@@ -131,9 +168,13 @@ cleansharedlibs:
 	rm -f -r $(LIBBUILDDYN)/mctdir/*
 	rm -f $(LIBBUILDDYN)/psmile.$(CHAN)/*
 	rm -f $(ARCHDIR)/lib/libscrip.so
-	rm -f $(ARCHDIR)/lib/libmct.so
-	rm -f $(ARCHDIR)/lib/libmpeu.so
+	rm -f $(ARCHDIR)/lib/libsparsematrix.so
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).so
+
+cleanpyoasis:
+	@echo cleaning pyoasis
+	rm -f $(LIBBUILDPYO)/*
+	rm -f $(ARCHDIR)/lib/libpyoasiscore.so
 #
 ## Some rules to modify/add variables in makefiles
 #

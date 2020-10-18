@@ -2,6 +2,8 @@ util/make_dir/COMP.err
 util/make_dir/COMP.log
 util/make_dir/COMP-shared.err
 util/make_dir/COMP-shared.log
+util/make_dir/COMP-pyoasis.err
+util/make_dir/COMP-pyoasis.log
 *.o
 *.mod
 *~

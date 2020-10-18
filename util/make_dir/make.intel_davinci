@@ -19,7 +19,10 @@ ARCHDIR         = $(HOME)/INSTALL/oasis3-mct
 MPIDIR      = /opt/intel/impi/2018.1.163
 MPIBIN      = $(MPIDIR)/bin64
 MPI_INCLUDE = $(MPIDIR)/include64
-MPILIB      = -L$(MPIDIR)/lib64 
+MPILIB      = -L$(MPIDIR)/lib64
+#
+# Python includes
+PYTHON_INCLUDE = /usr/include/python3.6m
 #
 # NETCDF library
 NETCDF_LIB_DIR=/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib
@@ -34,7 +37,7 @@ F90         = $(MPIBIN)/mpiifort -I$(MPI_INCLUDE)
 F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
-CC          = mpicc -I$(MPI_INCLUDE)
+CC          = $(MPIBIN)/mpiicc -I$(MPI_INCLUDE)
 LD          = $(MPIBIN)/mpiifort $(MPILIB)
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
@@ -64,8 +67,10 @@ FLIBS		= $(NETCDF_LIBRARY)
 BINDIR          = $(ARCHDIR)/bin
 # LIBBUILD      : contains a directory for each library
 LIBBUILD        = $(ARCHDIR)/build/lib
-# LIBBUILDDYN      : contains a directory for each shared library
+# LIBBUILDDYN   : contains a directory for each shared library
 LIBBUILDDYN     = $(ARCHDIR)/build-shared/lib
+# LIBBUILDPYO   : contains a directory for compiling pyoasis
+LIBBUILDPYO     = $(ARCHDIR)/build-pyoasis
 # INCPSMILE     : includes all *o and *mod for each library
 INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/scrip  -I$(LIBBUILD)/mct 
 
