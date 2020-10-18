@@ -838,7 +838,6 @@ CONTAINS
               !--------------------------------
 
               if (namfldops(nn) == ip_exported .or. namfldops(nn) == ip_expout) then
-print *, "XXXXXXXXXXX ", namfldops(nn), " ", ip_exported, " ", namfldops(nn), " ", ip_expout
 ! tcraig allow this now
 !                if (nm == compid) then
 !                   write(nulprt,*) subname,estr,'send recv pair on same model = ', &
@@ -846,13 +845,11 @@ print *, "XXXXXXXXXXX ", namfldops(nn), " ", ip_exported, " ", namfldops(nn), " 
 !                   call oasis_abort(file=__FILE__,line=__LINE__)
 !                endif
                  if (flag == OASIS_Out .and. allops(nv,nm) /= OASIS_In) then
-print *, "OUT ", allops(nv,nm),  OASIS_In
                     write(nulprt,*) subname,estr,'send recv pair both Out = ', &
                        trim(myfld),' ',trim(otfld)
                     call oasis_abort(file=__FILE__,line=__LINE__)
                  endif
                  if (flag == OASIS_In .and. allops(nv,nm) /= OASIS_Out) then
-print *, "IN"
                     write(nulprt,*) subname,estr,'send recv pair both In = ', &
                        trim(myfld),' ',trim(otfld)
                     call oasis_abort(file=__FILE__,line=__LINE__)
