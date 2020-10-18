@@ -16,6 +16,7 @@ MODULE mod_oasis_coupler
   USE mod_oasis_string
   USE mod_oasis_io
   USE mod_oasis_timer
+  USE mod_oasis_load_balancing
   USE mct_mod
   USE grids    ! scrip
   USE netcdf
@@ -189,6 +190,8 @@ CONTAINS
   character(len=ic_med) :: part2decomp   ! decomp_1d or decomp_wghtfile
   character(len=ic_med) :: smatread_method ! orig or ceg
   integer, parameter :: local_timers_on = 0   ! 0=min, 1=few, 2=med, 3=max
+  integer(kind=ip_i4_p) :: nb_field, nb_cpl_ts, imain_kind_lb
+  logical :: lmap,  lout, lrst, ltrn
 
   character(len=*),parameter :: subname = '(oasis_coupler_setup)'
 
@@ -2050,13 +2053,81 @@ CONTAINS
      CALL oasis_flush(nulprt)
   endif
 
-  IF (LUCIA_debug > 0) THEN
+  IF ( LUCIA_debug == 1) THEN
      DO nc = 1, prism_mcoupler
         IF (prism_coupler_put(nc)%valid) &
            WRITE(nullucia, '(A12,I4.4,1X,A)') 'Balance: SN ', prism_coupler_put(nc)%namID, TRIM(prism_coupler_put(nc)%fldlist)
         IF (prism_coupler_get(nc)%valid) &
            WRITE(nullucia, '(A12,I4.4,1X,A)') 'Balance: RC ', prism_coupler_get(nc)%namID, TRIM(prism_coupler_get(nc)%fldlist)
      ENDDO
+  ENDIF
+
+!EM modif to add new LB analysis
+  IF ( ABS(LUCIA_debug) > 0 ) THEN
+
+     ! How much event to measure should we expect
+     ! number of get/put
+     nb_field = COUNT(prism_coupler_put(1:prism_mcoupler)%valid) + &
+                COUNT(prism_coupler_get(1:prism_mcoupler)%valid)
+
+     CALL oasis_lb_allocate(nb_field)
+
+     DO nc = 1, prism_mcoupler
+        IF (prism_coupler_put(nc)%valid) THEN
+           !
+           IF ( prism_coupler_put(nc)%comp == compid .AND. &
+                prism_part((prism_coupler_put(nc)%partid))%lsize == 0 .AND. &
+                mpi_rank_local == 0 ) THEN
+              WRITE(nulprt,*) subname, ' WARNING: component self exchange, not involving master process. Load balancing analysis impossible '
+              CALL oasis_lb_stop
+           ENDIF
+           !
+           nb_cpl_ts = prism_coupler_put(nc)%maxtime/prism_coupler_put(nc)%dt
+           IF (OASIS_debug >= 2) &
+              WRITE(nulprt,'(A11,I2,A16)') ' LB: Define ', nb_cpl_ts, ' coupling events'
+
+           imain_kind_lb = LB_PUT
+           IF ( .NOT. prism_coupler_put(nc)%sndrcv ) imain_kind_lb = LB_OUT
+
+           lmap = .FALSE.; lout = .FALSE.; lrst = .FALSE. ; ltrn = .FALSE.
+           IF ( prism_coupler_put(nc)%mapperID > 0 ) lmap = .TRUE.
+           IF ( prism_coupler_put(nc)%output ) lout = .TRUE.
+           IF ( prism_coupler_put(nc)%writrest .OR. prism_coupler_put(nc)%lag > 0 ) &
+              lrst = .TRUE.
+           IF ( prism_coupler_put(nc)%writrest .OR. prism_coupler_put(nc)%trans /= ip_instant ) &
+              ltrn = .TRUE.
+
+           CALL oasis_lb_define(nc, imain_kind_lb, prism_coupler_put(nc)%namID, &
+                                prism_coupler_put(nc)%comp, nb_cpl_ts, &
+                                lmap = lmap, lout = lout, lrst = lrst, ltrn = ltrn )
+        ENDIF
+        IF (prism_coupler_get(nc)%valid) THEN
+           !
+           IF ( prism_coupler_get(nc)%comp == compid .AND. &
+                prism_part((prism_coupler_get(nc)%partid))%lsize == 0 .AND. &
+                mpi_rank_local == 0 ) THEN
+              WRITE(nulprt,*) subname, ' WARNING: component self exchange, not involving master process. Load balancing analysis impossible '
+              CALL oasis_lb_stop
+           ENDIF
+           !
+           nb_cpl_ts = prism_coupler_get(nc)%maxtime/prism_coupler_get(nc)%dt
+           IF (OASIS_debug >= 2) &
+              WRITE(nulprt,'(A11,I2,A16)') ' LB: Define ', nb_cpl_ts, ' coupling events'
+
+           imain_kind_lb = LB_GET
+           IF ( .NOT. prism_coupler_get(nc)%sndrcv ) imain_kind_lb = LB_READ
+
+           lmap = .FALSE.; lout = .FALSE.
+           IF ( prism_coupler_get(nc)%mapperID > 0 ) lmap = .TRUE.
+           IF ( prism_coupler_get(nc)%output ) lout = .TRUE.
+
+           CALL oasis_lb_define(nc, imain_kind_lb, prism_coupler_get(nc)%namID, &
+                                prism_coupler_get(nc)%comp, nb_cpl_ts, &
+                                lmap = lmap, lout = lout )
+
+        ENDIF
+     ENDDO
+
   ENDIF
 
   if (local_timers_on >= 3) call oasis_timer_stop ('cpl_setup_n4g')
@@ -2294,7 +2365,7 @@ subroutine cplfind(num, fldlist, fld, ifind, nfind)
 
    !--- local ---
    integer(IN)    :: is,ie,im
-   logical        :: found
+   logical        :: found,check
 
    !--- formats ---
    character(*),parameter :: subName = '(cplfind) '
@@ -2347,13 +2418,31 @@ subroutine cplfind(num, fldlist, fld, ifind, nfind)
        is = im
        ie = im
        if (is > 1) then
-          do while (fld == fldlist(is-1) .and. is > 1)
-             is = is - 1
+          check = .true.
+          do while (check)
+             if (is > 1) then
+                if (fld /= fldlist(is-1)) then
+                   check = .false.
+                else
+                   is = is - 1
+                endif
+             else
+                check = .false.
+             endif
           enddo
        endif
        if (ie < num) then
-          do while (fld == fldlist(ie+1) .and. ie < num)
-             ie = ie + 1
+          check = .true.
+          do while (check)
+             if (ie < num) then
+                if (fld /= fldlist(ie+1)) then
+                   check = .false.
+                else
+                   ie = ie + 1
+                endif
+             else
+                check = .false.
+             endif
           enddo
        endif
        ifind = is
