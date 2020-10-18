@@ -148,8 +148,8 @@ class Component(object):
         """
         return_value = mod_oasis_auxiliary_routines.get_localcomm()
         error = return_value[1]
-        if error < 0:
-            raise OasisException("Error in get_localcomm", error)
+#AP        if error < 0:
+#AP            raise OasisException("Error in get_localcomm", error)
         localcomm = return_value[0]
         return localcomm
 
@@ -166,8 +166,8 @@ class Component(object):
         if allcomm is None:
             allcomm = self.get_localcomm()
         check_types([int], [allcomm]);
-        if allcomm < 0:
-            raise PyOasisException("Communicator <0.")   
+#AP        if allcomm < 0:
+#AP            raise PyOasisException("Communicator <0.")   
         icpl=1
         return_value = mod_oasis_auxiliary_routines.create_couplcomm(icpl, 
                                                                           allcomm)

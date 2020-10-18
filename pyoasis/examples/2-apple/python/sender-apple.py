@@ -21,7 +21,7 @@ print("Coupling communicator: " + str(coupl_comm))
 comm_rank = comp.get_localcomm_rank()
 comm_size = comp.get_localcomm_size()
 
-n_points = 16
+n_points = 160000000
 
 local_size = int(n_points/comm_size)
 offset = comm_rank*local_size
@@ -37,12 +37,9 @@ comp.enddef()
 
 date = int(0)
 
-field = pyoasis.Array(numpy.zeros(local_size))
+field = pyoasis.Array(numpy.arange(start=offset,stop=offset+local_size,dtype=numpy.float64))
 
-for i in range(local_size):
-    field[i] = offset + i
-
-print("Sent data: "+str(field))
+print("Sent data: from {} to {}".format(int(field[0]),int(field[-1])))
 
 variable.put(date, field)
 

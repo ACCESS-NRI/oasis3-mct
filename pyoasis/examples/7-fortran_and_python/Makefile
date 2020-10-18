@@ -1,6 +1,6 @@
-FC=mpif90
-OPT=${HOME}/opt
-FLAGS=-J${HOME}/compile_oa3-mct/build/lib/psmile.MPI1 -L${OPT}/lib
+FC=mpiifort
+OPT=${HOME}/INSTALL/PyOasis
+FLAGS=-I${HOME}/INSTALL/oasis3-mct/build/lib/psmile.MPI1 -L${OPT}/lib
 
 all: sender-apple
 

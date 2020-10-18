@@ -4,41 +4,58 @@ import pyoasis
 import numpy
 
 from mpi4py import MPI
+import time
 
 
+stt = time.time()
 comm = MPI.COMM_WORLD
+print('Receiver: Time for comm = {} s.'.format(time.time()-stt), flush=True)
 
 component_name = "receiver"
 
+stt = time.time()
 comp = pyoasis.Component(component_name, True, comm)
 print(comp)
+print('Receiver: Time for Component = {} s.'.format(time.time()-stt), flush=True)
 
+stt = time.time()
 local_comm = comp.get_localcomm()
 print("Local communicator: " + str(local_comm))
+print('Receiver: Time for local comm = {} s.'.format(time.time()-stt), flush=True)
 
+stt = time.time()
 coupl_comm = comp.create_couplcomm(local_comm)
 print("Coupling communicator: " + str(coupl_comm))
+print('Receiver: Time for global comm = {} s.'.format(time.time()-stt), flush=True)
 
-n_points = 16
+n_points = 160000000
 
+stt = time.time()
 partition = pyoasis.SerialPartition(n_points)
 print(partition)
+print('Receiver: Time for partition = {} s.'.format(time.time()-stt), flush=True)
 
+stt = time.time()
 variable = pyoasis.Var("FRECVATM", partition, 1,
                        pyoasis.OasisParameters.OASIS_IN)
+print('Receiver: Time for Var = {} s.'.format(time.time()-stt), flush=True)
 print(variable)
 
 comp.enddef()
 
 date = int(0)
+stt = time.time()
 field = pyoasis.Array(numpy.zeros(n_points))
+print('Receiver: Time for Array = {} s.'.format(time.time()-stt), flush=True)
 
+stt = time.time()
 variable.get(date, field)
+print('Receiver: Time for get = {} s.'.format(time.time()-stt), flush=True)
 
-expected_field = pyoasis.Array(range(n_points))
+expected_field = pyoasis.Array(numpy.arange(n_points,dtype=numpy.float64))
 epsilon = 1e-8
 error = abs((field-expected_field).sum())
 if(error < epsilon):
-    print("Data received successfully")
+    print("Data received successfully", flush=True)
 
 pyoasis.terminate()

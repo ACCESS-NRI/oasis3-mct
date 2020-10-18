@@ -1,6 +1,7 @@
 %.o: %.mod
 
-OASIS=${HOME}/oasis3-mct
+OASIS=${OASIS3_ROOT}
+OASIS_INST=${HOME}/INSTALL/oasis3-mct
 PYOASIS=${OASIS}/pyoasis
 
 SRC_C=${PYOASIS}/src/c
@@ -8,21 +9,21 @@ SRC_F=${PYOASIS}/src/fortran_isoc
 
 MODULES=${PYOASIS}/oasis/modules
 
-FC=mpif90
-CC=mpicc
-CXX=mpic++
-FFLAGS=-fPIC -ffree-form -J${MODULES} -g2 
-CFLAGS=-fPIC -I/usr/include/python3.8 -g2
-CPPFLAGS=-fPIC -I/usr/include/python3.8 -g2
-LFLAGS=-L${PYOASIS}/oasis/lib -L. -Loasis/lib -fPIC
+FC=mpiifort
+CC=mpiicc
+CXX=mpiicpc
+FFLAGS=-fPIC -I${MODULES} -I$(NETCDF4_INCDIR) -g -O2 
+CFLAGS=-fPIC -I$(NETCDF4_INCDIR) -I/usr/include/python3.6m -g -O2
+CPPFLAGS=-fPIC -I$(NETCDF4_INCDIR) -I/usr/include/python3.6m -g -O2
+LFLAGS=-L${PYOASIS}/oasis/lib -L. -Loasis/lib -fPIC -L$(NETCDF4_LIBDIR) -L$(HDF5_LIBDIR)
 
-PREFIX=${HOME}/opt
+PREFIX=${HOME}/INSTALL/PyOasis
 
 
 all: liboasis ${SRC_C}/libpyoasiscore.so 
 
 
-${SRC_C}/libpyoasiscore.so: ${SRC_F}/mod_oasis_auxiliary_routines_iso.o ${SRC_F}/mod_oasis_getput_interface_iso.o ${SRC_F}/mod_oasis_method_iso.o ${SRC_F}/mod_oasis_part_iso.o ${SRC_F}/mod_oasis_sys_iso.o ${SRC_F}/mod_oasis_var_iso.o ${SRC_C}/mod_oasis_auxiliary_routines_c.o ${SRC_C}/mod_oasis_getput_interface_c.o ${SRC_C}/mod_oasis_method_c.o ${SRC_C}/mod_oasis_part_c.o ${SRC_C}/mod_oasis_sys_c.o ${SRC_C}/mod_oasis_var_c.o ${SRC_F}/pyoasis.o
+${SRC_C}/libpyoasiscore.so:${SRC_F}/pyoasis.o ${SRC_F}/mod_oasis_auxiliary_routines_iso.o ${SRC_F}/mod_oasis_getput_interface_iso.o ${SRC_F}/mod_oasis_method_iso.o ${SRC_F}/mod_oasis_part_iso.o ${SRC_F}/mod_oasis_sys_iso.o ${SRC_F}/mod_oasis_var_iso.o ${SRC_C}/mod_oasis_auxiliary_routines_c.o ${SRC_C}/mod_oasis_getput_interface_c.o ${SRC_C}/mod_oasis_method_c.o ${SRC_C}/mod_oasis_part_c.o ${SRC_C}/mod_oasis_sys_c.o ${SRC_C}/mod_oasis_var_c.o
 	cd ${SRC_C} &&\
         ${CC} ../fortran_isoc/mod_oasis_auxiliary_routines_iso.o\
         ../fortran_isoc/mod_oasis_getput_interface_iso.o\
@@ -37,7 +38,7 @@ ${SRC_C}/libpyoasiscore.so: ${SRC_F}/mod_oasis_auxiliary_routines_iso.o ${SRC_F}
         mod_oasis_sys_c.o\
         mod_oasis_var_c.o\
         ../fortran_isoc/pyoasis.o\
-        ${LFLAGS} -lpsmile.MPI1 -lscrip -lsparsematrix -shared -lnetcdf -lnetcdff -shared -o libpyoasiscore.so
+        ${LFLAGS} -lpsmile.MPI1 -lscrip -lsparsematrix -shared -lnetcdff -lnetcdf -lhdf5 -shared -o libpyoasiscore.so
 
 
 # C
@@ -82,7 +83,7 @@ ${SRC_F}/mod_oasis_method_iso.o: ${SRC_F}/mod_oasis_method_iso.F90
 	cd ${SRC_F} && ${FC} -c mod_oasis_method_iso.F90  ${FFLAGS}
 
 ${SRC_F}/pyoasis.o: ${SRC_F}/pyoasis.F90
-	cd ${SRC_F} && ${FC} -c pyoasis.F90
+	cd ${SRC_F} && ${FC} -c pyoasis.F90 ${FFLAGS}
 	cp ${SRC_F}/pyoasis.mod ${MODULES}
 
 # Shared libraries for OASIS
@@ -100,20 +101,20 @@ oasis/lib/libpsmile.MPI1.so:
 	mkdir -p oasis/lib &&\
 	cd oasis/src/psmile &&\
 	rm -f *.o *.so *.F90  &&\
-	cp ${HOME}/compile_oa3-mct/build/lib/psmile.MPI1/mod_oasis.mod ${MODULES} &&\
-	cp ${HOME}/compile_oa3-mct/build/lib/psmile.MPI1/*.mod ${MODULES} &&\
-        cp ${HOME}/compile_oa3-mct/build/lib/mct/*.mod ${MODULES} &&\
-	cp ${HOME}/compile_oa3-mct/build/lib/scrip/*.mod  ${MODULES} &&\
-        cp ${HOME}/oasis3-mct/lib/psmile/src/*.F90 . &&\
-	cp ${HOME}/oasis3-mct/lib/psmile/src/*.c . &&\
+	cp ${OASIS_INST}/build/lib/psmile.MPI1/mod_oasis.mod ${MODULES} &&\
+	cp ${OASIS_INST}/build/lib/psmile.MPI1/*.mod ${MODULES} &&\
+        cp ${OASIS_INST}/build/lib/mct/*.mod ${MODULES} &&\
+	cp ${OASIS_INST}/build/lib/scrip/*.mod  ${MODULES} &&\
+        cp ${OASIS}/lib/psmile/src/*.F90 . &&\
+	cp ${OASIS}/lib/psmile/src/*.c . &&\
 	cp shr_reprosumx86.c shr_reprosumx86_.c  &&\
 	sed -i 's/shr_reprosumx86_fix_start/shr_reprosumx86_fix_start_/g' shr_reprosumx86_.c &&\
 	sed -i 's/shr_reprosumx86_fix_end/shr_reprosumx86_fix_end_/g' shr_reprosumx86_.c &&\
 	cp GPTLget_memusage.c GPTLget_memusage_.c &&\
 	sed -i 's/gptlget_memusage_/gptlget_memusage/g' GPTLget_memusage_.c &&\
-	${FC} *.F90 -c -Duse_comm_MPI1 -J${MODULES} -ext_names -ffree-line-length-512 -fPIC -I${OASIS}/lib/psmile/include &&\
-	${CC} *.c -c -J${MODULES}  -fPIC -I${OASIS}/lib/psmile/include &&\
-	${FC} ${LFLAGS} *.o -o ../../lib/libpsmile.MPI1.so -fPIC -shared -lnetcdf -lnetcdff
+	${FC} ${FFLAGS} *.F90 -c -Duse_comm_MPI1  -I${OASIS}/lib/psmile/include &&\
+	${CC} ${CFLAGS} *.c -c -I${MODULES} -I${OASIS}/lib/psmile/include &&\
+	${FC} ${LFLAGS} *.o -o ../../lib/libpsmile.MPI1.so -fPIC -shared -lnetcdff -lnetcdf -lhdf5
 
 oasis/lib/libscrip.so:
 	mkdir -p oasis/src/scrip &&\
@@ -121,18 +122,18 @@ oasis/lib/libscrip.so:
 	mkdir -p oasis/lib &&\
 	cd oasis/src/scrip &&\
 	rm -f *.o *.so *.F90 *.h *.c &&\
-        cp ${HOME}/compile_oa3-mct/build/lib/psmile.MPI1/mod_oasis.mod ${PYOASIS} &&\
-	cp ${HOME}/oasis3-mct/lib/scrip/src/*.F90 . &&\
-	cp ${HOME}/oasis3-mct/lib/scrip/src/*.f90 . &&\
-	cp ${HOME}/oasis3-mct/lib/scrip/src/*.f . &&\
-	cp ${HOME}/compile_oa3-mct/build/lib/scrip/*.mod ${MODULES} &&\
-	cp ${HOME}/oasis3-mct/lib/mct/config.h . &&\
-	cp ${HOME}/oasis3-mct/lib/mct/mpeu/*.c . &&\
-	${FC} *.F90 -c -Duse_comm_MPI1 -J${MODULES} -ffree-line-length-512 -fPIC &&\
-	${FC} *.f90 -c -Duse_comm_MPI1 -J${MODULES} -ffree-line-length-512 -fPIC &&\
-	${FC} *.f -c -Duse_comm_MPI1 -J${MODULES} -ffree-line-length-512 -fPIC &&\
-	${CC} *.c -fPIC -c -I. &&\
-	${FC} ${LFLAGS} *.o -o ../../lib/libscrip.so -fPIC -shared -lnetcdf -lnetcdff
+        cp ${OASIS_INST}/build/lib/psmile.MPI1/mod_oasis.mod ${PYOASIS} &&\
+	cp ${OASIS}/lib/scrip/src/*.F90 . &&\
+	cp ${OASIS}/lib/scrip/src/*.f90 . &&\
+	cp ${OASIS}/lib/scrip/src/*.f . &&\
+	cp ${OASIS_INST}/build/lib/scrip/*.mod ${MODULES} &&\
+	cp ${OASIS_INST}/build/lib/mctdir/config.h . &&\
+	cp ${OASIS}/lib/mct/mpeu/*.c . &&\
+	${FC} ${FFLAGS} *.F90 -c -Duse_comm_MPI1  &&\
+	${FC} ${FFLAGS} *.f90 -c -Duse_comm_MPI1  &&\
+	${FC} ${FFLAGS} *.f -c -Duse_comm_MPI1  &&\
+	${CC} ${CFLAGS} *.c -c -I. &&\
+	${FC} ${LFLAGS} *.o -o ../../lib/libscrip.so -fPIC -shared -lnetcdff -lnetcdf -lhdf5
 
 oasis/lib/libsparsematrix.so:
 	mkdir -p oasis/src/sparsematrix &&\
@@ -140,18 +141,18 @@ oasis/lib/libsparsematrix.so:
 	mkdir -p oasis/lib &&\
 	cd oasis/src/sparsematrix &&\
 	rm -f *.o *.so *.F90 *.h *.c  &&\
-        cp ${HOME}/compile_oa3-mct/build/lib/psmile.MPI1/mod_oasis.mod ${MODULES}  &&\
-	cp ${HOME}/compile_oa3-mct/build/lib/psmile.MPI1/*.mod ${MODULES} &&\
-        cp ${HOME}/compile_oa3-mct/build/lib/mct/*.mod ${MODULES} &&\
-	cp ${HOME}/compile_oa3-mct/build/lib/scrip/*.mod ${MODULES} &&\
-	cp ${HOME}/compile_oa3-mct/build/lib/mct/*.mod ${MODULES} &&\
-	cp ${HOME}/compile_oa3-mct/build/lib/mct/*.mod ${MODULES} &&\
-	cp ${HOME}/oasis3-mct/lib/mct/mpeu/*.F90 . &&\
-	cp ${HOME}/oasis3-mct/lib/mct/mct/*.F90 .  &&\
-	cp ${HOME}/compile_oa3-mct/build/lib/mctdir/config.h . &&\
-	cp ${HOME}/oasis3-mct/lib/mct/mpeu/*.c . &&\
-	${FC} *.F90 -c -Duse_comm_MPI1 -J${MODULES} -ffree-line-length-512 -fPIC &&\
-	${CC} *.c -fPIC -c -I. &&\
+        cp ${OASIS_INST}/build/lib/psmile.MPI1/mod_oasis.mod ${MODULES}  &&\
+	cp ${OASIS_INST}/build/lib/psmile.MPI1/*.mod ${MODULES} &&\
+        cp ${OASIS_INST}/build/lib/mct/*.mod ${MODULES} &&\
+	cp ${OASIS_INST}/build/lib/scrip/*.mod ${MODULES} &&\
+	cp ${OASIS_INST}/build/lib/mct/*.mod ${MODULES} &&\
+	cp ${OASIS_INST}/build/lib/mct/*.mod ${MODULES} &&\
+	cp ${OASIS}/lib/mct/mpeu/*.F90 . &&\
+	cp ${OASIS}/lib/mct/mct/*.F90 .  &&\
+	cp ${OASIS_INST}/build/lib/mctdir/config.h . &&\
+	cp ${OASIS}/lib/mct/mpeu/*.c . &&\
+	${FC} ${FFLAGS} *.F90 -c -Duse_comm_MPI1  &&\
+	${CC} ${CFLAGS} *.c -c -I. &&\
 	${FC} ${LFLAGS} *.o -o ../../lib/libsparsematrix.so -fPIC -shared
 
 
