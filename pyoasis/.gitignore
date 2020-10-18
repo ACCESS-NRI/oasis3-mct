@@ -1,0 +1,11 @@
+docs/_build
+tests/*/work/
+examples/*/work
+examples/*/sender-apple
+examples/*/*/work
+examples/*/fortran/receiver
+examples/*/fortran/receiver-orange
+examples/*/fortran/sender-serial
+examples/*/fortran/sender-apple
+examples/*/fortran/sender-orange
+examples/*/fortran/sender-points
