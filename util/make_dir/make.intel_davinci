@@ -1,6 +1,6 @@
 #
 # Include file for OASIS3 Makefile for a Linux system using 
-# Portland Group Fortran Compiler and MPICH
+# Intel compilers and MPI
 #
 ###############################################################################
 #
@@ -20,16 +20,13 @@ MPIDIR      = /opt/intel/impi/2018.1.163
 MPIBIN      = $(MPIDIR)/bin64
 MPI_INCLUDE = $(MPIDIR)/include64
 MPILIB      = -L$(MPIDIR)/lib64
-#
-# Python includes
-PYTHON_INCLUDE = /usr/include/python3.6m
+MPIRUN      = mpirun
 #
 # NETCDF library
 NETCDF_LIB_DIR=/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib
 NETCDF_INC_DIR=/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/include
 NETCDF_INCLUDE = ${NETCDF_INC_DIR}
 NETCDF_LIBRARY = -L${NETCDF_LIB_DIR} -lnetcdff -L/softs/local_intel/phdf5/1.10.4_impi/lib -L/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib -Wl,-rpath,/softs/local_intel/phdf5/1.10.4_impi/lib -Wl,-rpath,/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib -lhdf5_hl -lhdf5 -lz -lcurl -lnetcdf -lnetcdf
-
 #
 # Compiling and other commands
 MAKE        = gmake
@@ -48,7 +45,6 @@ ARFLAGS     = -ruv
 # 
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
-# -g is necessary in F90FLAGS and LDFLAGS for pgf90 versions lower than 6.1
 # 
 F90FLAGS_1  = -O2 -xAVX -I.  -assume byterecl -mt_mpi -qopenmp
 #F90FLAGS_1  = -g -traceback -O0 -check all -I. -assume byterecl -mt_mpi -qopenmp

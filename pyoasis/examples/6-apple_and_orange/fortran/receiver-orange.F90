@@ -16,14 +16,14 @@ program receiver
   call oasis_init_comp(comp_id, comp_name, kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_init_comp: ", kinfo
-    return
+    stop
   endif
   print *, "Component ID: ", comp_id
   
   call oasis_get_localcomm(local_comm, kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_get_localcomm: ", kinfo
-    return
+    stop
   endif
   print *, "local_comm=",local_comm
 
@@ -31,7 +31,7 @@ program receiver
   print *, "coupl_comm ", coupl_comm
   if(kinfo<0) then
     print *, "Error in oasis_create_couplcomm: ", kinfo
-    return
+    stop
   endif
   print *, "coupl_comm ", coupl_comm
 
@@ -47,7 +47,7 @@ program receiver
   call oasis_def_partition(part_id, part_params, kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_def_partition: ", kinfo
-    return
+    stop
   endif
   print *, "part_id: ", part_id
 	
@@ -58,14 +58,14 @@ program receiver
                     var_actual_shape, OASIS_REAL, kinfo)
   if(kinfo<0 .or. var_id<0) then
     print *, "Error in oasis_def_partition: ", kinfo
-    return
+    stop
   endif 
   print *, "var_id: ", var_id
   
   call oasis_enddef(kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_enddef: ", kinfo
-    return
+    stop
   endif
 	
   date=0
@@ -78,7 +78,7 @@ program receiver
 
   if(kinfo<0) then
     print *, "Error in oasis_get: ", kinfo
-    return
+    stop
   endif
 
   call oasis_terminate(kinfo)

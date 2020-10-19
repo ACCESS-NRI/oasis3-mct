@@ -1,3 +1,0 @@
-export PYOASIS_ROOT=/home/globc/andrea/INSTALL/PyOasis
-export LD_LIBRARY_PATH=${PYOASIS_ROOT}/lib:${LD_LIBRARY_PATH}
-export PYTHONPATH=${PYOASIS_ROOT}/modules:${PYTHONPATH}

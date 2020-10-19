@@ -1,11 +1,10 @@
-FC=mpiifort
-OPT=${HOME}/INSTALL/PyOasis
-FLAGS=-I${HOME}/INSTALL/oasis3-mct/build/lib/psmile.MPI1 -L${OPT}/lib
+include ../../../util/make_dir/make.inc
+FLAGS=$(F90FLAGS_1) -I$(ARCHDIR)/include -I$(NETCDF_INCLUDE) -L$(ARCHDIR)/lib
 
 all: sender-apple
 
 sender-apple: sender-apple.F90
-	${FC} sender-apple.F90 ${FLAGS} -o sender-apple -lpsmile.MPI1 -lscrip -lsparsematrix
+	${F90} sender-apple.F90 ${FLAGS} -o sender-apple -lpsmile.MPI1 -lscrip -lsparsematrix
 
 clean:
 	rm -f sender-apple

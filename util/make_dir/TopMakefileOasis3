@@ -64,6 +64,7 @@ makedirs:
 	@mkdir -p $(LIBBUILD)/mctdir
 	@mkdir -p $(LIBBUILD)/mct
 	@mkdir -p $(LIBBUILD)/psmile.$(CHAN)
+	@mkdir -p $(ARCHDIR)/include
 	@mkdir -p $(ARCHDIR)/lib
 
 makedirsdyn:
@@ -71,8 +72,7 @@ makedirsdyn:
 	@mkdir -p $(LIBBUILDDYN)/mctdir
 	@mkdir -p $(LIBBUILDDYN)/mct
 	@mkdir -p $(LIBBUILDDYN)/psmile.$(CHAN)
-	@mkdir -p $(ARCHDIR)/mod
-
+	@mkdir -p $(ARCHDIR)/include
 	@mkdir -p $(ARCHDIR)/lib
 
 makedirspy:
@@ -118,13 +118,15 @@ makepsmile:
 	@echo "=> Compiling library psmile"
 	@(cd $(LIBBUILD)/psmile.$(CHAN) ; \
          cp -f $(LIBSRC)/psmile/src/Makefile . ; $(modifmakefile) ; \
-         $(MAKE) all 1>> $(LOG) 2>> $(ERR) )
+         $(MAKE) all 1>> $(LOG) 2>> $(ERR) ; \
+	 cp -f *.mod $(ARCHDIR)/include ; )
 
 makepsmiledyn:
 	@echo "=> Compiling shared library psmile"
 	@(cd $(LIBBUILDDYN)/psmile.$(CHAN) ; \
          cp -f $(LIBSRC)/psmile/src/Makefile . ; $(modifmakefile) ; \
-         $(MAKE) shared 1>> $(LOGDYN) 2>> $(ERRDYN) )
+         $(MAKE) shared 1>> $(LOGDYN) 2>> $(ERRDYN) ; \
+	 cp -f *.mod $(ARCHDIR)/include ; )
 #
 # Rules for compiling the libraries scrip and psmile
 #
@@ -133,19 +135,21 @@ makepyoasis:
 	@(cd $(LIBBUILDPYO) ; \
 	 cp -f -r -p $(COUPLE)/pyoasis/Makefile .; $(modifmakefile) ; \
          $(MAKE) install 1>> $(LOGPYO) 2>> $(ERRPYO) )
-	@echo export PYOASIS_ROOT=${ARCHDIR} > init.sh
-	@echo export LD_LIBRARY_PATH=\$${PYOASIS_ROOT}/lib:\$${LD_LIBRARY_PATH} >> init.sh
-	@echo export PYTHONPATH=\$${PYOASIS_ROOT}/modules:\$${PYTHONPATH} >> init.sh
+	@echo export PYOASIS_ROOT=${ARCHDIR} > ${ARCHDIR}/python/init.sh
+	@echo export LD_LIBRARY_PATH=\$${PYOASIS_ROOT}/lib:\$${LD_LIBRARY_PATH} >> ${ARCHDIR}/python/init.sh
+	@echo export PYTHONPATH=\$${PYOASIS_ROOT}/modules:\$${PYTHONPATH} >> ${ARCHDIR}/python/init.sh
+	@echo export MPIRUN4PY=${MPIRUN} >> ${ARCHDIR}/python/init.sh
 	@echo
-	@echo ======================================================
-	@echo The following lines have been put in the file init.sh.
+	@echo =====================================================================
+	@echo The following lines have been put in the file
+	@echo \"${ARCHDIR}/python/init.sh\"
 	@echo
-	@cat init.sh
+	@cat ${ARCHDIR}/python/init.sh
 	@echo
-	@echo The command \"source init.sh\" has to be be issued
-	@echo before using pyOASIS. Alternatively, these lines
-	@echo should be added to your \~/.bashrc file. 
-	@echo ======================================================
+	@echo Before using pyOASIS issue the command:
+	@echo \"source ${ARCHDIR}/python/init.sh\"
+	@echo Alternatively, these lines should be added to your \"\~/.bashrc\" file. 
+	@echo =====================================================================
 	@echo
 #
 # Rules for cleaning
@@ -156,6 +160,7 @@ cleanlibs:
 	rm -f $(LIBBUILD)/mct/*
 	rm -f -r $(LIBBUILD)/mctdir/*
 	rm -f $(LIBBUILD)/psmile.$(CHAN)/*
+	rm -f $(ARCHDIR)/include/*
 	rm -f $(ARCHDIR)/lib/libscrip.a
 	rm -f $(ARCHDIR)/lib/libmct.a
 	rm -f $(ARCHDIR)/lib/libmpeu.a
@@ -167,6 +172,7 @@ cleansharedlibs:
 	rm -f $(LIBBUILDDYN)/mct/*
 	rm -f -r $(LIBBUILDDYN)/mctdir/*
 	rm -f $(LIBBUILDDYN)/psmile.$(CHAN)/*
+	rm -f $(ARCHDIR)/include/*
 	rm -f $(ARCHDIR)/lib/libscrip.so
 	rm -f $(ARCHDIR)/lib/libsparsematrix.so
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).so
@@ -174,6 +180,7 @@ cleansharedlibs:
 cleanpyoasis:
 	@echo cleaning pyoasis
 	rm -f $(LIBBUILDPYO)/*
+	rm -f -r $(ARCHDIR)/python/*
 	rm -f $(ARCHDIR)/lib/libpyoasiscore.so
 #
 ## Some rules to modify/add variables in makefiles

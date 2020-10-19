@@ -68,30 +68,19 @@ mod_oasis_method_iso.o: $(SRC_F)/mod_oasis_method_iso.F90
 
 pyoasis.o: $(SRC_F)/pyoasis.F90
 	$(F90) $(FFLAGS) -c $(SRC_F)/pyoasis.F90
-	cp pyoasis.mod $(LIBBUILDDYN)/psmile.MPI1
-
-
-# Clean
-clean:
-	rm -f *.o modules/*.mod *.so 
-	rm -f oasis/lib/*.so
-	rm -f oasis/src/psmile/*.o
-	rm -f oasis/src/scrip/*.o
-	rm -f oasis/src/sparsematrix/*.o
-	rm -f $(SRC_F)/*.o
-	rm -f $(SRC_F)/pyoasis.mod
-	rm -f $(SRC_C)/*.o
-	rm -f $(SRC_C)/libpyoasiscore.so
 
 
 # Installation
 
 install: lib
-	@cp -f -p pyoasis.mod $(ARCHDIR)/mod
 	@cp -f -p $(PYOASIS)/src/python/*.py $(ARCHDIR)/python
 
 
 # Test
+
+ifeq ($(PYOASIS),/pyoasis)
+PYOASIS := .
+endif
 
 test: wrappertest completetest
 
