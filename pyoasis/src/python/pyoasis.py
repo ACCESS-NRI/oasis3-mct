@@ -129,7 +129,7 @@ class Component(object):
         if error < 0:
             raise OasisException("Error in get_localcomm", error)
         self._localcomm_hdle = return_value[0]
-        self.localcomm = communicator.Split(self.id_component,communicator.rank)
+        self.localcomm = MPI.Comm.f2py(self._localcomm_hdle)
 
     def get_name(self):
         """
@@ -177,7 +177,7 @@ class Component(object):
         if error < 0:
             raise OasisException("Error in create_couplcomm", error)
         self._couplcomm_hdle = return_value[0]
-        self.couplcomm = self.localcomm.Split(icpl,self.localcomm.rank)
+        self.couplcomm = MPI.Comm.f2py(self._couplcomm_hdle)
         
         return self.couplcomm
 
