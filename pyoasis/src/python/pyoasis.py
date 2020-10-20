@@ -124,6 +124,12 @@ class Component(object):
             raise OasisException("Error initialising component "+self._name,
                                  error)
         self.id_component = return_value[0]
+        return_value = mod_oasis_auxiliary_routines.get_localcomm()
+        error = return_value[1]
+        if error < 0:
+            raise OasisException("Error in get_localcomm", error)
+        self._localcomm_hdle = return_value[0]
+        self.localcomm = communicator.Split(self.id_component,communicator.rank)
 
     def get_name(self):
         """
@@ -139,43 +145,59 @@ class Component(object):
         """
         return self.id_component
 
-    def get_localcomm(self):
-        """
-        :returns: the local communicator
-        :rtype: int
-        :raises OasisException: if OASIS is unable to return the local\
-                                communicator 
-        """
-        return_value = mod_oasis_auxiliary_routines.get_localcomm()
-        error = return_value[1]
-#AP        if error < 0:
-#AP            raise OasisException("Error in get_localcomm", error)
-        localcomm = return_value[0]
-        return localcomm
+    # def get_localcomm(self):
+    #     """
+    #     :returns: the local communicator
+    #     :rtype: int
+    #     :raises OasisException: if OASIS is unable to return the local\
+    #                             communicator 
+    #     """
+    #     return_value = mod_oasis_auxiliary_routines.get_localcomm()
+    #     error = return_value[1]
+    #     if error < 0:
+    #         raise OasisException("Error in get_localcomm", error)
+    #     localcomm = return_value[0]
+    #     return localcomm
 
-    def create_couplcomm(self, allcomm=None):
+    def create_couplcomm(self, icpl):
         """
    
-        :param int allcomm: communicator (default: local communicator)
+        :param int icpl: coupling switch (1 coupled process, 0 not coupled)
         :returns: the coupling communicator
         :rtype: int
         :raises OasisException: if OASIS is unable to create the coupling \
                                 communicator
         :raises PyOasisException: if an incorrect parameter is supplied
         """
-        if allcomm is None:
-            allcomm = self.get_localcomm()
-        check_types([int], [allcomm]);
-#AP        if allcomm < 0:
-#AP            raise PyOasisException("Communicator <0.")   
-        icpl=1
+        allcomm = self._localcomm_hdle
+        check_types([int, int], [icpl, allcomm]);
         return_value = mod_oasis_auxiliary_routines.create_couplcomm(icpl, 
                                                                           allcomm)
         error = return_value[1]
         if error < 0:
-            raise OasisException("Error in get_couplcomm", error)
-        cplcomm = return_value[0]
-        return cplcomm
+            raise OasisException("Error in create_couplcomm", error)
+        self._couplcomm_hdle = return_value[0]
+        self.couplcomm = self.localcomm.Split(icpl,self.localcomm.rank)
+        
+        return self.couplcomm
+
+    def set_couplcomm(self, couplcomm):
+        """
+   
+        :param MPI.communicator couplcomm: coupling communicator
+        :returns: error code
+        :rtype: int
+        :raises OasisException: if OASIS is unable to set the coupling \
+                                communicator
+        :raises PyOasisException: if an incorrect parameter is supplied
+        """
+        error = mod_oasis_auxiliary_routines.set_couplcomm(couplcomm)
+        if error < 0:
+            raise OasisException("Error in set_couplcomm", error)
+        self._couplcomm_hdle = couplcomm.py2f()
+        self.couplcomm = couplcomm
+        
+        return error
 
     def enddef(self):
         """
@@ -188,61 +210,62 @@ class Component(object):
         if error < 0:
             raise OasisException("Error in enddef", error)
 
-    def get_comm_size(self):
-        """
-        :returns: the size of the global communicator
-        :rtype: int
-        :raises OasisException: if OASIS is unable to obtain the \
-                                size of the global communicator
-        """
-        return_value = mod_oasis_auxiliary_routines.get_comm_size(self._communicator.py2f())
-        error = return_value[1]
-        if (error < 0):
-            raise OasisException("Unable to obtain the size of the global communicator", error)
-        size = return_value[0]
-        return size
+    # def get_comm_size(self):
+    #     """
+    #     :returns: the size of the global communicator
+    #     :rtype: int
+    #     :raises OasisException: if OASIS is unable to obtain the \
+    #                             size of the global communicator
+    #     """
+    #     return_value = mod_oasis_auxiliary_routines.get_comm_size(self._communicator.py2f())
+    #     error = return_value[1]
+    #     if (error < 0):
+    #         raise OasisException("Unable to obtain the size of the global communicator", error)
+    #     size = return_value[0]
+    #     return size
 
-    def get_comm_rank(self):
-        """
-        :returns: the rank in the global comminucator
-        :rtype: int
-        :raises OasisException: if OASIS is unable to obtain the \
-                                rank in the global communicator
-        """
-        return_value = mod_oasis_auxiliary_routines.get_comm_rank(self._communicator.py2f())
-        error = return_value[1]
-        if (error < 0):
-            raise OasisException("Unable to obtain the rank of the global communicator", error)
-        rank = return_value[0]
-        return rank
+    # def get_comm_rank(self):
+    #     """
+    #     :returns: the rank in the global comminucator
+    #     :rtype: int
+    #     :raises OasisException: if OASIS is unable to obtain the \
+    #                             rank in the global communicator
+    #     """
+    #     return_value = mod_oasis_auxiliary_routines.get_comm_rank(self._communicator.py2f())
+    #     error = return_value[1]
+    #     if (error < 0):
+    #         raise OasisException("Unable to obtain the rank of the global communicator", error)
+    #     rank = return_value[0]
+    #     return rank
 
-    def get_localcomm_size(self):
-        """
-        :returns: the size of the local communicator
-        :rtype: int
-        :raises OasisException: if OASIS is unable to obtain the \
-                                size of the local communicator
-        """
-        return_value = mod_oasis_auxiliary_routines.get_comm_size(self.get_localcomm())
-        error = return_value[1]
-        if (error < 0):
-            raise OasisException("Unable to obtain the size of the global communicator", error)
-        size = return_value[0]
-        return size
+    # def get_localcomm_size(self):
+    #     """
+    #     :returns: the size of the local communicator
+    #     :rtype: int
+    #     :raises OasisException: if OASIS is unable to obtain the \
+    #                             size of the local communicator
+    #     """
+    #     return_value = mod_oasis_auxiliary_routines.get_comm_size(self.get_localcomm())
+    #     error = return_value[1]
+    #     if (error < 0):
+    #         raise OasisException("Unable to obtain the size of the global communicator", error)
+    #     size = return_value[0]
+    #     return size
 
-    def get_localcomm_rank(self):
-        """
-        :returns: the rank in the local communicator
-        :rtype: int
-        :raises OasisException: if OASIS is unable to obtain the \
-                                rank in the local communicator
-        """
-        return_value = mod_oasis_auxiliary_routines.get_comm_rank(self.get_localcomm())
-        error = return_value[1]
-        if (error < 0):
-            raise OasisException("Unable to obtain the rank in the local communicator", error)
-        rank = return_value[0]
-        return rank
+    # def get_localcomm_rank(self):
+    #     """
+    #     :returns: the rank in the local communicator
+    #     :rtype: int
+    #     :raises OasisException: if OASIS is unable to obtain the \
+    #                             rank in the local communicator
+    #     """
+    #     return_value = mod_oasis_auxiliary_routines.get_comm_rank(self.get_localcomm())
+    #     error = return_value[1]
+    #     if (error < 0):
+    #         raise OasisException("Unable to obtain the rank in the local communicator", error)
+    #     rank = return_value[0]
+    #     return rank
+
     def __str__(self):
         return "Component: name: " + self._name + ", id: " + str(self.id_component)
 

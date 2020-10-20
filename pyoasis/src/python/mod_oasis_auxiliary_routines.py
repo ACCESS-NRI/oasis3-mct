@@ -57,12 +57,11 @@ LIB.set_couplcomm.argtypes = [ctypes.c_int,
                               ctypes.POINTER(ctypes.c_int)]
 
 
-def set_couplcomm(localcomm):
+def set_couplcomm(couplcomm):
     """OASIS user call to specify a local communicator"""
-    new_comm = c_int(0)
     error = c_int(0)
-    LIB.set_couplcomm(localcomm, error)
-    return (new_comm.value, error.value)
+    LIB.set_couplcomm(couplcomm.py2f(), error)
+    return error.value
 
 
 LIB.get_intercomm.argtypes = [ctypes.c_int, ctypes.c_char_p,
