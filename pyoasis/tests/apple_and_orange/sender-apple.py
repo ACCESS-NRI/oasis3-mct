@@ -15,8 +15,8 @@ try:
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
 
-comm_rank = comp.get_localcomm_rank()
-comm_size = comp.get_localcomm_size()
+comm_rank = comp.localcomm.rank
+comm_size = comp.localcomm.size
 
 n_points = 16
 

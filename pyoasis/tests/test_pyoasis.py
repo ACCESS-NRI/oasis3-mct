@@ -98,42 +98,42 @@ def test_component_create_couplcomm3():
         comp = pyoasis.Component("name")
         couplcomm =  comp.create_couplcomm()
 
-# get_localcomm
-# failure
-def test_Component_get_localcomm():
-    with pytest.raises(pyoasis.OasisException):
-        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
-        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2errors
-        comp = pyoasis.Component("name")
-        localcomm =  comp.get_localcomm() 
+# # get_localcomm
+# # failure
+# def test_Component_get_localcomm():
+#     with pytest.raises(pyoasis.OasisException):
+#         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+#         pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2errors
+#         comp = pyoasis.Component("name")
+#         localcomm =  comp.get_localcomm() 
 
-# create_couplcomm
-# failure
-def test_Component_get_create_couplcomm():
-    with pytest.raises(pyoasis.OasisException):
-        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
-        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2errors
-        comp = pyoasis.Component("name")
-        localcomm =  comp.get_localcomm() 
+# # create_couplcomm
+# # failure
+# def test_Component_get_create_couplcomm():
+#     with pytest.raises(pyoasis.OasisException):
+#         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+#         pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2errors
+#         comp = pyoasis.Component("name")
+#         localcomm =  comp.get_localcomm() 
 
 # Various functions        
 def test_Component_various_functions():
     pyoasis.mod_oasis_method.init_comp=returns_2_zeros
-    pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2_zeros
+#    pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2_zeros
     pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2_zeros
     pyoasis.mod_oasis_auxiliary_routines.get_comm_size = returns_2_zeros
     pyoasis.mod_oasis_auxiliary_routines.get_comm_rank = returns_2_zeros
-    pyoasis.mod_oasis_auxiliary_routines.get_localcomm_size = returns_2_zeros
-    pyoasis.mod_oasis_auxiliary_routines.get_localcomm_rank = returns_2_zeros
+#    pyoasis.mod_oasis_auxiliary_routines.get_localcomm_size = returns_2_zeros
+#    pyoasis.mod_oasis_auxiliary_routines.get_localcomm_rank = returns_2_zeros
     comp = pyoasis.Component("name")
     assert comp.get_name() == "name"
     assert comp.get_id() == 0
-    assert comp.get_localcomm() == 0
+#    assert comp.get_localcomm() == 0
     assert comp.create_couplcomm() == 0 
     assert comp.get_comm_size() == 0
     assert comp.get_comm_rank() == 0
-    assert comp.get_localcomm_size() == 0
-    assert comp.get_localcomm_rank() == 0
+#    assert comp.get_localcomm_size() == 0
+#    assert comp.get_localcomm_rank() == 0
 
 # enddef
 # failure
@@ -162,14 +162,14 @@ def test_Component_get_comm_rank():
         comp = pyoasis.Component("name")
         rank = comp.get_comm_rank()
 
-# get_localcomm_size
-# failure
-def test_Component_get_localcomm_size():
-    with pytest.raises(pyoasis.OasisException):
-        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
-        pyoasis.mod_oasis_auxiliary_routines.get_comm_size = returns_2errors
-        comp = pyoasis.Component("name")
-        size = comp.get_localcomm_size()
+# # get_localcomm_size
+# # failure
+# def test_Component_get_localcomm_size():
+#     with pytest.raises(pyoasis.OasisException):
+#         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+#         pyoasis.mod_oasis_auxiliary_routines.get_comm_size = returns_2errors
+#         comp = pyoasis.Component("name")
+#         size = comp.get_localcomm_size()
 
 # __str__
 def test_Component_str():
@@ -180,14 +180,14 @@ def test_Component_str():
     assert line.find(comp.get_name()) >=0
     assert line.find(str(comp.get_id())) >=0
     
-# get_localcomm_rank
-# Failure
-def test_Component_get_localcomm_rank():
-    with pytest.raises(pyoasis.OasisException):
-        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
-        pyoasis.mod_oasis_auxiliary_routines.get_comm_rank = returns_2errors
-        comp = pyoasis.Component("name")
-        rank = comp.get_localcomm_rank()
+# # get_localcomm_rank
+# # Failure
+# def test_Component_get_localcomm_rank():
+#     with pytest.raises(pyoasis.OasisException):
+#         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+#         pyoasis.mod_oasis_auxiliary_routines.get_comm_rank = returns_2errors
+#         comp = pyoasis.Component("name")
+#         rank = comp.get_localcomm_rank()
 
 # terminate
 # Failure
