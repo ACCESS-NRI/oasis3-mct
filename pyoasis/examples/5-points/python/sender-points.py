@@ -13,16 +13,10 @@ comp = pyoasis.Component(component_name, True, comm)
 
 print(comp)
 
-local_comm = comp.get_localcomm()
-print("Local communicator: " + str(local_comm))
-
-coupl_comm = comp.create_couplcomm(local_comm)
-print("Coupling communicator: " + str(coupl_comm))
-
 n_points = 16
 
-comm_rank = comp.get_localcomm_rank()
-comm_size = comp.get_localcomm_size()
+comm_rank = comp.localcomm.rank
+comm_size = comp.localcomm.size
 
 local_size = int(n_points/comm_size)
 offset = comm_rank*local_size

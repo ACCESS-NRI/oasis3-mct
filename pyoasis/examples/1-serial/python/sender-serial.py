@@ -16,16 +16,6 @@ comp = pyoasis.Component(component_name, True, comm)
 print(comp)
 print('Sender: Time for Component = {} s.'.format(time.time()-stt), flush=True)
 
-stt = time.time()
-local_comm = comp.get_localcomm()
-print("Local communicator: " + str(local_comm))
-print('Sender: Time for local comm = {} s.'.format(time.time()-stt), flush=True)
-
-stt = time.time()
-coupl_comm = comp.create_couplcomm(local_comm)
-print("Coupling communicator: " + str(coupl_comm))
-print('Sender: Time for global comm = {} s.'.format(time.time()-stt), flush=True)
-
 n_points = 160000000
 
 stt = time.time()

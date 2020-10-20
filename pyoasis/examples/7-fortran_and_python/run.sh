@@ -17,6 +17,8 @@ rundir=$srcdir/work
 rm -fr $rundir
 mkdir -p $rundir
 
+make
+
 cp -f $srcdir/$exe1 $rundir/.
 cp -f $srcdir/$exe2 $rundir/.
 
