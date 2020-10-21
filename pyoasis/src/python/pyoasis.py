@@ -179,7 +179,7 @@ class Component(object):
         self._couplcomm_hdle = return_value[0]
         self.couplcomm = MPI.Comm.f2py(self._couplcomm_hdle)
         
-        return self.couplcomm
+        return error
 
     def set_couplcomm(self, couplcomm):
         """
