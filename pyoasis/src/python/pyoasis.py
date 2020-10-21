@@ -130,6 +130,7 @@ class Component(object):
             raise OasisException("Error in get_localcomm", error)
         self._localcomm_hdle = return_value[0]
         self.localcomm = MPI.Comm.f2py(self._localcomm_hdle)
+        self.couplcomm = self.localcomm.Dup()
 
     def get_name(self):
         """
