@@ -11,6 +11,6 @@
 #       local settings. Replace the currently active file with your own.
 #
 #include  $(HOME)/oasis3-mct/util/make_dir/make.intel_nemo_lenovo
-include  $(OASIS3_ROOT)/util/make_dir/make.intel_davinci
+include  $(HOME)/andrea/oasis3-mct/util/make_dir/make.bindings
 #
 ### End User configurable options ###

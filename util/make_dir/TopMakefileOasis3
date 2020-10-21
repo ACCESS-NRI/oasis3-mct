@@ -138,7 +138,7 @@ makepyoasis:
 	@echo export PYOASIS_ROOT=${ARCHDIR} > ${ARCHDIR}/python/init.sh
 	@echo export LD_LIBRARY_PATH=\$${PYOASIS_ROOT}/lib:\$${LD_LIBRARY_PATH} >> ${ARCHDIR}/python/init.sh
 	@echo export PYTHONPATH=\$${PYOASIS_ROOT}/modules:\$${PYTHONPATH} >> ${ARCHDIR}/python/init.sh
-	@echo export MPIRUN4PY=${MPIRUN} >> ${ARCHDIR}/python/init.sh
+	@echo export MPIRUN4PY=\"${MPIRUN}\" >> ${ARCHDIR}/python/init.sh
 	@echo
 	@echo =====================================================================
 	@echo The following lines have been put in the file
