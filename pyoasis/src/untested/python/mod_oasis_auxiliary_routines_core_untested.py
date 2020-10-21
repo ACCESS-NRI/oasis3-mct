@@ -5,8 +5,8 @@ import ctypes
 
 import numpy
 
-cdll.LoadLibrary("libpyoasiscore.so")
-lib=CDLL("libpyoasiscore.so")
+cdll.LoadLibrary("liboasis.C.bindings.so")
+lib=CDLL("liboasis.C.bindings.so")
 
 
 lib.set_debug.argtypes=[ctypes.c_int]

@@ -25,8 +25,8 @@ import ctypes
 from ctypes import cdll, CDLL, c_int
 
 
-cdll.LoadLibrary("libpyoasiscore.so")
-LIB = CDLL("libpyoasiscore.so")
+cdll.LoadLibrary("liboasis.C.bindings.so")
+LIB = CDLL("liboasis.C.bindings.so")
 
 
 LIB.get_localcomm.argtypes = [ctypes.POINTER(ctypes.c_int),

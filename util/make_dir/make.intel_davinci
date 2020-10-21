@@ -65,8 +65,8 @@ BINDIR          = $(ARCHDIR)/bin
 LIBBUILD        = $(ARCHDIR)/build/lib
 # LIBBUILDDYN   : contains a directory for each shared library
 LIBBUILDDYN     = $(ARCHDIR)/build-shared/lib
-# LIBBUILDPYO   : contains a directory for compiling pyoasis
-LIBBUILDPYO     = $(ARCHDIR)/build-pyoasis
+# LIBBUILDCBIND   : contains a directory for compiling pyoasis
+LIBBUILDCBIND   = $(ARCHDIR)/build-c-bindings
 # INCPSMILE     : includes all *o and *mod for each library
 INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/scrip  -I$(LIBBUILD)/mct 
 

@@ -5,8 +5,8 @@ import ctypes
 
 import numpy
 
-cdll.LoadLibrary("libpyoasiscore.so")
-lib=CDLL("libpyoasiscore.so")
+cdll.LoadLibrary("liboasis.C.bindings.so")
+lib=CDLL("liboasis.C.bindings.so")
 
 
 lib.write_grid.argtypes=[c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_double), ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_double), ctypes.c_int]
