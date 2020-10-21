@@ -18,7 +18,7 @@ comp = pyoasis.Component(component_name, True, comm)
 print(comp)
 print('Receiver: Time for Component = {} s.'.format(time.time()-stt), flush=True)
 
-n_points = 1600
+n_points = 160000000
 
 stt = time.time()
 partition = pyoasis.SerialPartition(n_points)
