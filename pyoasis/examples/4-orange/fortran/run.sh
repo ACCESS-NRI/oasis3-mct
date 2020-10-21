@@ -9,7 +9,7 @@ casename=`basename $srcdir`
 exe1=sender-orange
 exe2=receiver
 
-n1=4
+n1=6
 n2=1
 
 rundir=$srcdir/work

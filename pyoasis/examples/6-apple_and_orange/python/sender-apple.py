@@ -12,34 +12,52 @@ component_name = "sender-apple"
 comp = pyoasis.Component(component_name, True, comm)
 print(comp)
 
-comm_rank = comp.localcomm.rank
-comm_size = comp.localcomm.size
+local_comm_rank = comp.localcomm.rank
+local_comm_size = comp.localcomm.size
 
-n_points = 16
+icpl = 1
+if local_comm_size > 3:
+    if local_comm_rank >= local_comm_size - 2:
+        icpl = 0
 
-local_size = int(n_points/comm_size)
-offset = comm_rank*local_size
-if comm_rank == comm_size - 1:
-    local_size = n_points - offset
+couplcomm = comp.localcomm.Split(icpl, local_comm_rank)
+if icpl == 0:
+    couplcomm = MPI.COMM_NULL
 
-partition = pyoasis.ApplePartition(offset, local_size)
-print(partition)
+comp.set_couplcomm(couplcomm)
 
-variable = pyoasis.Var("FSENDOCN", partition, 1,
-                       pyoasis.OasisParameters.OASIS_OUT)
-print(variable)
+if icpl == 1:
+    
+    n_points = 16
+
+    comm_rank = comp.couplcomm.rank
+    comm_size = comp.couplcomm.size
+    
+    local_size = int(n_points/comm_size)
+    offset = comm_rank*local_size
+    if comm_rank == comm_size - 1:
+        local_size = n_points - offset
+
+    partition = pyoasis.ApplePartition(offset, local_size)
+    print(partition)
+
+    variable = pyoasis.Var("FSENDOCN", partition, 1,
+                           pyoasis.OasisParameters.OASIS_OUT)
+    print(variable)
 
 comp.enddef()
 
-date = int(0)
+if icpl == 1:
 
-field = pyoasis.Array(numpy.zeros(local_size))
+    date = int(0)
+    
+    field = pyoasis.Array(numpy.zeros(local_size))
 
-for i in range(local_size):
-    field[i] = offset + i
+    for i in range(local_size):
+        field[i] = offset + i
 
-print("Sent data: "+str(field))
-
-variable.put(date, field)
+    print("Sent data: "+str(field))
+    
+    variable.put(date, field)
 
 pyoasis.terminate()

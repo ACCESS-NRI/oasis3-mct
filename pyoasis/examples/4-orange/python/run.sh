@@ -9,7 +9,7 @@ casename=`basename $srcdir`
 exe1=sender-orange.py
 exe2=receiver.py
 
-n1=4
+n1=6
 n2=1
 
 rundir=$srcdir/work
