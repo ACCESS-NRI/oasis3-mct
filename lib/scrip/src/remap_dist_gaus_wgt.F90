@@ -868,7 +868,7 @@ contains
       real (kind=dbl_kind), dimension(num_neighbors) :: &
            nbr_coslat, nbr_sinlat, nbr_coslon, nbr_sinlon        ! stored nbr lon/lat
 
-      real (kind=dbl_kind), parameter :: dist_chk = 1.0e-12      ! delta distance limit radians
+      real (kind=dbl_kind), parameter :: dist_chk = 1.0e-7       ! delta distance limit radians
 
       logical (kind=log_kind) :: nchkflag                        ! flag for nchk
  
