@@ -48,7 +48,7 @@ class Component(object):
         pyoasis.checktypes.check_types([str, bool, MPI.Intracomm],
                     [name, coupled, communicator])
         if len(name) == 0:
-            raise PyOasisException("Component name empty.")
+            raise pyoasis.PyOasisException("Component name empty.")
         
         self._name = name
         self._communicator = communicator
@@ -56,7 +56,7 @@ class Component(object):
                                                        self._communicator)
         error = return_value[1]
         if error < 0:
-            raise OasisException("Error initialising component "+self._name,
+            raise pyoasis.OasisException("Error initialising component "+self._name,
                                  error)
         self.id_component = return_value[0]
         return_value = pyoasis.mod_oasis_auxiliary_routines.get_localcomm()
@@ -96,7 +96,7 @@ class Component(object):
                                                                           allcomm)
         error = return_value[1]
         if error < 0:
-            raise OasisException("Error in create_couplcomm", error)
+            raise pyoasis.OasisException("Error in create_couplcomm", error)
         self._couplcomm_hdle = return_value[0]
         self.couplcomm = MPI.Comm.f2py(self._couplcomm_hdle)
         
@@ -114,7 +114,7 @@ class Component(object):
         """
         error = pyoasis.mod_oasis_auxiliary_routines.set_couplcomm(couplcomm)
         if error < 0:
-            raise OasisException("Error in set_couplcomm", error)
+            raise pyoasis.OasisException("Error in set_couplcomm", error)
         self._couplcomm_hdle = couplcomm.py2f()
         self.couplcomm = couplcomm
         
@@ -129,7 +129,7 @@ class Component(object):
         """
         error = pyoasis.mod_oasis_method.enddef()
         if error < 0:
-            raise OasisException("Error in enddef", error)
+            raise pyoasis.OasisException("Error in enddef", error)
 
     def __str__(self):
         return "Component: name: " + self._name + ", id: " + str(self.id_component)
