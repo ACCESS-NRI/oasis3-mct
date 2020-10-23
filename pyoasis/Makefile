@@ -70,8 +70,8 @@ pyoasis.o: $(SRC_F)/pyoasis.F90
 # Installation
 
 install: lib
-	@cp -f -p $(PYOASIS)/src/python/*.py $(ARCHDIR)/python
-
+	@mkdir -p $(ARCHDIR)/python/pyoasis
+	@cp -f -p $(PYOASIS)/src/python/pyoasis/*.py $(ARCHDIR)/python/pyoasis
 
 # Test
 
