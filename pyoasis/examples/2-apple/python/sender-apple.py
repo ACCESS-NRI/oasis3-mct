@@ -15,7 +15,7 @@ print(comp)
 comm_rank = comp.localcomm.rank
 comm_size = comp.localcomm.size
 
-n_points = 160000000
+n_points = 1600
 
 local_size = int(n_points/comm_size)
 offset = comm_rank*local_size

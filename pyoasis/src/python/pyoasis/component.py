@@ -91,7 +91,7 @@ class Component(object):
         :raises PyOasisException: if an incorrect parameter is supplied
         """
         allcomm = self._localcomm_hdle
-        check_types([int, int], [icpl, allcomm]);
+        pyoasis.check_types([int, int], [icpl, allcomm]);
         return_value = pyoasis.mod_oasis_auxiliary_routines.create_couplcomm(icpl, 
                                                                           allcomm)
         error = return_value[1]

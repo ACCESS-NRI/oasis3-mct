@@ -13,7 +13,7 @@ component_name = "receiver"
 comp = pyoasis.Component(component_name, True, comm)
 print(comp)
 
-n_points = 160000000
+n_points = 1600
 
 partition = pyoasis.SerialPartition(n_points)
 print(partition)

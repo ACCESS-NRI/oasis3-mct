@@ -3,7 +3,7 @@ program sender_serial
   implicit none
   integer :: i, kinfo
   integer :: comp_id, local_comm, coupl_comm
-  INTEGER, parameter :: n_points = 160000000
+  INTEGER, parameter :: n_points = 1600
   integer :: var_type, part_id
   integer :: part_params(3)
   integer :: var_id, var_nodims(2), var_actual_shape(1), date
