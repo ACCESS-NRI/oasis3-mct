@@ -427,13 +427,13 @@ noted with the string UNUSED and not described.
       where conservative area computation switches from linear boundaries in
       longitude and latitude at the equator to a Lambert equivalent azimuthal projection
       toward the north pole.  This value is optional and the default is 2.0 
-      radians (>90 degrees) which means the Lambert projection is 
+      radians (greater than 90 degrees) which means the Lambert projection is 
       never invoked.  If this value is set, {\tt \$STHRESH} must be set as well.
     \item {\tt \$STHRESH}  is the value of the southern latitude threshold in radians 
       where conservative area computation switches from linear boundaries in
       longitude and latitude at the equator to a Lambert equivalent azimuthal projection
       toward the south pole.  This value is optional and the default is -2.0 
-      radians (< -90 degrees) which means the Lambert projection is 
+      radians (less than -90 degrees) which means the Lambert projection is 
       never invoked.  If this value is set, {\tt \$NTHRESH} must be set as well.
     \end{itemize}
 
@@ -456,7 +456,7 @@ noted with the string UNUSED and not described.
     
     Therefore for latitudes above the {\tt north\_thresh}
     or below the {\tt south\_thresh} values (see {\tt
-      oasis3-mct/lib/scrip/remap\_conserv.F90}, the library evaluates
+      oasis3-mct/lib/scrip/remap\_conserv.F90}), the library evaluates
     the intersection between two border segments using a Lambert
     equivalent azimuthal projection.  {\bf However, by default, {\tt \bf north\_thresh} and
     {\tt \bf south\_thresh} are set to 2.0 and -2.0 radians respectively and the Lambert projection is not activated.} 
