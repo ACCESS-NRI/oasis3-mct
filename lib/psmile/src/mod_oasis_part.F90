@@ -88,15 +88,17 @@ CONTAINS
 
    call oasis_debug_enter(subname)
 
-if (.not. oasis_coupled) then
-   call oasis_debug_exit(subname)
+   if (.not. oasis_coupled) then
+     call oasis_debug_exit(subname)
      return
    endif
+
    kinfo = OASIS_OK
 
    !-----------------------------------------------
    !> * Increment partition number and store user values
    !-----------------------------------------------
+
    call oasis_timer_start('part_definition')
 
    if (ABS(LUCIA_debug) > 0 ) &

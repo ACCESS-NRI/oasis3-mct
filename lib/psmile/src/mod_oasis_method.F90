@@ -149,12 +149,10 @@ CONTAINS
    IF (mpi_rank_world == 0) THEN
       call oasis_namcouple_init()
    endif
-
    call oasis_mpi_barrier(mpi_comm_global_world)
    IF (mpi_rank_world /= 0) THEN
       call oasis_namcouple_init()
    endif
-   
    OASIS_debug = namlogprt
    TIMER_debug = namtlogprt
    call oasis_unitsetmin(namuntmin)
@@ -375,7 +373,6 @@ CONTAINS
    !------------------------
 
    mpi_rank_global = -1
-
 #ifdef use_comm_MPI1
 
    !------------------------
@@ -420,7 +417,7 @@ CONTAINS
    IF (mpi_rank_world == 0) CLOSE(nulprt1)
 
    if (.not.oasis_coupled) then
-     return
+      return
    endif
 
    CALL MPI_Comm_Size(mpi_comm_global,mpi_size_global,ierr)
@@ -428,7 +425,6 @@ CONTAINS
 
    CALL MPI_Comm_Size(mpi_comm_local,mpi_size_local,ierr)
    CALL MPI_Comm_Rank(mpi_comm_local,mpi_rank_local,ierr)
-
    mpi_root_local = 0
 
 #ifdef use_comm_MPI1
@@ -509,6 +505,7 @@ CONTAINS
    !------------------------
    !> * Open log files
    !------------------------
+
    iu=-1
    CALL oasis_unitget(iu)
    nulprt=iu
@@ -910,10 +907,7 @@ CONTAINS
       !------------------------
 
       if (local_timers_on) call oasis_timer_start('oasis_enddef_coupler_setup')
- 
       call oasis_coupler_setup()
-  kinfo=0
-      return    
       IF (OASIS_debug >= 2)  THEN
          WRITE(nulprt,*) subname, ' done prism_coupler_setup '
          CALL oasis_flush(nulprt)
