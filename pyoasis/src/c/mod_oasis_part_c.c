@@ -19,8 +19,8 @@
 
 #include "mod_oasis_part_c.h"
 #include <stdio.h>
+#include <string.h>
 
-
-void def_partition(int* id_part, int n, int* parameters, int* kinfo){
-    oasis_def_partition_iso(id_part, &n, parameters, kinfo);   
+void def_partition(int* id_part, int n, int* parameters, int global_size, char* name, int* kinfo){
+  oasis_def_partition_iso(id_part, &n, parameters, &global_size, &name, kinfo);   
 }

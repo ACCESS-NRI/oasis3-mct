@@ -46,6 +46,7 @@ program receiver_serial
   endif
 
   allocate(field(n_points))
+  field(:) = 999.
 
   date = 0
 
@@ -56,7 +57,8 @@ program receiver_serial
     stop
   endif
 
-  print *, 'FRECVICE = ',field
+  print *, 'FRECVICE = '
+  print '(8F6.0)', field
 
   deallocate(field)
   
