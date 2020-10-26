@@ -1,7 +1,7 @@
 program sender_apple
   use mod_oasis
   implicit none
-  integer :: i, kinfo
+  integer :: i, lat, kinfo
   integer :: comp_id, local_comm, coupl_comm
   integer :: n_points, var_type, part_id
   integer :: part_params(3), offset, local_size
@@ -9,7 +9,7 @@ program sender_apple
   integer :: var_id, var_nodims(2), var_actual_shape(1), date
   character(len=13) :: comp_name = "sender-apple"
   character(len=8) :: var_name = "FSENDOCN"
-  real, allocatable, dimension(:) :: field
+  real(kind=8), allocatable, dimension(:,:,:) :: bundle
 
   print *, "Component name: ", comp_name
 	
@@ -30,7 +30,7 @@ program sender_apple
   call mpi_comm_rank(local_comm, comm_rank, kinfo)
   
   n_points=16
-  
+
   local_size=n_points/comm_size
   offset=comm_rank*local_size
   if (comm_rank == comm_size - 1) &
@@ -44,7 +44,7 @@ program sender_apple
   endif
   print *, "part_id: ", part_id
 	
-  var_nodims=(/1, 1/)
+  var_nodims=(/2, 2/)
   var_actual_shape=1
   print *, "var_name: ", var_name
   call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_OUT, &
@@ -61,21 +61,31 @@ program sender_apple
     stop
   endif
 
-  allocate(field(local_size))
-  do i=1, local_size
-    field(i)=offset+i
+  allocate(bundle(local_size,1,2))
+  lat = int(comm_rank/2)+1
+  do i = 1, 2
+    bundle(:,:,i)=i
   end do
-	
+  do i=1, local_size
+    bundle(i,:,:)=bundle(i,:,:)+(i+offset-(lat-1)*2*local_size)*100
+  end do
+  bundle(:,:,:)=bundle(:,:,:)+lat*10
+
+  print '(A,I2,A)', "On sender side rank", comm_rank, ": bundle(1)"
+  print '(4F6.0)', bundle(:,:,1)
+  print '(A,I2,A)', "On sender side rank", comm_rank, ": bundle(2)"
+  print '(4F6.0)', bundle(:,:,2)
+
   date=0
 	
-  call oasis_put(var_id, date, field, kinfo)
+  call oasis_put(var_id, date, bundle, kinfo)
 
   if(kinfo<0) then
     print *, "Error in oasis_put: ", kinfo
     stop
   endif
 
-  deallocate(field)
+  deallocate(bundle)
   
   call oasis_terminate(kinfo)
   if(kinfo<0) then
