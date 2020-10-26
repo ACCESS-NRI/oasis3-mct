@@ -25,15 +25,17 @@ offsets = [comm_rank*local_lons,
 extents = [local_lons,
            local_lons]
 
-print('Comm rank {}'.format(comm_rank), offsets, extents, flush=True)
-
 partition = pyoasis.OrangePartition(offsets, extents)
 print("Partition id: " + str(partition.get_id()))
 
 variable = pyoasis.Var("FRECVATM", partition,
                        pyoasis.OasisParameters.OASIS_IN,
                        bundle_size = 2)
-print("Variable id: " + str(variable.get_id()))
+print("Variable FRECVATM id: " + str(variable.get_id()))
+
+var_out = pyoasis.Var("FSENDATM", partition,
+                      pyoasis.OasisParameters.OASIS_OUT)
+print("Variable FSENDATM id: " + str(variable.get_id()))
 
 comp.enddef()
 
@@ -62,6 +64,9 @@ for i in range(2):
     print(bundle[:,0,i])
     print(bundle[:,1,i])
 
-print("Element (0,1) of first bundle is {}".format(bundle[0,1,0]))
+field = pyoasis.Array(bundle[:,:,1], dtype=numpy.float32)
 
+date = int(0)
+var_out.put(date, field)
+    
 pyoasis.terminate()

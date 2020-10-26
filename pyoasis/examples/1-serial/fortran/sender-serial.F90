@@ -9,7 +9,7 @@ program sender_serial
   integer :: var_id, var_nodims(2), var_actual_shape(1), date
   character(len=13) :: comp_name = "sender-serial"
   character(len=8) :: var_name = "FSENDOCN"
-  real :: field(n_points)
+  real(kind=8) :: field(n_points)
 
   print *, "Component name: ", comp_name
 	
@@ -26,14 +26,6 @@ program sender_serial
     stop
   endif
   print *, "local_comm=",local_comm
-
-  call oasis_create_couplcomm(1, local_comm, coupl_comm, kinfo)
-  print *, "coupl_comm ", coupl_comm
-  if(kinfo<0) then
-    print *, "Error in oasis_create_couplcomm: ", kinfo
-    stop
-  endif
-  print *, "coupl_comm ", coupl_comm
 
   part_params=(/0, 0, n_points/)
   call oasis_def_partition(part_id, part_params, kinfo)

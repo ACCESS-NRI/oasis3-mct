@@ -50,7 +50,7 @@ program sender_apple
   call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_OUT, &
                     var_actual_shape, OASIS_REAL, kinfo)
   if(kinfo<0 .or. var_id<0) then
-    print *, "Error in oasis_def_partition: ", kinfo
+    print *, "Error in oasis_def_var: ", kinfo
     stop
   endif 
   print *, "var_id: ", var_id

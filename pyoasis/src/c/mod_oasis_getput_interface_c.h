@@ -23,14 +23,19 @@
 #include <stdbool.h>
 
 
-void oasis_put_iso(int* var_id, int* kstep, int* size1, int* size2, int* size3, double* field, int* kinfo);
+void oasis_put_iso_double(int* var_id, int* kstep, int* size1, int* size2, int* size3, double* field, int* kinfo);
 
-void oasis_get_iso(int* var_id, int* kstep, int* size1, int* size2, int* size3, double* field, int* kinfo);
+void oasis_get_iso_double(int* var_id, int* kstep, int* size1, int* size2, int* size3, double* field, int* kinfo);
 
 
-void put(int var_id, int kstep, int size1, int size2, int size3, double *field, int *kinfo);
+void oasis_put_iso_float(int* var_id, int* kstep, int* size1, int* size2, int* size3, float* field, int* kinfo);
 
-void get(int var_id, int kstep, int size1, int size2, int size3, double* field, int* kinfo);
+void oasis_get_iso_float(int* var_id, int* kstep, int* size1, int* size2, int* size3, float* field, int* kinfo);
+
+
+void put(int var_id, int kstep, int size1, int size2, int size3, int kind, void *field, int *kinfo);
+
+void get(int var_id, int kstep, int size1, int size2, int size3, int kind, void* field, int* kinfo);
 
 
 #endif
