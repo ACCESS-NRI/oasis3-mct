@@ -37,7 +37,7 @@ if icpl == 1:
     partition = pyoasis.OrangePartition(offsets, extents)
     print(partition, flush=True)
     
-    variable = pyoasis.Var("FSENDOCN", partition, 1,
+    variable = pyoasis.Var("FSENDOCN", partition,
                            pyoasis.OasisParameters.OASIS_OUT)
     print(variable, flush=True)
     

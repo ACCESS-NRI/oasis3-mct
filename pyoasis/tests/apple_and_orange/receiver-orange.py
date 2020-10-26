@@ -33,7 +33,7 @@ except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
 
 try:
-    variable = pyoasis.Var("FRECVATM", partition, 1,
+    variable = pyoasis.Var("FRECVATM", partition,
                        pyoasis.OasisParameters.OASIS_IN)
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)

@@ -26,7 +26,7 @@ extents = [extent]
 partition = pyoasis.OrangePartition(offsets, extents)
 print(partition)
 
-variable = pyoasis.Var("FRECVATM", partition, 1,
+variable = pyoasis.Var("FRECVATM", partition,
                        pyoasis.OasisParameters.OASIS_IN)
 print(variable)
 

@@ -29,7 +29,7 @@ except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
 
 try:        
-    variable = pyoasis.Var("FSENDOCN", partition, 1,
+    variable = pyoasis.Var("FSENDOCN", partition,
                        pyoasis.OasisParameters.OASIS_OUT)
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)

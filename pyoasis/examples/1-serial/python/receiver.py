@@ -26,7 +26,7 @@ print(partition)
 print('Receiver: Time for partition = {} s.'.format(time.time()-stt), flush=True)
 
 stt = time.time()
-variable = pyoasis.Var("FRECVATM", partition, 1,
+variable = pyoasis.Var("FRECVATM", partition,
                        pyoasis.OasisParameters.OASIS_IN)
 print('Receiver: Time for Var = {} s.'.format(time.time()-stt), flush=True)
 print(variable)

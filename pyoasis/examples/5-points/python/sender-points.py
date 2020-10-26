@@ -28,7 +28,7 @@ for i in range(local_size):
 partition = pyoasis.PointsPartition(indices)
 print(partition)
 
-variable = pyoasis.Var("FSENDOCN", partition, 1,
+variable = pyoasis.Var("FSENDOCN", partition,
                        pyoasis.OasisParameters.OASIS_OUT)
 print(variable)
 

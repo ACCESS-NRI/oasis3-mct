@@ -65,21 +65,26 @@ if comm_rank == comm_size - 1:
 
 partition = pyoasis.ApplePartition(offset, local_size)
 
-variable = pyoasis.Var("FSENDANA", partition, 1,
-                       pyoasis.OasisParameters.OASIS_OUT)
+variable = pyoasis.Var("FSENDANA", partition,
+                       pyoasis.OasisParameters.OASIS_OUT,
+                       bundle_size = 2)
 comp.enddef()
 
 date = int(0)
+bundle = pyoasis.Array(np.zeros((local_size,2),dtype=np.float64))
 
 dp_conv = math.pi/180.
-field = 2.0 + np.sin(2.0 * lats[offset:offset+local_size]*dp_conv) ** 4.0 * \
-        np.cos(4.0 * lons[offset:offset+local_size]*dp_conv)
+bundle[:,0] = 2.0 + np.sin(2.0 * lats[offset:offset+local_size]*dp_conv) ** 4.0 * \
+              np.cos(4.0 * lons[offset:offset+local_size]*dp_conv)
 
-field = pyoasis.Array(field)
+bundle[:,1] = 2.0 - np.cos(math.pi*\
+             (np.arccos(np.cos(lons[offset:offset+local_size]*dp_conv) * \
+                        np.cos(lats[offset:offset+local_size]*dp_conv)) / \
+             (1.2*math.pi)))
 
 if comm_rank == 0:
     print("Sent data: at time {}".format(date))
 
-variable.put(date, field)
+variable.put(date, bundle)
 
 pyoasis.terminate()

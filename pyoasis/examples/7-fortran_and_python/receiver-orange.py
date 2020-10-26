@@ -21,7 +21,7 @@ n_points = 16
 extent = int(n_points/comm_size)
 offset = comm_rank*extent
 
-print ("*** "+str(extent)+" "+str(offset))
+print ("*** Extent {}; Offset {}".format(extent,offset))
 
 offsets = [offset]
 extents = [extent]
@@ -29,7 +29,7 @@ extents = [extent]
 partition = pyoasis.OrangePartition(offsets, extents)
 print("Partition id: " + str(partition.get_id()))
 
-variable = pyoasis.Var("FRECVATM", partition, 1,
+variable = pyoasis.Var("FRECVATM", partition,
                        pyoasis.OasisParameters.OASIS_IN)
 print("Variable id: " + str(variable.get_id()))
 
@@ -48,5 +48,6 @@ epsilon = 1e-8
 error = abs((field-expected_field).sum())
 if(error < epsilon):
     print("Data received successfully")
+    print("Field is\n",field)
 
 pyoasis.terminate()

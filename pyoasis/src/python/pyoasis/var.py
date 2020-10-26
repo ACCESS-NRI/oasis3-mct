@@ -47,23 +47,24 @@ class Var:
                             the variable data 
     :raises PyOasisException: if an incorrect parameter is supplied
     """
-    def __init__(self, cdport, partition, n_dimensions, kinout):
+    def __init__(self, cdport, partition, kinout, bundle_size=1):
         """Constructor"""
         
-        pyoasis.check_types([str, pyoasis.Partition, int, pyoasis.OasisParameters],
-                    [cdport, partition, n_dimensions, kinout])
+        pyoasis.check_types([str, pyoasis.Partition, pyoasis.OasisParameters, int],
+                    [cdport, partition, kinout, bundle_size])
         if len(cdport) == 0:
             raise pyoasis.PyOasisException("Name empty.")
         id_part = partition.get_id()
         if id_part < 0:
             raise pyoasis.PyOasisException("Partition identifier <0.")
-        if n_dimensions < 0:
-            raise pyoasis.PyOasisException("Number of dimensions <0.")
         if not (kinout == pyoasis.OasisParameters.OASIS_IN 
                 or kinout == pyoasis.OasisParameters.OASIS_OUT):
             raise pyoasis.PyOasisException("kinout parameter neither OASIS_IN or OASIS_OUT.")
+        if bundle_size < 1:
+            raise pyoasis.PyOasisException("Bundle size <1.")
         self.name = cdport
-        id_var_nodims = [n_dimensions, 1]
+        self.bundle_size = bundle_size
+        id_var_nodims = [1, bundle_size]
         return_value = pyoasis.mod_oasis_var.def_var(id_part, self.name, id_var_nodims, 
                                                   kinout.value)
         error = return_value[1]

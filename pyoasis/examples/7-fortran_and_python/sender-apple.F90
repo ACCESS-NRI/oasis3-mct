@@ -9,7 +9,7 @@ program sender_apple
   integer :: var_id, var_nodims(2), var_actual_shape(1), date
   character(len=13) :: comp_name = "sender-apple"
   character(len=8) :: var_name = "FSENDOCN"
-  real :: field(4)
+  real, allocatable, dimension(:) :: field
 
   print *, "Component name: ", comp_name
 	
@@ -25,15 +25,6 @@ program sender_apple
     print *, "Error in oasis_get_localcomm: ", kinfo
     stop
   endif
-  print *, "local_comm=",local_comm
-
-  call oasis_create_couplcomm(1, local_comm, coupl_comm, kinfo)
-  print *, "coupl_comm ", coupl_comm
-  if(kinfo<0) then
-    print *, "Error in oasis_create_couplcomm: ", kinfo
-    stop
-  endif
-  print *, "coupl_comm ", coupl_comm
 
   call mpi_comm_size(local_comm, comm_size, kinfo)
   call mpi_comm_rank(local_comm, comm_rank, kinfo)
@@ -42,6 +33,8 @@ program sender_apple
   
   local_size=n_points/comm_size
   offset=comm_rank*local_size
+  if (comm_rank == comm_size - 1) &
+    & local_size = n_points - offset
 
   part_params=(/1, offset, local_size/)
   call oasis_def_partition(part_id, part_params, kinfo)
@@ -68,6 +61,7 @@ program sender_apple
     stop
   endif
 
+  allocate(field(local_size))
   do i=1, local_size
     field(i)=offset+i
   end do
@@ -81,6 +75,8 @@ program sender_apple
     stop
   endif
 
+  deallocate(field)
+  
   call oasis_terminate(kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_terminate: ", kinfo

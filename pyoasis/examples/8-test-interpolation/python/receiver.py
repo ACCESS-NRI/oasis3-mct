@@ -83,71 +83,83 @@ print("n_points on destination side is {}".format(n_points), flush = True)
 
 partition = pyoasis.SerialPartition(n_points)
 
-variable = pyoasis.Var("FRECVANA", partition, 1,
-                       pyoasis.OasisParameters.OASIS_IN)
+variable = pyoasis.Var("FRECVANA", partition,
+                       pyoasis.OasisParameters.OASIS_IN,
+                       bundle_size = 2)
 comp.enddef()
 
 date = int(0)
 
-field = pyoasis.Array(np.zeros(n_points))
+field = pyoasis.Array(np.zeros((n_points,2)))
 
 variable.get(date, field)
 
-field = np.delete(field,np.where(da_msk))
+print('Receiver: shape of received field',field.shape)
+field = np.delete(field,np.where(da_msk),axis=0)
 
 dp_conv = math.pi/180.
-expected_field = 2.0 + np.sin(2.0 * lats*dp_conv) ** 4.0 * \
+expected_field1 = 2.0 + np.sin(2.0 * lats*dp_conv) ** 4.0 * \
                  np.cos(4.0 * lons*dp_conv)
 
-expected_field = np.delete(expected_field,np.where(da_msk))
+expected_field1 = np.delete(expected_field1,np.where(da_msk))
+
+expected_field2 = 2.0 - np.cos(math.pi*\
+          (np.arccos(np.cos(lons*dp_conv) * \
+                     np.cos(lats*dp_conv)) / \
+           (1.2*math.pi)))
+
+expected_field2 = np.delete(expected_field2,np.where(da_msk))
+
+expected_field = np.array([expected_field1,expected_field2]).transpose()
 
 print("Data received successfully at time {}".format(date))
 
 if not has_graphics:
     exit()
 
-ti_str = "Test interpolation with PyOASIS"
-
-fig = plt.figure(figsize=(8.25,11.75), frameon=True)
-plt.suptitle(ti_str)
-cmap = CaramelBleuCm()
-
-sd_proj = ccrs.PlateCarree()
-sd_lwdt = 0.0
-
-di_ax = plt.subplot(211, projection = sd_proj)
-di_ax.set_global()
-di_ax.coastlines(resolution='110m',linewidth=0.5)
-        
-di_pc = matplotlib.collections.PolyCollection(da_lonlat)
-di_pc.set_array(np.array(field))
-di_pc.set_cmap(cmap)
-
-di_ax.add_collection(di_pc)
-di_gl = di_ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-                        linewidth=sd_lwdt, linestyle=':', color='gray')
-di_gl.top_labels = False
-di_gl.right_labels = False
-di_ax.set_title('Interpolated function on {} grid'.format(grid_longname(dgrid)))
-fig.colorbar(di_pc, ax=di_ax, shrink=.7)
-
-da_ax = plt.subplot(212, projection = sd_proj)
-da_ax.set_global()
-da_ax.coastlines(resolution='110m',linewidth=0.5)
-        
-da_pc = matplotlib.collections.PolyCollection(da_lonlat)
-da_pc.set_array(np.array(expected_field))
-da_pc.set_cmap(cmap)
-
-da_ax.add_collection(da_pc)
-da_gl = da_ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-                        linewidth=sd_lwdt, linestyle=':', color='gray')
-da_gl.top_labels = False
-da_gl.right_labels = False
-da_ax.set_title('Analytical function on {} grid'.format(grid_longname(dgrid)))
-fig.colorbar(da_pc, ax=da_ax, shrink=.7)
-
-plt.subplots_adjust(left=0.10,right=1.00,wspace=0.05,hspace=0.)
+for img in range(2):
+    ti_str = "Test interpolation with PyOASIS\nBundle field {}".format(img+1)
+    
+    fig = plt.figure(img,figsize=(8.25,11.75), frameon=True)
+    plt.suptitle(ti_str)
+    cmap = CaramelBleuCm()
+    
+    sd_proj = ccrs.PlateCarree()
+    sd_lwdt = 0.0
+    
+    di_ax = plt.subplot(211, projection = sd_proj)
+    di_ax.set_global()
+    di_ax.coastlines(resolution='110m',linewidth=0.5)
+            
+    di_pc = matplotlib.collections.PolyCollection(da_lonlat)
+    di_pc.set_array(np.array(field[...,img]))
+    di_pc.set_cmap(cmap)
+    
+    di_ax.add_collection(di_pc)
+    di_gl = di_ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+                            linewidth=sd_lwdt, linestyle=':', color='gray')
+    di_gl.top_labels = False
+    di_gl.right_labels = False
+    di_ax.set_title('Interpolated function on {} grid'.format(grid_longname(dgrid)))
+    fig.colorbar(di_pc, ax=di_ax, shrink=.7)
+    
+    da_ax = plt.subplot(212, projection = sd_proj)
+    da_ax.set_global()
+    da_ax.coastlines(resolution='110m',linewidth=0.5)
+            
+    da_pc = matplotlib.collections.PolyCollection(da_lonlat)
+    da_pc.set_array(np.array(expected_field[...,img]))
+    da_pc.set_cmap(cmap)
+    
+    da_ax.add_collection(da_pc)
+    da_gl = da_ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+                            linewidth=sd_lwdt, linestyle=':', color='gray')
+    da_gl.top_labels = False
+    da_gl.right_labels = False
+    da_ax.set_title('Analytical function on {} grid'.format(grid_longname(dgrid)))
+    fig.colorbar(da_pc, ax=da_ax, shrink=.7)
+    
+    plt.subplots_adjust(left=0.10,right=1.00,wspace=0.05,hspace=0.)
     
 plt.show()
 

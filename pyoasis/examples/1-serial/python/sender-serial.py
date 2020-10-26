@@ -24,7 +24,7 @@ print(partition)
 print('Sender: Time for partition = {} s.'.format(time.time()-stt), flush=True)
 
 stt = time.time()
-variable = pyoasis.Var("FSENDOCN", partition, 1,
+variable = pyoasis.Var("FSENDOCN", partition,
                        pyoasis.OasisParameters.OASIS_OUT)
 print('Sender: Time for Var = {} s.'.format(time.time()-stt), flush=True)
 print(variable)

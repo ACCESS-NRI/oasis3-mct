@@ -41,7 +41,7 @@ if icpl == 1:
     partition = pyoasis.ApplePartition(offset, local_size)
     print(partition)
 
-    variable = pyoasis.Var("FSENDOCN", partition, 1,
+    variable = pyoasis.Var("FSENDOCN", partition,
                            pyoasis.OasisParameters.OASIS_OUT)
     print(variable)
 
