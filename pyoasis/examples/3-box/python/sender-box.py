@@ -13,13 +13,7 @@ comp = pyoasis.Component(component_name, True, comm)
 
 print(comp)
 
-local_comm = comp.get_localcomm()
-print("Local communicator: " + str(local_comm))
-
-coupl_comm = comp.create_couplcomm(local_comm)
-print("Coupling communicator: " + str(coupl_comm))
-
-rank = comp.get_localcomm_rank()
+rank = comp.localcomm.rank
 
 global_offsets = [0, 2, 8, 10]
 partition = pyoasis.BoxPartition(global_offsets[rank], 2, 2, 4)

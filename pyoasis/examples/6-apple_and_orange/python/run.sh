@@ -9,7 +9,7 @@ casename=`basename $srcdir`
 exe1=sender-apple.py
 exe2=receiver-orange.py
 
-n1=4
+n1=6
 n2=4
 
 rundir=$srcdir/work
@@ -24,5 +24,5 @@ cp -f $datadir/namcouple $rundir/.
 
 cd $rundir
 
-mpirun --oversubscribe -np $n1 python3 $exe1 : -np $n2 python3 $exe2
+${MPIRUN4PY} -np $n1 python3 $exe1 : -np $n2 python3 $exe2
 

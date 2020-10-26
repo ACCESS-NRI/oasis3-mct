@@ -1,11 +1,10 @@
-FC=mpif90
-OPT=${HOME}/opt
-FLAGS=-J${HOME}/compile_oa3-mct/build/lib/psmile.MPI1 -L${OPT}/lib
+include ../../../util/make_dir/make.inc
+FLAGS=$(F90FLAGS_1) -I$(ARCHDIR)/include -I$(NETCDF_INCLUDE) -L$(ARCHDIR)/lib
 
 all: sender-apple
 
 sender-apple: sender-apple.F90
-	${FC} sender-apple.F90 ${FLAGS} -o sender-apple -lpsmile.MPI1 -lscrip -lsparsematrix
+	${F90} sender-apple.F90 ${FLAGS} -o sender-apple -lpsmile.MPI1 -lscrip -lmct -lmpeu $(NETCDF_LIBRARY)
 
 clean:
 	rm -f sender-apple

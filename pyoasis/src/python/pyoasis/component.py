@@ -1,0 +1,135 @@
+#!/usr/bin/python3
+
+# pyOASIS - A Python wrapper for OASIS
+# Authors: Philippe Gambron, Rupert Ford
+# Copyright (C) 2019 UKRI - STFC
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as 
+# published by the Free Software Foundation, either version 3 of the 
+# License, or any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Lesser General Public License for more details.
+
+# A copy of the GNU Lesser General Public License, version 3, is supplied
+# with this program, in the file lgpl-3.0.txt. It is also available at 
+# <https://www.gnu.org/licenses/lgpl-3.0.html>.
+
+
+from enum import Enum
+import numpy
+from mpi4py import MPI
+import traceback
+
+
+import pyoasis.mod_oasis_method
+import pyoasis.mod_oasis_auxiliary_routines
+import pyoasis.mod_oasis_sys
+import pyoasis.mod_oasis_part
+import pyoasis.mod_oasis_var
+import pyoasis.mod_oasis_getput_interface
+
+
+class Component(object):
+    """
+    Component that will be coupled by OASIS
+
+    :param string name: name of the component
+    :param bool coupled: whether the component will be coupled (default: True)
+    :param mpi4py.MPI.Intracomm communicator: global MPI communicator (default: MPI.COMM_WORLD)
+    :raises OasisException: if OASIS is unable to initialise the component
+    :raises PyOasisException: if an incorrect parameter is supplied
+    """
+    def __init__(self, name, coupled=True, communicator=MPI.COMM_WORLD):
+        """Constructor"""
+        pyoasis.checktypes.check_types([str, bool, MPI.Intracomm],
+                    [name, coupled, communicator])
+        if len(name) == 0:
+            raise pyoasis.PyOasisException("Component name empty.")
+        
+        self._name = name
+        self._communicator = communicator
+        return_value = pyoasis.mod_oasis_method.init_comp(self._name, coupled,
+                                                       self._communicator)
+        error = return_value[1]
+        if error < 0:
+            raise pyoasis.OasisException("Error initialising component "+self._name,
+                                 error)
+        self.id_component = return_value[0]
+        return_value = pyoasis.mod_oasis_auxiliary_routines.get_localcomm()
+        error = return_value[1]
+        if error < 0:
+            raise OasisException("Error in get_localcomm", error)
+        self._localcomm_hdle = return_value[0]
+        self.localcomm = MPI.Comm.f2py(self._localcomm_hdle)
+
+    def get_name(self):
+        """
+        :returns: the name of the component
+        :rtype: string
+        """
+        return self._name
+
+    def get_id(self):
+        """
+        :returns: the component identifier
+        :rtype: int
+        """
+        return self.id_component
+
+    def create_couplcomm(self, icpl):
+        """
+   
+        :param int icpl: coupling switch (1 coupled process, 0 not coupled)
+        :returns: the coupling communicator
+        :rtype: int
+        :raises OasisException: if OASIS is unable to create the coupling \
+                                communicator
+        :raises PyOasisException: if an incorrect parameter is supplied
+        """
+        allcomm = self._localcomm_hdle
+        pyoasis.check_types([int, int], [icpl, allcomm]);
+        return_value = pyoasis.mod_oasis_auxiliary_routines.create_couplcomm(icpl, 
+                                                                          allcomm)
+        error = return_value[1]
+        if error < 0:
+            raise pyoasis.OasisException("Error in create_couplcomm", error)
+        self._couplcomm_hdle = return_value[0]
+        self.couplcomm = MPI.Comm.f2py(self._couplcomm_hdle)
+        
+        return error
+
+    def set_couplcomm(self, couplcomm):
+        """
+   
+        :param MPI.communicator couplcomm: coupling communicator
+        :returns: error code
+        :rtype: int
+        :raises OasisException: if OASIS is unable to set the coupling \
+                                communicator
+        :raises PyOasisException: if an incorrect parameter is supplied
+        """
+        error = pyoasis.mod_oasis_auxiliary_routines.set_couplcomm(couplcomm)
+        if error < 0:
+            raise pyoasis.OasisException("Error in set_couplcomm", error)
+        self._couplcomm_hdle = couplcomm.py2f()
+        self.couplcomm = couplcomm
+        
+        return error
+
+    def enddef(self):
+        """
+        Ends the initialisation of the component.
+
+        :raises OasisException: if OASIS is unable to end the \
+                                initialisation
+        """
+        error = pyoasis.mod_oasis_method.enddef()
+        if error < 0:
+            raise pyoasis.OasisException("Error in enddef", error)
+
+    def __str__(self):
+        return "Component: name: " + self._name + ", id: " + str(self.id_component)

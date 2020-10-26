@@ -388,17 +388,13 @@ elif [ ${arch} == davinci_intel_impi_openmp ]; then
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
 elif [ ${arch} == linux_gfortran_openmpi ] || [ ${arch} == linux_gfortran_openmpi_openmp ]; then
-    export OASIS_OMP_NUM_THREADS=$threads
+    export OASIS_OMP_NUM_THREADS=1
     MPIRUN=/usr/lib64/openmpi/bin/mpirun
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
 elif [ ${arch} == linux_pgi_openmpi ] || [ ${arch} == linux_pgi_openmpi_openmp ]; then
-    if [ `hostname` == stiff.cerfacs.fr ]; then
-        PGI_VERSION=18.7
-    elif [ `hostname` == tioman.cerfacs.fr ]; then
-        PGI_VERSION=17.10
-    fi
-    MPIRUN=/usr/local/pgi/linux86-64/${PGI_VERSION}/mpi/openmpi-2.1.2/bin/mpirun 
+    export OASIS_OMP_NUM_THREADS=1
+    MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun 
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
 elif [ $arch == beaufix_intel_impi_openmp ]; then

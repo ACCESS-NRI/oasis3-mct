@@ -12,19 +12,15 @@ component_name = "sender-apple"
 comp = pyoasis.Component(component_name, True, comm)
 print(comp)
 
-local_comm = comp.get_localcomm()
-print("Local communicator: " + str(local_comm))
+comm_rank = comp.localcomm.rank
+comm_size = comp.localcomm.size
 
-coupl_comm = comp.create_couplcomm(local_comm)
-print("Coupling communicator: " + str(coupl_comm))
-
-comm_rank = comp.get_localcomm_rank()
-comm_size = comp.get_localcomm_size()
-
-n_points = 16
+n_points = 1600
 
 local_size = int(n_points/comm_size)
 offset = comm_rank*local_size
+if comm_rank == comm_size - 1:
+    local_size = n_points - offset
 
 partition = pyoasis.ApplePartition(offset, local_size)
 print(partition)
@@ -37,12 +33,9 @@ comp.enddef()
 
 date = int(0)
 
-field = pyoasis.Array(numpy.zeros(local_size))
+field = pyoasis.Array(numpy.arange(start=offset,stop=offset+local_size,dtype=numpy.float64))
 
-for i in range(local_size):
-    field[i] = offset + i
-
-print("Sent data: "+str(field))
+print("Sent data: from {} to {}".format(int(field[0]),int(field[-1])))
 
 variable.put(date, field)
 

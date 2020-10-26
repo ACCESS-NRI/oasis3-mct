@@ -13,13 +13,7 @@ component_name = "receiver"
 comp = pyoasis.Component(component_name, True, comm)
 print(comp)
 
-local_comm = comp.get_localcomm()
-print("Local communicator: " + str(local_comm))
-
-coupl_comm = comp.create_couplcomm(local_comm)
-print("Coupling communicator: " + str(coupl_comm))
-
-n_points = 16
+n_points = 1600
 
 partition = pyoasis.SerialPartition(n_points)
 print(partition)
@@ -35,7 +29,7 @@ field = pyoasis.Array(numpy.zeros(n_points))
 
 variable.get(date, field)
 
-expected_field = pyoasis.Array(range(n_points))
+expected_field = pyoasis.Array(numpy.arange(n_points,dtype=numpy.float64))
 epsilon = 1e-8
 error = abs((field-expected_field).sum())
 if(error < epsilon):

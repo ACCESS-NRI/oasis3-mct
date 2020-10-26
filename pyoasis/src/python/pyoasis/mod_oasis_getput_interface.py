@@ -25,8 +25,8 @@ import ctypes
 from ctypes import c_int, cdll, CDLL
 
 
-cdll.LoadLibrary("libpyoasiscore.so")
-LIB = CDLL("libpyoasiscore.so")
+cdll.LoadLibrary("liboasis.C.bindings.so")
+LIB = CDLL("liboasis.C.bindings.so")
 
 
 def get_sizes(field):

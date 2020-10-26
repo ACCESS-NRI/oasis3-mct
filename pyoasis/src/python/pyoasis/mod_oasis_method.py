@@ -25,8 +25,8 @@ import ctypes
 from ctypes import cdll, CDLL, c_int, c_char_p
 
 
-cdll.LoadLibrary("libpyoasiscore.so")
-LIB = CDLL("libpyoasiscore.so")
+cdll.LoadLibrary("liboasis.C.bindings.so")
+LIB = CDLL("liboasis.C.bindings.so")
 
 
 LIB.init_comp.argtypes = [ctypes.POINTER(ctypes.c_int), c_char_p,

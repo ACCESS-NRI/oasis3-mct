@@ -17,6 +17,8 @@ oasishelp@cerfacs.fr if you wish to be added to that list.
 
 \begin{itemize}
 
+\item The {\tt oasis\_def\_var} interface was overloaded to support excluding the argument, {\tt id\_var\_shape}, from the argument list.  This argument is no longer used.  For backwards compatibility, it can still be passed.
+
 \item  {\tt DESTARTR}, {\tt FRACARTR} or {\tt FRACNNTR} options : the ``True Area'' (TR) correction
 
 New options for {\tt SCRIPR CONSERV} to have an exact conservation of the field surface-integrated values, based on the "TRue" (TR) area of the cells. Details can be found in section \ref{subsec_interp} and in \cite{valcke19}. Note that to activate these TR options, the true area of the cell must be provided in the auxiliary file {\it areas.nc} in {\bf square radians}.
@@ -204,7 +206,7 @@ is no central coupler executable anymore\footnote{As with OASIS3.3,
 blocking. As before, the user has to take care of implementing a coupling
 algorithm that will result in matching ``put'' and ``get'' calls to
 avoid deadlocks (see section \ref{subsubsec_sendingreceiving}). The lag (LAG) index works as
-before in OASIS3.3 (see section \ref{subsubsec_Algoritms})}. 
+before in OASIS3.3 (see section \ref{subsec_lag})}. 
 
 \item {\tt MAPPING} transformation to use a pre-defined mapping file
 
@@ -414,8 +416,9 @@ useful in cases where multiple fields have the same coupling
 transformations and to reduce communication costs by aggregating multiple 
 fields into a single communication. If a LOCTRAN transformation is needed
 for these multiple fields, it is necessary to define a restart file for 
-these multiple fields. {\bf The coupling fields must be sent and received in the same order 
-as they are defined in the corresponding single entry of the namcouple}.
+these multiple fields. The coupling fields must be sent and received in the same order 
+as they are defined in the corresponding single entry of the namcouple
+(not relevant in further versions of OASIS3-MCT).
 
 \item Matching one source filed with multiple targets
 

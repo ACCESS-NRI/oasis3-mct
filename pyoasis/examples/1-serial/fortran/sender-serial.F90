@@ -3,26 +3,27 @@ program sender_serial
   implicit none
   integer :: i, kinfo
   integer :: comp_id, local_comm, coupl_comm
-  integer :: n_points, var_type, part_id
+  INTEGER, parameter :: n_points = 1600
+  integer :: var_type, part_id
   integer :: part_params(3)
   integer :: var_id, var_nodims(2), var_actual_shape(1), date
   character(len=13) :: comp_name = "sender-serial"
   character(len=8) :: var_name = "FSENDOCN"
-  real :: field(16)
+  real :: field(n_points)
 
   print *, "Component name: ", comp_name
 	
   call oasis_init_comp(comp_id, comp_name, kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_init_comp: ", kinfo
-    return
+    stop
   endif
   print *, "Component ID: ", comp_id
   
   call oasis_get_localcomm(local_comm, kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_get_localcomm: ", kinfo
-    return
+    stop
   endif
   print *, "local_comm=",local_comm
 
@@ -30,16 +31,15 @@ program sender_serial
   print *, "coupl_comm ", coupl_comm
   if(kinfo<0) then
     print *, "Error in oasis_create_couplcomm: ", kinfo
-    return
+    stop
   endif
   print *, "coupl_comm ", coupl_comm
 
-  n_points=16
   part_params=(/0, 0, n_points/)
   call oasis_def_partition(part_id, part_params, kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_def_partition: ", kinfo
-    return
+    stop
   endif
   print *, "part_id: ", part_id
 	
@@ -50,14 +50,14 @@ program sender_serial
                     var_actual_shape, OASIS_REAL, kinfo)
   if(kinfo<0 .or. var_id<0) then
     print *, "Error in oasis_def_partition: ", kinfo
-    return
+    stop
   endif 
   print *, "var_id: ", var_id
   
   call oasis_enddef(kinfo)
   if(kinfo<0) then
     print *, "Error in oasis_enddef: ", kinfo
-    return
+    stop
   endif
 
   do i=1, n_points
@@ -70,7 +70,7 @@ program sender_serial
 	
   if(kinfo<0) then
     print *, "Error in oasis_put: ", kinfo
-    return
+    stop
   endif
 
   call oasis_terminate(kinfo)

@@ -19,6 +19,12 @@
   public oasis_def_var
   public oasis_var_setup
 
+  !> Overloaded interface into oasis_def_var to support old and new interface
+  interface oasis_def_var ; module procedure &
+    oasis_def_var_v1, &
+    oasis_def_var_v2
+  end interface
+
   !--- datatypes ---
 
   integer(ip_intwp_p),public   :: maxvar  !< number of potential variables, derived from namcouple input
@@ -44,9 +50,10 @@
 
 !---------------------------------------------------------------
 
-!> The OASIS user interface to define variables
+!> The original OASIS user interface to define variables
+!> Called via oasis_def_var
 
-  SUBROUTINE oasis_def_var(id_nports, cdport, id_part, &
+  SUBROUTINE oasis_def_var_v1(id_nports, cdport, id_part, &
          id_var_nodims, kinout, id_var_shape, ktype, kinfo)
      !---------------------------------------------------------------
      INTEGER(kind=ip_i4_p),intent(out) :: id_nports    !< coupling field ID
@@ -54,14 +61,48 @@
      INTEGER(kind=ip_i4_p),intent(in)  :: id_part      !< partition ID
      INTEGER(kind=ip_i4_p),intent(in)  :: id_var_nodims(2)  !< rank and number of bundles
      INTEGER(kind=ip_i4_p),intent(in)  :: kinout       !< input or output flag
-     INTEGER(kind=ip_i4_p),intent(in)  :: id_var_shape(2*id_var_nodims(1)) !< size of field
+     INTEGER(kind=ip_i4_p),intent(in)  :: id_var_shape(2*id_var_nodims(1)) !< size of field (no longer used)
+     INTEGER(kind=ip_i4_p),intent(in)  :: ktype        !< type of coupling field
+     INTEGER(kind=ip_i4_p),intent(out),optional :: kinfo    !< return code
+     !---------------------------------------------------------------
+     character(len=*),parameter :: subname = '(oasis_def_var_v1)'
+     !---------------------------------------------------------------
+
+     call oasis_debug_enter(subname)
+
+     if (present(kinfo)) then
+       call oasis_def_var_v2(id_nports, cdport, id_part, &
+         id_var_nodims, kinout, ktype, kinfo)
+     else
+       call oasis_def_var_v2(id_nports, cdport, id_part, &
+         id_var_nodims, kinout, ktype)
+     endif
+
+     call oasis_debug_exit(subname)
+
+   END SUBROUTINE oasis_def_var_v1
+
+!---------------------------------------------------------------
+
+!> The updated OASIS user interface to define variables
+!> Called via oasis_def_var
+
+  SUBROUTINE oasis_def_var_v2(id_nports, cdport, id_part, &
+         id_var_nodims, kinout, ktype, kinfo)
+     !---------------------------------------------------------------
+     INTEGER(kind=ip_i4_p),intent(out) :: id_nports    !< coupling field ID
+     CHARACTER(len=*)     ,intent(in)  :: cdport       !< field name as in namcouple
+     INTEGER(kind=ip_i4_p),intent(in)  :: id_part      !< partition ID
+     INTEGER(kind=ip_i4_p),intent(in)  :: id_var_nodims(2)  !< rank and number of bundles
+     INTEGER(kind=ip_i4_p),intent(in)  :: kinout       !< input or output flag
      INTEGER(kind=ip_i4_p),intent(in)  :: ktype        !< type of coupling field
      INTEGER(kind=ip_i4_p),intent(out),optional :: kinfo    !< return code
      !---------------------------------------------------------------
      INTEGER(kind=ip_i4_p)  :: il_var_nodims_temp(2)  !< rank and number of bundles temporary
      INTEGER(kind=ip_i4_p)  :: n
      CHARACTER(len=ic_lvar) :: trimmed_cdport   ! Trimmed version of cdport
-     character(len=*),parameter :: subname = '(oasis_def_var)'
+     character(len=*),parameter :: subname  = '(oasis_def_var_v2)'
+     character(len=*),parameter :: subnamei = '(oasis_def_var)'
      LOGICAL    :: l_field_in_namcouple
      !---------------------------------------------------------------
 
@@ -78,13 +119,13 @@
      !-------------------------------------------------     
 
      if (len_trim(cdport) > ic_lvar) then
-        WRITE(nulprt,*) subname,estr,'variable too long = ',trim(cdport)
-        WRITE(nulprt,*) subname,estr,'max variable length (ic_lvar) = ',ic_lvar
+        WRITE(nulprt,*) subnamei,estr,'variable too long = ',trim(cdport)
+        WRITE(nulprt,*) subnamei,estr,'max variable length (ic_lvar) = ',ic_lvar
         call oasis_abort(file=__FILE__,line=__LINE__)
      endif
      trimmed_cdport = trim(cdport)
 
-     kinfo = OASIS_Ok
+     if (present(kinfo)) kinfo = OASIS_Ok
 
      l_field_in_namcouple = .FALSE.
      n = 0
@@ -109,7 +150,7 @@
      if (.not. l_field_in_namcouple) then
         id_nports = OASIS_Var_Uncpl
         if (OASIS_debug >= 2) then
-           write(nulprt,*) subname,' variable not in namcouple return ',trimmed_cdport
+           write(nulprt,*) subnamei,' variable not in namcouple return ',trimmed_cdport
            call oasis_flush(nulprt)
         endif
         call oasis_debug_exit(subname)
@@ -122,8 +163,8 @@
 
      do n = 1,prism_nvar
         if (trimmed_cdport == prism_var(n)%name) then
-           write(nulprt,*) subname,estr,'variable already defined with def_var = ',trimmed_cdport
-           write(nulprt,*) subname,estr,'check oasis_def_var calls in your model'
+           write(nulprt,*) subnamei,estr,'variable already defined with def_var = ',trimmed_cdport
+           write(nulprt,*) subnamei,estr,'check oasis_def_var calls in your model'
            call oasis_abort(file=__FILE__,line=__LINE__)
         endif
      enddo
@@ -131,14 +172,14 @@
      ! tcraig, this is due to i3.3 in the 2d->1d field bundle renaming
      il_var_nodims_temp(:)=id_var_nodims(:)
      IF (il_var_nodims_temp(2) > 999) THEN
-        write(nulprt,*) subname,estr,'variable id_var_nodims(2) too large.  limit is 999 ',il_var_nodims_temp(2)
-        write(nulprt,*) subname,estr,'check oasis_def_var calls in your model'
+        write(nulprt,*) subnamei,estr,'variable id_var_nodims(2) too large.  limit is 999 ',il_var_nodims_temp(2)
+        write(nulprt,*) subnamei,estr,'check oasis_def_var calls in your model'
         call oasis_abort(file=__FILE__,line=__LINE__)
      ENDIF
          
      IF (il_var_nodims_temp(2) <= 0) THEN
          il_var_nodims_temp(2)=1
-         WRITE(nulprt,*) subname,'WARNING id_var_nodim(2) cannot be negative or 0 ; put to 1'
+         WRITE(nulprt,*) subnamei,'WARNING id_var_nodim(2) cannot be negative or 0 ; put to 1'
          call oasis_flush(nulprt)
      ENDIF
 
@@ -150,8 +191,8 @@
      id_nports = prism_nvar
 
      if (prism_nvar > maxvar) then
-        write(nulprt,*) subname,estr,'prism_nvar too large = ',prism_nvar,maxvar
-        write(nulprt,*) subname,estr,'check maxvar set in oasis_init_comp'
+        write(nulprt,*) subnamei,estr,'prism_nvar too large = ',prism_nvar,maxvar
+        write(nulprt,*) subnamei,estr,'check maxvar set in oasis_init_comp'
         call oasis_abort(file=__FILE__,line=__LINE__)
      endif
 
@@ -171,19 +212,19 @@
 
      if (OASIS_debug >= 2) then
         write(nulprt,*) ' '
-        write(nulprt,*) subname,' prism_nvar    = ',prism_nvar
-        write(nulprt,*) subname,' varname = ',prism_nvar,trim(prism_var(prism_nvar)%name)
-        write(nulprt,*) subname,' varpart = ',prism_nvar,prism_var(prism_nvar)%part
-        write(nulprt,*) subname,' varnum  = ',prism_nvar,prism_var(prism_nvar)%num
-        write(nulprt,*) subname,' varops  = ',prism_nvar,prism_var(prism_nvar)%ops
-        write(nulprt,*) subname,' vartype = ',prism_nvar,prism_var(prism_nvar)%type
+        write(nulprt,*) subnamei,' prism_nvar    = ',prism_nvar
+        write(nulprt,*) subnamei,' varname = ',prism_nvar,trim(prism_var(prism_nvar)%name)
+        write(nulprt,*) subnamei,' varpart = ',prism_nvar,prism_var(prism_nvar)%part
+        write(nulprt,*) subnamei,' varnum  = ',prism_nvar,prism_var(prism_nvar)%num
+        write(nulprt,*) subnamei,' varops  = ',prism_nvar,prism_var(prism_nvar)%ops
+        write(nulprt,*) subnamei,' vartype = ',prism_nvar,prism_var(prism_nvar)%type
         write(nulprt,*) ' '
         CALL oasis_flush(nulprt)
      endif
 
      call oasis_debug_exit(subname)
 
-   END SUBROUTINE oasis_def_var
+   END SUBROUTINE oasis_def_var_v2
 
 !---------------------------------------------------------------
 

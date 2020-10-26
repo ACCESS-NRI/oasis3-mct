@@ -13,12 +13,6 @@ component_name = "receiver"
 comp = pyoasis.Component(component_name, True, comm)
 print(comp)
 
-local_comm = comp.get_localcomm()
-print("Local communicator: " + str(local_comm))
-
-coupl_comm = comp.create_couplcomm(local_comm)
-print("Coupling communicator: " + str(coupl_comm))
-
 n_points = 16
 
 partition = pyoasis.SerialPartition(n_points)

@@ -31,8 +31,8 @@ def IntArray(data):
     return numpy.asfortranarray(data, dtype=numpy.int32)
 
 
-cdll.LoadLibrary("libpyoasiscore.so")
-LIB = CDLL("libpyoasiscore.so")
+cdll.LoadLibrary("liboasis.C.bindings.so")
+LIB = CDLL("liboasis.C.bindings.so")
 
 
 LIB.def_partition.argtypes = [ctypes.POINTER(ctypes.c_int),
