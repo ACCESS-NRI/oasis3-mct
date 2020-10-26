@@ -60,6 +60,7 @@
 
       subroutine scrip (interp_file1, map1_name, m_method, n_opt, &
                         lextrapdone, rl_varmul, id_scripvoi, cons_order, &
+                        lnorth_thresh, lsouth_thresh, &
                         mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
 
 !-----------------------------------------------------------------------
@@ -96,7 +97,9 @@
 
       LOGICAL, intent(in) ::          lextrapdone     ! logical, true if EXTRAP done on field
 
-      REAL (kind=dbl_kind), intent(in) :: rl_varmul       ! Gaussian variance (for GAUSWGT)
+      REAL (kind=dbl_kind), intent(in) :: rl_varmul, &     ! Gaussian variance (for GAUSWGT)
+                                          lnorth_thresh, & ! conservative north threshold
+                                          lsouth_thresh    ! conservative south threshold
 
       INTEGER (kind=int_kind), intent(in) :: id_scripvoi  ! number of neighbours for DISTWGT and GAUSWGT
 
@@ -154,6 +157,8 @@
 
       map_method = m_method
       normalize_opt = n_opt
+      north_thresh = lnorth_thresh  ! remap conserv
+      south_thresh = lsouth_thresh  ! remap conserv
 
    !--- map method ---
 

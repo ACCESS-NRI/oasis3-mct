@@ -37,6 +37,7 @@ MODULE mod_oasis_map
      type(mct_sMatP),pointer :: sMatP(:)  !< stores mapping data such as weights
      integer(kind=ip_i4_p) :: nwgts       !< number of weights in weights file
      character(len=ic_long):: file        !< file to read/write
+     character(len=ic_long):: file2       !< alternate file to read/write
      character(len=ic_med) :: loc         !< location setting, src or dst model
      character(len=ic_med) :: opt         !< optimization setting, bfb, sum, or opt
      character(len=ic_med) :: optval      !< mct map setting, src or dst, derived from opt
@@ -354,6 +355,7 @@ CONTAINS
   if (local_timers_on) call oasis_timer_start('cpl_genmap_scrip')
   call scrip(prism_mapper(mapid)%file,prism_mapper(mapid)%file,namscrmet(namID), &
              namscrnor(namID),lextrapdone,namscrvam(namID),namscrnbr(namID),namscrord(namID), &
+             namscrnth(namID),namscrsth(namID), &
              mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
   if (local_timers_on) call oasis_timer_stop('cpl_genmap_scrip') 
   if (OASIS_debug >= 15) THEN
