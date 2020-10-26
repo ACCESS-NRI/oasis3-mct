@@ -333,7 +333,6 @@ CONTAINS
            enddo
         enddo
      endif
-     
      if (OASIS_debug >= 5) then
         write(nulprt,*) subname,' BCAST from ',n,mpi_root_global(n)
         call oasis_flush(nulprt)
@@ -1132,7 +1131,6 @@ CONTAINS
 
      enddo  ! nfind
   enddo  ! nv1
-  
   if (local_timers_on >= 2) call oasis_timer_stop ('cpl_setup_n3')
   if (local_timers_on >= 1) then
      call oasis_timer_start('cpl_setup_n4_barrier')
@@ -1143,7 +1141,6 @@ CONTAINS
   if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4a')
 
   ! aggregate checkused info across all pes and then check on each component root
-  
   allocate(namsrc_checkused_g(sortnsrc%num))
   call oasis_mpi_max(namsrc_checkused,namsrc_checkused_g,mpi_comm_global,string=trim(subname)//':srccheckused',all=.true.)
   found = .false.
@@ -1153,7 +1150,6 @@ CONTAINS
         found = .true.
      endif
   enddo
-  
 !  call oasis_mpi_barrier(mpi_comm_global)
   if (found) call oasis_abort(file=__FILE__,line=__LINE__)
   deallocate(namsrc_checkused_g)
