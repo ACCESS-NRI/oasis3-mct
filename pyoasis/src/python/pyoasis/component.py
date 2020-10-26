@@ -64,7 +64,10 @@ class Component(object):
         if error < 0:
             raise OasisException("Error in get_localcomm", error)
         self._localcomm_hdle = return_value[0]
-        self.localcomm = MPI.Comm.f2py(self._localcomm_hdle)
+        try:
+            self.localcomm = MPI.Comm.f2py(self._localcomm_hdle)
+        except:
+            self.localcomm = MPI.COMM_NULL
 
     def get_name(self):
         """
@@ -98,8 +101,11 @@ class Component(object):
         if error < 0:
             raise pyoasis.OasisException("Error in create_couplcomm", error)
         self._couplcomm_hdle = return_value[0]
-        self.couplcomm = MPI.Comm.f2py(self._couplcomm_hdle)
-        
+        try:
+            self.couplcomm = MPI.Comm.f2py(self._couplcomm_hdle)
+        except:
+            self.couplcomm = MPI.COMM_NULL
+
         return error
 
     def set_couplcomm(self, couplcomm):
