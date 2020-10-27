@@ -19,10 +19,11 @@
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
+import pyoasis
 import numpy
 
 
-def Array(data, dtype = numpy.float64):
+def Array(data, dtype=numpy.float64):
     """
     Numpy array of double precision floating point numbers in Fortran ordering
 
@@ -38,4 +39,3 @@ def Array(data, dtype = numpy.float64):
         return numpy.asfortranarray(data, dtype=dtype)
     except:
         raise pyoasis.PyOasisException("Unable to initialise the Numpy array")
-

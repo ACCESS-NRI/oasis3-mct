@@ -17,8 +17,8 @@ comm_size = comp.localcomm.size
 
 n_points = 1600
 
-local_size = int(n_points/comm_size)
-offset = comm_rank*local_size
+local_size = int(n_points / comm_size)
+offset = comm_rank * local_size
 if comm_rank == comm_size - 1:
     local_size = n_points - offset
 
@@ -33,9 +33,9 @@ comp.enddef()
 
 date = int(0)
 
-field = pyoasis.Array(numpy.arange(start=offset,stop=offset+local_size,dtype=numpy.float64))
+field = pyoasis.Array(numpy.arange(start=offset, stop=offset + local_size, dtype=numpy.float64))
 
-print("Sent data: from {} to {}".format(int(field[0]),int(field[-1])))
+print("Sent data: from {} to {}".format(int(field[0]), int(field[-1])))
 
 variable.put(date, field)
 

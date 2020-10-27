@@ -19,19 +19,12 @@
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-from enum import Enum
-import numpy
-from mpi4py import MPI
-import traceback
-
-
-import pyoasis.mod_oasis_method
 import pyoasis.mod_oasis_auxiliary_routines
-import pyoasis.mod_oasis_sys
-import pyoasis.mod_oasis_part
-import pyoasis.mod_oasis_var
 import pyoasis.mod_oasis_getput_interface
-
+import pyoasis.mod_oasis_method
+import pyoasis.mod_oasis_part
+import pyoasis.mod_oasis_sys
+import pyoasis.mod_oasis_var
 
 
 def terminate():

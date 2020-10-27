@@ -21,10 +21,10 @@
 
 """OASIS send/receive (put/get) user interfaces"""
 
+import pyoasis
 import ctypes
 from numpy import float32, float64
 from ctypes import c_int, cdll, CDLL
-
 
 cdll.LoadLibrary("liboasis.C.bindings.so")
 LIB = CDLL("liboasis.C.bindings.so")
@@ -56,7 +56,7 @@ def put(var_id, kstep, field):
     else:
         raise pyoasis.PyOasisException("Data type of field can only by float32 or float64")
     LIB.put(var_id, kstep, sizes[0], sizes[1], sizes[2], kind,
-        p_field, error)
+            p_field, error)
     return error.value
 
 

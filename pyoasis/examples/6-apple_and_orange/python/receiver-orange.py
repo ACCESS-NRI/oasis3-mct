@@ -43,7 +43,7 @@ for i in range(extent):
 
 epsilon = 1e-8
 error = abs((field-expected_field).sum())
-if(error < epsilon):
+if error < epsilon:
     print("Data received successfully")
 
 pyoasis.terminate()

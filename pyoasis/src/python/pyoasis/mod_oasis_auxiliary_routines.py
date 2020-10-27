@@ -24,10 +24,8 @@
 import ctypes
 from ctypes import cdll, CDLL, c_int
 
-
 cdll.LoadLibrary("liboasis.C.bindings.so")
 LIB = CDLL("liboasis.C.bindings.so")
-
 
 LIB.get_localcomm.argtypes = [ctypes.POINTER(ctypes.c_int),
                               ctypes.POINTER(ctypes.c_int)]
@@ -38,7 +36,8 @@ def get_localcomm():
     localcomm = c_int(0)
     error = c_int(0)
     LIB.get_localcomm(localcomm, error)
-    return (localcomm.value, error.value)
+    return localcomm.value, error.value
+
 
 LIB.create_couplcomm.argtypes = [ctypes.c_int, ctypes.c_int,
                                  ctypes.POINTER(ctypes.c_int),
@@ -50,7 +49,7 @@ def create_couplcomm(icpl, allcomm):
     cplcomm = c_int(0)
     error = c_int(0)
     LIB.create_couplcomm(icpl, allcomm, cplcomm, error)
-    return (cplcomm.value, error.value)
+    return cplcomm.value, error.value
 
 
 LIB.set_couplcomm.argtypes = [ctypes.c_int,
@@ -73,7 +72,7 @@ def get_intercomm(cdnam):
     new_comm = c_int(0)
     error = c_int(0)
     LIB.get_intercomm(new_comm, cdnam.encode(), error)
-    return (new_comm.value, error.value)
+    return new_comm.value, error.value
 
 
 LIB.get_intracomm.argtypes = [ctypes.c_int, ctypes.c_char_p,
@@ -84,8 +83,8 @@ def get_intracomm(cdnam):
     """OASIS user interface to establish an intracomm communicator between the root of two models"""
     new_comm = c_int(0)
     error = c_int(0)
-    LIB.get_intracomm(new_comm, cdnam.encode(), intracomm)
-    return (new_comm.value, error.value)
+    LIB.get_intracomm(new_comm, cdnam.encode(), error)
+    return new_comm.value, error.value
 
 
 LIB.get_comm_size.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int),
@@ -97,7 +96,7 @@ def get_comm_size(communicator):
     comm_size = c_int(0)
     error = c_int(0)
     LIB.get_comm_size(communicator, comm_size, error)
-    return (comm_size.value, error.value)
+    return comm_size.value, error.value
 
 
 LIB.get_comm_rank.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int),
@@ -109,4 +108,4 @@ def get_comm_rank(communicator):
     comm_rank = c_int(0)
     error = c_int(0)
     LIB.get_comm_rank(communicator, comm_rank, error)
-    return (comm_rank.value, error.value)
+    return comm_rank.value, error.value

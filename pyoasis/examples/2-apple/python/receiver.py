@@ -5,7 +5,6 @@ import numpy
 
 from mpi4py import MPI
 
-
 comm = MPI.COMM_WORLD
 
 component_name = "receiver"
@@ -29,10 +28,10 @@ field = pyoasis.Array(numpy.zeros(n_points))
 
 variable.get(date, field)
 
-expected_field = pyoasis.Array(numpy.arange(n_points,dtype=numpy.float64))
+expected_field = pyoasis.Array(numpy.arange(n_points, dtype=numpy.float64))
 epsilon = 1e-8
-error = abs((field-expected_field).sum())
-if(error < epsilon):
+error = abs((field - expected_field).sum())
+if error < epsilon:
     print("Data received successfully")
 
 pyoasis.terminate()

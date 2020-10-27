@@ -28,14 +28,18 @@ import pyoasis.mod_oasis_part
 import pyoasis.mod_oasis_var
 import pyoasis.mod_oasis_getput_interface
 
+import traceback
+
+
 # oasis_abort instead of simply abort because there
 # was a clash with another function name
 def oasis_abort(component_id, routine, message, filename, line, error):
     """Aborts OASIS."""
-    check_types([int, str, str, str, int, int],
-                [component_id, routine, message, filename, line, error])
-    mod_oasis_sys.oasis_abort(component_id, routine, message, filename,
-                                   line, error)
+    pyoasis.check_types([int, str, str, str, int, int],
+                        [component_id, routine, message, filename, line, error])
+    pyoasis.mod_oasis_sys.oasis_abort(component_id, routine, message, filename,
+                                      line, error)
+
 
 def pyoasis_abort(exception):
     """
@@ -46,7 +50,6 @@ def pyoasis_abort(exception):
     :param Exception exception: exception to be handled
     :raises PyOasisException: if an incorrect parameter is supplied
     """
-    check_types([Exception], [exception])
+    pyoasis.check_types([Exception], [exception])
     print(traceback.format_exc())
     pyoasis.mod_oasis_sys.oasis_abort(0, "", str(exception), "", 0, 0)
-

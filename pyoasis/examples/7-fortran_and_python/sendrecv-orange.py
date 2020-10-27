@@ -24,9 +24,9 @@ n_points = 16
 
 # Parameters for incoming partition
 
-local_lons = (n_points//2)//comm_size
-offsets = [comm_rank*local_lons,
-           comm_rank*local_lons + (n_points//2)]
+local_lons = (n_points // 2) // comm_size
+offsets = [comm_rank * local_lons,
+           comm_rank * local_lons + (n_points // 2)]
 extents = [local_lons,
            local_lons]
 
@@ -50,15 +50,15 @@ if comm_rank % 2 != 0:
     part_out = pyoasis.BoxPartition(global_offsets[comm_rank],
                                     extents_x[comm_rank],
                                     extents_y[comm_rank],
-                                    (n_points//2),
-                                    global_size = n_points,
+                                    (n_points // 2),
+                                    global_size=n_points,
                                     name="part_out")
 else:
     part_out = pyoasis.BoxPartition(global_offsets[comm_rank],
                                     extents_x[comm_rank],
                                     extents_y[comm_rank],
-                                    (n_points//2),
-                                    global_size = n_points,
+                                    (n_points // 2),
+                                    global_size=n_points,
                                     name="part_out")
 
     part_in = pyoasis.OrangePartition(offsets, extents, name="part_in")
@@ -69,45 +69,45 @@ if comm_rank == 0:
 
 variable = pyoasis.Var("FRECVATM", part_in,
                        pyoasis.OasisParameters.OASIS_IN,
-                       bundle_size = 2)
+                       bundle_size=2)
 if comm_rank == 0:
-    print("{}: var_name: FRECVATM = var_id: {}".format(component_name,variable.get_id()))
+    print("{}: var_name: FRECVATM = var_id: {}".format(component_name, variable.get_id()))
 
 var_out = pyoasis.Var("FSENDATM", part_out,
                       pyoasis.OasisParameters.OASIS_OUT)
 if comm_rank == 0:
-    print("{}: var_name: FSENDATM = var_id: {}".format(component_name,var_out.get_id()))
+    print("{}: var_name: FSENDATM = var_id: {}".format(component_name, var_out.get_id()))
 
 comp.enddef()
 
 date = int(0)
-bundle = pyoasis.Array(numpy.zeros((local_lons,2,2),
+bundle = pyoasis.Array(numpy.zeros((local_lons, 2, 2),
                                    dtype=numpy.float64))
 
 variable.get(date, bundle)
 
-expected_bundle = pyoasis.Array(numpy.zeros((local_lons,2,2),
+expected_bundle = pyoasis.Array(numpy.zeros((local_lons, 2, 2),
                                             dtype=numpy.float64))
 for i in range(2):
-    expected_bundle[:,:,i] = i + 1
+    expected_bundle[:, :, i] = i + 1
 for i in range(local_lons):
-    expected_bundle[i,:,:] += (i + 1 + comm_rank*local_lons) * 100
+    expected_bundle[i, :, :] += (i + 1 + comm_rank * local_lons) * 100
 for i in range(2):
-    expected_bundle[:,i,:] += (i + 1) * 10
+    expected_bundle[:, i, :] += (i + 1) * 10
 
 epsilon = 1e-8
-error = abs((bundle-expected_bundle).sum())
-if(error < epsilon):
-    print("{}: On rank {} data received successfully".format(component_name,comm_rank))
+error = abs((bundle - expected_bundle).sum())
+if error < epsilon:
+    print("{}: On rank {} data received successfully".format(component_name, comm_rank))
 
 for i in range(2):
-    print("{}: On rank {} Bundle {} is".format(component_name,comm_rank,i+1))
-    print(bundle[:,0,i])
-    print(bundle[:,1,i])
+    print("{}: On rank {} Bundle {} is".format(component_name, comm_rank, i + 1))
+    print(bundle[:, 0, i])
+    print(bundle[:, 1, i])
 
 if comm_rank % 2 != 0:
-    field = pyoasis.Array(bundle[:,:,1], dtype=numpy.float32)      
+    field = pyoasis.Array(bundle[:, :, 1], dtype=numpy.float32)
     date = int(0)
     var_out.put(date, field)
-    
+
 pyoasis.terminate()

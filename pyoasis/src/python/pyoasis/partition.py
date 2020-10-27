@@ -19,22 +19,17 @@
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-from enum import Enum
-import numpy
-from mpi4py import MPI
-import traceback
-
-
-import pyoasis.mod_oasis_method
 import pyoasis.mod_oasis_auxiliary_routines
-import pyoasis.mod_oasis_sys
-import pyoasis.mod_oasis_part
-import pyoasis.mod_oasis_var
 import pyoasis.mod_oasis_getput_interface
+import pyoasis.mod_oasis_method
+import pyoasis.mod_oasis_part
+import pyoasis.mod_oasis_sys
+import pyoasis.mod_oasis_var
 
 
 class Partition(object):
     """Base class handling a partition"""
+
     def set(self, parameters, global_size, name):
         """Sets up the partition. Will be called by the inherited classes.
         :raises: OasisException if OASIS is unable to initialise the\
@@ -46,13 +41,16 @@ class Partition(object):
         if error < 0:
             raise pyoasis.OasisException("Error in def_partition", error)
         self.partition_id = return_value[0]
+
     def get_id(self):
         """:returns: the partition identifier.
            :rtype: int
         """
         return self.partition_id
+
     def __str__(self):
         return "Partition: id: " + str(self.partition_id)
+
 
 class SerialPartition(Partition):
     """
@@ -64,7 +62,8 @@ class SerialPartition(Partition):
     :raises OasisException: if OASIS is unable to initialise the partition
     :raises PyOasisException: if an incorrect parameter is supplied
     """
-    def __init__(self, size, global_size = -1, name = ""):
+
+    def __init__(self, size, global_size=-1, name=""):
         """Constructor"""
         pyoasis.check_types([int, int, str], [size, global_size, name])
         if size <= 0:
@@ -85,7 +84,8 @@ class ApplePartition(Partition):
     :raises OasisException: if OASIS is unable to initialise the partition
     :raises PyOasisException: if an incorrect parameter is supplied
     """
-    def __init__(self, offset, size, global_size = -1, name = ""):
+
+    def __init__(self, offset, size, global_size=-1, name=""):
         """Constructor"""
         pyoasis.check_types([int, int, int, str], [offset, size, global_size, name])
         if offset < 0:
@@ -112,12 +112,13 @@ class BoxPartition(Partition):
     :raises OasisException: if OASIS is unable to initialise the partition
     :raises PyOasisException: if an incorrect parameter is supplied
     """
+
     def __init__(self, global_offset, local_extent_x, local_extent_y,
-                 global_extent_x, global_size = -1, name = ""):
+                 global_extent_x, global_size=-1, name=""):
         """Constructor"""
         pyoasis.check_types([int, int, int, int, int, str],
-                    [global_offset, local_extent_x, local_extent_y,
-                     global_extent_x, global_size, name])
+                            [global_offset, local_extent_x, local_extent_y,
+                             global_extent_x, global_size, name])
         if global_offset < 0:
             raise pyoasis.PyOasisException("Global offset <0.")
 
@@ -129,8 +130,7 @@ class BoxPartition(Partition):
         if global_extent_x <= 0:
             raise pyoasis.PyOasisException("Global extent in x-direction <=0.")
 
-
-        parameters = [2, global_offset, local_extent_x, local_extent_y, 
+        parameters = [2, global_offset, local_extent_x, local_extent_y,
                       global_extent_x]
         self.set(parameters, global_size, name)
 
@@ -148,7 +148,8 @@ class OrangePartition(Partition):
     :raises OasisException: if OASIS is unable to initialise the partition
     :raises PyOasisException: if an incorrect parameter is supplied
     """
-    def __init__(self, offsets, extents, global_size = -1, name = ""):
+
+    def __init__(self, offsets, extents, global_size=-1, name=""):
         """Constructor"""
         pyoasis.check_types([list, list, int, str], [offsets, extents, global_size, name])
         n_offsets = len(offsets)
@@ -179,7 +180,8 @@ class PointsPartition(Partition):
     :raises OasisException: if OASIS is unable to initialise the partition
     :raises PyOasisException: if an incorrect parameter is supplied
     """
-    def __init__(self, global_indices, global_size = -1, name = ""):
+
+    def __init__(self, global_indices, global_size=-1, name=""):
         """Constructor"""
         pyoasis.check_types([list, int, str], [global_indices, global_size, name])
         if len(global_indices) == 0:
@@ -189,4 +191,3 @@ class PointsPartition(Partition):
         for index in global_indices:
             parameters.append(index)
         self.set(parameters, global_size, name)
-

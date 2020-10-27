@@ -8,6 +8,8 @@ from pyoasis.component import *
 from pyoasis.terminate import *
 from pyoasis.partition import *
 from pyoasis.var import *
+import sys
+
 
 # Global error handler
 def global_except_hook(exctype, value, traceback):
@@ -35,5 +37,4 @@ def global_except_hook(exctype, value, traceback):
             raise e
 
 
-import sys
 sys.excepthook = global_except_hook
