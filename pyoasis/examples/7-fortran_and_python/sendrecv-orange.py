@@ -10,14 +10,15 @@ from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 
-component_name = "receiver"
-print("Component name: " + component_name)
+component_name = "sendrecv"
 
 comp = pyoasis.Component(component_name, True, comm)
-print("Component id: " + str(comp.get_id()))
 
 comm_rank = comp.localcomm.rank
 comm_size = comp.localcomm.size
+
+if comm_rank == 0:
+    print("Component name: {} = Component ID: {}".format(component_name, comp.get_id()))
 
 n_points = 16
 
@@ -45,7 +46,6 @@ extents_y = [0, 2, 0, 2]
 
 if comm_rank % 2 != 0:
     part_in = pyoasis.OrangePartition(offsets, extents, name="part_in")
-    print("Part_in id: " + str(part_in.get_id()))
 
     part_out = pyoasis.BoxPartition(global_offsets[comm_rank],
                                     extents_x[comm_rank],
@@ -53,8 +53,6 @@ if comm_rank % 2 != 0:
                                     (n_points//2),
                                     global_size = n_points,
                                     name="part_out")
-    print("Part_out id: " + str(part_out.get_id()))
-
 else:
     part_out = pyoasis.BoxPartition(global_offsets[comm_rank],
                                     extents_x[comm_rank],
@@ -62,20 +60,23 @@ else:
                                     (n_points//2),
                                     global_size = n_points,
                                     name="part_out")
-    print("Part_out id: " + str(part_out.get_id()))
 
     part_in = pyoasis.OrangePartition(offsets, extents, name="part_in")
-    print("Part_in id: " + str(part_in.get_id()))
 
+if comm_rank == 0:
+    print("{}: part_in  id: {}".format(component_name, part_in.get_id()))
+    print("{}: part_out id: {}".format(component_name, part_out.get_id()))
 
 variable = pyoasis.Var("FRECVATM", part_in,
                        pyoasis.OasisParameters.OASIS_IN,
                        bundle_size = 2)
-print("Variable FRECVATM id: " + str(variable.get_id()))
+if comm_rank == 0:
+    print("{}: var_name: FRECVATM = var_id: {}".format(component_name,variable.get_id()))
 
 var_out = pyoasis.Var("FSENDATM", part_out,
                       pyoasis.OasisParameters.OASIS_OUT)
-print("Variable FSENDATM id: " + str(variable.get_id()))
+if comm_rank == 0:
+    print("{}: var_name: FSENDATM = var_id: {}".format(component_name,var_out.get_id()))
 
 comp.enddef()
 
@@ -97,10 +98,10 @@ for i in range(2):
 epsilon = 1e-8
 error = abs((bundle-expected_bundle).sum())
 if(error < epsilon):
-    print("Data received successfully")
+    print("{}: On rank {} data received successfully".format(component_name,comm_rank))
 
 for i in range(2):
-    print("Bundle {} is".format(i+1))
+    print("{}: On rank {} Bundle {} is".format(component_name,comm_rank,i+1))
     print(bundle[:,0,i])
     print(bundle[:,1,i])
 

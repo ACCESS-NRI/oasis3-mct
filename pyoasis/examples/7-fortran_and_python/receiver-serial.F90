@@ -10,14 +10,13 @@ program receiver_serial
    character(len=8) :: var_name = "FRECVICE"
    real(kind=4), allocatable, dimension(:) :: field
    
-   print *, "Component name: ", comp_name
-
    call oasis_init_comp(comp_id, comp_name, kinfo)
    if(kinfo<0) then
       print *, "Error in oasis_init_comp: ", kinfo
       stop
    endif
-   print *, "Component ID: ", comp_id
+
+   print '(3A,I0)', "Component name: ", trim(comp_name), " = Component ID: ", comp_id
 
    n_points=16
 
@@ -27,17 +26,18 @@ program receiver_serial
       print *, "Error in oasis_def_partition: ", kinfo
       stop
    endif
-   print *, "part_id: ", part_id
+   print '(2A,I0)', trim(comp_name),": part_id: ", part_id
    
   var_nodims=(/1, 1/)
-  print *, "var_name: ", var_name
+  
   call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_IN, &
                     (/1/), OASIS_REAL, kinfo)
   if(kinfo<0 .or. var_id<0) then
     print *, "Error in oasis_def_var: ", kinfo
     stop
   endif 
-  print *, "var_id: ", var_id
+  print '(4A,I0)', trim(comp_name),": var_name: ", trim(var_name), &
+     & " = var_id: ", var_id
 
   call oasis_enddef(kinfo)
   if(kinfo<0) then
