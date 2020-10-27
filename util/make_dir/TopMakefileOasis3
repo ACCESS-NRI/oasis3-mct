@@ -178,6 +178,7 @@ makepyoasis:
 #
 # Rules for cleaning
 #
+ifdef LIBBUILD
 cleanlibs:
 	@echo cleaning oasis3-mct libraries
 	rm -f $(LIBBUILD)/scrip/*
@@ -189,7 +190,12 @@ cleanlibs:
 	rm -f $(ARCHDIR)/lib/libmct.a
 	rm -f $(ARCHDIR)/lib/libmpeu.a
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).a
+else
+cleanlibs:
+	@echo no need of cleaning oasis3-mct static libraries
+endif
 
+ifdef LIBBUILDDYN
 cleansharedlibs:
 	@echo cleaning oasis3-mct shared libraries
 	rm -f $(LIBBUILDDYN)/scrip/*
@@ -201,11 +207,20 @@ cleansharedlibs:
 	rm -f $(ARCHDIR)/lib/libmct.so
 	rm -f $(ARCHDIR)/lib/libmpeu.so
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).so
+else
+cleansharedlibs:
+	@echo no need of cleaning oasis3-mct shared libraries
+endif
 
+ifdef LIBBUILDCBIND
 cleancbindlibs:
 	@echo cleaning oasis3-mct C bindings libraries
 	rm -f $(LIBBUILDCBIND)/*
 	rm -f $(ARCHDIR)/lib/liboasis.C.bindings.so
+else
+cleancbindlibs:
+	@echo no need of cleaning oasis3-mct C bindings libraries
+endif
 
 cleanpyoasis:
 	@echo cleaning pyoasis
