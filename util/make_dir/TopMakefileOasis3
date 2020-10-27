@@ -61,6 +61,7 @@ oasis-c-bindings: shared-lib
 
 pyoasis: oasis-c-bindings
 	@rm -f $(LOGPYO) $(ERRPYO)
+	$(call check_defined, MPIRUN, mpi launcher mnemonic helper)
 	$(MAKEf) makedirspy
 	$(MAKEf) makepyoasis
 
