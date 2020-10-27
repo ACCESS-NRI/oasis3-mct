@@ -138,7 +138,7 @@ CONTAINS
    call oasis_timer_stop('part_definition')
 
    call oasis_debug_exit(subname)
-   
+
  END SUBROUTINE oasis_def_partition
 
 !------------------------------------------------------------
