@@ -2,14 +2,13 @@
 
 import numpy
 import pyoasis
+from pyoasis import OasisParameters as OPar
 
 from mpi4py import MPI
 
-comm = MPI.COMM_WORLD
-
 component_name = "sender-apple"
 
-comp = pyoasis.Component(component_name, True, comm)
+comp = pyoasis.Component(component_name)
 print(comp)
 
 comm_rank = comp.localcomm.rank
@@ -25,8 +24,7 @@ if comm_rank == comm_size - 1:
 partition = pyoasis.ApplePartition(offset, local_size)
 print(partition)
 
-variable = pyoasis.Var("FSENDOCN", partition,
-                       pyoasis.OasisParameters.OASIS_OUT)
+variable = pyoasis.Var("FSENDOCN", partition, OPar.OASIS_OUT)
 print(variable)
 
 comp.enddef()
