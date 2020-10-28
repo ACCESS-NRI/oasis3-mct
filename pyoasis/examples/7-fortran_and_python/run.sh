@@ -29,5 +29,5 @@ cp -f $datadir/namcouple $rundir/.
 
 cd $rundir
 
-${MPIRUN4PY} -np $n1 $exe1 : -np $n2 python3 $exe2 : -np $n3 $exe3
+${MPIRUN4PY} -np $n1 $exe1 : -np $n3 $exe3 : -np $n2 python3 $exe2
 

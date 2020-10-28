@@ -62,4 +62,9 @@ program receiver_serial
 
   deallocate(field)
   
+  call oasis_terminate(kinfo)
+  if(kinfo<0) then
+    print *, "Error in oasis_terminate: ", kinfo
+  endif
+ 
 end program receiver_serial
