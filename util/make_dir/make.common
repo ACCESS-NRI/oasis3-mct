@@ -35,8 +35,6 @@ LIBBUILD        ?= $(ARCHDIR)/build/lib
 LIBBUILDDYN     ?= $(ARCHDIR)/build-shared/lib
 # LIBBUILDCBIND : contains a directory for compiling pyoasis
 LIBBUILDCBIND   ?= $(ARCHDIR)/build-c-bindings/lib
-# LIBBUILDPYO   : contains a directory for compiling pyoasis
-LIBBUILDCBIND   ?= $(ARCHDIR)/build-c-bindings/lib
 # FLIBS:        : fortran link options for oasis examples
 FLIBS		?= $(NETCDF_LIBRARY)
 #
