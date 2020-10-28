@@ -15,29 +15,28 @@ COUPLE          = $(OASIS3_ROOT)
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(HOME)/INSTALL/oasis3-mct
 #
-# MPI library
-MPIDIR      = /opt/intel/impi/2018.1.163
-MPIBIN      = $(MPIDIR)/bin64
-MPI_INCLUDE = $(MPIDIR)/include64
-MPILIB      = -L$(MPIDIR)/lib64
+# MPI command (for pyoasis scripts)
+# MPI from /opt/intel/impi/2018.4.274 by module load mpi/intelmpi/2018.4.274
 MPIRUN      = mpirun
 #
 # NETCDF library
-NETCDF_LIB_DIR=/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib
-NETCDF_INC_DIR=/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/include
-NETCDF_INCLUDE = ${NETCDF_INC_DIR}
-NETCDF_LIBRARY = -L${NETCDF_LIB_DIR} -lnetcdff -L/softs/local_intel/phdf5/1.10.4_impi/lib -L/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib -Wl,-rpath,/softs/local_intel/phdf5/1.10.4_impi/lib -Wl,-rpath,/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib -lhdf5_hl -lhdf5 -lz -lcurl -lnetcdf -lnetcdf
+NETCDF_INCLUDE = ${NETCDF4_INCDIR} # from module load lib/netcdf-fortran/4.4.4_phdf5_1.10.4
+NETCDF_LIBRARY = `nf-config --flibs`
 #
-# Compiling and other commands
+# Make command
 MAKE        = gmake
-F90         = $(MPIBIN)/mpiifort -I$(MPI_INCLUDE)
+# Compilers 
+F90         = mpiifort # underlying ifort from module load compiler/intel/18.0.5.274
 F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
-CC          = $(MPIBIN)/mpiicc -I$(MPI_INCLUDE)
-LD          = $(MPIBIN)/mpiifort $(MPILIB)
+CC          = mpiicc
+# Linker (needed for shared libraries)
+LID          = $(F90)
+# Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
+# Static archiver
 AR          = ar
 ARFLAGS     = -ruv
 #
@@ -45,35 +44,18 @@ ARFLAGS     = -ruv
 # 
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
-# 
-F90FLAGS_1  = -O2 -xAVX -I.  -assume byterecl -mt_mpi -qopenmp
-#F90FLAGS_1  = -g -traceback -O0 -check all -I. -assume byterecl -mt_mpi -qopenmp
-f90FLAGS_1  = $(F90FLAGS_1)
-FFLAGS_1    = $(F90FLAGS_1)
-fFLAGS_1    = $(F90FLAGS_1)
-CCFLAGS_1   = 
-LDFLAGS     = $(F90FLAGS_1)
+FCBASEFLAGS  = -O2 -xAVX -I.  -assume byterecl -mt_mpi -qopenmp
+#FCBASEFLAGS  = -g -traceback -O0 -check all -I. -assume byterecl -mt_mpi -qopenmp
+CCBASEFLAGS  = -O2
 #
-###################
+# INC_DIR : includes all *mod for each library
+INC_DIR = -I$(ARCHDIR)/include 
 #
-# Additional definitions that should not be changed
-#
-FLIBS		= $(NETCDF_LIBRARY)
-# BINDIR        : directory for executables
-BINDIR          = $(ARCHDIR)/bin
-# LIBBUILD      : contains a directory for each library
-LIBBUILD        = $(ARCHDIR)/build/lib
-# LIBBUILDDYN   : contains a directory for each shared library
-LIBBUILDDYN     = $(ARCHDIR)/build-shared/lib
-# LIBBUILDCBIND   : contains a directory for compiling pyoasis
-LIBBUILDCBIND   = $(ARCHDIR)/build-c-bindings
-# INCPSMILE     : includes all *o and *mod for each library
-INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/scrip  -I$(LIBBUILD)/mct 
-
-F90FLAGS  = $(F90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-f90FLAGS  = $(f90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-FFLAGS    = $(FFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-fFLAGS    = $(fFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-CCFLAGS   = $(CCFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
+F90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+f90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+FFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+fFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+CCFLAGS  = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+LDFLAGS  = $(FCBASEFLAGS)
 #
 #############################################################################

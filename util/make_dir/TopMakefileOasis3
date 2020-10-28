@@ -2,14 +2,20 @@
 #This is the top makefile for compiling OASIS3-MCT coupling library including
 #  mct/mpeu, scrip and psmile (i.e. interpolation and communication)
 #Platform dependent settings, compiler options, cpp keys, 
-#paths and other stuff has to be set in an include file indicated in make.inc.
+#paths has to be set in an include file indicated in make.inc.
+#Extra targets and paths are defined in the automatically included make.common
 # 
-# default : mct/mpeu, scrip and psmile
-# oasis3_psmile (for OASIS3 upward compatibility): mct/mpeu, scrip and psmile
+# default : static mct/mpeu, scrip and psmile
+# static_lib: static mct/mpeu, scrip and psmile
+# oasis3_psmile (for OASIS3 upward compatibility): static mct/mpeu, scrip and psmile
+# shared_lib: dynamic mct/mpeu, scrip and psmile
+# static-and-shared-lib: both static and dynamic mct/mpeu, scrip and psmile
+# oasis-c-bindings: C bindings for mct/mpeu, scrip and psmile (only dynamic)
 # realclean : Automatic recompilation of all sources
 #
 #######
 include make.inc
+include make.common
 #
 SHELL = /bin/sh
 MAKEf = $(MAKE) -f TopMakefileOasis3
@@ -31,31 +37,30 @@ LOGPYO = $(COUPLE)/util/make_dir/COMP-pyoasis.log
 ERRPYO = $(COUPLE)/util/make_dir/COMP-pyoasis.err
 #
 #######
-default: static-lib
-
 static-and-shared-lib: static-lib shared-lib
 
 static-lib: oasis3_psmile
 
-oasis3_psmile:
+oasis3_psmile: check-vars
 	@rm -f $(LOG) $(ERR)
+	$(call check_defined, AR, static lib. archiver command)
+	$(call check_defined, ARFLAGS, static lib. archiver options)
 	$(MAKEf) makedirs
 	$(MAKEf) makemct
 	$(MAKEf) makelibs
 	$(MAKEf) makepsmile
 
-shared-lib: 
-	 @rm -f $(LOGDYN) $(ERRDYN)
-	 $(call check_defined, DYNOPT LDDYNOPT, shared lib. compilation options)
-	 $(call check_defined, LIBBUILDDYN, shared lib. build directory)
-	 $(MAKEf) makedirsdyn
-	 $(MAKEf) makemctdyn
-	 $(MAKEf) makelibsdyn
-	 $(MAKEf) makepsmiledyn
+shared-lib: check-vars
+	@rm -f $(LOGDYN) $(ERRDYN)
+	$(call check_defined, LD LDFLAGS, linker command and base options)
+	$(call check_defined, DYNOPT LDDYNOPT, shared lib. compilation options)
+	$(MAKEf) makedirsdyn
+	$(MAKEf) makemctdyn
+	$(MAKEf) makelibsdyn
+	$(MAKEf) makepsmiledyn
 
 oasis-c-bindings: shared-lib
 	@rm -f $(LOGBDG) $(ERRBDG)
-	$(call check_defined, LIBBUILDCBIND, C bindings lib. build directory)
 	$(MAKEf) makedirscbind
 	$(MAKEf) makecbindings
 
@@ -64,9 +69,8 @@ pyoasis: oasis-c-bindings
 	$(call check_defined, MPIRUN, mpi launcher mnemonic helper)
 	$(MAKEf) makedirspy
 	$(MAKEf) makepyoasis
-
 #
-realclean:
+realclean: check-vars
 	$(MAKEf) cleanlibs cleansharedlibs cleancbindlibs cleanpyoasis
 #
 # Rules for creating build and library directories
@@ -91,7 +95,7 @@ makedirscbind:
 	@mkdir -p $(LIBBUILDCBIND)
 
 makedirspy:
-	@mkdir -p $(ARCHDIR)/python
+	@mkdir -p $(ARCHDIR)/python/pyoasis
 #
 # Rules for compiling mpeu/mct library
 # 
@@ -149,16 +153,15 @@ makepsmiledyn:
 makecbindings:
 	@echo "=> Compiling the C bindings"
 	@(cd $(LIBBUILDCBIND) ; \
-	 cp -f -r -p $(COUPLE)/pyoasis/Makefile .; $(modifmakefile) ; \
+	 cp -f -r -p $(COUPLE)/pyoasis/src/Makefile .; $(modifmakefile) ; \
          $(MAKE) lib 1>> $(LOGBDG) 2>> $(ERRBDG) )
 #
 # Rules for installing the PyOasis python modules
 #
 makepyoasis:
 	@echo "=> Installing the PyOasis Modules"
-	@(cd $(LIBBUILDPYO) ; \
-	 cp -f -r -p $(COUPLE)/pyoasis/Makefile .; $(modifmakefile) ; \
-         $(MAKE) install 1>> $(LOGPYO) 2>> $(ERRPYO) )
+	@(cp -f -r -p $(COUPLE)/pyoasis/src/python/pyoasis $(ARCHDIR)/python \
+          1>> $(LOGPYO) 2>> $(ERRPYO) )
 	@echo export PYOASIS_ROOT=${ARCHDIR} > ${ARCHDIR}/python/init.sh
 	@echo export LD_LIBRARY_PATH=\$${PYOASIS_ROOT}/lib:\$${LD_LIBRARY_PATH} >> ${ARCHDIR}/python/init.sh
 	@echo export PYTHONPATH=\$${PYOASIS_ROOT}/python:\$${PYTHONPATH} >> ${ARCHDIR}/python/init.sh
@@ -178,7 +181,6 @@ makepyoasis:
 #
 # Rules for cleaning
 #
-ifdef LIBBUILD
 cleanlibs:
 	@echo cleaning oasis3-mct libraries
 	rm -f $(LIBBUILD)/scrip/*
@@ -190,12 +192,7 @@ cleanlibs:
 	rm -f $(ARCHDIR)/lib/libmct.a
 	rm -f $(ARCHDIR)/lib/libmpeu.a
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).a
-else
-cleanlibs:
-	@echo no need of cleaning oasis3-mct static libraries
-endif
 
-ifdef LIBBUILDDYN
 cleansharedlibs:
 	@echo cleaning oasis3-mct shared libraries
 	rm -f $(LIBBUILDDYN)/scrip/*
@@ -207,20 +204,11 @@ cleansharedlibs:
 	rm -f $(ARCHDIR)/lib/libmct.so
 	rm -f $(ARCHDIR)/lib/libmpeu.so
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).so
-else
-cleansharedlibs:
-	@echo no need of cleaning oasis3-mct shared libraries
-endif
 
-ifdef LIBBUILDCBIND
 cleancbindlibs:
 	@echo cleaning oasis3-mct C bindings libraries
 	rm -f $(LIBBUILDCBIND)/*
 	rm -f $(ARCHDIR)/lib/liboasis.C.bindings.so
-else
-cleancbindlibs:
-	@echo no need of cleaning oasis3-mct C bindings libraries
-endif
 
 cleanpyoasis:
 	@echo cleaning pyoasis
@@ -228,19 +216,9 @@ cleanpyoasis:
 #
 ## Some rules to modify/add variables in makefiles
 #
-modifmakefile =	( echo 'include $(COUPLE)/util/make_dir/make.inc' \
-                         > infile; cat Makefile >> infile ; cp -f infile Makefile )
-#
-## Some rules to check if variables are defined
-#
-# Params:
-#   1. Variable name(s) to test.
-#   2. (optional) Error message to print.
-check_defined = \
-    $(strip $(foreach 1,$1, \
-        $(call __check_defined,$1,$(strip $(value 2)))))
-__check_defined = \
-    $(if $(value $1),, \
-      $(error Undefined $1$(if $2, ($2))))
+modifmakefile =	( echo 'include $(COUPLE)/util/make_dir/make.inc'  > infile;\
+                  echo 'include $(COUPLE)/util/make_dir/make.common' >> infile;\
+                  cat Makefile >> infile ; \
+                  cp -f infile Makefile )
 #
 ########################################################################################
