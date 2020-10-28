@@ -19,7 +19,7 @@
 
 subroutine oasis_abort_iso(comp_id, routine, message, filename, line, error) bind(C)
   use iso_c_binding, only: c_int, c_ptr
-  use pyoasis
+  use cbindings
   use mod_oasis
   implicit none
   integer(kind=c_int), intent(in) :: comp_id

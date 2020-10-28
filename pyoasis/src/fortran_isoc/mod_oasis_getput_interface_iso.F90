@@ -24,7 +24,7 @@ subroutine oasis_put_iso_double(var_id, &
                                 kinfo) BIND(C)
                              
   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
-  use pyoasis
+  use cbindings
   use mod_oasis
   use mod_oasis_getput_interface
   
@@ -70,7 +70,7 @@ end subroutine oasis_put_iso_double
 
 subroutine oasis_get_iso_double(var_id, kstep, size1, size2, size3, field, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
-  use pyoasis
+  use cbindings
   use mod_oasis
   use mod_oasis_getput_interface
   use mod_oasis_kinds
@@ -118,7 +118,7 @@ subroutine oasis_put_iso_float(var_id, &
                                kinfo) BIND(C)
                              
   use iso_c_binding, only: c_int, c_float, c_ptr, c_bool
-  use pyoasis
+  use cbindings
   use mod_oasis
   use mod_oasis_getput_interface
   
@@ -164,7 +164,7 @@ end subroutine oasis_put_iso_float
 
 subroutine oasis_get_iso_float(var_id, kstep, size1, size2, size3, field, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_float, c_ptr, c_bool
-  use pyoasis
+  use cbindings
   use mod_oasis
   use mod_oasis_getput_interface
   use mod_oasis_kinds
