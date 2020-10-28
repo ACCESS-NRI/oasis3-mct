@@ -19,7 +19,7 @@
 
 subroutine init_comp_iso(comp_id, comp_name, error, coupled, communicator) bind(C)
   use iso_c_binding, only: c_int, c_ptr, c_bool
-  use pyoasis
+  use cbindings
   use mod_oasis
   implicit none
   include "mpif.h"

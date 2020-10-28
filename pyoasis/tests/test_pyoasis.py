@@ -459,7 +459,7 @@ def test_Var_put1():
         pyoasis.mod_oasis_getput_interface.put=returns_zero
         partition = pyoasis.SerialPartition(4)
         var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)
-        field = pyoasis.Array(range(4))
+        field = pyoasis.asarray(range(4))
         var.put("abc", field)
 
 # Wrong type 2nd argument
@@ -470,7 +470,7 @@ def test_Var_put2():
         pyoasis.mod_oasis_getput_interface.put=returns_zero
         partition = pyoasis.SerialPartition(4)
         var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)
-        field = pyoasis.Array(range(4))
+        field = pyoasis.asarray(range(4))
         var.put(0, 42)
 
 # Failure
@@ -481,7 +481,7 @@ def test_Var_put3():
         pyoasis.mod_oasis_getput_interface.put = returns_error
         partition = pyoasis.SerialPartition(4)
         var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)
-        field = pyoasis.Array(range(4))
+        field = pyoasis.asarray(range(4))
         var.put(0, field)
 
 # get
@@ -493,7 +493,7 @@ def test_Var_get1():
         pyoasis.mod_oasis_getput_interface.get = returns_zero
         partition = pyoasis.SerialPartition(4)
         var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
-        field = pyoasis.Array(numpy.zeros(4))
+        field = pyoasis.asarray(numpy.zeros(4))
         var.get("abc", field)
       
 # Wrong type 2nd argument
@@ -504,7 +504,7 @@ def test_Var_get2():
         pyoasis.mod_oasis_getput_interface.get = returns_zero
         partition = pyoasis.SerialPartition(4)
         var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
-        field = pyoasis.Array(numpy.zeros(4))
+        field = pyoasis.asarray(numpy.zeros(4))
         var.get(0, 42)
 
 # Failure
@@ -515,7 +515,7 @@ def test_Var_get3():
         pyoasis.mod_oasis_getput_interface.get = returns_error
         partition = pyoasis.SerialPartition(4)
         var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
-        field = pyoasis.Array(numpy.zeros(4))
+        field = pyoasis.asarray(numpy.zeros(4))
         var.get(0, field)    
 
 # __str__

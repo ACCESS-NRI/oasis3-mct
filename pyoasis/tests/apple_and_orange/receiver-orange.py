@@ -42,14 +42,14 @@ except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
 
 date = int(0)
-field = pyoasis.Array(numpy.zeros(extent))
+field = pyoasis.asarray(numpy.zeros(extent))
 
 try:
     variable.get(date, field)
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
 
-expected_field = pyoasis.Array(numpy.zeros(extent))
+expected_field = pyoasis.asarray(numpy.zeros(extent))
 for i in range(extent):
     expected_field[i] = offset + i
 

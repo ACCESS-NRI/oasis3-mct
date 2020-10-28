@@ -41,7 +41,7 @@ except (pyoasis.OasisException, pyoasis.OasisException) as exception:
 date = int(0)
 
 try:
-    field = pyoasis.Array(numpy.zeros(local_size))
+    field = pyoasis.asarray(numpy.zeros(local_size))
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
 

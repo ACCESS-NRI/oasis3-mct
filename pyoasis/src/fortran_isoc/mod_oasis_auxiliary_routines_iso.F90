@@ -78,7 +78,7 @@ end subroutine set_couplcomm_iso
 
 subroutine get_intercomm_iso(new_comm, cdnam, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_ptr
-  use pyoasis
+  use cbindings
   use mod_oasis
   implicit none
   integer (c_int), intent(out) :: new_comm 
@@ -101,7 +101,7 @@ end subroutine get_intercomm_iso
 
 subroutine get_intracomm_iso(new_comm, cdnam, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_ptr
-  use pyoasis
+  use cbindings
   use mod_oasis
   implicit none
   integer (c_int), intent(out) :: new_comm 

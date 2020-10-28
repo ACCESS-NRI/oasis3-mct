@@ -19,7 +19,7 @@
 #define MAX_LENGTH 1000
 
 
-module pyoasis
+module cbindings
   implicit none    
   contains
       
@@ -64,4 +64,4 @@ module pyoasis
       p_char(length+1)=C_NULL_CHAR
     end function string_to_c
 
-end module pyoasis
+end module cbindings

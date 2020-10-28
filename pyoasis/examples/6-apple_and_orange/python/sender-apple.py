@@ -51,7 +51,7 @@ if icpl == 1:
 
     date = int(0)
     
-    field = pyoasis.Array(numpy.zeros(local_size))
+    field = pyoasis.asarray(numpy.zeros(local_size))
 
     for i in range(local_size):
         field[i] = offset + i

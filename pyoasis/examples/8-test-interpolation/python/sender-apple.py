@@ -71,7 +71,7 @@ variable = pyoasis.Var("FSENDANA", partition,
 comp.enddef()
 
 date = int(0)
-bundle = pyoasis.Array(np.zeros((local_size, 2), dtype=np.float64))
+bundle = pyoasis.asarray(np.zeros((local_size, 2), dtype=np.float64))
 
 dp_conv = math.pi / 180.
 bundle[:, 0] = 2.0 + np.sin(2.0 * lats[offset:offset + local_size] * dp_conv) ** 4.0 * \

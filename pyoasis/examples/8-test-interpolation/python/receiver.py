@@ -91,7 +91,7 @@ comp.enddef()
 
 date = int(0)
 
-field = pyoasis.Array(np.zeros((n_points, 2)))
+field = pyoasis.asarray(np.zeros((n_points, 2)))
 
 variable.get(date, field)
 
