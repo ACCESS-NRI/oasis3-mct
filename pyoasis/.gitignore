@@ -1,8 +1,10 @@
 __pycache__
+.idea
 docs/_build
 tests/*/work/
 examples/*/work
 examples/*/sender-apple
+examples/*/receiver-serial
 examples/*/*/work
 examples/*/fortran/receiver
 examples/*/fortran/receiver-orange

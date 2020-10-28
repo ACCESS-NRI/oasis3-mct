@@ -34,18 +34,19 @@ def IntArray(data):
 cdll.LoadLibrary("liboasis.C.bindings.so")
 LIB = CDLL("liboasis.C.bindings.so")
 
-
 LIB.def_partition.argtypes = [ctypes.POINTER(ctypes.c_int),
                               ctypes.c_int, ctypes.POINTER(ctypes.c_int),
+                              ctypes.c_int, ctypes.c_char_p,
                               ctypes.POINTER(ctypes.c_int)]
 
 
-def def_partition(parameters):
+def def_partition(parameters, global_size, name):
     """The OASIS user interface to define partitions"""
     id_part = c_int(0)
     kinfo = c_int(0)
-    parameters_array=IntArray(parameters)
+    parameters_array = IntArray(parameters)
     n_parameters = len(parameters_array)
     p_parameters = (ctypes.c_int * n_parameters)(*parameters_array)
-    LIB.def_partition(id_part, n_parameters, p_parameters, kinfo)
-    return (id_part.value, kinfo.value)
+    LIB.def_partition(id_part, n_parameters, p_parameters,
+                      global_size, name.encode(), kinfo)
+    return id_part.value, kinfo.value

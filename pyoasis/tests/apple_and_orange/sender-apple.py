@@ -3,7 +3,6 @@
 import numpy
 import pyoasis
 
-
 from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
@@ -20,25 +19,25 @@ comm_size = comp.localcomm.size
 
 n_points = 16
 
-local_size = int(n_points/comm_size)
-offset = comm_rank*local_size
+local_size = int(n_points / comm_size)
+offset = comm_rank * local_size
 
 try:
     partition = pyoasis.ApplePartition(offset, local_size)
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
 
-try:        
-    variable = pyoasis.Var("FSENDOCN", partition, 1,
-                       pyoasis.OasisParameters.OASIS_OUT)
+try:
+    variable = pyoasis.Var("FSENDOCN", partition,
+                           pyoasis.OasisParameters.OASIS_OUT)
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
 
-try:       
+try:
     comp.enddef()
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
-        
+
 date = int(0)
 
 try:
@@ -49,15 +48,14 @@ except (pyoasis.OasisException, pyoasis.OasisException) as exception:
 for i in range(local_size):
     field[i] = offset + i
 
-print("Sent data: "+str(field))
+print("Sent data: " + str(field))
 
 try:
     variable.put(date, field)
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
-    pyoasis.pyoasis_abort(exception)    
+    pyoasis.pyoasis_abort(exception)
 
 try:
     pyoasis.terminate()
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
-    pyoasis.pyoasis_abort(exception)  
-
+    pyoasis.pyoasis_abort(exception)

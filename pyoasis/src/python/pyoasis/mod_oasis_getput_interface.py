@@ -21,9 +21,10 @@
 
 """OASIS send/receive (put/get) user interfaces"""
 
+import pyoasis
 import ctypes
+from numpy import float32, float64
 from ctypes import c_int, cdll, CDLL
-
 
 cdll.LoadLibrary("liboasis.C.bindings.so")
 LIB = CDLL("liboasis.C.bindings.so")
@@ -39,7 +40,7 @@ def get_sizes(field):
 
 
 LIB.put.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
-                    ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
+                    ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
                     ctypes.POINTER(ctypes.c_int)]
 
 
@@ -48,13 +49,19 @@ def put(var_id, kstep, field):
     sizes = get_sizes(field)
     error = c_int(0)
     p_field = field.ctypes.data
-    LIB.put(var_id, kstep, sizes[0], sizes[1], sizes[2],
+    if field.dtype == float32:
+        kind = c_int(4)
+    elif field.dtype == float64:
+        kind = c_int(8)
+    else:
+        raise pyoasis.PyOasisException("Data type of field can only by float32 or float64")
+    LIB.put(var_id, kstep, sizes[0], sizes[1], sizes[2], kind,
             p_field, error)
     return error.value
 
 
 LIB.get.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
-                    ctypes.c_int, ctypes.c_void_p,
+                    ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
                     ctypes.POINTER(ctypes.c_int)]
 
 
@@ -63,5 +70,11 @@ def get(var_id, kstep, field):
     sizes = get_sizes(field)
     error = c_int(0)
     p_field = field.ctypes.data
-    LIB.get(var_id, kstep, sizes[0], sizes[1], sizes[2], p_field, error)
+    if field.dtype == float32:
+        kind = c_int(4)
+    elif field.dtype == float64:
+        kind = c_int(8)
+    else:
+        raise pyoasis.PyOasisException("Data type of field can only by float32 or float64")
+    LIB.get(var_id, kstep, sizes[0], sizes[1], sizes[2], kind, p_field, error)
     return error.value

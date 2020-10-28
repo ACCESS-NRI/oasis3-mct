@@ -19,18 +19,13 @@
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-from enum import Enum
 import numpy
-from mpi4py import MPI
-import traceback
-
-
-import pyoasis.mod_oasis_method
 import pyoasis.mod_oasis_auxiliary_routines
-import pyoasis.mod_oasis_sys
-import pyoasis.mod_oasis_part
-import pyoasis.mod_oasis_var
 import pyoasis.mod_oasis_getput_interface
+import pyoasis.mod_oasis_method
+import pyoasis.mod_oasis_part
+import pyoasis.mod_oasis_sys
+import pyoasis.mod_oasis_var
 
 
 class Var:
@@ -38,34 +33,36 @@ class Var:
     Variable data
 
     :param string cdport: name
-    :param int id_part: partition identifier
-    :param int n_dimensions: number of dimensions
+    :type partition: partition identifier
     :param kinout: flag indicating whether the data is outgoing \
                    or ingoing
     :type kinout: pyoasis.OasisParameter
+    :param int bundle_size: size of a bundle of fields
     :raises OasisException: if OASIS is unable to initialise \
                             the variable data 
     :raises PyOasisException: if an incorrect parameter is supplied
     """
-    def __init__(self, cdport, partition, n_dimensions, kinout):
+
+    def __init__(self, cdport, partition, kinout, bundle_size=1):
         """Constructor"""
-        
-        pyoasis.check_types([str, pyoasis.Partition, int, pyoasis.OasisParameters],
-                    [cdport, partition, n_dimensions, kinout])
+
+        pyoasis.check_types([str, pyoasis.Partition, pyoasis.OasisParameters, int],
+                            [cdport, partition, kinout, bundle_size])
         if len(cdport) == 0:
             raise pyoasis.PyOasisException("Name empty.")
         id_part = partition.get_id()
         if id_part < 0:
             raise pyoasis.PyOasisException("Partition identifier <0.")
-        if n_dimensions < 0:
-            raise pyoasis.PyOasisException("Number of dimensions <0.")
-        if not (kinout == pyoasis.OasisParameters.OASIS_IN 
+        if not (kinout == pyoasis.OasisParameters.OASIS_IN
                 or kinout == pyoasis.OasisParameters.OASIS_OUT):
             raise pyoasis.PyOasisException("kinout parameter neither OASIS_IN or OASIS_OUT.")
+        if bundle_size < 1:
+            raise pyoasis.PyOasisException("Bundle size <1.")
         self.name = cdport
-        id_var_nodims = [n_dimensions, 1]
-        return_value = pyoasis.mod_oasis_var.def_var(id_part, self.name, id_var_nodims, 
-                                                  kinout.value)
+        self.bundle_size = bundle_size
+        id_var_nodims = [1, bundle_size]
+        return_value = pyoasis.mod_oasis_var.def_var(id_part, self.name, id_var_nodims,
+                                                     kinout.value)
         error = return_value[1]
         if error < 0:
             raise pyoasis.OasisException("Error in def_var", error)
@@ -77,7 +74,7 @@ class Var:
         :rtype: int
         """
         return self.var_id
-    
+
     def get_name(self):
         """
         :returns: name of variable data
@@ -98,8 +95,8 @@ class Var:
         """
         pyoasis.check_types([int, numpy.ndarray], [kstep, field])
         error = pyoasis.mod_oasis_getput_interface.put(self.var_id, kstep, field)
-        if (error < 0):
-          raise pyoasis.OasisException("Error in sending data to another component", error)
+        if error < 0:
+            raise pyoasis.OasisException("Error in sending data to another component", error)
 
     def get(self, kstep, field):
         """
@@ -114,9 +111,8 @@ class Var:
         """
         pyoasis.check_types([int, numpy.ndarray], [kstep, field])
         error = pyoasis.mod_oasis_getput_interface.get(self.var_id, kstep, field)
-        if (error < 0):
-          raise pyoasis.OasisException("Error in getting data from another component", error)
+        if error < 0:
+            raise pyoasis.OasisException("Error in getting data from another component", error)
 
     def __str__(self):
         return "Variable data: name: " + self.name + ", id: " + str(self.var_id)
-

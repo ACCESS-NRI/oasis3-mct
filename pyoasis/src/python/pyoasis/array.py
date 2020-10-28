@@ -19,19 +19,23 @@
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
+import pyoasis
 import numpy
 
 
-def Array(data):
+def Array(data, dtype=numpy.float64):
     """
     Numpy array of double precision floating point numbers in Fortran ordering
 
     :param data: any object that can be used to initialise a numpy array
 
+    :param dtype: the numpy datatype of the returned array
+
     :raises PyOasisException: if a Numpy array cannot be initialised
     """
+    if dtype != numpy.float64 and dtype != numpy.float32:
+        raise pyoasis.PyOasisException("Array dtype can only be float32 or float64")
     try:
-        return numpy.asfortranarray(data, dtype=numpy.float64)
+        return numpy.asfortranarray(data, dtype=dtype)
     except:
         raise pyoasis.PyOasisException("Unable to initialise the Numpy array")
-

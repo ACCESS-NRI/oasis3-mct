@@ -21,10 +21,9 @@
 
 class OasisException(Exception):
     def __init__(self, text, error):
-        super(OasisException, self).__init__(text + " (" + str(error)+ ")")
+        super(OasisException, self).__init__(text + " (" + str(error) + ")")
 
 
 class PyOasisException(Exception):
     def __init__(self, text):
         super(PyOasisException, self).__init__(text)
-

@@ -17,7 +17,7 @@
 ! <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-subroutine oasis_def_partition_iso(id_part, n, parameters, kinfo) bind(C)
+subroutine oasis_def_partition_iso(id_part, n, parameters, size, name, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_ptr
   use pyoasis
   use mod_oasis
@@ -25,18 +25,34 @@ subroutine oasis_def_partition_iso(id_part, n, parameters, kinfo) bind(C)
   integer (c_int), intent(out) :: id_part
   integer (c_int), intent(in) :: n
   integer (c_int), intent(in), dimension(n) :: parameters
+  integer (c_int), intent(in) :: size
+  type    (c_ptr), intent(in) :: name
   integer (c_int), intent(out) :: kinfo
 
   integer :: id_part_f
   integer :: kinfo_f
   character(len=:), allocatable :: name_f
   
-  integer :: i
-
-  call oasis_def_partition(id_part_f, parameters, kinfo_f)
+  name_f=string_to_fortran(name)
+  
+  if (size <= 0) then
+     if ( trim(name_f) == "" ) then
+        call oasis_def_partition(id_part_f, parameters, kinfo_f)
+     else
+        call oasis_def_partition(id_part_f, parameters, kinfo_f, &
+           & name=trim(name_f))
+     end if
+  else
+     if ( trim(name_f) == "" ) then
+        call oasis_def_partition(id_part_f, parameters, kinfo_f, &
+           & ig_size=size)
+     else
+        call oasis_def_partition(id_part_f, parameters, kinfo_f, &
+           & ig_size=size, name=trim(name_f))
+     end if
+  end if
   
   id_part=id_part_f
   kinfo=kinfo_f
 end subroutine oasis_def_partition_iso
-
 

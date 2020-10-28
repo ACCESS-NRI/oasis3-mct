@@ -18,7 +18,7 @@ n_points = 16
 partition = pyoasis.SerialPartition(n_points)
 print(partition)
 
-variable = pyoasis.Var("FRECVATM", partition, 1,
+variable = pyoasis.Var("FRECVATM", partition,
                        pyoasis.OasisParameters.OASIS_IN)
 print(variable)
 
@@ -32,7 +32,7 @@ variable.get(date, field)
 expected_field = pyoasis.Array(range(n_points))
 epsilon = 1e-8
 error = abs((field-expected_field).sum())
-if(error < epsilon):
+if error < epsilon:
     print("Data received successfully")
 
 pyoasis.terminate()

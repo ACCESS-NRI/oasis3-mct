@@ -40,7 +40,7 @@ def init_comp(comp_name, coupled, communicator):
     error = c_int(0)
     LIB.init_comp(comp_id, comp_name.encode(), error, coupled,
                   communicator.py2f())
-    return (comp_id.value, error.value)
+    return comp_id.value, error.value
 
 
 LIB.enddef.argtypes = [ctypes.POINTER(ctypes.c_int)]

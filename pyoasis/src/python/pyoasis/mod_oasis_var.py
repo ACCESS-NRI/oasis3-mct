@@ -49,4 +49,4 @@ def def_var(id_part, cdport, id_var_nodims, kinout):
     id_var_shape = c_int(0)
     LIB.def_var(id_nports, cdport.encode(), id_part, id_var_nodims[0], id_var_nodims[1],
                 kinout, 0, id_var_shape, OasisVarParameters.OASIS_DOUBLE.value, kinfo)
-    return (id_nports.value, kinfo.value)
+    return id_nports.value, kinfo.value

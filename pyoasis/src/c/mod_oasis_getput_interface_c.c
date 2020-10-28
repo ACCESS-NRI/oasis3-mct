@@ -18,12 +18,20 @@
 
 
 #include "mod_oasis_getput_interface_c.h"
+#include<stdio.h>
 
-
-void put(int var_id, int kstep, int size1, int size2, int size3, double* field, int *kinfo){
-  oasis_put_iso(&var_id, &kstep, &size1, &size2, &size3, field, kinfo);    
+void put(int var_id, int kstep, int size1, int size2, int size3, int kind, void* field, int *kinfo){
+  if ( kind == 4) {
+    oasis_put_iso_float(&var_id, &kstep, &size1, &size2, &size3, (float*)field, kinfo);
+  } else {
+    oasis_put_iso_double(&var_id, &kstep, &size1, &size2, &size3, field, kinfo);
+  }
 }
 
-void get(int var_id, int kstep, int size1, int size2, int size3, double* field, int* kinfo){
-  oasis_get_iso(&var_id, &kstep, &size1, &size2, &size3, field, kinfo); 
+void get(int var_id, int kstep, int size1, int size2, int size3, int kind, void* field, int* kinfo){
+  if ( kind == 4) {
+    oasis_get_iso_float(&var_id, &kstep, &size1, &size2, &size3, (float*)field, kinfo);
+  } else {
+    oasis_get_iso_double(&var_id, &kstep, &size1, &size2, &size3, field, kinfo);
+  }
 }

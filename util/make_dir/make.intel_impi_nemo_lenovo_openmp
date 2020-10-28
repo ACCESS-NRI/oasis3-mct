@@ -9,34 +9,36 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3-mct main directory
-COUPLE          = /scratch/globc/valcke/OASIS3-MCT_before4/oasis3-mct/
+COUPLE          = $(OASIS3_ROOT)
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/NEMO_LENOVO_INTEL
 #
 # MPI library
-#MPIDIR           = ${MPICOMPILER}
-MPIDIR           = /data/softs/intel/impi/5.0.3.048/intel64
-MPIBIN           = $(MPIDIR)/bin
-MPI_INCLUDE      = $(MPIDIR)/include
-MPILIB           = -L$(MPIDIR)/lib
+#MPIDIR           = /data/softs/intel/impi/5.0.3.048/intel64
+#MPIBIN           = $(MPIDIR)/bin
+#MPI_INCLUDE      = $(MPIDIR)/include
+#MPILIB           = -L$(MPIDIR)/lib
+MPIRUN = mpirun
 #
 # NETCDF library
-NETCDF_LIB_DIR=/data/softs/local_intel/PNETCDF-4.3.3/lib
-NETCDF_INC_DIR=/data/softs/local_intel/PNETCDF-4.3.3/include
+#NETCDF_LIB_DIR=
+NETCDF_INC_DIR= ${NETCDF4_INCDIR}
 NETCDF_INCLUDE  = ${NETCDF_INC_DIR}
-NETCDF_LIBRARY  = -L${NETCDF_LIB_DIR} -lnetcdff -lnetcdf -L/data/softs/local_intel/PHDF5-1.8.14/lib  -lhdf5_hl -lhdf5 -lz -lcurl
+NETCDF_LIBRARY  = `nf-config --flibs`
 #
 # Compiling and other commands
 MAKE        = gmake
-F90         = $(MPIBIN)/mpiifort -I$(MPI_INCLUDE)
+F90         = mpiifort
 F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
-CC          = $(MPIBIN)/mpiicc -I$(MPI_INCLUDE)
-LD          = $(MPIBIN)/mpiifort $(MPILIB)
+CC          = mpiicc
+LD          = mpiifort
 AR          = ar
 ARFLAGS     = -ruv
+DYNOPT      = -fPIC
+LDDYNOPT    = -shared ${NETCDF_LIBRARY}
 #
 # CPP keys and compiler options
 # 
@@ -63,6 +65,10 @@ FLIBS		= $(NETCDF_LIBRARY)
 BINDIR          = $(ARCHDIR)/bin
 # LIBBUILD      : contains a directory for each library
 LIBBUILD        = $(ARCHDIR)/build/lib
+# LIBBUILDDYN   : contains a directory for each shared library
+LIBBUILDDYN     = $(ARCHDIR)/build-shared/lib
+# LIBBUILDCBIND   : contains a directory for compiling pyoasis
+LIBBUILDCBIND   = $(ARCHDIR)/build-c-bindings
 # INCPSMILE     : includes all *o and *mod for each library
 INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/scrip  -I$(LIBBUILD)/mct
 

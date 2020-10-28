@@ -127,7 +127,7 @@ CONTAINS
    !------------------------
    !> * Set initial output file, need mpi_rank_world
    !------------------------
-   
+
    iu=-1
 
    call oasis_unitsetmin(1024)
@@ -167,7 +167,7 @@ CONTAINS
    ! No information must be written in the debug files as
    ! the different structures are not allocated
    !------------------------
-   
+
    IF ( nnamcpl == 0 ) THEN
        IF (mpi_rank_world == 0) THEN
            WRITE (UNIT = nulprt1,FMT = *) subname,wstr, &
@@ -207,7 +207,7 @@ CONTAINS
    ALLOCATE(total_namdstfld(size_namfld))
    total_namsrcfld = ''
    total_namdstfld = ''
-   
+
    m=0
    DO nns = 1,nnamcpl
      n = namsort2nn(nns)
@@ -404,7 +404,7 @@ CONTAINS
    !> * Reset debug levels
    !  verbose level disabled if load balance analysis
    !------------------------
-   
+
    IF ( LUCIA_debug > 0 .AND. OASIS_debug > 0 ) THEN
       WRITE (UNIT = nulprt1,FMT = *) subname,wstr, &
        ' With LUCIA load balance analysis '
@@ -413,7 +413,7 @@ CONTAINS
       !OASIS_debug = 0
       CALL oasis_flush(nulprt1)
    ENDIF
-   
+
    IF (mpi_rank_world == 0) CLOSE(nulprt1)
 
    if (.not.oasis_coupled) then
@@ -772,7 +772,7 @@ CONTAINS
       call oasis_mpi_barrier(mpi_comm_local, subname)
       call oasis_timer_stop('oasis_enddef_barrier')
    endif
-  
+   
    CALL oasis_timer_start ('oasis_enddef')
    if (ABS(LUCIA_debug) > 0 ) &
       CALL oasis_lb_measure(-1,LB_ENDF)
@@ -876,7 +876,7 @@ CONTAINS
       !------------------------
       !>   * Write grid info to files one model at a time
       !------------------------
- 
+
       if (local_timers_on) call oasis_timer_start('oasis_enddef_write2files')
       call oasis_mpi_barrier(mpi_comm_global)
       do n = 1,prism_amodels
@@ -916,7 +916,7 @@ CONTAINS
           CALL oasis_mem_print(nulprt,subname//':coupler_setup')
       ENDIF
       if (local_timers_on) call oasis_timer_stop('oasis_enddef_coupler_setup')
-    
+
       !------------------------
       !>   * Call advance_init to initialize coupling fields from restarts
       !------------------------

@@ -7,10 +7,12 @@ datadir=$srcdir/data
 casename=`basename $srcdir`
 
 exe1=sender-apple
-exe2=receiver-orange.py
+exe2=sendrecv-orange.py
+exe3=receiver-serial
 
 n1=4
 n2=4
+n3=1
 
 rundir=$srcdir/work
 
@@ -21,10 +23,11 @@ make
 
 cp -f $srcdir/$exe1 $rundir/.
 cp -f $srcdir/$exe2 $rundir/.
+cp -f $srcdir/$exe3 $rundir/.
 
 cp -f $datadir/namcouple $rundir/.
 
 cd $rundir
 
-${MPIRUN4PY} -np $n1 $exe1 : -np $n2 python3 $exe2
+${MPIRUN4PY} -np $n1 $exe1 : -np $n2 python3 $exe2 : -np $n3 $exe3
 

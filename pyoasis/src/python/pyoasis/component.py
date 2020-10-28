@@ -19,18 +19,13 @@
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-from enum import Enum
-import numpy
-from mpi4py import MPI
-import traceback
-
-
-import pyoasis.mod_oasis_method
 import pyoasis.mod_oasis_auxiliary_routines
-import pyoasis.mod_oasis_sys
-import pyoasis.mod_oasis_part
-import pyoasis.mod_oasis_var
 import pyoasis.mod_oasis_getput_interface
+import pyoasis.mod_oasis_method
+import pyoasis.mod_oasis_part
+import pyoasis.mod_oasis_sys
+import pyoasis.mod_oasis_var
+from mpi4py import MPI
 
 
 class Component(object):
@@ -43,28 +38,32 @@ class Component(object):
     :raises OasisException: if OASIS is unable to initialise the component
     :raises PyOasisException: if an incorrect parameter is supplied
     """
+
     def __init__(self, name, coupled=True, communicator=MPI.COMM_WORLD):
         """Constructor"""
         pyoasis.checktypes.check_types([str, bool, MPI.Intracomm],
-                    [name, coupled, communicator])
+                                       [name, coupled, communicator])
         if len(name) == 0:
             raise pyoasis.PyOasisException("Component name empty.")
-        
+
         self._name = name
         self._communicator = communicator
         return_value = pyoasis.mod_oasis_method.init_comp(self._name, coupled,
-                                                       self._communicator)
+                                                          self._communicator)
         error = return_value[1]
         if error < 0:
-            raise pyoasis.OasisException("Error initialising component "+self._name,
-                                 error)
+            raise pyoasis.OasisException("Error initialising component " + self._name,
+                                         error)
         self.id_component = return_value[0]
         return_value = pyoasis.mod_oasis_auxiliary_routines.get_localcomm()
         error = return_value[1]
         if error < 0:
-            raise OasisException("Error in get_localcomm", error)
+            raise pyoasis.OasisException("Error in get_localcomm", error)
         self._localcomm_hdle = return_value[0]
-        self.localcomm = MPI.Comm.f2py(self._localcomm_hdle)
+        try:
+            self.localcomm = MPI.Comm.f2py(self._localcomm_hdle)
+        except MPI.Exception:
+            self.localcomm = MPI.COMM_NULL
 
     def get_name(self):
         """
@@ -91,15 +90,18 @@ class Component(object):
         :raises PyOasisException: if an incorrect parameter is supplied
         """
         allcomm = self._localcomm_hdle
-        pyoasis.check_types([int, int], [icpl, allcomm]);
-        return_value = pyoasis.mod_oasis_auxiliary_routines.create_couplcomm(icpl, 
-                                                                          allcomm)
+        pyoasis.check_types([int, int], [icpl, allcomm])
+        return_value = pyoasis.mod_oasis_auxiliary_routines.create_couplcomm(icpl,
+                                                                             allcomm)
         error = return_value[1]
         if error < 0:
             raise pyoasis.OasisException("Error in create_couplcomm", error)
         self._couplcomm_hdle = return_value[0]
-        self.couplcomm = MPI.Comm.f2py(self._couplcomm_hdle)
-        
+        try:
+            self.couplcomm = MPI.Comm.f2py(self._couplcomm_hdle)
+        except MPI.Exception:
+            self.couplcomm = MPI.COMM_NULL
+
         return error
 
     def set_couplcomm(self, couplcomm):
@@ -117,10 +119,11 @@ class Component(object):
             raise pyoasis.OasisException("Error in set_couplcomm", error)
         self._couplcomm_hdle = couplcomm.py2f()
         self.couplcomm = couplcomm
-        
+
         return error
 
-    def enddef(self):
+    @staticmethod
+    def enddef():
         """
         Ends the initialisation of the component.
 

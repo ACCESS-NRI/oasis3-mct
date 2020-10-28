@@ -21,24 +21,23 @@
 
 import pyoasis.exception
 
-        
+
 def check_types(types, arguments):
     """Checks the arguments of a function."""
     if len(arguments) != len(types):
         raise pyoasis.PyOasisException("The function requires "
-                               +str(len(types))+" arguments.")
-    i=0
+                                       + str(len(types)) + " arguments.")
+    i = 0
     for (t, a) in zip(types, arguments):
         if t == list:
             for element in a:
                 if type(element) != int:
                     raise pyoasis.PyOasisException(
-                          "The elements of the list in argument "
-                          +str(i)+" must be integers.")
+                        "The elements of the list in argument "
+                        + str(i) + " must be integers.")
         else:
-           if not isinstance(a, t): 
-               raise pyoasis.PyOasisException("Argument "+str(i)
-                                      +" must be of type "+str(t)+".")
+            if not isinstance(a, t):
+                raise pyoasis.PyOasisException("Argument " + str(i)
+                                               + " must be of type " + str(t) + ".")
 
-        i = i+1
-
+        i = i + 1

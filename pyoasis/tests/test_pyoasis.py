@@ -383,7 +383,7 @@ def test_Var_constructor1():
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var(42, partition, 0, pyoasis.OasisParameters.OASIS_OUT)  
+        var = pyoasis.Var(42, partition, pyoasis.OasisParameters.OASIS_OUT, 1)  
 
 # Wrong type 2nd argument
 def test_Var_constructor2():
@@ -391,7 +391,7 @@ def test_Var_constructor2():
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", 42, 0, pyoasis.OasisParameters.OASIS_OUT)      
+        var = pyoasis.Var("name", 42, pyoasis.OasisParameters.OASIS_OUT, 1)      
 
 # Wrong type 3rd argument
 def test_Var_constructor3():
@@ -399,7 +399,7 @@ def test_Var_constructor3():
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, "abc", pyoasis.OasisParameters.OASIS_OUT)
+        var = pyoasis.Var("name", partition, "abc", 1)
 
 # Wrong type 4th argument
 def test_Var_constructor4():
@@ -407,7 +407,7 @@ def test_Var_constructor4():
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, 0, 42)  
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT, "abc")  
 
 # Wrong value 1st argument
 def test_Var_constructor5():
@@ -415,15 +415,15 @@ def test_Var_constructor5():
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("", partition, 0, pyoasis.OasisParameters.OASIS_OUT)  
+        var = pyoasis.Var("", partition, pyoasis.OasisParameters.OASIS_OUT, 1)  
 
-# Wrong value 3rd argument
+# Wrong value 4th argument
 def test_Var_constructor6():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, -1, pyoasis.OasisParameters.OASIS_OUT)  
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT, 0)  
 
 # Failure
 def test_Var_constructor8():
@@ -431,14 +431,14 @@ def test_Var_constructor8():
         pyoasis.mod_oasis_part.def_partition = returns_2_zeros
         pyoasis.mod_oasis_var.def_var = returns_2errors
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_OUT)      
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)      
 
 # get_id
 def test_Var_get_id():
     pyoasis.mod_oasis_part.def_partition = returns_2_zeros
     pyoasis.mod_oasis_var.def_var = returns_2_zeros
     partition = pyoasis.SerialPartition(4)
-    var = pyoasis.Var("name", partition, 0, pyoasis.OasisParameters.OASIS_OUT)
+    var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)
     assert var.get_id() == 0
 
 # get_name
@@ -447,7 +447,7 @@ def test_Var_get_name():
     pyoasis.mod_oasis_var.def_var = returns_2_zeros
     partition = pyoasis.SerialPartition(4)
     name = "name"
-    var = pyoasis.Var(name, partition, 1, pyoasis.OasisParameters.OASIS_OUT)
+    var = pyoasis.Var(name, partition, pyoasis.OasisParameters.OASIS_OUT)
     assert var.get_name() == "name"
 
 # put
@@ -458,7 +458,7 @@ def test_Var_put1():
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         pyoasis.mod_oasis_getput_interface.put=returns_zero
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_OUT)
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)
         field = pyoasis.Array(range(4))
         var.put("abc", field)
 
@@ -469,7 +469,7 @@ def test_Var_put2():
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         pyoasis.mod_oasis_getput_interface.put=returns_zero
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_OUT)
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)
         field = pyoasis.Array(range(4))
         var.put(0, 42)
 
@@ -480,7 +480,7 @@ def test_Var_put3():
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         pyoasis.mod_oasis_getput_interface.put = returns_error
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_OUT)
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)
         field = pyoasis.Array(range(4))
         var.put(0, field)
 
@@ -492,7 +492,7 @@ def test_Var_get1():
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         pyoasis.mod_oasis_getput_interface.get = returns_zero
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_IN)
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
         field = pyoasis.Array(numpy.zeros(4))
         var.get("abc", field)
       
@@ -503,7 +503,7 @@ def test_Var_get2():
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         pyoasis.mod_oasis_getput_interface.get = returns_zero
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_IN)
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
         field = pyoasis.Array(numpy.zeros(4))
         var.get(0, 42)
 
@@ -514,7 +514,7 @@ def test_Var_get3():
         pyoasis.mod_oasis_var.def_var = returns_2_zeros
         pyoasis.mod_oasis_getput_interface.get = returns_error
         partition = pyoasis.SerialPartition(4)
-        var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_IN)
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
         field = pyoasis.Array(numpy.zeros(4))
         var.get(0, field)    
 
@@ -524,7 +524,7 @@ def test_SerialPartition_str():
     pyoasis.mod_oasis_var.def_var = returns_2_zeros
     pyoasis.mod_oasis_getput_interface.get = returns_zero
     partition = pyoasis.SerialPartition(4)
-    var = pyoasis.Var("name", partition, 1, pyoasis.OasisParameters.OASIS_IN)
+    var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
     line = str(var)
     assert line.find(var.get_name()) >=0
     assert line.find(str(var.get_id())) >=0     

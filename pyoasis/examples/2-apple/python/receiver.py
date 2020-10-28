@@ -1,16 +1,14 @@
 #!/usr/bin/python3
 
-import pyoasis
 import numpy
+import pyoasis
+from pyoasis import OasisParameters as OPar
 
 from mpi4py import MPI
 
-
-comm = MPI.COMM_WORLD
-
 component_name = "receiver"
 
-comp = pyoasis.Component(component_name, True, comm)
+comp = pyoasis.Component(component_name)
 print(comp)
 
 n_points = 1600
@@ -18,8 +16,7 @@ n_points = 1600
 partition = pyoasis.SerialPartition(n_points)
 print(partition)
 
-variable = pyoasis.Var("FRECVATM", partition, 1,
-                       pyoasis.OasisParameters.OASIS_IN)
+variable = pyoasis.Var("FRECVATM", partition, OPar.OASIS_IN)
 print("Variable id: " + str(variable.get_id()))
 
 comp.enddef()
@@ -29,10 +26,10 @@ field = pyoasis.Array(numpy.zeros(n_points))
 
 variable.get(date, field)
 
-expected_field = pyoasis.Array(numpy.arange(n_points,dtype=numpy.float64))
+expected_field = pyoasis.Array(numpy.arange(n_points, dtype=numpy.float64))
 epsilon = 1e-8
-error = abs((field-expected_field).sum())
-if(error < epsilon):
+error = abs((field - expected_field).sum())
+if error < epsilon:
     print("Data received successfully")
 
 pyoasis.terminate()

@@ -1,0 +1,55 @@
+##############################################################################
+#This is the top makefile for compiling OASIS3-MCT coupling library including
+#  mct/mpeu, scrip and psmile (i.e. interpolation and communication)
+#Platform dependent settings, compiler options, cpp keys, 
+#paths and other stuff has to be set in an include file indicated in make.inc.
+# 
+# default : mct/mpeu, scrip and psmile
+# oasis3_psmile (for OASIS3 upward compatibility): mct/mpeu, scrip and psmile
+# realclean : Automatic recompilation of all sources
+#
+#######
+#
+# Default target
+#
+default: check-vars static-lib
+#
+#
+# Check the required definitions
+#
+check-vars:
+	$(call check_defined, COUPLE, Root of the source directory)
+	$(call check_defined, ARCHDIR, Root of the installation path)
+	$(call check_defined, CHAN, MPI flavour MPI1/MPI2)
+	$(call check_defined, MAKE, the make command make/gmake)
+	$(call check_defined, F90 F f90 f CC, compiler command)
+	$(call check_defined, F90FLAGS f90FLAGS FFLAGS fFLAGS CCFLAGS, \
+	                      compilation options)
+#
+# Common variables obtained from values defined in users' make.inc
+# unless already provided in make.inc
+#
+# LIBBUILD      : compilation directory for static libraries
+LIBBUILD        ?= $(ARCHDIR)/build/lib
+# LIBBUILDDYN   : contains a directory for each shared library
+LIBBUILDDYN     ?= $(ARCHDIR)/build-shared/lib
+# LIBBUILDCBIND : contains a directory for compiling pyoasis
+LIBBUILDCBIND   ?= $(ARCHDIR)/build-c-bindings/lib
+# LIBBUILDPYO   : contains a directory for compiling pyoasis
+LIBBUILDCBIND   ?= $(ARCHDIR)/build-c-bindings/lib
+# FLIBS:        : fortran link options for oasis examples
+FLIBS		?= $(NETCDF_LIBRARY)
+#
+## Some rules to check if variables are defined
+#
+# Params:
+#   1. Variable name(s) to test.
+#   2. (optional) Error message to print.
+check_defined = \
+    $(strip $(foreach 1,$1, \
+        $(call __check_defined,$1,$(strip $(value 2)))))
+__check_defined = \
+    $(if $(value $1),, \
+      $(error Undefined $1$(if $2, ($2))))
+#
+################################################################################
