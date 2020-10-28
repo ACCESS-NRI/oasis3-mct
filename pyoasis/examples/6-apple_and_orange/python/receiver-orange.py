@@ -33,11 +33,11 @@ print(variable)
 comp.enddef()
 
 date = int(0)
-field = pyoasis.Array(numpy.zeros(extent))
+field = pyoasis.asarray(numpy.zeros(extent))
 
 variable.get(date, field)
 
-expected_field = pyoasis.Array(numpy.zeros(extent))
+expected_field = pyoasis.asarray(numpy.zeros(extent))
 for i in range(extent):
     expected_field[i] = offset + i
 

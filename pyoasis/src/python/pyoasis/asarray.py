@@ -23,7 +23,7 @@ import pyoasis
 import numpy
 
 
-def Array(data, dtype=numpy.float64):
+def asarray(data, dtype=numpy.float64):
     """
     Numpy array of double precision floating point numbers in Fortran ordering
 

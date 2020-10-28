@@ -26,7 +26,7 @@ import ctypes
 from ctypes import cdll, CDLL, c_int
 
 
-def IntArray(data):
+def asintarray(data):
     """Creates a numpy array containing doubles in Fortran ordering."""
     return numpy.asfortranarray(data, dtype=numpy.int32)
 
@@ -44,7 +44,7 @@ def def_partition(parameters, global_size, name):
     """The OASIS user interface to define partitions"""
     id_part = c_int(0)
     kinfo = c_int(0)
-    parameters_array = IntArray(parameters)
+    parameters_array = asintarray(parameters)
     n_parameters = len(parameters_array)
     p_parameters = (ctypes.c_int * n_parameters)(*parameters_array)
     LIB.def_partition(id_part, n_parameters, p_parameters,

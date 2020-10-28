@@ -34,7 +34,7 @@ comp.enddef()
 date = int(0)
 
 stt = time.time()
-field = pyoasis.Array(np.arange(n_points, dtype=np.float64))
+field = pyoasis.asarray(np.arange(n_points, dtype=np.float64))
 print('Sender: Time for Array = {} s.'.format(time.time() - stt), flush=True)
 
 stt = time.time()

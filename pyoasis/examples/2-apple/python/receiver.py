@@ -22,11 +22,11 @@ print("Variable id: " + str(variable.get_id()))
 comp.enddef()
 
 date = int(0)
-field = pyoasis.Array(numpy.zeros(n_points))
+field = pyoasis.asarray(numpy.zeros(n_points))
 
 variable.get(date, field)
 
-expected_field = pyoasis.Array(numpy.arange(n_points, dtype=numpy.float64))
+expected_field = pyoasis.asarray(numpy.arange(n_points, dtype=numpy.float64))
 epsilon = 1e-8
 error = abs((field - expected_field).sum())
 if error < epsilon:

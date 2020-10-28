@@ -81,12 +81,12 @@ if comm_rank == 0:
 comp.enddef()
 
 date = int(0)
-bundle = pyoasis.Array(numpy.zeros((local_lons, 2, 2),
+bundle = pyoasis.asarray(numpy.zeros((local_lons, 2, 2),
                                    dtype=numpy.float64))
 
 variable.get(date, bundle)
 
-expected_bundle = pyoasis.Array(numpy.zeros((local_lons, 2, 2),
+expected_bundle = pyoasis.asarray(numpy.zeros((local_lons, 2, 2),
                                             dtype=numpy.float64))
 for i in range(2):
     expected_bundle[:, :, i] = i + 1
@@ -106,7 +106,7 @@ for i in range(2):
     print(bundle[:, 1, i])
 
 if comm_rank % 2 != 0:
-    field = pyoasis.Array(bundle[:, :, 1], dtype=numpy.float32)
+    field = pyoasis.asarray(bundle[:, :, 1], dtype=numpy.float32)
     date = int(0)
     var_out.put(date, field)
 
