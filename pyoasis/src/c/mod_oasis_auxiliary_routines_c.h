@@ -24,25 +24,30 @@
 #include <mpi.h>
 
 
-extern void get_localcomm_iso(int* localcomm, int* kinfo);
+#ifdef  __cplusplus
+extern "C" {
+#endif
 
-extern void create_couplcomm_iso(const int* icpl, int* allcomm, int* cplcomm, int* error);
 
-extern void set_couplcomm_iso(int* localcomm, int* kinfo);
+void get_localcomm_iso(int* localcomm, int* kinfo);
 
-extern void get_intercomm_iso(int* new_comm, char** cdnam, int* error);
+void create_couplcomm_iso(const int* icpl, int* allcomm, int* cplcomm, int* error);
 
-extern void get_intracomm_iso(int* new_comm, char** cdnam, int* error);
+void set_couplcomm_iso(int* localcomm, int* kinfo);
 
-extern void set_debug_iso(int* debug, int* kinfo);
+void get_intercomm_iso(int* new_comm, char** cdnam, int* error);
 
-extern void get_debug_iso(int* debug, int* kinfo);
+void get_intracomm_iso(int* new_comm, char** cdnam, int* error);
+
+void set_debug_iso(int* debug, int* kinfo);
+
+void get_debug_iso(int* debug, int* kinfo);
  
-extern void put_inquire_iso(int* varid, int* msec, int* kinfo);
+void put_inquire_iso(int* varid, int* msec, int* kinfo);
 
-extern void get_ncpl_iso(int* varid, int* ncpl, int* kinfo);
+void get_ncpl_iso(int* varid, int* ncpl, int* kinfo);
 
-extern void get_freqs_iso(int* varid, int* mop, int* ncpl, int* cpl_freqs, int* kinfo);
+void get_freqs_iso(int* varid, int* mop, int* ncpl, int* cpl_freqs, int* kinfo);
 
 
 void get_localcomm(int* localcomm, int* kinfo);
@@ -62,6 +67,11 @@ void put_inquire(int varid, int msec, int* kinfo);
 void get_ncpl(int varid, int* ncpl, int* kinfo);
 
 void get_freqs(int varid, int mop, int ncpl, int* cpl_freqs, int* kinfo);
+
+
+#ifdef  __cplusplus
+}
+#endif
 
 
 #endif

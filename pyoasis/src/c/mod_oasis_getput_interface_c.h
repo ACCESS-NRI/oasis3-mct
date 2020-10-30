@@ -23,6 +23,11 @@
 #include <stdbool.h>
 
 
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
+
 void oasis_put_iso_double(int* var_id, int* kstep, int* size1, int* size2, int* size3, double* field, int* kinfo);
 
 void oasis_get_iso_double(int* var_id, int* kstep, int* size1, int* size2, int* size3, double* field, int* kinfo);
@@ -36,6 +41,11 @@ void oasis_get_iso_float(int* var_id, int* kstep, int* size1, int* size2, int* s
 void put(int var_id, int kstep, int size1, int size2, int size3, int kind, void* field, int *kinfo);
 
 void get(int var_id, int kstep, int size1, int size2, int size3, int kind, void* field, int* kinfo);
+
+
+#ifdef  __cplusplus
+}
+#endif
 
 
 #endif
