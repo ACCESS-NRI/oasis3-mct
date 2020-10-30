@@ -8,28 +8,23 @@ CHAN            = MPI1
 #
 # Paths for libraries, object files and binaries
 #
-# COUPLE	: path for oasis3-mct main directory
-COUPLE          = $(OASIS3_ROOT)
+# COUPLE	: path for oasis3-mct main directory (defined in .bash_profile)
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/NEMO_LENOVO_INTEL
 #
-# MPI library
-#MPIDIR           = /data/softs/intel/impi/5.0.3.048/intel64
-#MPIBIN           = $(MPIDIR)/bin
-#MPI_INCLUDE      = $(MPIDIR)/include
-#MPILIB           = -L$(MPIDIR)/lib
+# MPI library # 27/10/2020: /data/softs/intel/impi/2018.1.163/ (module load mpi/intelmpi/2018.1.163-ddt)
 MPIRUN = mpirun
 #
 # NETCDF library
 #NETCDF_LIB_DIR=
-NETCDF_INC_DIR= ${NETCDF4_INCDIR}
-NETCDF_INCLUDE  = ${NETCDF_INC_DIR}
-NETCDF_LIBRARY  = `nf-config --flibs`
+NETCDF_INC_DIR= ${NETCDF4_INCDIR} # 27/10/2020: /data/softs/local_intel18/netcdf/4.4.4_phdf5_1.10.4/include (module load lib/netcdf-fortran/4.4.4_phdf5_1.10.4) 
+NETCDF_INCLUDE  = ${NETCDF_INC_DIR} 
+NETCDF_LIBRARY  = `nf-config --flibs` # 27/10/2020: -L/data/softs/local_intel18/netcdf/4.4.4_phdf5_1.10.4/lib -lnetcdff -L/data/softs/local_intel18/phdf5/1.10.4_impi/lib -L/data/softs/local_intel18/netcdf/4.4.4_phdf5_1.10.4/lib -Wl,-rpath,/data/softs/local_intel18/phdf5/1.10.4_impi/lib -Wl,-rpath,/data/softs/local_intel18/netcdf/4.4.4_phdf5_1.10.4/lib -lhdf5_hl -lhdf5 -lz -lcurl -lnetcdf -lnetcdf
 #
 # Compiling and other commands
 MAKE        = gmake
-F90         = mpiifort
+F90         = mpiifort # 27/10/2020: /data/softs/intel/impi/2018.1.163/bin64/mpiifort -va chercher /data/softs/intel/compilers_and_libraries_2018.1.163/linux/bin/intel64/ifort (module load compiler/intel/18.0.1.163)
 F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
@@ -60,15 +55,8 @@ LDFLAGS     = $(F90FLAGS_1)
 
 # Additional definitions that should not be changed
 #
-FLIBS		= $(NETCDF_LIBRARY)
 # BINDIR        : directory for executables
 BINDIR          = $(ARCHDIR)/bin
-# LIBBUILD      : contains a directory for each library
-LIBBUILD        = $(ARCHDIR)/build/lib
-# LIBBUILDDYN   : contains a directory for each shared library
-LIBBUILDDYN     = $(ARCHDIR)/build-shared/lib
-# LIBBUILDCBIND   : contains a directory for compiling pyoasis
-LIBBUILDCBIND   = $(ARCHDIR)/build-c-bindings
 # INCPSMILE     : includes all *o and *mod for each library
 INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/scrip  -I$(LIBBUILD)/mct
 

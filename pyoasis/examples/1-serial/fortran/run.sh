@@ -12,6 +12,8 @@ exe2=receiver
 n1=1
 n2=1
 
+make || exit
+
 rundir=$srcdir/work
 
 rm -fr $rundir

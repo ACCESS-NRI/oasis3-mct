@@ -1,73 +1,50 @@
 program sender_serial
-  use mod_oasis
-  implicit none
-  integer :: i, kinfo
-  integer :: comp_id, local_comm, coupl_comm
-  INTEGER, parameter :: n_points = 1600
-  integer :: var_type, part_id
-  integer :: part_params(3)
-  integer :: var_id, var_nodims(2), var_actual_shape(1), date
-  character(len=13) :: comp_name = "sender-serial"
-  character(len=8) :: var_name = "FSENDOCN"
-  real(kind=8) :: field(n_points)
+   use mod_oasis
+   implicit none
+   integer :: i, kinfo, date
+   integer :: comp_id, part_id, var_id
+   integer, parameter :: n_points = 1600
+   integer :: part_params(3)
+   integer :: var_nodims(2)
+   character(len=13) :: comp_name = "sender-serial"
+   character(len=8) :: var_name = "FSENDOCN"
+   real(kind=8) :: field(n_points)
 
-  print *, "Component name: ", comp_name
-	
-  call oasis_init_comp(comp_id, comp_name, kinfo)
-  if(kinfo<0) then
-    print *, "Error in oasis_init_comp: ", kinfo
-    stop
-  endif
-  print *, "Component ID: ", comp_id
-  
-  call oasis_get_localcomm(local_comm, kinfo)
-  if(kinfo<0) then
-    print *, "Error in oasis_get_localcomm: ", kinfo
-    stop
-  endif
-  print *, "local_comm=",local_comm
+   print *, "Component name: ", comp_name
 
-  part_params=(/0, 0, n_points/)
-  call oasis_def_partition(part_id, part_params, kinfo)
-  if(kinfo<0) then
-    print *, "Error in oasis_def_partition: ", kinfo
-    stop
-  endif
-  print *, "part_id: ", part_id
-	
-  var_nodims=(/1, 1/)
-  var_actual_shape=1
-  print *, "var_name: ", var_name
-  call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_OUT, &
-                    var_actual_shape, OASIS_REAL, kinfo)
-  if(kinfo<0 .or. var_id<0) then
-    print *, "Error in oasis_def_partition: ", kinfo
-    stop
-  endif 
-  print *, "var_id: ", var_id
-  
-  call oasis_enddef(kinfo)
-  if(kinfo<0) then
-    print *, "Error in oasis_enddef: ", kinfo
-    stop
-  endif
+   call oasis_init_comp(comp_id, comp_name, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_init_comp: ", rcode=kinfo)
+   print *, "Sender: Component ID: ", comp_id
 
-  do i=1, n_points
-    field(i)=i
-  end do
-	
-  date=0
-	
-  call oasis_put(var_id, date, field, kinfo)
-	
-  if(kinfo<0) then
-    print *, "Error in oasis_put: ", kinfo
-    stop
-  endif
+   part_params=[0, 0, n_points]
+   call oasis_def_partition(part_id, part_params, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_def_partition: ", rcode=kinfo)
+   print *, "Sender: part_id: ", part_id
 
-  call oasis_terminate(kinfo)
-  if(kinfo<0) then
-    print *, "Error in oasis_terminate: ", kinfo
-  endif
+   var_nodims=[1, 1]
+   print *, "var_name: ", var_name
+   call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_OUT, &
+      &               [1], OASIS_REAL, kinfo)
+   if(kinfo<0 .or. var_id<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_def_var: ", rcode=kinfo)
+   print *, "Sender: var_id: ", var_id
 
-end program sender_serial 
+   call oasis_enddef(kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_enddef: ", rcode=kinfo)
+
+   field(:) = [(i, i=1, n_points)]
+
+   date=0
+
+   call oasis_put(var_id, date, field, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_put: ", rcode=kinfo)
+
+   call oasis_terminate(kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_terminate: ", rcode=kinfo)
+
+end program sender_serial
