@@ -118,7 +118,7 @@ class Var:
     def __str__(self):
         return "Variable data: name: " + self.name + ", id: " + str(self.var_id)
 
-    def put_inquire(self, msec):
+    def put_inquire(self, kstep):
         """
         :returns: return code expected at a specified time 
         for a given variable
@@ -129,8 +129,8 @@ class Var:
         return code
         :raises PyOasisException: if an incorrect parameter is supplied
         """
-        pyoasis.check_types([int], [msec])
-        return pyoasis.mod_oasis_auxiliary_routines.put_inquire(self.var_id, msec)
+        pyoasis.check_types([int], [kstep])
+        return pyoasis.mod_oasis_auxiliary_routines.put_inquire(self.var_id, kstep)
 
     def get_freqs(self):
       """
