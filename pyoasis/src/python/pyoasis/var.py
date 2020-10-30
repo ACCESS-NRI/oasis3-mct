@@ -129,7 +129,7 @@ class Var:
         return code
         :raises PyOasisException: if an incorrect parameter is supplied
         """
-        pyoasis.check_types([int])
+        pyoasis.check_types([int], [msec])
         return pyoasis.mod_oasis_auxiliary_routines.put_inquire(self.var_id, msec)
 
     def get_freqs(self):
