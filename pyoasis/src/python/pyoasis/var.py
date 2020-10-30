@@ -49,7 +49,7 @@ class Var:
         pyoasis.check_types([str, pyoasis.Partition, pyoasis.OasisParameters, int],
                             [cdport, partition, kinout, bundle_size])
         if len(cdport) == 0:
-            raise pyoasis.PyOasisException("Name empty.")
+            raise pyoasis.PyOasisException("Name empty")
         id_part = partition.get_id()
         if id_part < 0:
             raise pyoasis.PyOasisException("Partition identifier <0.")
@@ -60,9 +60,10 @@ class Var:
             raise pyoasis.PyOasisException("Bundle size <1.")
         self.name = cdport
         self.bundle_size = bundle_size
+        self.direction = kinout
         id_var_nodims = [1, bundle_size]
         return_value = pyoasis.mod_oasis_var.def_var(id_part, self.name, id_var_nodims,
-                                                     kinout.value)
+                                                     self.direction.value)
         error = return_value[1]
         if error < 0:
             raise pyoasis.OasisException("Error in def_var", error)
@@ -116,3 +117,28 @@ class Var:
 
     def __str__(self):
         return "Variable data: name: " + self.name + ", id: " + str(self.var_id)
+
+    def put_inquire(self, msec):
+        """
+        :returns: return code expected at a specified time 
+        for a given variable
+        :rtype: integer
+        :param int msec: model time (in seconds)
+
+        :raises OasisException: if OASIS is unable to obtain the
+        return code
+        :raises PyOasisException: if an incorrect parameter is supplied
+        """
+        pyoasis.check_types([int])
+        return pyoasis.mod_oasis_auxiliary_routines.put_inquire(self.var_id, msec)
+
+    def get_freqs(self):
+      """
+      :returns:  the coupling periods
+      :rtype: array of integers
+
+      :raises OasisException: if OASIS is unable to obtain the
+      coupling periods
+      """
+      return pyoasis.mod_oasis_auxiliary_routines.get_freqs_array(self.varid, self.direction)
+
