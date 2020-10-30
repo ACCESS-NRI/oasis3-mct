@@ -23,6 +23,8 @@
 
 import ctypes
 from ctypes import cdll, CDLL, c_int
+import numpy
+
 
 cdll.LoadLibrary("liboasis.C.bindings.so")
 LIB = CDLL("liboasis.C.bindings.so")
@@ -109,3 +111,72 @@ def get_comm_rank(communicator):
     error = c_int(0)
     LIB.get_comm_rank(communicator, comm_rank, error)
     return comm_rank.value, error.value
+
+
+LIB.set_debug.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
+
+
+def set_debug(debug):
+  """Set debug level"""
+  error = c_int(0)
+  LIB.set_debug(debug, error)
+  return error.value
+
+
+LIB.get_debug.argtypes = [ctypes.POINTER(ctypes.c_int), 
+                          ctypes.POINTER(ctypes.c_int)]
+
+
+def get_debug():
+  """Get debug level"""
+  debug = c_int(0)
+  error = c_int(0)
+  LIB.get_debug(debug, error)
+  return debug.value, error.value
+
+
+LIB.put_inquire.argtypes = [ctypes.c_int, ctypes.c_int, 
+                            ctypes.POINTER(ctypes.c_int)]
+
+
+def put_inquire(varid, msec):
+  """Gives put return code expected at a specified time 
+  for a given variable"""
+  kinfo = c_int(0)
+  LIB.put_inquire(varid, msec, kinfo)
+  return kinfo.value
+
+
+LIB.get_ncpl.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int), 
+                         ctypes.POINTER(ctypes.c_int)]
+
+
+def get_ncpl(varid):
+  """Returns the number of unique couplings associated with 
+     a variable."""
+  ncpl = c_int(0)
+  error = c_int(0)
+  LIB.get_ncpl(varid, ncpl, error)
+  return ncpl.value, error.value
+
+
+LIB.get_freqs.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int, 
+                          ctypes.c_void_p, ctypes.POINTER(ctypes.c_int)]
+
+
+def get_freqs(varid, mop, ncpl):
+  """Returns the coupling periods for a given variable.""" 
+  cpl_freqs_p=(c_int*ncpl)()
+  error = c_int(0)
+  LIB.get_freqs(varid, mop, ncpl, cpl_freqs_p, error)
+  cpl_freqs=[0]*ncpl
+  for i in range(ncpl):
+    cpl_freqs[i]=cpl_freqs_p[i]
+  return cpl_freqs, error.value
+
+
+def get_freqs_array(varid, mop):
+  """Returns the coupling periods for a given variable."""
+  ncpl=get_ncpl(varid)
+  return get_freqs(varid, mop, ncpl)
+
