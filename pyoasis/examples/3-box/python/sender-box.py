@@ -28,7 +28,7 @@ comp.enddef()
 date = int(0)
 data = [[0, 1, 4, 5], [2, 3, 6, 7],
         [8, 9, 12, 13], [10, 11, 14, 15]]
-field = pyoasis.Array(data[rank])
+field = pyoasis.asarray(data[rank])
 
 variable.put(date, field)
 

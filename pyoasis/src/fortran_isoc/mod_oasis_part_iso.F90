@@ -19,7 +19,7 @@
 
 subroutine oasis_def_partition_iso(id_part, n, parameters, size, name, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_ptr
-  use pyoasis
+  use cbindings
   use mod_oasis
   implicit none
   integer (c_int), intent(out) :: id_part

@@ -31,7 +31,7 @@ comp.enddef()
 
 date = int(0)
 
-field = pyoasis.Array(numpy.arange(start=offset, stop=offset + local_size, dtype=numpy.float64))
+field = pyoasis.asarray(numpy.arange(start=offset, stop=offset + local_size, dtype=numpy.float64))
 
 print("Sent data: from {} to {}".format(int(field[0]), int(field[-1])))
 

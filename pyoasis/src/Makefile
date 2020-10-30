@@ -14,7 +14,7 @@ all: lib
 
 lib: $(ARCHDIR)/lib/liboasis.C.bindings.so 
 
-OBJS_F = pyoasis.o mod_oasis_auxiliary_routines_iso.o mod_oasis_getput_interface_iso.o mod_oasis_method_iso.o mod_oasis_part_iso.o mod_oasis_sys_iso.o mod_oasis_var_iso.o
+OBJS_F = cbindings.o mod_oasis_auxiliary_routines_iso.o mod_oasis_getput_interface_iso.o mod_oasis_method_iso.o mod_oasis_part_iso.o mod_oasis_sys_iso.o mod_oasis_var_iso.o
 
 OBJS_C = mod_oasis_auxiliary_routines_c.o mod_oasis_getput_interface_c.o mod_oasis_method_c.o mod_oasis_part_c.o mod_oasis_sys_c.o mod_oasis_var_c.o
 
@@ -63,6 +63,6 @@ mod_oasis_sys_iso.o: $(SRC_F)/mod_oasis_sys_iso.F90
 mod_oasis_method_iso.o: $(SRC_F)/mod_oasis_method_iso.F90
 	$(F90) $(FFLAGS) -c $(SRC_F)/mod_oasis_method_iso.F90
 
-pyoasis.o: $(SRC_F)/pyoasis.F90
-	$(F90) $(FFLAGS) -c $(SRC_F)/pyoasis.F90
+cbindings.o: $(SRC_F)/cbindings.F90
+	$(F90) $(FFLAGS) -c $(SRC_F)/cbindings.F90
 

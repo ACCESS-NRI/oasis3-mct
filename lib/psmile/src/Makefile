@@ -31,8 +31,7 @@ $(DYNLIBRARY): $(OBJS1)  $(OBJS3) $(OBJS4)
 
 INCLS = -I$(COUPLE)/lib/psmile/include \
         -I$(PREBUILTDIR)/mct \
-        -I$(PREBUILTDIR)/scrip \
-        -I$(PREBUILTDIR)/pio
+        -I$(PREBUILTDIR)/scrip
 
 INCLSC = -I$(COUPLE)/lib/psmile/include
 .SUFFIXES:

@@ -299,7 +299,7 @@ contains
 
       if (ll_timing) call timer_stop(2)
 
-#endif TREAT_OVERLAY
+#endif
 
       allocate(ila_mpi_mn(mpi_size_map), ila_mpi_mx(mpi_size_map) )
 

@@ -20,7 +20,7 @@
 subroutine oasis_def_var_iso(id_nports, cdport, id_part, &
            id_var_nodims1, id_var_nodims2, kinout, n, id_var_shape, ktype, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_ptr, c_bool
-  use pyoasis
+  use cbindings
   use mod_oasis
   implicit none
   include "mpif.h"

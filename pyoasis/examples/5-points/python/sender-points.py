@@ -36,7 +36,7 @@ comp.enddef()
 
 date = int(0)
 
-field = pyoasis.Array(indices)
+field = pyoasis.asarray(indices)
 
 variable.put(date, field)
 

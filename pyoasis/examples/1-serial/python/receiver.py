@@ -34,14 +34,14 @@ comp.enddef()
 
 date = int(0)
 stt = time.time()
-field = pyoasis.Array(numpy.zeros(n_points))
+field = pyoasis.asarray(numpy.zeros(n_points))
 print('Receiver: Time for Array = {} s.'.format(time.time() - stt), flush=True)
 
 stt = time.time()
 variable.get(date, field)
 print('Receiver: Time for get = {} s.'.format(time.time() - stt), flush=True)
 
-expected_field = pyoasis.Array(numpy.arange(n_points, dtype=numpy.float64))
+expected_field = pyoasis.asarray(numpy.arange(n_points, dtype=numpy.float64))
 epsilon = 1e-8
 error = abs((field - expected_field).sum())
 if error < epsilon:

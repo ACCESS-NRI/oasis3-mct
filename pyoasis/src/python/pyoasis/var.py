@@ -87,7 +87,7 @@ class Var:
         Sends data to another model.
 
         :param int kstep: model time (in seconds)
-        :param pyoasis.Array field: data
+        :param pyoasis.asarray field: data
 
         :raises OasisException: if OASIS is unable to send \
          data to the other component
@@ -103,7 +103,7 @@ class Var:
         Gets data from another model.
 
         :param int kstep: model time (in seconds)
-        :param pyoasis.Array field: data
+        :param pyoasis.asarray field: data
 
         :raises OasisException: if OASIS is unable to receive \
         data from the other component
