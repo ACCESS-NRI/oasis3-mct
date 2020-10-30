@@ -140,5 +140,5 @@ class Var:
       :raises OasisException: if OASIS is unable to obtain the
       coupling periods
       """
-      return pyoasis.mod_oasis_auxiliary_routines.get_freqs_array(self.varid, self.direction)
+      return pyoasis.mod_oasis_auxiliary_routines.get_freqs_array(self.var_id, self.direction)
 
