@@ -34,15 +34,15 @@ extern void get_intercomm_iso(int* new_comm, char** cdnam, int* error);
 
 extern void get_intracomm_iso(int* new_comm, char** cdnam, int* error);
 
-extern void oasis_set_debug_iso(int* debug, int* kinfo);
+extern void set_debug_iso(int* debug, int* kinfo);
 
-extern void oasis_get_debug_iso(int* debug, int* kinfo);
+extern void get_debug_iso(int* debug, int* kinfo);
  
-extern void oasis_put_inquire_iso(int* varid, int* msec, int* kinfo);
+extern void put_inquire_iso(int* varid, int* msec, int* kinfo);
 
-extern void oasis_get_ncpl_iso(int* varid, int* ncpl, int* kinfo);
+extern void get_ncpl_iso(int* varid, int* ncpl, int* kinfo);
 
-extern void oasis_get_freqs_iso(int* varid, int* mop, int* ncpl, int* cpl_freqs, int* kinfo);
+extern void get_freqs_iso(int* varid, int* mop, int* ncpl, int* cpl_freqs, int* kinfo);
 
 
 void get_localcomm(int* localcomm, int* kinfo);
@@ -53,15 +53,15 @@ void set_couplcomm(int localcomm, int* kinfo);
 
 void get_intracomm(int new_comm, char* cdnam, int* error);
 
-void oasis_set_debug(int debug, int* kinfo);
+void set_debug(int debug, int* kinfo);
 
-void oasis_get_debug(int* debug, int* kinfo);
+void get_debug(int* debug, int* kinfo);
  
-void oasis_put_inquire(int varid, int msec, int* kinfo);
+void put_inquire(int varid, int msec, int* kinfo);
 
-void oasis_get_ncpl(int varid, int* ncpl, int* kinfo);
+void get_ncpl(int varid, int* ncpl, int* kinfo);
 
-void oasis_get_freqs(int varid, int mop, int ncpl, int* cpl_freqs, int* kinfo);
+void get_freqs(int varid, int mop, int ncpl, int* cpl_freqs, int* kinfo);
 
 
 #endif
