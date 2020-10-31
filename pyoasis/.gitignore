@@ -10,5 +10,6 @@ examples/*/fortran/receiver
 examples/*/fortran/receiver-orange
 examples/*/fortran/sender-serial
 examples/*/fortran/sender-apple
+examples/*/fortran/sender-box
 examples/*/fortran/sender-orange
 examples/*/fortran/sender-points

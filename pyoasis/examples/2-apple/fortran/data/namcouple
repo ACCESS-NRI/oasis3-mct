@@ -13,12 +13,12 @@ $END
 $RUNTIME
 # The total simulated time for this run in seconds
 #
-  43200
+  1
 $END
 ###########################################################################
 $NLOGPRT
 # Amount of information written to OASIS3-MCT log files (see User Guide)
-  30 
+  0 
 $END
 ###########################################################################
 $STRINGS
@@ -29,7 +29,7 @@ $STRINGS
 ######################################################
 #
 FSENDOCN FRECVATM 1 7200 0 rst.nc EXPORTED
-10 1 10 1 nogt nogt
+0 0 0 0 null null
 R  0  R  0 
 #
 $END

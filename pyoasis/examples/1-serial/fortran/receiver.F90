@@ -10,26 +10,26 @@ program receiver
    character(len=8) :: var_name = "FRECVATM"
    real(kind=8) :: field(n_points), error, epsilon
 
-   print *, "Component name: ", comp_name
+   print '(2A)', "Component name: ", comp_name
 
    call oasis_init_comp(comp_id, comp_name, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_init_comp: ", rcode=kinfo)
-   print *, "Receiver: Component ID: ", comp_id
+   print '(A,I0)', "Receiver: Component ID: ", comp_id
 
    part_params=[0, 0, n_points]
    call oasis_def_partition(part_id, part_params, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_def_partition: ", rcode=kinfo)
-   print *, "Receiver: part_id: ", part_id
+   print '(A,I0)', "Receiver: part_id: ", part_id
 
    var_nodims=[1, 1]
-   print *, "var_name: ", var_name
+   print '(2A)', "Receiver: var_name: ", var_name
    call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_IN, &
       &              [1], OASIS_REAL, kinfo)
    if(kinfo<0 .or. var_id<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_def_var: ", rcode=kinfo)
-   print *, "Receiver: var_id: ", var_id
+   print '(A,I0)', "Receiver: var_id: ", var_id
 
    call oasis_enddef(kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
@@ -52,6 +52,6 @@ program receiver
    do i = 1, n_points
       error=error+abs(field(i)-i)
    end do
-   if(error<epsilon) print *, "Receiver: Data received successfully" 
+   if(error<epsilon) print '(A)', "Receiver: Data received successfully" 
 
 end program receiver

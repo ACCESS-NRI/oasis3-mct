@@ -12,6 +12,8 @@ exe2=receiver-orange
 n1=6
 n2=4
 
+make || exit
+
 rundir=$srcdir/work
 
 rm -fr $rundir
@@ -24,4 +26,4 @@ cp -f $datadir/namcouple $rundir/.
 
 cd $rundir
 
-${MPIRUN4PY} -np $n1 $exe1 : -np $n2  $exe2
+${MPIRUN4PY} -np $n1 ./$exe1 : -np $n2  ./$exe2
