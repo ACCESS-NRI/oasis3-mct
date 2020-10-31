@@ -2,7 +2,6 @@ from pyoasis.exception import *
 from pyoasis.parameters import *
 from pyoasis.asarray import *
 from pyoasis.checktypes import *
-from pyoasis.debug import *
 from pyoasis.abort import *
 from pyoasis.component import *
 from pyoasis.terminate import *
