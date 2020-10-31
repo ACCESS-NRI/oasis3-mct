@@ -38,4 +38,4 @@ for date in range(43201):
         else:
             print("Warning: Recv_one at time {} got {} instead of {}".format(date,field[0],date))
 
-pyoasis.terminate()
+comp.terminate()

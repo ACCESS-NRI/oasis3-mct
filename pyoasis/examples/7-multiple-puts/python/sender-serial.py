@@ -31,4 +31,4 @@ for date in range(43201):
 #AP        pyoasis.debug_level = 0 #AP use a setter
 #AP        print("PyOasis debug level set to {}".format(pyoasis.debug_level)) #AP use a getter
         
-pyoasis.terminate()
+comp.terminate()

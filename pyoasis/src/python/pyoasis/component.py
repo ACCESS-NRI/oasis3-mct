@@ -47,6 +47,7 @@ class Component(object):
             raise pyoasis.PyOasisException("Component name empty.")
 
         self._name = name
+        self._terminated = False
         self._communicator = communicator
         return_value = pyoasis.mod_oasis_method.init_comp(self._name, coupled,
                                                           self._communicator)
@@ -64,7 +65,44 @@ class Component(object):
             self.localcomm = MPI.Comm.f2py(self._localcomm_hdle)
         except MPI.Exception:
             self.localcomm = MPI.COMM_NULL
+        self.couplcomm = MPI.Comm.Dup(self.localcomm)
 
+    def __del__(self):
+        """
+        Destructor
+        Ends the coupling.
+
+        :raises OasisException: if OASIS is unable to end the coupling
+        """
+        if self._terminated:
+            return 0
+        print("Component {} terminating upon deletion".format(self._name))
+        error = pyoasis.mod_oasis_method.terminate()
+        if error < 0:
+            raise pyoasis.OasisException("Error in terminate", error)
+        self._terminated = True
+
+    def terminate(self):
+        """
+        Ends the coupling.
+
+        :raises OasisException: if OASIS is unable to end the coupling
+        """
+        if self._terminated:
+            return 0
+        error = pyoasis.mod_oasis_method.terminate()
+        if error < 0:
+            raise pyoasis.OasisException("Error in terminate", error)
+        self._terminated = True
+
+    @property
+    def name(self):
+        """
+        :returns: the name of the component
+        :rtype: string
+        """
+        return self._name
+                
     def get_name(self):
         """
         :returns: the name of the component

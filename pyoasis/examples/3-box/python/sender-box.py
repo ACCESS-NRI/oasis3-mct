@@ -32,4 +32,4 @@ field = pyoasis.asarray(data[rank])
 
 variable.put(date, field)
 
-pyoasis.terminate()
+comp.terminate()

@@ -110,4 +110,4 @@ if comm_rank % 2 != 0:
     date = int(0)
     var_out.put(date, field)
 
-pyoasis.terminate()
+comp.terminate()

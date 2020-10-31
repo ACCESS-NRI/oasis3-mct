@@ -41,4 +41,4 @@ stt = time.time()
 variable.put(date, field)
 print('Sender: Time for Put = {} s.'.format(time.time() - stt), flush=True)
 
-pyoasis.terminate()
+comp.terminate()

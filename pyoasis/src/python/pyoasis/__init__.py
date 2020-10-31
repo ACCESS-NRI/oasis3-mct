@@ -4,7 +4,6 @@ from pyoasis.asarray import *
 from pyoasis.checktypes import *
 from pyoasis.abort import *
 from pyoasis.component import *
-from pyoasis.terminate import *
 from pyoasis.partition import *
 from pyoasis.var import *
 import sys

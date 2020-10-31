@@ -87,4 +87,4 @@ if comm_rank == 0:
 
 variable.put(date, bundle)
 
-pyoasis.terminate()
+comp.terminate()

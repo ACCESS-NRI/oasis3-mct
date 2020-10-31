@@ -164,4 +164,4 @@ for img in range(2):
 
 plt.show()
 
-pyoasis.terminate()
+comp.terminate()

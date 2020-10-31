@@ -47,4 +47,4 @@ error = abs((field - expected_field).sum())
 if error < epsilon:
     print("Data received successfully", flush=True)
 
-pyoasis.terminate()
+comp.terminate()

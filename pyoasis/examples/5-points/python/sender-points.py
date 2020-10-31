@@ -40,4 +40,4 @@ field = pyoasis.asarray(indices)
 
 variable.put(date, field)
 
-pyoasis.terminate()
+comp.terminate()

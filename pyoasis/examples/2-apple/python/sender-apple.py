@@ -37,4 +37,5 @@ print("Sent data: from {} to {}".format(int(field[0]), int(field[-1])))
 
 variable.put(date, field)
 
-pyoasis.terminate()
+print("Terminating component {}".format(comp.name))
+comp.terminate()

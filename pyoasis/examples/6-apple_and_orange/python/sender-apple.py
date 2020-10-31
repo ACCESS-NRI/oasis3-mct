@@ -60,4 +60,4 @@ if icpl == 1:
     
     variable.put(date, field)
 
-pyoasis.terminate()
+comp.terminate()
