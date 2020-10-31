@@ -1,84 +1,92 @@
 program sender_serial
-  use mod_oasis
-  implicit none
-  integer :: i, kinfo
-  integer :: comp_id
-  integer, parameter :: n_points = 1
-  integer :: var_type, part_id
-  integer :: part_params(3)
-  integer :: var_id(2), var_nodims(2), var_actual_shape(1), date
-  character(len=13) :: comp_name = "sender-serial"
-  character(len=10), dimension(2) :: var_name = (/"FSENDOCN_1","FSENDOCN_2"/)
-  real(kind=8) :: field(n_points)
-  integer :: ncpl
-  integer, dimension(:), allocatable :: cpl_freqs
+   use mod_oasis
+   implicit none
+   integer :: i, kinfo, date
+   integer :: comp_id, part_id, var_id(2)
+   integer, parameter :: n_points = 1
+   integer :: part_params(3)
+   integer :: var_nodims(2)
+   character(len=13) :: comp_name = "sender-serial"
+   character(len=10), dimension(2) :: var_name = ["FSENDOCN_1","FSENDOCN_2"]
+   real(kind=8) :: field(n_points)
+   integer :: ncpl
+   integer, dimension(:), allocatable :: cpl_freqs
 
-  print *, "Component name: ", comp_name
-	
-  call oasis_init_comp(comp_id, comp_name, kinfo)
-  if(kinfo<0) call oasis_abort(comp_id, comp_name, "Error in oasis_init_comp: ", rcode=kinfo)
-  
-  part_params=(/0, 0, n_points/)
-  call oasis_def_partition(part_id, part_params, kinfo)
-  if(kinfo<0) call oasis_abort(comp_id, comp_name, "Error in oasis_def_partition: ", rcode=kinfo)
-	
-  var_nodims=(/1, 1/)
-  var_actual_shape(:)=1
+   print '(2A)', "Component name: ", comp_name
 
-  do i = 1, 2 
-     print *, "Sender: defining var: ", var_name(i)
-     call oasis_def_var(var_id(i), var_name(i), part_id, var_nodims, OASIS_OUT, &
-        &               var_actual_shape, OASIS_REAL, kinfo)
-     if(kinfo<0 .or. var_id(i)<0) &
-        & call oasis_abort(comp_id, comp_name, "Error in oasis_def_var: "//trim(var_name(i)), rcode=kinfo)
-  end do
-  
-  call oasis_enddef(kinfo)
-  if(kinfo<0) call oasis_abort(comp_id, comp_name, "Error in oasis_enddef: ", rcode=kinfo)
+   call oasis_init_comp(comp_id, comp_name, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_init_comp: ", rcode=kinfo)
 
-  call oasis_get_ncpl(var_id(2), ncpl, kinfo)
-  if(kinfo<0) call oasis_abort(comp_id, comp_name, "Error in oasis_get_ncpl: ", rcode=kinfo)
+   part_params=[0, 0, n_points]
+   call oasis_def_partition(part_id, part_params, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_def_partition: ", rcode=kinfo)
 
-  allocate(cpl_freqs(ncpl))
+   var_nodims=[1, 1]
+   do i = 1, 2 
+      print '(2A)', "Sender: var_name: ", var_name(i)
+      call oasis_def_var(var_id(i), var_name(i), part_id, var_nodims, OASIS_OUT, &
+         &               [1], OASIS_REAL, kinfo)
+      if(kinfo<0 .or. var_id(i)<0) &
+         & call oasis_abort(comp_id, comp_name, &
+         & "Error in oasis_def_var: "//trim(var_name(i)), rcode=kinfo)
+   end do
 
-  call oasis_get_freqs(var_id(2), OASIS_OUT, ncpl, cpl_freqs, kinfo)
-  if(kinfo<0) call oasis_abort(comp_id, comp_name, "Error in oasis_get_freqs: ", rcode=kinfo)
+   call oasis_enddef(kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      &"Error in oasis_enddef: ", rcode=kinfo)
 
-  print *, "Sender: coupling frequencies for ",trim(var_name(2)), " are ", cpl_freqs(:)
-  
-  do date= 0, 43200
+   call oasis_get_ncpl(var_id(2), ncpl, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_get_ncpl: ", rcode=kinfo)
 
-     call oasis_put_inquire(var_id(1), date, kinfo)
-     if(kinfo<0) call oasis_abort(comp_id, comp_name, "Error in oasis_put_inquire: ", rcode=kinfo)
+   allocate(cpl_freqs(ncpl))
 
-     if ( kinfo == OASIS_Sent) then
-        
-        field(:) = date
-     
-        call oasis_put(var_id(1), date, field, kinfo)
-        if(kinfo<0) &
-           & call oasis_abort(comp_id, comp_name, "Error in oasis_put: "//trim(var_name(1)), rcode=kinfo)
+   call oasis_get_freqs(var_id(2), OASIS_OUT, ncpl, cpl_freqs, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_get_freqs: ", rcode=kinfo)
 
-     endif
+   print '(3A,2I6)', &
+      & "Sender: coupling frequencies for ",trim(var_name(2)), " are ", cpl_freqs(:)
 
-     if (any(mod(date,cpl_freqs) == 0)) then
+   do date= 0, 43200
 
-        call oasis_set_debug(2)
-        
-        field(:) = (-1.) * date
-        call oasis_put(var_id(2), date, field, kinfo)
-        if(kinfo<0) &
-           & call oasis_abort(comp_id, comp_name, "Error in oasis_put: "//trim(var_name(2)), rcode=kinfo)
-        
-        call oasis_set_debug(0)
+      call oasis_put_inquire(var_id(1), date, kinfo)
+      if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+         & "Error in oasis_put_inquire: ", rcode=kinfo)
 
-     end if
+      if ( kinfo == OASIS_Sent) then
 
-  end do
-     
-  deallocate(cpl_freqs)
+         field(:) = date
 
-  call oasis_terminate(kinfo)
-  if(kinfo<0) call oasis_abort(comp_id, comp_name, "Error in oasis_terminate: ", rcode=kinfo)
+         call oasis_put(var_id(1), date, field, kinfo)
+         if(kinfo<0) &
+            & call oasis_abort(comp_id, comp_name, &
+            & "Error in oasis_put: "//trim(var_name(1)), rcode=kinfo)
 
-end program sender_serial 
+      endif
+
+      if (any(mod(date,cpl_freqs) == 0)) then
+
+         call oasis_set_debug(2)
+
+         field(:) = (-1.) * date
+         call oasis_put(var_id(2), date, field, kinfo)
+         if(kinfo<0) &
+            & call oasis_abort(comp_id, comp_name, &
+            & "Error in oasis_put: "//trim(var_name(2)), rcode=kinfo)
+
+         call oasis_set_debug(0)
+
+      end if
+
+   end do
+
+   deallocate(cpl_freqs)
+
+   call oasis_terminate(kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_terminate: ", rcode=kinfo)
+
+end program sender_serial

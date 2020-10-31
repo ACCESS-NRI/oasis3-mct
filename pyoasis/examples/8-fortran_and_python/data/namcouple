@@ -13,7 +13,7 @@ $END
 $RUNTIME
 # The total simulated time for this run in seconds
 #
-  43200
+  1
 $END
 ###########################################################################
 $NLOGPRT
@@ -29,11 +29,11 @@ $STRINGS
 ######################################################
 #
 FSENDOCN FRECVATM 1 7200 0 rst.nc EXPORTED
-8 2 8 2 nogt nogt
+0 0 0 0 null null
 R  0  R  0 
 #
 FSENDATM FRECVICE 1 7200 0 rst.nc EXPORTED
-4 2 4 2 nogt nogt
+0 0 0 0 null null
 R  0  R  0 
 #
 $END
