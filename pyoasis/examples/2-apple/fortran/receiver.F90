@@ -3,7 +3,7 @@ program receiver
    implicit none
    integer :: i, kinfo, date
    integer :: comp_id, part_id, var_id
-   INTEGER, parameter :: n_points = 16
+   integer, parameter :: n_points = 16
    integer :: part_params(3)
    integer :: var_nodims(2)
    character(len=8) :: comp_name = "receiver"

@@ -1,90 +1,57 @@
 program receiver
-  use mod_oasis
-  implicit none
-  integer :: i, kinfo
-  integer :: comp_id, local_comm, coupl_comm
-  integer :: n_points, var_type, part_id
-  integer :: part_params(3)
-  integer :: var_id, var_nodims(2), var_actual_shape(1), date
-  character(len=8) :: comp_name = "receiver"
-  character(len=8) :: var_name = "FRECVATM"
-  real :: field(16), error, epsilon
+   use mod_oasis
+   implicit none
+   integer :: i, kinfo, date
+   integer :: comp_id, part_id, var_id
+   integer, parameter :: n_points = 16
+   integer :: part_params(3)
+   integer :: var_nodims(2)
+   character(len=8) :: comp_name = "receiver"
+   character(len=8) :: var_name = "FRECVATM"
+   real(kind=8) :: field(n_points), error, epsilon
 
-  print *, "Component name: ", comp_name
-	
-  call oasis_init_comp(comp_id, comp_name, kinfo)
-  if(kinfo<0) then
-    print *, "Error in oasis_init_comp: ", kinfo
-    stop
-  endif
-  print *, "Component ID: ", comp_id
-  
-  call oasis_get_localcomm(local_comm, kinfo)
-  if(kinfo<0) then
-    print *, "Error in oasis_get_localcomm: ", kinfo
-    stop
-  endif
-  print *, "local_comm=",local_comm
+   print '(2A)', "Component name: ", comp_name
 
-  call oasis_create_couplcomm(1, local_comm, coupl_comm, kinfo)
-  print *, "coupl_comm ", coupl_comm
-  if(kinfo<0) then
-    print *, "Error in oasis_create_couplcomm: ", kinfo
-    stop
-  endif
-  print *, "coupl_comm ", coupl_comm
+   call oasis_init_comp(comp_id, comp_name, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_init_comp: ", rcode=kinfo)
+   print '(A,I0)', "Receiver: Component ID: ", comp_id
 
-  n_points=16
-  part_params=(/0, 0, n_points/)
-  call oasis_def_partition(part_id, part_params, kinfo)
-  if(kinfo<0) then
-    print *, "Error in oasis_def_partition: ", kinfo
-    stop
-  endif
-  print *, "part_id: ", part_id
-	
-  var_nodims=(/1, 1/)
-  var_actual_shape=1
-  print *, "var_name: ", var_name
-  call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_IN, &
-                    var_actual_shape, OASIS_REAL, kinfo)
-  if(kinfo<0 .or. var_id<0) then
-    print *, "Error in oasis_def_partition: ", kinfo
-    stop
-  endif 
-  print *, "var_id: ", var_id
-  
-  call oasis_enddef(kinfo)
-  if(kinfo<0) then
-    print *, "Error in oasis_enddef: ", kinfo
-    stop
-  endif
-	
-  date=0
+   part_params=[0, 0, n_points]
+   call oasis_def_partition(part_id, part_params, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_def_partition: ", rcode=kinfo)
+   print '(A,I0)', "Receiver: part_id: ", part_id
 
-  do i=1, n_points
-    field(i)=0
-  end do
-  
-  call oasis_get(var_id, date, field, kinfo)
+   var_nodims=[1, 1]
+   print '(2A)', "Receiver: var_name: ", var_name
+   call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_IN, &
+      &              [1], OASIS_REAL, kinfo)
+   if(kinfo<0 .or. var_id<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_def_var: ", rcode=kinfo)
+   print '(A,I0)', "Receiver: var_id: ", var_id
 
-  if(kinfo<0) then
-    print *, "Error in oasis_get: ", kinfo
-    stop
-  endif
+   call oasis_enddef(kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_enddef: ", rcode=kinfo)
 
-  call oasis_terminate(kinfo)
-  if(kinfo<0) then
-    print *, "Error in oasis_terminate: ", kinfo
-  endif
+   date=0
 
-  epsilon=1e-8
-  error=0
-  do i = 1, n_points
-     error=error+abs(field(i)-i)
-  end do
-  if(error<epsilon) then
-    print *, "Data received successfully" 
-  endif
+   field(:)=0
+
+   call oasis_get(var_id, date, field, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_get: ", rcode=kinfo)
+
+   call oasis_terminate(kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_terminate: ", rcode=kinfo)
+
+   epsilon=1e-8
+   error=0.
+   do i = 1, n_points
+      error=error+abs(field(i)-i)
+   end do
+   if(error<epsilon) print '(A)', "Receiver: Data received successfully" 
 
 end program receiver
