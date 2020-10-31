@@ -25,7 +25,6 @@ import ctypes
 from ctypes import cdll, CDLL, c_int
 import numpy
 
-
 cdll.LoadLibrary("liboasis.C.bindings.so")
 LIB = CDLL("liboasis.C.bindings.so")
 
@@ -165,18 +164,16 @@ LIB.get_freqs.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
 
 
 def get_freqs(varid, mop, ncpl):
-  """Returns the coupling periods for a given variable.""" 
-  cpl_freqs_p=(c_int*ncpl)()
+  """Returns the coupling periods for a given variable."""
+  cpl_freqs_p = numpy.zeros(ncpl, dtype = numpy.int32)
   error = c_int(0)
-  LIB.get_freqs(varid, mop, ncpl, cpl_freqs_p, error)
-  cpl_freqs=[0]*ncpl
-  for i in range(ncpl):
-    cpl_freqs[i]=cpl_freqs_p[i]
+  LIB.get_freqs(varid, c_int(mop), c_int(ncpl), cpl_freqs_p.ctypes.data, error)
+  cpl_freqs = cpl_freqs_p.tolist()
   return cpl_freqs, error.value
 
 
 def get_freqs_array(varid, mop):
   """Returns the coupling periods for a given variable."""
-  ncpl=get_ncpl(varid)
+  ncpl, error = get_ncpl(varid)
   return get_freqs(varid, mop, ncpl)
 

@@ -13,19 +13,21 @@ partition = pyoasis.SerialPartition(n_points)
 #AP var_1 = pyoasis.Var("FSENDOCN_1", partition, OASIS_OUT)
 var_1 = pyoasis.Var("FSENDOCN_1", partition, pyoasis.OasisParameters.OASIS_OUT)
 print("Sender ",var_1)
-#APvar_2 = pyoasis.Var("FSENDOCN_2", partition, OASIS_OUT)
+#AP var_2 = pyoasis.Var("FSENDOCN_2", partition, OASIS_OUT)
 var_2 = pyoasis.Var("FSENDOCN_2", partition, pyoasis.OasisParameters.OASIS_OUT)
 print("Sender ",var_2)
 
 comp.enddef()
 
+print("Sender: coupling frequencies for {} are ".format(var_2),var_2.cpl_freqs)
+
 for date in range(43201):
     
 #AP    if var_1.put_inquire(date) == OASIS_SENT:
-    if date%2400 == 0:
+    if var_1.put_inquire(date) == 4:
         var_1.put(date,pyoasis.asarray([date], dtype=np.float64))
 
-#AP    if any([date%freq == 0 for freq in var_2.cpl_freqs]): #AP use a getter
+    if any([date%freq == 0 for freq in var_2.cpl_freqs]):
         comp.debug_level = 2
         var_2.put(date,pyoasis.asarray([-1.*date], dtype=np.float64))
         comp.debug_level = 0

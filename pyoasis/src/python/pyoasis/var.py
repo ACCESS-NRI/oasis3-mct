@@ -131,6 +131,12 @@ class Var:
         """
         pyoasis.check_types([int], [kstep])
         return pyoasis.mod_oasis_auxiliary_routines.put_inquire(self.var_id, kstep)
+    @property
+    def cpl_freqs(self):
+      """
+      getter for get_freqs
+      """
+      return self.get_freqs()
 
     def get_freqs(self):
       """
@@ -140,5 +146,7 @@ class Var:
       :raises OasisException: if OASIS is unable to obtain the
       coupling periods
       """
-      return pyoasis.mod_oasis_auxiliary_routines.get_freqs_array(self.var_id, self.direction)
-
+      freqs, error = pyoasis.mod_oasis_auxiliary_routines.get_freqs_array(self.var_id, self.direction.value)
+      if error < 0:
+          raise pyoasis.OasisException("Error in getting coupling frequencies", error)
+      return freqs
