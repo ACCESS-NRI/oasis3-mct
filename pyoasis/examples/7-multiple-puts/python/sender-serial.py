@@ -26,9 +26,10 @@ for date in range(43201):
         var_1.put(date,pyoasis.asarray([date], dtype=np.float64))
 
 #AP    if any([date%freq == 0 for freq in var_2.cpl_freqs]): #AP use a getter
-#AP        pyoasis.debug_level = 2 #AP use a setter
+        comp.debug_level = 2
         var_2.put(date,pyoasis.asarray([-1.*date], dtype=np.float64))
-#AP        pyoasis.debug_level = 0 #AP use a setter
-#AP        print("PyOasis debug level set to {}".format(pyoasis.debug_level)) #AP use a getter
+        comp.debug_level = 0
+        if date == 0:
+            print("PyOasis debug level set to {}".format(comp.debug_level))
         
 comp.terminate()
