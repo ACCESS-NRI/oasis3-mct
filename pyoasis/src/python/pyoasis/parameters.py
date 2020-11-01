@@ -26,7 +26,41 @@ class OasisParameters(Enum):
     """
     Enumeration of parameters used by OASIS (values: OASIS_OUT, \
     OASIS_IN)
-    """  
-    OASIS_OUT = 20
-    OASIS_IN = 21
+    """
+    OASIS_OK          = 0
+    OASIS_NOTDEF      = -2
+    OASIS_VAR_UNCPL   = -1
+    OASIS_OUT         = 20
+    OASIS_IN          = 21
+    OASIS_INOUT       = 2 
+    OASIS_RECVD       = 3 
+    OASIS_SENT        = 4 
+    OASIS_LOCTRANS    = 5
+    OASIS_TOREST      = 6
+    OASIS_OUTPUT      = 7
+    OASIS_SENTOUT     = 8
+    OASIS_TORESTOUT   = 9
+    OASIS_FROMREST    = 10
+    OASIS_INPUT       = 11
+    OASIS_RECVOUT     = 12
+    OASIS_FROMRESTOUT = 13
+    OASIS_WAITGROUP   = 14
+    OK          = OASIS_OK         
+    NOTDEF      = OASIS_NOTDEF     
+    VAR_UNCPL   = OASIS_VAR_UNCPL  
+    OUT         = OASIS_OUT        
+    IN          = OASIS_IN         
+    INOUT       = OASIS_INOUT      
+    RECVD       = OASIS_RECVD      
+    SENT        = OASIS_SENT       
+    LOCTRANS    = OASIS_LOCTRANS   
+    TOREST      = OASIS_TOREST     
+    OUTPUT      = OASIS_OUTPUT     
+    SENTOUT     = OASIS_SENTOUT    
+    TORESTOUT   = OASIS_TORESTOUT  
+    FROMREST    = OASIS_FROMREST   
+    INPUT       = OASIS_INPUT      
+    RECVOUT     = OASIS_RECVOUT    
+    FROMRESTOUT = OASIS_FROMRESTOUT
+    WAITGROUP   = OASIS_WAITGROUP  
 

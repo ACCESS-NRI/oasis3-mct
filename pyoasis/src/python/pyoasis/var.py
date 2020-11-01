@@ -130,7 +130,12 @@ class Var:
         :raises PyOasisException: if an incorrect parameter is supplied
         """
         pyoasis.check_types([int], [kstep])
-        return pyoasis.mod_oasis_auxiliary_routines.put_inquire(self.var_id, kstep)
+        rcode = pyoasis.mod_oasis_auxiliary_routines.put_inquire(self.var_id, kstep)
+        for parameter in pyoasis.OasisParameters:
+            if rcode == parameter.value:
+                return parameter
+        raise pyoasis.OasisException("Error in put_inquire: returned value not mapped to Oasis parameters", -1)
+    
     @property
     def cpl_freqs(self):
       """

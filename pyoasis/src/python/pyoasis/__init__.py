@@ -8,6 +8,7 @@ from pyoasis.partition import *
 from pyoasis.var import *
 import sys
 
+globals()["OASIS"] = pyoasis.parameters.OasisParameters
 
 # Global error handler
 def global_except_hook(exctype, value, traceback):
