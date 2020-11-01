@@ -2,7 +2,7 @@
 
 import numpy
 import pyoasis
-
+from pyoasis import OASIS
 from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
@@ -41,8 +41,7 @@ if icpl == 1:
     partition = pyoasis.ApplePartition(offset, local_size)
     print(partition)
 
-    variable = pyoasis.Var("FSENDOCN", partition,
-                           pyoasis.OasisParameters.OASIS_OUT)
+    variable = pyoasis.Var("FSENDOCN", partition, OASIS.OUT)
     print(variable)
 
 comp.enddef()

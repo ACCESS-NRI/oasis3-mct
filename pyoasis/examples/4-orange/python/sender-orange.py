@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import pyoasis
+from pyoasis import OASIS
 import numpy
 
 from mpi4py import MPI
@@ -37,8 +38,7 @@ if icpl == 1:
     partition = pyoasis.OrangePartition(offsets, extents)
     print(partition, flush=True)
 
-    variable = pyoasis.Var("FSENDOCN", partition,
-                           pyoasis.OasisParameters.OASIS_OUT)
+    variable = pyoasis.Var("FSENDOCN", partition, OASIS.OUT)
     print(variable, flush=True)
 
 comp.enddef()

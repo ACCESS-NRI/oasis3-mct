@@ -2,8 +2,7 @@
 
 import numpy
 import pyoasis
-from pyoasis import OasisParameters as OPar
-
+from pyoasis import OASIS
 from mpi4py import MPI
 
 component_name = "receiver"
@@ -16,7 +15,7 @@ n_points = 1600
 partition = pyoasis.SerialPartition(n_points)
 print(partition)
 
-variable = pyoasis.Var("FRECVATM", partition, OPar.OASIS_IN)
+variable = pyoasis.Var("FRECVATM", partition, OASIS.IN)
 print("Variable id: " + str(variable.get_id()))
 
 comp.enddef()

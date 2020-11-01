@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
 import pyoasis
-
+from pyoasis import OASIS
 from mpi4py import MPI
-
 
 comm = MPI.COMM_WORLD
 
@@ -19,8 +18,7 @@ global_offsets = [0, 2, 8, 10]
 partition = pyoasis.BoxPartition(global_offsets[rank], 2, 2, 4)
 print(partition)
 
-variable = pyoasis.Var("FSENDOCN", partition,
-                       pyoasis.OasisParameters.OASIS_OUT)
+variable = pyoasis.Var("FSENDOCN", partition, OASIS.OUT)
 print(variable)
 
 comp.enddef()

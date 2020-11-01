@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
 import pyoasis
-
+from pyoasis import OASIS
 from mpi4py import MPI
-
 
 comm = MPI.COMM_WORLD
 
@@ -28,8 +27,7 @@ for i in range(local_size):
 partition = pyoasis.PointsPartition(indices)
 print(partition)
 
-variable = pyoasis.Var("FSENDOCN", partition,
-                       pyoasis.OasisParameters.OASIS_OUT)
+variable = pyoasis.Var("FSENDOCN", partition, OASIS.OUT)
 print(variable)
 
 comp.enddef()

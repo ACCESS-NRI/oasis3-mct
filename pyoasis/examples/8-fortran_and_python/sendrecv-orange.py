@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import pyoasis
+from pyoasis import OASIS
 import numpy
 
 from mpi4py import MPI
@@ -67,14 +68,11 @@ if comm_rank == 0:
     print("{}: part_in  id: {}".format(component_name, part_in.get_id()))
     print("{}: part_out id: {}".format(component_name, part_out.get_id()))
 
-variable = pyoasis.Var("FRECVATM", part_in,
-                       pyoasis.OasisParameters.OASIS_IN,
-                       bundle_size=2)
+variable = pyoasis.Var("FRECVATM", part_in, OASIS.IN, bundle_size=2)
 if comm_rank == 0:
     print("{}: var_name: FRECVATM = var_id: {}".format(component_name, variable.get_id()))
 
-var_out = pyoasis.Var("FSENDATM", part_out,
-                      pyoasis.OasisParameters.OASIS_OUT)
+var_out = pyoasis.Var("FSENDATM", part_out, OASIS.OUT)
 if comm_rank == 0:
     print("{}: var_name: FSENDATM = var_id: {}".format(component_name, var_out.get_id()))
 

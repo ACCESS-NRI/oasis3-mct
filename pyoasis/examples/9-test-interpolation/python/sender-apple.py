@@ -4,6 +4,7 @@ import os
 import math
 import numpy as np
 import pyoasis
+from pyoasis import OASIS
 import netCDF4
 from mpi4py import MPI
 from utils import *
@@ -16,11 +17,15 @@ has_graphics = comm.bcast(has_graphics, root=comm.size - 1)
 sgrid = None
 dgrid = None
 if comm.rank == 0:
-    sgrid = input('Enter the source grid code:\n')
+    sgrid = input('Enter the source grid code from {}:\n'.format(set(valid_grids)))
     if not grid_is_valid(sgrid):
         print('{} is not a valid grid'.format(sgrid), flush=True)
         comm.Abort()
-    dgrid = input('Enter the target grid code:\n')
+    if grid_is_ocean(sgrid):
+        dset = set(valid_grids) - set(ocean_grids)
+    else:
+        dset = set(valid_grids) - set((sgrid,))
+    dgrid = input('Enter the target grid code from {}:\n'.format(dset))
     if not grid_is_valid(dgrid):
         print('{} is not a valid grid'.format(dgrid), flush=True)
         comm.Abort()
@@ -65,9 +70,7 @@ if comm_rank == comm_size - 1:
 
 partition = pyoasis.ApplePartition(offset, local_size)
 
-variable = pyoasis.Var("FSENDANA", partition,
-                       pyoasis.OasisParameters.OASIS_OUT,
-                       bundle_size=2)
+variable = pyoasis.Var("FSENDANA", partition, OASIS.OUT, bundle_size=2)
 comp.enddef()
 
 date = int(0)

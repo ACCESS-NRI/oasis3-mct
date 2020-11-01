@@ -61,13 +61,15 @@ def grid_struct(grid):
 
     return grid_st[grid]
 
+valid_grids = ('torc', 'nogt', 'bggd', 'sse7', 'icos')
+ocean_grids = ('torc', 'nogt')
 
 def grid_is_valid(grid):
-    return grid in ('torc', 'nogt', 'bggd', 'sse7', 'icos')
+    return grid in valid_grids
 
 
 def grid_is_ocean(grid):
-    return grid in ('torc', 'nogt', 'to25', 'nogh')
+    return grid in ocean_grids
 
 
 def grid_is_hr(grid):

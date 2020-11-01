@@ -2,6 +2,7 @@
 
 import math
 import pyoasis
+from pyoasis import OASIS
 import numpy as np
 import netCDF4
 from mpi4py import MPI
@@ -84,9 +85,7 @@ print("n_points on destination side is {}".format(n_points), flush=True)
 
 partition = pyoasis.SerialPartition(n_points)
 
-variable = pyoasis.Var("FRECVANA", partition,
-                       pyoasis.OasisParameters.OASIS_IN,
-                       bundle_size=2)
+variable = pyoasis.Var("FRECVANA", partition,OASIS.IN,bundle_size=2)
 comp.enddef()
 
 date = int(0)
