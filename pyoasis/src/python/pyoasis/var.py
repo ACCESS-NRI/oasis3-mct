@@ -123,18 +123,17 @@ class Var:
         :returns: return code expected at a specified time 
         for a given variable
         :rtype: integer
-        :param int msec: model time (in seconds)
+        :param int kstep: model time (in seconds)
 
-        :raises OasisException: if OASIS is unable to obtain the
-        return code
+        :raises OasisException: if OASIS is unable to obtain the return code
         :raises PyOasisException: if an incorrect parameter is supplied
         """
         pyoasis.check_types([int], [kstep])
         rcode = pyoasis.mod_oasis_auxiliary_routines.put_inquire(self.var_id, kstep)
-        for parameter in pyoasis.OasisParameters:
-            if rcode == parameter.value:
-                return parameter
-        raise pyoasis.OasisException("Error in put_inquire: returned value not mapped to Oasis parameters", -1)
+        try:
+            return pyoasis.OasisParameters(rcode)
+        except ValueError:
+            raise pyoasis.OasisException("Error in put_inquire: returned value not mapped to Oasis parameters", -1)
     
     @property
     def cpl_freqs(self):
