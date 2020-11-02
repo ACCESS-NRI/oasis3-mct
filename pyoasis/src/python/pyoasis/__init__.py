@@ -1,5 +1,6 @@
 from pyoasis.exception import *
 from pyoasis.parameters import *
+from pyoasis.debug import *
 from pyoasis.asarray import *
 from pyoasis.checktypes import *
 from pyoasis.abort import *

@@ -183,10 +183,7 @@ class Component(object):
         :rtype: int
         :raises OasisException: if OASIS is unable to get the debug level
         """
-        level, error = pyoasis.get_debug()
-        if error < 0:
-            raise pyoasis.OasisException("Error in get_debug", error)
-        return level
+        return pyoasis.get_debug()
 
     @debug_level.setter
     def debug_level(self, level):
@@ -195,7 +192,5 @@ class Component(object):
         :param int level: debug level
         :raises OasisException: if OASIS is unable to get the debug level
         """
-        error = pyoasis.set_debug(level)
-        if error < 0:
-            raise pyoasis.OasisException("Error in set_debug", error)
+        pyoasis.set_debug(level)
 
