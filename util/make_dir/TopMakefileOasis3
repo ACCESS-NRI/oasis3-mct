@@ -141,7 +141,7 @@ installmct:
          cp -f ./*/*.o    $(LIBBUILD)/mct/; \
          cp -f ./*/*.mod  $(LIBBUILD)/mct/;)
 #
-makemctdyn: configuremctdyn compilemctdyn linkmctdyn linkmpeudyn installmctdyn
+makemctdyn: configuremctdyn compilemctdyn linkmpeudyn linkmctdyn installmctdyn
 
 configuremctdyn:
 	@echo "=> Configuring shared libraries mpeu and mct"
@@ -152,16 +152,16 @@ compilemctdyn:
 	@echo "=> Compiling shared libraries mpeu and mct"
 	@(cd $(LIBBUILDDYN)/mctdir; \
 	 $(MAKE) 1>> $(LOGDYN) 2>> $(ERRDYN) ; )
-linkmctdyn:
-	@echo "=> Creating shared library libmct.so"
-	@(cd $(LIBBUILDDYN)/mctdir ; \
-	 $(F90) $(DYNOPT) $(LDFLAGS) $(LDDYNOPT) \
-         -o $(ARCHDIR)/lib/libmct.so ./mct/*.o $(NETCDF_LIBRARY); )
 linkmpeudyn:
 	@echo "=> Creating shared library libmpeu.so"
 	@(cd $(LIBBUILDDYN)/mctdir ; \
 	 $(F90) $(DYNOPT) $(LDFLAGS) $(LDDYNOPT) \
          -o $(ARCHDIR)/lib/libmpeu.so ./mpeu/*.o $(NETCDF_LIBRARY); )
+linkmctdyn:
+	@echo "=> Creating shared library libmct.so"
+	@(cd $(LIBBUILDDYN)/mctdir ; \
+	 $(F90) $(DYNOPT) $(LDFLAGS) $(LDDYNOPT) \
+         -o $(ARCHDIR)/lib/libmct.so ./mct/*.o -L$(ARCHDIR)/lib -lmpeu $(NETCDF_LIBRARY); )
 installmctdyn:
 	@echo "=> Installing shared libraries mpeu and mct"
 	@(cd $(LIBBUILDDYN)/mctdir ; \
