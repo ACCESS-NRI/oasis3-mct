@@ -8,6 +8,8 @@ examples/*/receiver-serial
 examples/*/*/work
 examples/*/fortran/receiver
 examples/*/fortran/receiver-orange
+examples/*/fortran/receiver_one
+examples/*/fortran/receiver_two
 examples/*/fortran/sender-serial
 examples/*/fortran/sender-apple
 examples/*/fortran/sender-box

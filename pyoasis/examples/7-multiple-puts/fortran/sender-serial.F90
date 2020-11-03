@@ -11,6 +11,7 @@ program sender_serial
    real(kind=8) :: field(n_points)
    integer :: ncpl
    integer, dimension(:), allocatable :: cpl_freqs
+   logical :: ll_rst
 
    print '(2A)', "Component name: ", comp_name
 
@@ -72,7 +73,8 @@ program sender_serial
          call oasis_set_debug(2)
 
          field(:) = (-1.) * date
-         call oasis_put(var_id(2), date, field, kinfo)
+         ll_rst = mod(date, 10800) == 0
+         call oasis_put(var_id(2), date, field, kinfo, write_restart=ll_rst)
          if(kinfo<0) &
             & call oasis_abort(comp_id, comp_name, &
             & "Error in oasis_put: "//trim(var_name(2)), rcode=kinfo)
