@@ -56,6 +56,6 @@ except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
 
 try:
-    pyoasis.terminate()
+    comp.terminate()
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
-    pyoasis.pyoasis_abort(exception)
+    comp.pyoasis_abort(exception)

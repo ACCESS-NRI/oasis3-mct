@@ -54,9 +54,9 @@ for i in range(extent):
     expected_field[i] = offset + i
 
 try:
-    pyoasis.terminate()
+    comp.terminate()
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
-    pyoasis.pyoasis_abort(exception)
+    comp.pyoasis_abort(exception)
 
 epsilon = 1e-8
 error = abs((field - expected_field).sum())
