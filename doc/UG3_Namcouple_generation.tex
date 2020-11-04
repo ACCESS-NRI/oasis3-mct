@@ -158,7 +158,7 @@ must be the first non-blank character on the line but can be in any column.
 \item {\tt \$RUNTIME}: On the line below this keyword, put the total
   simulated time of the run, expressed in seconds (or any other time
   units as long as the same are used in all components and in the {\it
-    namcouple}, see \ref{subsubsec_sendingreceiving}).
+    namcouple}, see \ref{subsubsec_sendingreceiving}). Note that by convention the first coupling of a run occurs at the beginning of the run and all other couplings occur at a time strictly smaller than {\tt \$RUNTIME}.
   % If {\tt \$CHANNEL} is {\tt NONE}, {\tt \$RUNTIME} has to be the
   % number of time occurrences of the field to interpolate from the
   % restart file.
