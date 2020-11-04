@@ -201,15 +201,19 @@ noted with the string UNUSED and not described.
   file containing the corresponding remapping weights and addresses
   exists; if it exists, it reads them from the file; if not, it
   calculates them and store them in a file. The file is created in the
-  working directory and is by default called {\tt rmp\_{\it srcg}\_to\_{\it
-      tgtg}\_{\it INTTYPE}\_{\it NORMAOPT}.nc}, where {\it srcg} and
-  {\it tgtg} are the acronyms of respetively the source and the target
+  working directory and is by default called 
+  {\tt rmp\_{\it srcg}\_to\_{\it tgtg}\_{\it INTTYPE}\_{\it NORMAOPT}.nc}, 
+  {\tt rmp\_{\it srcg}\_to\_{\it tgtg}\_{\it INTTYPE}\_{\it NBRS}.nc}, or 
+  {\tt rmp\_{\it srcg}\_to\_{\it tgtg}\_{\it INTTYPE}.nc}.  
+  {\it srcg} and {\it tgtg} are the acronyms of respetively the source and the target
   grids, {\it INTTYPE} is the interpolation type (i.e. {\tt DISTWGT}, {\tt DISTWGTNF},
   {\tt GAUSWGT}, {\tt GAUSWGTNF}, {\tt BILINEAR}, - {\bf not BILINEA as in OASIS3.3}, 
   {\tt BILINEARNF}, {\tt BICUBIC}, {\tt BICUBICNF}, or
   {\tt CONSERV}).
   Then {\it NORMAOPT} is the normalization
-  option, for {\tt CONSERV} only (i.e. {\tt DESTAREA}, {\tt DESTARTR}, {\tt DESTNNEI} {\tt DESTNNTR}, {\tt FRACAREA}, {\tt FRACARTR},  {\tt FRACNNEI} or {\tt FRACNNTR}, see below). One has to take care that the
+  option, for {\tt CONSERV} only (i.e. {\tt DESTAREA}, {\tt DESTARTR}, {\tt DESTNNEI} {\tt DESTNNTR}, {\tt FRACAREA}, {\tt FRACARTR},  {\tt FRACNNEI} or {\tt FRACNNTR}, see below). {\it NBRS} are the number of
+  neighbors used for {\tt DISTWGT}, {\tt DISTWGTNF}, {\tt GAUSWGT}, or {\tt GAUSWGTNF} only.
+  One has to take care that the
   remapping file will have the same name even if other details, like
   the grid masks or the {\tt \$MAPLOC} or {\tt \$MAPSTRATEGY} options, 
   are changed. When reusing a remapping file, one has
@@ -368,7 +372,7 @@ noted with the string UNUSED and not described.
     The configuring line is:
   \begin{verbatim}
  # SCRIPR (for CONSERV)
-     $CMETH  $CGRS  $CFTYP  $REST  $NBIN  $NORM  $ORDER 
+     $CMETH  $CGRS  $CFTYP  $REST  $NBIN  $NORM  $ORDER $NTHRESH $STHRESH
 \end{verbatim}
     % $
     \vspace{-0.5cm} where:
@@ -419,6 +423,18 @@ noted with the string UNUSED and not described.
       as extra arguments of the {\tt oasis\_put} as {\tt fld2} and {\tt fld3}
       respectively (see section \ref{prismput}). Note that {\tt CONSERV/SECOND} is
       not positive definite.
+    \item {\tt \$NTHRESH} is the value of the northern latitude threshold in radians 
+      where conservative area computation switches from linear boundaries in
+      longitude and latitude at the equator to a Lambert equivalent azimuthal projection
+      toward the north pole.  This value is optional and the default is 2.0 
+      radians (greater than 90 degrees) which means the Lambert projection is 
+      never invoked.  If this value is set, {\tt \$STHRESH} must be set as well.
+    \item {\tt \$STHRESH}  is the value of the southern latitude threshold in radians 
+      where conservative area computation switches from linear boundaries in
+      longitude and latitude at the equator to a Lambert equivalent azimuthal projection
+      toward the south pole.  This value is optional and the default is -2.0 
+      radians (less than -90 degrees) which means the Lambert projection is 
+      never invoked.  If this value is set, {\tt \$NTHRESH} must be set as well.
     \end{itemize}
 
   \end{itemize}
@@ -440,13 +456,15 @@ noted with the string UNUSED and not described.
     
     Therefore for latitudes above the {\tt north\_thresh}
     or below the {\tt south\_thresh} values (see {\tt
-      oasis3-mct/lib/scrip/remap\_conserv.F90}, the library evaluates
+      oasis3-mct/lib/scrip/remap\_conserv.F90}), the library evaluates
     the intersection between two border segments using a Lambert
     equivalent azimuthal projection.  {\bf However, by default, {\tt \bf north\_thresh} and
-    {\tt \bf south\_thresh} are set to 2.0 and -2.0 respectively and the Lambert projection is not activated.} 
+    {\tt \bf south\_thresh} are set to 2.0 and -2.0 radians respectively and the Lambert projection is not activated.} 
     (Note that {\tt north\_thresh} was set to 1.45 in previous versions prior to OASIS3-MCT\_4.0.)
-    
-    Of course, these values ca be changed in {\tt oasis3-mct/lib/scrip/remap\_conserv.F90} and OASIS3-MCT has then to be recompiled to consider the updated values.
+
+    The value of the north and south threshhold can be defined in the 
+    namcouple file via the {\tt \$NTHRESH} and {\tt \$STHRESH} optional settings
+    on the SCRIPR input line.
     
     The analysis of the impact of the Lambert projection for specific grids can be found in \cite{valcke19}.
   

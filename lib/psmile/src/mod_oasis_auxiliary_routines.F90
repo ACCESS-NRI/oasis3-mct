@@ -483,7 +483,7 @@ MODULE mod_oasis_auxiliary_routines
 
        if (msec >= maxtime) then
           write(nulprt,*) subname,' at ',msec,mseclag,'  ERROR: ',trim(vname)
-          write(nulprt,*) subname,estr,'model time beyond namcouple maxtime',&
+          write(nulprt,*) subname,estr,'model time must be strictly smaller than namcouple $RUNTIME =',&
                           msec,maxtime
           call oasis_abort(file=__FILE__,line=__LINE__)
        endif

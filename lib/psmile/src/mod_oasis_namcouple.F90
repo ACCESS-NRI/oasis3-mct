@@ -85,6 +85,8 @@ MODULE mod_oasis_namcouple
   CHARACTER(len=ic_med)   ,public,pointer :: namscrres(:)  !< scrip search restriction (LATLON, LATITUDE)
   REAL (kind=ip_realwp_p) ,public,pointer :: namscrvam(:)  !< scrip gauss weight distance weighting for GAUSWGT
   INTEGER(kind=ip_i4_p)   ,public,pointer :: namscrnbr(:)  !< scrip number of neighbors for GAUSWGT and DISTWGT
+  REAL (kind=ip_realwp_p) ,public,pointer :: namscrnth(:)  !< scrip conserv north threshold
+  REAL (kind=ip_realwp_p) ,public,pointer :: namscrsth(:)  !< scrip conserv south threshold
   INTEGER(kind=ip_i4_p)   ,public,pointer :: namscrbin(:)  !< script number of search bins
 
   !--- derived ---
@@ -221,6 +223,8 @@ MODULE mod_oasis_namcouple
   REAL (kind=ip_realwp_p), DIMENSION(:), ALLOCATABLE :: afldcoef
   REAL (kind=ip_realwp_p), DIMENSION(:), ALLOCATABLE :: afldcobo
   REAL (kind=ip_realwp_p), DIMENSION(:), ALLOCATABLE :: afldcobn
+  REAL (kind=ip_realwp_p), DIMENSION(:),ALLOCATABLE :: anthresh
+  REAL (kind=ip_realwp_p), DIMENSION(:),ALLOCATABLE :: asthresh
   CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cxordbf
   CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cyordbf
   CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cxordaf
@@ -449,6 +453,12 @@ SUBROUTINE oasis_namcouple_init()
   allocate(namscrnbr(ig_final_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "namscrnbr" allocation of experiment module',il_err,1)
 
+  allocate(namscrnth(ig_final_nfield), stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "namscrnth" allocation of experiment module',il_err,1)
+
+  allocate(namscrsth(ig_final_nfield), stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "namscrsth" allocation of experiment module',il_err,1)
+
   allocate(namscrbin(ig_final_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "namscrbin" allocation of experiment module',il_err,1)
 
@@ -486,6 +496,8 @@ SUBROUTINE oasis_namcouple_init()
   namscrres(:) = TRIM(cspval)
   namscrvam(:) = 1.0_ip_realwp_p
   namscrnbr(:) = -1
+  namscrnth(:) =  2.0_ip_realwp_p  ! scrip default
+  namscrsth(:) = -2.0_ip_realwp_p  ! scrip default
   namscrbin(:) = -1
 
 !  maxunit = max(maxval(iga_unitmod),1024)
@@ -552,6 +564,8 @@ SUBROUTINE oasis_namcouple_init()
               namscrvam(jf) =      varmul     (ig_number_field(jf))
               namscrnbr(jf) =      nscripvoi  (ig_number_field(jf))
               namscrbin(jf) =      nbins      (ig_number_field(jf))
+              namscrnth(jf) =      anthresh   (ig_number_field(jf))
+              namscrsth(jf) =      asthresh   (ig_number_field(jf))
               IF (TRIM(namscrtyp(jf)) /= 'SCALAR') THEN
                  WRITE(tmpstr1,*) subname,jf,'WARNING: SCRIPR weights generation &
                    & supported only for SCALAR mapping, not '//TRIM(namscrtyp(jf))
@@ -658,6 +672,8 @@ SUBROUTINE oasis_namcouple_init()
         WRITE(nulprt1,*) subname,n,'namscrres ',TRIM(namscrres(n))
         WRITE(nulprt1,*) subname,n,'namscrvam ',namscrvam(n)
         WRITE(nulprt1,*) subname,n,'namscrnbr ',namscrnbr(n)
+        WRITE(nulprt1,*) subname,n,'namscrnth ',namscrnth(n)
+        WRITE(nulprt1,*) subname,n,'namscrsth ',namscrsth(n)
         WRITE(nulprt1,*) subname,n,'namscrbin ',namscrbin(n)
         WRITE(nulprt1,*) ' '
         CALL oasis_flush(nulprt1)
@@ -2383,10 +2399,26 @@ SUBROUTINE inipar
                        WRITE(nulprt1,*) '    '
                     ENDIF
                     CALL prtout('ERROR in namcouple for CONSERV for field',jf,1)
-                    WRITE(tmpstr1,*) '==> FIRST must be indicated at end of line'
+                    WRITE(tmpstr1,*) '==> ORDER must be indicated as 7th argument of line'
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
                  ENDIF
                  READ(clvari, FMT=2009) corder(ig_number_field(jf))                   
+!* Get north_threshold and south_threshold of remapping for CONSERV
+                 CALL parse(clline, clvari, 8, jpeighty, ilen, __LINE__)
+                 IF (ilen .gt. 0) THEN
+                    READ(clvari, FMT=2006) anthresh(ig_number_field(jf))
+                    CALL parse(clline, clvari, 9, jpeighty, ilen, __LINE__)
+                    IF (ilen .gt. 0) THEN
+                       READ(clvari, FMT=2006) asthresh(ig_number_field(jf))
+                    ELSE
+                       IF (mpi_rank_global == 0) THEN
+                          WRITE(nulprt1,*) '    '
+                       ENDIF
+                       CALL prtout('ERROR in namcouple for CONSERV for field',jf,1)
+                       WRITE(tmpstr1,*) '==> NTHRESH and STHRESH must both appear if one does'
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1)
+                    ENDIF
+                 ENDIF
               ELSE
                  cnorm_opt(ig_number_field(jf))='NONORM'
               ENDIF
@@ -2677,6 +2709,8 @@ SUBROUTINE inipar
                        nbins(ig_number_field(jf))
                     IF (cmap_method(ig_number_field(jf)) .EQ. 'CONSERV') THEN 
                        WRITE(nulprt1, FMT=3046) TRIM(corder(ig_number_field(jf)))
+                       WRITE(nulprt1, FMT=3049) anthresh(ig_number_field(jf))
+                       WRITE(nulprt1, FMT=3050) asthresh(ig_number_field(jf))
                     ENDIF  
                  ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'CONSERV') THEN            
                     WRITE(nulprt1, FMT=3025)  &
@@ -2800,6 +2834,8 @@ SUBROUTINE inipar
  3048 FORMAT(5X,' Remapping filename is             = ',A, &
            /,5X,' Mapping location is               = ',A, &
            /,5X,' Mapping optimization is           = ',A)
+ 3049 FORMAT(5X,' North threshold is                = ',E15.6)
+ 3050 FORMAT(5X,' South threshold is                = ',E15.6)
 
 END SUBROUTINE inipar
 
@@ -2989,6 +3025,12 @@ SUBROUTINE alloc()
   ALLOCATE (corder(ig_nfield),stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "corder"allocation of '//TRIM(subname),il_err,1)
   corder(:)=' '
+  ALLOCATE (anthresh(ig_nfield),stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "anthresh"allocation of '//TRIM(subname),il_err,1)
+  anthresh(:)= 2.0_ip_realwp_p
+  ALLOCATE (asthresh(ig_nfield),stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "asthresh"allocation of '//TRIM(subname),il_err,1)
+  asthresh(:)= -2.0_ip_realwp_p
 !
   !--- alloc_extrapol1
   ALLOCATE (niwtn(ig_nfield), stat=il_err)
@@ -3206,6 +3248,10 @@ SUBROUTINE dealloc()
   IF (il_err.NE.0) CALL prtout('Error in "cnorm_opt"deallocation of scrip module',il_err,1)
   DEALLOCATE (corder,stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "corder"deallocation of scrip module',il_err,1)
+  DEALLOCATE (anthresh,stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "anthresh"deallocation of scrip module',il_err,1)
+  DEALLOCATE (asthresh,stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "asthresh"deallocation of scrip module',il_err,1)
   !
   !--- alloc_extrapol1
   DEALLOCATE (niwtn, stat=il_err)

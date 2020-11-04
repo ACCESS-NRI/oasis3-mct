@@ -938,15 +938,17 @@ All processes of components at least partly involved in the coupling (e.g. {\tt 
 The following auxiliary routines are currently available.
 
 \begin{itemize}
-\item {\tt CALL oasis\_abort (compid, routine\_name, abort\_message, rcode)}
+\item {\tt CALL oasis\_abort (compid, routine\_name, abort\_message, file, line, rcode)}
 \item {\tt CALL prism\_abort\_proto(compid, routine\_name,
-    abort\_message)}
+    abort\_message, file, line, rcode)}
   \begin{itemize}
   \item {\tt compid [INTEGER; IN]}: component ID (from {\tt
       oasis\_init\_comp})
-  \item {\tt routine\_name[CHARACTER*; IN]}: name of calling routine
-  \item {\tt abort\_message[CHARACTER*; IN]}: message to be written
+  \item {\tt routine\_name [CHARACTER*; IN]}: name of calling routine
+  \item {\tt abort\_message [CHARACTER*; IN]}: message to be written
     out.
+  \item {\tt file [CHARACTER*; OPTIONAL; IN]}: file from which oasis\_abort is called from
+  \item {\tt line [INTEGER, OPTIONAL; IN]}: line in file from which oasis\_abort is called from
   \item {\tt rcode [INTEGER, OPTIONAL; IN]}: Optional argument. When OASIS 
     aborts, it returns rcode if it is present, else it returns 1
   \end{itemize}
