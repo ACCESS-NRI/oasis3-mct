@@ -51,7 +51,7 @@ program sender_serial
    print '(3A,2I6)', &
       & "Sender: coupling frequencies for ",trim(var_name(2)), " are ", cpl_freqs(:)
 
-   do date= 0, 43200
+   do date= 0, 43199
 
       call oasis_put_inquire(var_id(1), date, kinfo)
       if(kinfo<0) call oasis_abort(comp_id, comp_name, &

@@ -59,7 +59,7 @@ program receiver_two
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_get_freqs: ", rcode=kinfo)
 
-   do date = 0, 43200
+   do date = 0, 43199
 
       if (any(mod(date,cpl_freqs_1) == 0)) then
          field(:) = 0

@@ -13,7 +13,7 @@ $END
 $RUNTIME
 # The total simulated time for this run in seconds
 #
-  43201
+  43200
 $END
 ###########################################################################
 $NLOGPRT
