@@ -23,7 +23,7 @@ field = pyoasis.asarray(np.zeros(n_points, dtype=np.float64))
 print("Recv_two: coupling frequencies for {} = ".format(var_1.name),var_1.cpl_freqs)
 print("Recv_two: coupling frequencies for {} = ".format(var_2.name),var_2.cpl_freqs)
 
-for date in range(43201):
+for date in range(43200):
     if any([date%freq == 0 for freq in var_1.cpl_freqs]):
         var_1.get(date,field)
         if abs((field - date).sum()) < 1.e-8:

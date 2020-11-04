@@ -19,7 +19,7 @@ comp.enddef()
 
 print("Sender: coupling frequencies for {} are ".format(var_2.name),var_2.cpl_freqs, flush=True)
 
-for date in range(43201):
+for date in range(43200):
     
     if var_1.put_inquire(date) == OASIS.SENT:
         var_1.put(date,pyoasis.asarray([date], dtype=np.float64))
