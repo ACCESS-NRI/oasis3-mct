@@ -665,7 +665,7 @@ contains
 
        if (msec >= maxtime) then
           write(nulprt,*) subname,estr,'at ',msec,mseclag,' for var = ',trim(vname)
-          write(nulprt,*) subname,estr,'model time beyond namcouple maxtime = ',msec,maxtime
+          write(nulprt,*) subname,estr,'model time must be strictly smaller than namcouple $RUNTIME = ',msec,maxtime
           call oasis_abort(file=__FILE__,line=__LINE__)
        endif
 
