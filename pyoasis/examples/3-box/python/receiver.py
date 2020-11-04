@@ -26,7 +26,7 @@ comp.enddef()
 date = int(0)
 field = pyoasis.asarray(numpy.zeros(n_points))
 
-variable.get(date, field)
+print(variable.get(date, field))
 
 expected_field = pyoasis.asarray(range(n_points))
 epsilon = 1e-8

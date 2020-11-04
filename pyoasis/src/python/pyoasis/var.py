@@ -99,6 +99,11 @@ class Var:
         if error < 0:
             raise pyoasis.OasisException("Error in sending data to another component", error)
 
+        try:
+            return pyoasis.OasisParameters(error)
+        except ValueError:
+            raise pyoasis.OasisException("Error in put: returned value not mapped to Oasis parameters", -1)
+
     def get(self, kstep, field):
         """
         Gets data from another model.
@@ -114,6 +119,11 @@ class Var:
         error = pyoasis.mod_oasis_getput_interface.get(self.var_id, kstep, field)
         if error < 0:
             raise pyoasis.OasisException("Error in getting data from another component", error)
+
+        try:
+            return pyoasis.OasisParameters(error)
+        except ValueError:
+            raise pyoasis.OasisException("Error in get: returned value not mapped to Oasis parameters", -1)
 
     def __str__(self):
         return "Variable data: name: " + self.name + ", id: " + str(self.var_id)

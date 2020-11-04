@@ -28,7 +28,7 @@ data = [[0, 1, 4, 5], [2, 3, 6, 7],
         [8, 9, 12, 13], [10, 11, 14, 15]]
 field = pyoasis.asarray(data[rank])
 
-variable.put(date, field)
+print(variable.put(date, field))
 
 if rank%2 == 0:
     comp.terminate()
