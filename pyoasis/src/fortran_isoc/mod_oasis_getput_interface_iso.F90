@@ -21,7 +21,8 @@ subroutine oasis_put_iso_double(var_id, &
                                 kstep, &
                                 size1, size2, size3, &
                                 field, &
-                                kinfo) BIND(C)
+                                kinfo, &
+                                write_restart) BIND(C)
                              
   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
   use cbindings
@@ -38,28 +39,31 @@ subroutine oasis_put_iso_double(var_id, &
   
   implicit none
 
-  integer (c_int), intent(in)         :: var_id
-  integer (c_int), intent(in)         :: kstep
-  integer (c_int), intent(in)         :: size1, size2, size3
-  real (c_double), intent(in), target :: field(size1*size2*size3)
-  integer (c_int), intent(out)        :: kinfo
+  integer (c_int),  intent(in)         :: var_id
+  integer (c_int),  intent(in)         :: kstep
+  integer (c_int),  intent(in)         :: size1, size2, size3
+  real (c_double),  intent(in), target :: field(size1*size2*size3)
+  integer (c_int),  intent(out)        :: kinfo
+  logical (c_bool), intent(in)         :: write_restart
   integer :: var_id_f
   integer :: kstep_f
   integer :: kinfo_f
+  logical :: write_restart_f
   real (c_double), pointer :: field2(:,:)
   real (c_double), pointer :: field3(:,:,:)
   
   var_id_f=var_id
   kstep_f=kstep
+  write_restart_f=write_restart
 
   if(size3>1) then
     field3(1:size1,1:size2,1:size3)=>field(:)
-    call oasis_put(var_id_f, kstep_f, field3, kinfo_f)
+    call oasis_put(var_id_f, kstep_f, field3, kinfo_f, write_restart=write_restart_f)
   else if(size2>1) then
     field2(1:size1,1:size2)=>field(:)
-    call oasis_put(var_id_f, kstep_f, field2, kinfo_f)
+    call oasis_put(var_id_f, kstep_f, field2, kinfo_f, write_restart=write_restart_f)
   else
-    call oasis_put(var_id_f, kstep_f, field, kinfo_f)
+    call oasis_put(var_id_f, kstep_f, field, kinfo_f, write_restart=write_restart_f)
   end if
     
   kinfo=kinfo_f
@@ -115,7 +119,8 @@ subroutine oasis_put_iso_float(var_id, &
                                kstep, &
                                size1, size2, size3, &
                                field, &
-                               kinfo) BIND(C)
+                               kinfo, &
+                               write_restart) BIND(C)
                              
   use iso_c_binding, only: c_int, c_float, c_ptr, c_bool
   use cbindings
@@ -132,28 +137,31 @@ subroutine oasis_put_iso_float(var_id, &
   
   implicit none
 
-  integer (c_int), intent(in)         :: var_id
-  integer (c_int), intent(in)         :: kstep
-  integer (c_int), intent(in)         :: size1, size2, size3
-  real (c_float),  intent(in), target :: field(size1*size2*size3)
-  integer (c_int), intent(out)        :: kinfo
+  integer (c_int),  intent(in)         :: var_id
+  integer (c_int),  intent(in)         :: kstep
+  integer (c_int),  intent(in)         :: size1, size2, size3
+  real (c_float),   intent(in), target :: field(size1*size2*size3)
+  integer (c_int),  intent(out)        :: kinfo
+  logical (c_bool), intent(in)         :: write_restart
   integer :: var_id_f
   integer :: kstep_f
   integer :: kinfo_f
+  logical :: write_restart_f
   real (c_float), pointer :: field2(:,:)
   real (c_float), pointer :: field3(:,:,:)
   
   var_id_f=var_id
   kstep_f=kstep
+  write_restart_f=write_restart
 
   if(size3>1) then
     field3(1:size1,1:size2,1:size3)=>field(:)
-    call oasis_put(var_id_f, kstep_f, field3, kinfo_f)
+    call oasis_put(var_id_f, kstep_f, field3, kinfo_f, write_restart=write_restart_f)
   else if(size2>1) then
     field2(1:size1,1:size2)=>field(:)
-    call oasis_put(var_id_f, kstep_f, field2, kinfo_f)
+    call oasis_put(var_id_f, kstep_f, field2, kinfo_f, write_restart=write_restart_f)
   else
-    call oasis_put(var_id_f, kstep_f, field, kinfo_f)
+    call oasis_put(var_id_f, kstep_f, field, kinfo_f, write_restart=write_restart_f)
   end if
     
   kinfo=kinfo_f

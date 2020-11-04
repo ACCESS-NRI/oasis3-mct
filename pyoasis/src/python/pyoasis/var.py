@@ -83,19 +83,20 @@ class Var:
         """
         return self.name
 
-    def put(self, kstep, field):
+    def put(self, kstep, field, write_restart=False):
         """
         Sends data to another model.
 
         :param int kstep: model time (in seconds)
         :param pyoasis.asarray field: data
+        :param bool write_restart: optional flag for writing a restart file
 
         :raises OasisException: if OASIS is unable to send \
          data to the other component
         :raises PyOasisException: if an incorrect parameter is supplied 
         """
-        pyoasis.check_types([int, numpy.ndarray], [kstep, field])
-        error = pyoasis.mod_oasis_getput_interface.put(self.var_id, kstep, field)
+        pyoasis.check_types([int, numpy.ndarray, bool], [kstep, field, write_restart])
+        error = pyoasis.mod_oasis_getput_interface.put(self.var_id, kstep, field, write_restart)
         if error < 0:
             raise pyoasis.OasisException("Error in sending data to another component", error)
 

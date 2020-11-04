@@ -41,10 +41,10 @@ def get_sizes(field):
 
 LIB.put.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
                     ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
-                    ctypes.POINTER(ctypes.c_int)]
+                    ctypes.POINTER(ctypes.c_int), ctypes.c_bool]
 
 
-def put(var_id, kstep, field):
+def put(var_id, kstep, field, write_restart):
     """Send 8-byte multidimensional field"""
     sizes = get_sizes(field)
     error = c_int(0)
@@ -56,7 +56,7 @@ def put(var_id, kstep, field):
     else:
         raise pyoasis.PyOasisException("Data type of field can only by float32 or float64")
     LIB.put(var_id, kstep, sizes[0], sizes[1], sizes[2], kind,
-            p_field, error)
+            p_field, error, write_restart)
     return error.value
 
 
