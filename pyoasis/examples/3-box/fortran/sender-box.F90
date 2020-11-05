@@ -10,6 +10,8 @@ program sender_box
    character(len=13) :: comp_name = "sender-box"
    character(len=8) :: var_name = "FSENDOCN"
    real, allocatable :: field(:)
+   integer :: intra_comm, intra_rank, intra_size
+   integer :: inter_comm, inter_rank, inter_size
 
    print '(2A)', "Component name: ", comp_name
 
@@ -50,6 +52,22 @@ program sender_box
    call oasis_enddef(kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_enddef: ", rcode=kinfo)
+
+   call oasis_get_intracomm(intra_comm,"receiver",kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      &"Error in oasis_get_intracomm: ", rcode=kinfo)
+
+   call mpi_comm_size(intra_comm, intra_size, kinfo)
+   call mpi_comm_rank(intra_comm, intra_rank, kinfo)
+   print '(A,I0,A,I0)', "Sender intra_comm: rank = ",intra_rank, " of ",intra_size
+
+   call oasis_get_intercomm(inter_comm,"receiver",kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      &"Error in oasis_get_intercomm: ", rcode=kinfo)
+
+   call mpi_comm_size(inter_comm, inter_size, kinfo)
+   call mpi_comm_rank(inter_comm, inter_rank, kinfo)
+   print '(A,I0,A,I0)', "Sender inter_comm: rank = ",inter_rank, " of ",inter_size
 
    allocate(field(local_size))
    field=[offsets(comm_rank+1)+1, offsets(comm_rank+1)+2,&

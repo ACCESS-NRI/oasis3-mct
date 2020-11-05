@@ -12,6 +12,8 @@ program sender_serial
    integer :: ncpl
    integer, dimension(:), allocatable :: cpl_freqs
    logical :: ll_rst
+   integer :: intra_one, intra_rank, intra_size
+   integer :: inter_two, inter_rank, inter_size
 
    print '(2A)', "Component name: ", comp_name
 
@@ -38,6 +40,22 @@ program sender_serial
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       &"Error in oasis_enddef: ", rcode=kinfo)
 
+   call oasis_get_intracomm(intra_one,"receiver_one",kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      &"Error in oasis_get_intracomm: ", rcode=kinfo)
+
+   call mpi_comm_size(intra_one, intra_size, kinfo)
+   call mpi_comm_rank(intra_one, intra_rank, kinfo)
+   print '(A,I0,A,I0)', "Sender intra_one: rank = ",intra_rank, " of ",intra_size
+
+   call oasis_get_intercomm(inter_two,"receiver_two",kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      &"Error in oasis_get_intercomm: ", rcode=kinfo)
+
+   call mpi_comm_size(inter_two, inter_size, kinfo)
+   call mpi_comm_rank(inter_two, inter_rank, kinfo)
+   print '(A,I0,A,I0)', "Sender inter_two: rank = ",inter_rank, " of ",inter_size
+   
    call oasis_get_ncpl(var_id(2), ncpl, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_get_ncpl: ", rcode=kinfo)

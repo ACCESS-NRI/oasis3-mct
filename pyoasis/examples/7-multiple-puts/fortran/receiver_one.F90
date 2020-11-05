@@ -13,6 +13,7 @@ program receiver_one
    integer :: ncpl
    integer, dimension(:), allocatable :: cpl_freqs_1
    integer, dimension(:), allocatable :: cpl_freqs_2
+   integer :: intra_one, intra_rank, intra_size
 
    print '(2A)', "Component name: ", comp_name
 
@@ -40,6 +41,14 @@ program receiver_one
    call oasis_enddef(kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_enddef: ", rcode=kinfo)
+
+   call oasis_get_intracomm(intra_one, "sender-serial", kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      &"Error in oasis_get_intracomm: ", rcode=kinfo)
+   
+   call mpi_comm_size(intra_one, intra_size, kinfo)
+   call mpi_comm_rank(intra_one, intra_rank, kinfo)
+   print '(A,I0,A,I0)', "Recv_one intra_one: rank = ",intra_rank, " of ",intra_size
 
    call oasis_get_ncpl(var_id(1), ncpl, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &

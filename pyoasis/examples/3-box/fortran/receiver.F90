@@ -9,6 +9,8 @@ program receiver
    character(len=8) :: comp_name = "receiver"
    character(len=8) :: var_name = "FRECVATM"
    real(kind=8) :: field(n_points), error, epsilon
+   integer :: intra_comm, intra_rank, intra_size
+   integer :: inter_comm, inter_rank, inter_size
 
    print '(2A)', "Component name: ", comp_name
 
@@ -34,6 +36,22 @@ program receiver
    call oasis_enddef(kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_enddef: ", rcode=kinfo)
+
+   call oasis_get_intracomm(intra_comm,"sender-box",kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      &"Error in oasis_get_intracomm: ", rcode=kinfo)
+
+   call mpi_comm_size(intra_comm, intra_size, kinfo)
+   call mpi_comm_rank(intra_comm, intra_rank, kinfo)
+   print '(A,I0,A,I0)', "Receiver intra_comm: rank = ",intra_rank, " of ",intra_size
+
+   call oasis_get_intercomm(inter_comm,"sender-box",kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      &"Error in oasis_get_intercomm: ", rcode=kinfo)
+
+   call mpi_comm_size(inter_comm, inter_size, kinfo)
+   call mpi_comm_rank(inter_comm, inter_rank, kinfo)
+   print '(A,I0,A,I0)', "Receiver inter_comm: rank = ",inter_rank, " of ",inter_size
 
    date=0
 
