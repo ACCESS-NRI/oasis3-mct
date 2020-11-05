@@ -121,7 +121,7 @@ class Component(object):
         """
    
         :param int icpl: coupling switch (1 coupled process, 0 not coupled)
-        :returns: the coupling communicator
+        :returns: error code
         :rtype: int
         :raises OasisException: if OASIS is unable to create the coupling \
                                 communicator
@@ -159,6 +159,44 @@ class Component(object):
         self.couplcomm = couplcomm
 
         return error
+
+    def get_intracomm(self, compname):
+        """
+
+        :param string compname: name of the other component in the intracommunicator
+        :returns: the intracommunicator
+        :rtype: MPI.communicator
+        :raises OasisException: if OASIS is unable to create the intracommunicator
+        :raises PyOasisException: if an incorrect parameter is supplied
+        """
+        pyoasis.check_types([str],[compname])
+        new_comm, error = pyoasis.mod_oasis_auxiliary_routines.get_intracomm(compname)
+        if error < 0:
+            raise pyoasis.OasisException("Error in get_intracomm", error)
+        try:
+            return MPI.Comm.f2py(new_comm)
+        except MPI.Exception:
+            raise pyoasis.OasisException("Error in get_intracomm conversion", -1)
+
+
+    def get_intercomm(self, compname):
+        """
+
+        :param string compname: name of the other component in the intercommunicator
+        :returns: the intercommunicator
+        :rtype: MPI.communicator
+        :raises OasisException: if OASIS is unable to create the intercommunicator
+        :raises PyOasisException: if an incorrect parameter is supplied
+        """
+        pyoasis.check_types([str],[compname])
+        new_comm, error = pyoasis.mod_oasis_auxiliary_routines.get_intercomm(compname)
+        if error < 0:
+            raise pyoasis.OasisException("Error in get_intercomm", error)
+        try:
+            return MPI.Comm.f2py(new_comm)
+        except MPI.Exception:
+            raise pyoasis.OasisException("Error in get_intercomm conversion", -1)
+
 
     @staticmethod
     def enddef():

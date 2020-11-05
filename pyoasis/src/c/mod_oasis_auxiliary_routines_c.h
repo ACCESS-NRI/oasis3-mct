@@ -56,7 +56,9 @@ void create_couplcomm(int icpl, int allcomm, int* cplcomm, int* error);
 
 void set_couplcomm(int localcomm, int* kinfo);
 
-void get_intracomm(int new_comm, char* cdnam, int* error);
+void get_intercomm(int* new_comm, char* cdnam, int* error);
+
+void get_intracomm(int* new_comm, char* cdnam, int* error);
 
 void set_debug(int debug, int* kinfo);
 

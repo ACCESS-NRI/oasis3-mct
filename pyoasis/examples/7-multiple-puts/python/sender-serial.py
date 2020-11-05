@@ -17,6 +17,12 @@ print("Sender ",var_2)
 
 comp.enddef()
 
+intra_one = comp.get_intracomm("receiver_one")
+print("Sender intra_one: rank = {} of {}".format(intra_one.rank, intra_one.size))
+
+inter_two = comp.get_intracomm("receiver_two")
+print("Sender inter_two: rank = {} of {}".format(inter_two.rank, inter_two.size))
+
 print("Sender: coupling frequencies for {} are ".format(var_2.name),var_2.cpl_freqs, flush=True)
 
 for date in range(43200):

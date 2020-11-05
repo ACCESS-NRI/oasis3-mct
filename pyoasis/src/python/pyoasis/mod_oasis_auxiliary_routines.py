@@ -64,7 +64,7 @@ def set_couplcomm(couplcomm):
     return error.value
 
 
-LIB.get_intercomm.argtypes = [ctypes.c_int, ctypes.c_char_p,
+LIB.get_intercomm.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_char_p,
                               ctypes.POINTER(ctypes.c_int)]
 
 
@@ -76,7 +76,7 @@ def get_intercomm(cdnam):
     return new_comm.value, error.value
 
 
-LIB.get_intracomm.argtypes = [ctypes.c_int, ctypes.c_char_p,
+LIB.get_intracomm.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_char_p,
                               ctypes.POINTER(ctypes.c_int)]
 
 

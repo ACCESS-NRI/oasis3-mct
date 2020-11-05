@@ -32,12 +32,12 @@ void set_couplcomm(int localcomm, int* kinfo){
   set_couplcomm_iso(&localcomm, kinfo);   
 }
 
-void get_intercomm(int new_comm, char* cdnam, int* error){
-  get_intercomm_iso(&new_comm, &cdnam, error);   
+void get_intercomm(int* new_comm, char* cdnam, int* error){
+  get_intercomm_iso(new_comm, &cdnam, error);   
 }
 
-void get_intracomm(int new_comm, char* cdnam, int* error){
-  get_intracomm_iso(&new_comm, &cdnam, error);
+void get_intracomm(int* new_comm, char* cdnam, int* error){
+  get_intracomm_iso(new_comm, &cdnam, error);
 }
 
 void set_debug(int debug, int* kinfo){

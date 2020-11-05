@@ -18,6 +18,9 @@ print("Recv_one ",var_2)
 
 comp.enddef()
 
+intra_one = comp.get_intracomm("sender-serial")
+print("Recv_one intra_one: rank = {} of {}".format(intra_one.rank, intra_one.size))
+
 field = pyoasis.asarray(np.zeros(n_points, dtype=np.float64))
 
 print("Recv_one: coupling frequencies for {} = ".format(var_1.name),var_1.cpl_freqs)
