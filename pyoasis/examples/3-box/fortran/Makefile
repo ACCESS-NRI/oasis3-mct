@@ -1,5 +1,5 @@
 include ../../../../util/make_dir/make.inc
-FLAGS=$(F90FLAGS_1) -I$(ARCHDIR)/include -I$(NETCDF_INCLUDE) -L$(ARCHDIR)/lib
+FLAGS=$(F90FLAGS) -I$(ARCHDIR)/include -I$(NETCDF_INCLUDE) -L$(ARCHDIR)/lib
 
 all: sender-box receiver
 
