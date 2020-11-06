@@ -104,10 +104,70 @@ program writer
    call oasis_write_frac('pyoa', nx_global, ny_global, frac, part_id, companion='STFC')
 
    allocate(area(nx_loc,ny_loc))
-   dp_conv = ATAN(1.)/45. 
+   dp_conv = ATAN(1.)/45.
    area(:,:) = dp_conv * abs(sin(cla(:,:,3)*dp_conv)-sin(cla(:,:,1)*dp_conv)) * &
       & abs(clo(:,:,2)-clo(:,:,1))
    call oasis_write_area('pyoa', nx_global, ny_global, area, part_id)
+
+   deallocate(lon, lat)
+   deallocate(clo, cla)
+   deallocate(imsk)
+   deallocate(frac, area)
+
+   if ( comm_rank == 0 ) then
+      nx_global = 180
+      ny_global = 90
+
+      dx = 360/nx_global
+      dy = 180/ny_global
+
+      allocate(lon(nx_global,ny_global))
+      allocate(lat(nx_global,ny_global))
+      do j = 1, ny_global
+         lon(:,j) = [(real(i)*dx - dx/2, i=1,nx_global)]
+      end do
+      do i = 1, nx_global
+         lat(i,:) = [(-90.0 + real(j)*dy - dy/2, j=1,ny_global)]
+      end do
+      call oasis_write_grid('mono', nx_global, ny_global, lon, lat)
+
+      allocate(clo(nx_global,ny_global,ncrn))
+      allocate(cla(nx_global,ny_global,ncrn))
+      do j = 1, ny_global
+         clo(:,j,1) = [(real(i-1)*dx, i=1,nx_global)]
+         clo(:,j,2) = [(real(i)*dx, i=1,nx_global)]
+         clo(:,j,3) = clo(:,j,2)
+         clo(:,j,4) = clo(:,j,1)
+      end do
+      do i = 1, nx_global
+         cla(i,:,1) = [(-90.0 + real(j-1)*dy, j=1,ny_global)]
+         cla(i,:,2) = cla(i,:,1)
+         cla(i,:,3) = [(-90.0 + real(j)*dy, j=1,ny_global)]
+         cla(i,:,4) = cla(i,:,3)
+      end do
+      call oasis_write_corner('mono', nx_global, ny_global, ncrn, clo, cla)
+
+      allocate(imsk(nx_global,ny_global))
+      imsk(:,:) = 0
+      where((lon-180)*(lon-180)+lat*lat < 900.) imsk = 1
+      call oasis_write_mask('mono', nx_global, ny_global, imsk)
+
+      allocate(frac(nx_global,ny_global))
+      frac(:,:) = 1.
+      where(imsk == 1) frac = 0.
+      call oasis_write_frac('mono', nx_global, ny_global, frac)
+
+      allocate(area(nx_global,ny_global))
+      dp_conv = atan(1.)/45.
+      area(:,:) = dp_conv * abs(sin(cla(:,:,3)*dp_conv)-sin(cla(:,:,1)*dp_conv)) * &
+         & abs(clo(:,:,2)-clo(:,:,1))
+      call oasis_write_area('mono', nx_global, ny_global, area)
+
+      deallocate(lon, lat)
+      deallocate(clo, cla)
+      deallocate(imsk)
+      deallocate(frac, area)
+   end if
    
    call oasis_terminate_grids_writing()
    
@@ -115,11 +175,6 @@ program writer
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_enddef: ", rcode=kinfo)
 
-   deallocate(lon, lat)
-   deallocate(clo, cla)
-   deallocate(imsk)
-   deallocate(frac, area)
-   
    call oasis_terminate(kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_terminate: ", rcode=kinfo)

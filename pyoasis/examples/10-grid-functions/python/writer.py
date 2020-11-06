@@ -70,12 +70,12 @@ elif comm_rank == 2:
     msk[7:11,2:4] = 1
     msk[7:11,14:16] = 1
 
-grid.set_mask(msk)
+grid.set_mask(msk, companion="STFC")
 
 frc = np.ones((nx_loc,ny_loc), dtype=np.float64)
 frc = np.where(msk==1, 0.0, 1.0)
 
-grid.set_frac(frc)
+grid.set_frac(frc, companion="STFC")
 
 area = np.zeros((nx_loc,ny_loc), dtype=np.float64)
 area[:,:] = dp_conv * \
