@@ -23,6 +23,7 @@
 
 import pyoasis
 import ctypes
+import numpy as np
 from numpy import float32, float64
 from ctypes import c_int, cdll, CDLL
 
@@ -32,10 +33,8 @@ LIB = CDLL("liboasis.C.bindings.so")
 
 def get_sizes(field):
     """Creates an array containing the dimensions of multidimensional fields"""
-    sizes = list(field.shape)
-    n_dimensions_left = 3 - len(sizes)
-    for i in range(n_dimensions_left):
-        sizes.append(1)
+    sizes = np.ones(3, np.int32)
+    sizes[:field.ndim] = field.shape
     return sizes
 
 
