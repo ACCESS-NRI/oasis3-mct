@@ -41,4 +41,4 @@ for date in range(43200):
         else:
             print("Warning: Recv_two at time {} got {} instead of {}".format(date,field[0],date))
 
-comp.terminate()
+del comp

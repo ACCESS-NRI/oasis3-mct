@@ -38,4 +38,4 @@ field = pyoasis.asarray(indices)
 
 variable.put(date, field)
 
-comp.terminate()
+del comp

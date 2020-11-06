@@ -163,4 +163,4 @@ for img in range(2):
 
 plt.show()
 
-comp.terminate()
+del comp

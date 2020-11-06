@@ -59,4 +59,4 @@ if icpl == 1:
     
     variable.put(date, field)
 
-comp.terminate()
+del comp

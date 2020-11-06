@@ -90,4 +90,4 @@ if comm_rank == 0:
 
 variable.put(date, bundle)
 
-comp.terminate()
+del comp

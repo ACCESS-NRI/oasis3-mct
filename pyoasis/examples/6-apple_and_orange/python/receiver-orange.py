@@ -44,4 +44,4 @@ error = abs((field-expected_field).sum())
 if error < epsilon:
     print("Data received successfully")
 
-comp.terminate()
+del comp

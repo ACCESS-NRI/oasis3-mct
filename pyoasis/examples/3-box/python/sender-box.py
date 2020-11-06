@@ -37,4 +37,4 @@ field = pyoasis.asarray(data[rank])
 print(variable.put(date, field))
 
 if rank%2 == 0:
-    comp.terminate()
+    del comp

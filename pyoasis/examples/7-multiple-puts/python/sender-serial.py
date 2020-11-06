@@ -37,4 +37,4 @@ for date in range(43200):
         if date == 0:
             print("PyOasis debug level set to {}".format(comp.debug_level))
         
-comp.terminate()
+del comp
