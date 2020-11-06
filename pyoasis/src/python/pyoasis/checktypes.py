@@ -36,7 +36,7 @@ def check_types(types, arguments):
                         "The elements of the list in argument "
                         + str(i) + " must be integers.")
         else:
-            if not isinstance(a, t):
+            if a is not None and not isinstance(a, t):
                 raise pyoasis.PyOasisException("Argument " + str(i)
                                                + " must be of type " + str(t) + ".")
 
