@@ -45,31 +45,38 @@ def returns_2errors(*args):
 def test_Component_constructor1():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_method.terminate = returns_zero
         comp = pyoasis.Component(42, True)
 
 # Wrong type for 2nd argument        
 def test_component_constructor2():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_method.terminate = returns_zero
         comp = pyoasis.Component("name", 42)
 
 # Wrong type for 3rd argument
 def test_component_constructor3():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_method.terminate = returns_zero
         comp = pyoasis.Component("name", True, 42)
 
 # Empty name        
 def test_component_constructor4():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_method.terminate=returns_zero
+        pyoasis.mod_oasis_method.terminate = returns_zero
         comp = pyoasis.Component("")
 
 # Failure
 def test_component_constructor5():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2errors
+        pyoasis.mod_oasis_method.terminate=returns_zero
         comp = pyoasis.Component("name")
+
 
 # create_couplcomm
 # Wrong argument type
@@ -77,6 +84,7 @@ def test_component_create_couplcomm():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2_zeros
+        pyoasis.mod_oasis_method.terminate = returns_zero
         comp = pyoasis.Component("name")
         couplcomm =  comp.create_couplcomm("abc")
 
@@ -86,14 +94,16 @@ def test_component_create_couplcomm3():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2errors
+        pyoasis.mod_oasis_method.terminate = returns_zero
         comp = pyoasis.Component("name")
-        couplcomm =  comp.create_couplcomm(1)
+        couplcomm = comp.create_couplcomm(1)
 
         
 # Various functions        
 def test_Component_various_functions():
     pyoasis.mod_oasis_method.init_comp=returns_2_zeros
     pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2_zeros
+    pyoasis.mod_oasis_method.terminate = returns_zero
     comp = pyoasis.Component("name")
     assert comp.get_name() == "name"
     assert comp.get_id() == 0
@@ -105,34 +115,22 @@ def test_Component_enddef():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_method.enddef = returns_error
+        pyoasis.mod_oasis_method.terminate = returns_zero
         comp = pyoasis.Component("name")
         localcomm =  comp.enddef()
 
 # __str__
 def test_Component_str():
     pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+    pyoasis.mod_oasis_method.terminate = returns_zero
+    pyoasis.mod_oasis_method.terminate = returns_zero
     name = "name"
     comp = pyoasis.Component(name)
     line = str(comp)
     assert line.find(comp.get_name()) >=0
     assert line.find(str(comp.get_id())) >=0
     
-# # get_localcomm_rank
-# # Failure
-# def test_Component_get_localcomm_rank():
-#     with pytest.raises(pyoasis.OasisException):
-#         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
-#         pyoasis.mod_oasis_auxiliary_routines.get_comm_rank = returns_2errors
-#         comp = pyoasis.Component("name")
-#         rank = comp.get_localcomm_rank()
-
-# terminate
-# Failure
-def test_terminate():
-    with pytest.raises(pyoasis.OasisException):
-        pyoasis.mod_oasis_method.terminate = returns_error
-        pyoasis.terminate()
-        
+       
 # SerialPartition
 # Constructor
 
@@ -528,3 +526,4 @@ def test_SerialPartition_str():
     line = str(var)
     assert line.find(var.get_name()) >=0
     assert line.find(str(var.get_id())) >=0     
+

@@ -54,8 +54,3 @@ try:
     variable.put(date, field)
 except (pyoasis.OasisException, pyoasis.OasisException) as exception:
     pyoasis.pyoasis_abort(exception)
-
-try:
-    comp.terminate()
-except (pyoasis.OasisException, pyoasis.OasisException) as exception:
-    comp.pyoasis_abort(exception)

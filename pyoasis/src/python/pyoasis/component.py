@@ -41,16 +41,17 @@ class Component(object):
 
     def __init__(self, name, coupled=True, communicator=MPI.COMM_WORLD):
         """Constructor"""
+        self._initialised = False
+        self._name = name
         pyoasis.checktypes.check_types([str, bool, MPI.Intracomm],
                                        [name, coupled, communicator])
         if len(name) == 0:
             raise pyoasis.PyOasisException("Component name empty.")
 
-        self._name = name
-        self._terminated = False
         self._communicator = communicator
         return_value = pyoasis.mod_oasis_method.init_comp(self._name, coupled,
                                                           self._communicator)
+        self._initialised = True
         error = return_value[1]
         if error < 0:
             raise pyoasis.OasisException("Error initialising component " + self._name,
@@ -71,29 +72,13 @@ class Component(object):
         """
         Destructor
         Ends the coupling.
-
-        :raises OasisException: if OASIS is unable to end the coupling
         """
-        if self._terminated:
-            return 0
-        print("Component {} terminating upon deletion".format(self._name))
-        error = pyoasis.mod_oasis_method.terminate()
-        if error < 0:
-            raise pyoasis.OasisException("Error in terminate", error)
-        self._terminated = True
-
-    def terminate(self):
-        """
-        Ends the coupling.
-
-        :raises OasisException: if OASIS is unable to end the coupling
-        """
-        if self._terminated:
-            return 0
-        error = pyoasis.mod_oasis_method.terminate()
-        if error < 0:
-            raise pyoasis.OasisException("Error in terminate", error)
-        self._terminated = True
+        if self._initialised:
+            print("Component {} terminating upon deletion".format(self._name))  
+            error = pyoasis.mod_oasis_method.terminate()
+            if error < 0:
+                pyoasis.oasis_abort(self._id_component, "Component::__del__", "oasis_termaninate failed", "component.py", 79, error)
+        
 
     @property
     def name(self):
