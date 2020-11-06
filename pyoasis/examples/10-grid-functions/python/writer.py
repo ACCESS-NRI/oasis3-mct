@@ -81,6 +81,52 @@ area[:,:] = (math.pi/180) * np.abs(np.sin(cla[:,:,2])-np.sin(cla[:,:,0])) * \
 
 grid.set_area(area)
 
+if comm_rank == 0:
+    nx_mono = 180
+    ny_mono =  90
+    dxm = 360.0/nx_mono
+    dym = 180.0/ny_mono
+
+    lonm = np.array([float(i)*dxm + dxm/2.0 for i in range(nx_mono)],
+                   dtype=np.float64)
+    lonm = np.tile(lonm,(ny_mono,1)).T
+
+    latm = np.array([float(j)*dym + dym/2.0 for j in range(ny_mono)],
+                    dtype=np.float64)
+    latm = np.tile(latm,(nx_mono,1))
+
+    grid2 = pyoasis.Grid('mono', nx_mono, ny_mono, lonm, latm)
+
+    ncrnm = 4
+    clom = pyoasis.asarray(np.zeros((nx_mono,ny_mono,ncrnm),dtype=np.float64))
+    clom[:,:,0] = lonm[:,:]  - dxm/2.0
+    clom[:,:,1] = lonm[:,:]  + dxm/2.0
+    clom[:,:,2] = clom[:,:,1]
+    clom[:,:,3] = clom[:,:,0]
+    clam = pyoasis.asarray(np.zeros((nx_mono,ny_mono,ncrnm),dtype=np.float64))
+    clam[:,:,0] = latm[:,:]  - dym/2.0
+    clam[:,:,1] = clam[:,:,0]
+    clam[:,:,2] = latm[:,:]  + dym/2.0
+    clam[:,:,3] = clam[:,:,2]
+    grid2.set_corners(clom,clam)
+
+    mskm = np.zeros((nx_mono,ny_mono), dtype=np.int32)
+    mskm = np.where(np.power(lonm[:,:]-180.,2)+np.power(latm[:,:]-90,2) < 30*30, 1, 0)
+    grid2.set_mask(mskm)
+
+    frcm = np.ones((nx_mono,ny_mono), dtype=np.float64)
+    frcm = np.where(mskm==1, 0.0, 1.0)
+
+    grid2.set_frac(frcm)
+
+    aream = np.zeros((nx_mono,ny_mono), dtype=np.float64)
+    aream[:,:] = (math.pi/180) * np.abs(np.sin(clam[:,:,2])-np.sin(clam[:,:,0])) * \
+                 np.abs(clom[:,:,1]-clom[:,:,0])
+
+    grid2.set_area(aream)
+
+    grid2.write()
+
 grid.write()
 
 comp.enddef()
