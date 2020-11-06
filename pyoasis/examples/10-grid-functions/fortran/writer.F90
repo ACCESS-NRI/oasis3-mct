@@ -49,7 +49,7 @@ program writer
    allocate(lon(nx_loc,ny_loc))
    allocate(lat(nx_loc,ny_loc))
    do j = 1, ny_loc
-      lon(:,j) = [(comm_rank*nx_loc*dx + real(i)*dx - dx/2, i=1,nx_loc)]
+      lon(:,j) = [(-180.0 + comm_rank*nx_loc*dx + real(i)*dx - dx/2, i=1,nx_loc)]
    end do
    do i = 1, nx_loc
       lat(i,:) = [(-90.0 + real(j)*dy - dy/2, j=1,ny_loc)]
@@ -59,8 +59,8 @@ program writer
    allocate(clo(nx_loc,ny_loc,ncrn))
    allocate(cla(nx_loc,ny_loc,ncrn))
    do j = 1, ny_loc
-      clo(:,j,1) = [(comm_rank*nx_loc*dx + real(i-1)*dx, i=1,nx_loc)]
-      clo(:,j,2) = [(comm_rank*nx_loc*dx + real(i)*dx, i=1,nx_loc)]
+      clo(:,j,1) = [(-180.0 + comm_rank*nx_loc*dx + real(i-1)*dx, i=1,nx_loc)]
+      clo(:,j,2) = [(-180.0 + comm_rank*nx_loc*dx + real(i)*dx, i=1,nx_loc)]
       clo(:,j,3) = clo(:,j,2)
       clo(:,j,4) = clo(:,j,1)
    end do
