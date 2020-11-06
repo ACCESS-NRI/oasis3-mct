@@ -31,16 +31,16 @@ void write_corner(char* cgrid, int nx, int ny, int nc, int nx_loc, int ny_loc, d
   oasis_write_corner_iso(&cgrid, &nx, &ny, &nc, &nx_loc, &ny_loc, clo, cla, &partid);   
 }
 
-void write_mask(char* cgrid, int nx, int ny, int nx_loc, int ny_loc, int* mask, int partid){
-    oasis_write_mask_iso(&cgrid, &nx, &ny, &nx_loc, &ny_loc, mask, &partid);
+void write_mask(char* cgrid, int nx, int ny, int nx_loc, int ny_loc, int* mask, int partid, char* companion){
+    oasis_write_mask_iso(&cgrid, &nx, &ny, &nx_loc, &ny_loc, mask, &partid, &companion);
+}
+
+void write_frac(char* cgrid, int nx, int ny, int nx_loc, int ny_loc, double* frac, int partid, char* companion){
+    oasis_write_frac_iso(&cgrid, &nx, &ny, &nx_loc, &ny_loc, frac, &partid, &companion);
 }
 
 void write_area(char* cgrid, int nx, int ny, int nx_loc, int ny_loc, double* area, int partid){
     oasis_write_area_iso(&cgrid, &nx, &ny, &nx_loc, &ny_loc, area, &partid);
-}
-
-void write_frac(char* cgrid, int nx, int ny, int nx_loc, int ny_loc, double* frac, int partid){
-    oasis_write_frac_iso(&cgrid, &nx, &ny, &nx_loc, &ny_loc, frac, &partid);
 }
 
 void terminate_grids_writing(){

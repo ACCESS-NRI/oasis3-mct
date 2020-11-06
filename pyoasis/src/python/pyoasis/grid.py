@@ -63,16 +63,20 @@ class Grid(object):
                                             clo, cla, self._part_id)
 
 
-    def set_mask(self, mask):
-        pyoasis.checktypes.check_types([numpy.ndarray],[mask])
+    def set_mask(self, mask, companion=None):
+        pyoasis.checktypes.check_types([numpy.ndarray, str],[mask, companion])
+        if not companion:
+            companion="NULL-STRING"
         pyoasis.mod_oasis_grid.write_mask(self._cgrid, self._nx_glo, self._ny_glo,
-                                          mask, self._part_id)
+                                          mask, self._part_id, companion)
 
 
-    def set_frac(self, frac):
-        pyoasis.checktypes.check_types([numpy.ndarray],[frac])
+    def set_frac(self, frac, companion=None):
+        pyoasis.checktypes.check_types([numpy.ndarray, str],[frac, companion])
+        if not companion:
+            companion="NULL-STRING"
         pyoasis.mod_oasis_grid.write_frac(self._cgrid, self._nx_glo, self._ny_glo,
-                                          frac, self._part_id)
+                                          frac, self._part_id, companion)
 
 
     def set_area(self, area):
