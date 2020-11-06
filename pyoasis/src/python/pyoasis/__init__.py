@@ -7,6 +7,7 @@ from pyoasis.abort import *
 from pyoasis.component import *
 from pyoasis.partition import *
 from pyoasis.var import *
+from pyoasis.grid import *
 import sys
 
 globals()["OASIS"] = pyoasis.parameters.OasisParameters

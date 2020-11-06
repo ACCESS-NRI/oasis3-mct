@@ -14,9 +14,9 @@ all: lib
 
 lib: $(ARCHDIR)/lib/liboasis.C.bindings.so 
 
-OBJS_F = cbindings.o mod_oasis_auxiliary_routines_iso.o mod_oasis_getput_interface_iso.o mod_oasis_method_iso.o mod_oasis_part_iso.o mod_oasis_sys_iso.o mod_oasis_var_iso.o
+OBJS_F = cbindings.o mod_oasis_auxiliary_routines_iso.o mod_oasis_getput_interface_iso.o mod_oasis_method_iso.o mod_oasis_part_iso.o mod_oasis_sys_iso.o mod_oasis_var_iso.o mod_oasis_grid_iso.o
 
-OBJS_C = mod_oasis_auxiliary_routines_c.o mod_oasis_getput_interface_c.o mod_oasis_method_c.o mod_oasis_part_c.o mod_oasis_sys_c.o mod_oasis_var_c.o
+OBJS_C = mod_oasis_auxiliary_routines_c.o mod_oasis_getput_interface_c.o mod_oasis_method_c.o mod_oasis_part_c.o mod_oasis_sys_c.o mod_oasis_var_c.o mod_oasis_grid_c.o
 
 $(ARCHDIR)/lib/liboasis.C.bindings.so: $(OBJS_F) $(OBJS_C)
 	$(F90) $(LFLAGS) $(OBJS_F) $(OBJS_C) -lpsmile.$(CHAN) -lscrip -lmct -lmpeu -o $(ARCHDIR)/lib/liboasis.C.bindings.so
@@ -42,6 +42,9 @@ mod_oasis_sys_c.o: $(SRC_C)/mod_oasis_sys_c.h $(SRC_C)/mod_oasis_sys_c.c
 mod_oasis_method_c.o: $(SRC_C)/mod_oasis_method_c.h $(SRC_C)/mod_oasis_method_c.c
 	$(CC) $(CFLAGS) -c  $(SRC_C)/mod_oasis_method_c.c
 
+mod_oasis_grid_c.o: $(SRC_C)/mod_oasis_grid_c.h $(SRC_C)/mod_oasis_grid_c.c
+	$(CC) $(CFLAGS) -c  $(SRC_C)/mod_oasis_grid_c.c
+
 
 # ISO C Fortran
 
@@ -62,6 +65,9 @@ mod_oasis_sys_iso.o: $(SRC_F)/mod_oasis_sys_iso.F90
 
 mod_oasis_method_iso.o: $(SRC_F)/mod_oasis_method_iso.F90
 	$(F90) $(FFLAGS) -c $(SRC_F)/mod_oasis_method_iso.F90
+
+mod_oasis_grid_iso.o: $(SRC_F)/mod_oasis_grid_iso.F90
+	$(F90) $(FFLAGS) -c $(SRC_F)/mod_oasis_grid_iso.F90
 
 cbindings.o: $(SRC_F)/cbindings.F90
 	$(F90) $(FFLAGS) -c $(SRC_F)/cbindings.F90
