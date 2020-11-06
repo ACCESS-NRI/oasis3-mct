@@ -68,28 +68,28 @@ def  write_corner(cgrid, nx, ny, clo, cla, partid):
     LIB.write_corner(cgrid.encode(), nx, ny, ncrn, nx_loc, ny_loc, p_clo, p_cla, partid)
 
 
-LIB.write_mask.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int]
+LIB.write_mask.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
 
-def write_mask(cgrid, nx, ny, mask, partid):
+def write_mask(cgrid, nx, ny, mask, partid, companion):
     mask = numpy.asfortranarray(mask, dtype=numpy.int32)
     p_mask = mask.ctypes.data
     if mask.ndim != 2:
         raise pyoasis.PyOasisException("Write mask: maks has to be a 2D arrays")
     nx_loc = mask.shape[0]
     ny_loc = mask.shape[1]
-    LIB.write_mask(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_mask, partid)
+    LIB.write_mask(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_mask, partid, companion.encode())
 
 
-LIB.write_frac.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int]
+LIB.write_frac.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
 
-def write_frac(cgrid, nx, ny, frac, partid):
+def write_frac(cgrid, nx, ny, frac, partid, companion):
     frac = numpy.asfortranarray(frac, dtype=numpy.float64)
     p_frac = frac.ctypes.data
     if frac.ndim != 2:
         raise pyoasis.PyOasisException("Write frac: frac has to be a 2D arrays")
     nx_loc = frac.shape[0]
     ny_loc = frac.shape[1]
-    LIB.write_frac(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_frac, partid)
+    LIB.write_frac(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_frac, partid, companion.encode())
 
 
 LIB.write_area.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int]

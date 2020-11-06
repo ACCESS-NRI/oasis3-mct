@@ -102,7 +102,7 @@ subroutine oasis_write_corner_iso(cgrid, nx, ny, nc, nx_loc, ny_loc, clo, cla, p
 end subroutine
 
 
-subroutine oasis_write_mask_iso(cgrid, nx, ny, nx_loc, ny_loc, mask, partid) bind(C)
+subroutine oasis_write_mask_iso(cgrid, nx, ny, nx_loc, ny_loc, mask, partid, companion) bind(C)
   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
   use cbindings
   use mod_oasis
@@ -113,26 +113,83 @@ subroutine oasis_write_mask_iso(cgrid, nx, ny, nx_loc, ny_loc, mask, partid) bin
   integer (c_int), intent (in) :: nx_loc, ny_loc
   integer (c_int), intent(in), target :: mask(nx_loc*ny_loc)
   integer(c_int), intent (in) :: partid  ! -1 if absent
+  type(c_ptr), intent(in) :: companion     
   
   character(len=:), allocatable :: cgrid_f
   integer :: nx_f, ny_f
   integer :: partid_f
   integer(c_int), pointer :: mask2D(:,:)
+  character(len=:), allocatable :: companion_f
+  logical :: has_companion
   
   cgrid_f=string_to_fortran(cgrid)
   nx_f=nx
   ny_f=ny
   partid_f=partid
   mask2D(1:nx_loc, 1:ny_loc) => mask(:)
+  companion_f=string_to_fortran(companion)
+  has_companion = trim(companion_f) /= "NULL-STRING"
   
   if(partid_f>=0) then
-    call oasis_write_mask(cgrid_f, nx_f, ny_f, mask2D, partid_f) 
+    if (has_companion) then 
+      call oasis_write_mask(cgrid_f, nx_f, ny_f, mask2D, partid_f, companion_f)
+    else
+      call oasis_write_mask(cgrid_f, nx_f, ny_f, mask2D, partid_f)
+    end if
   else
-    call oasis_write_mask(cgrid_f, nx_f, ny_f, mask2D) 
+    if (has_companion) then 
+      call oasis_write_mask(cgrid_f, nx_f, ny_f, mask2D, companion=companion_f)
+    else
+      call oasis_write_mask(cgrid_f, nx_f, ny_f, mask2D)
+    end if
   end if 
 end subroutine oasis_write_mask_iso
   
   
+subroutine oasis_write_frac_iso(cgrid, nx, ny, nx_loc, ny_loc, frac, partid, companion) bind(C)
+  use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
+  use cbindings
+  use mod_oasis
+  implicit none
+ 
+  type(c_ptr), intent(in) :: cgrid     
+  integer (c_int), intent (in) :: nx, ny
+  integer (c_int), intent (in) :: nx_loc, ny_loc
+  real (c_double), intent(in), target :: frac(nx_loc*ny_loc)
+  integer(c_int), intent (in) :: partid  ! -1 if absent
+  type(c_ptr), intent(in) :: companion     
+  
+  character(len=:), allocatable :: cgrid_f
+  integer :: nx_f, ny_f
+  integer :: partid_f
+  real (c_double), pointer :: frac2D(:,:)
+  character(len=:), allocatable :: companion_f
+  logical :: has_companion
+  
+  cgrid_f=string_to_fortran(cgrid)
+  nx_f=nx
+  ny_f=ny
+  partid_f=partid
+  frac2D(1:nx_loc, 1:ny_loc) => frac(:)
+  companion_f=string_to_fortran(companion)
+  has_companion = trim(companion_f) /= "NULL-STRING"
+  
+  if(partid_f>=0) then
+    if (has_companion) then 
+      call oasis_write_frac(cgrid_f, nx_f, ny_f, frac2D, partid_f, companion_f)
+    else
+      call oasis_write_frac(cgrid_f, nx_f, ny_f, frac2D, partid_f)
+    end if
+  else
+    if (has_companion) then 
+      call oasis_write_frac(cgrid_f, nx_f, ny_f, frac2D, companion=companion_f)
+    else
+      call oasis_write_frac(cgrid_f, nx_f, ny_f, frac2D)
+    end if
+  end if
+end subroutine oasis_write_frac_iso
+
+
 subroutine oasis_write_area_iso(cgrid, nx, ny, nx_loc, ny_loc, area, partid) bind(C)
   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
   use cbindings
@@ -162,37 +219,6 @@ subroutine oasis_write_area_iso(cgrid, nx, ny, nx_loc, ny_loc, area, partid) bin
     call oasis_write_area(cgrid_f, nx_f, ny_f, area2D)
   end if
 end subroutine oasis_write_area_iso
-
-
-subroutine oasis_write_frac_iso(cgrid, nx, ny, nx_loc, ny_loc, frac, partid) bind(C)
-  use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
-  use cbindings
-  use mod_oasis
-  implicit none
- 
-  type(c_ptr), intent(in) :: cgrid     
-  integer (c_int), intent (in) :: nx, ny
-  integer (c_int), intent (in) :: nx_loc, ny_loc
-  real (c_double), intent(in), target :: frac(nx_loc*ny_loc)
-  integer(c_int), intent (in) :: partid  ! -1 if absent
-  
-  character(len=:), allocatable :: cgrid_f
-  integer :: nx_f, ny_f
-  integer :: partid_f
-  real (c_double), pointer :: frac2D(:,:)
-  
-  cgrid_f=string_to_fortran(cgrid)
-  nx_f=nx
-  ny_f=ny
-  partid_f=partid
-  frac2D(1:nx_loc, 1:ny_loc) => frac(:)
-  
-  if(partid_f>=0) then
-    call oasis_write_frac(cgrid_f, nx_f, ny_f, frac2D, partid_f)
-  else
-    call oasis_write_frac(cgrid_f, nx_f, ny_f, frac2D)
-  end if
-end subroutine oasis_write_frac_iso
 
 
 subroutine oasis_terminate_grids_writing_iso() bind(C)
