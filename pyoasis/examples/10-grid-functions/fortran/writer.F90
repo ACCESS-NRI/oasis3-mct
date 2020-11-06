@@ -16,6 +16,7 @@ program writer
    real(kind=8), allocatable :: frac(:,:), area(:,:)
    real(kind=8), allocatable :: clo(:,:,:), cla(:,:,:) 
    real(kind=8) :: dx, dy
+   real(kind=8) :: dp_conv
    
    print '(2A)', "Component name: ", comp_name
 
@@ -51,7 +52,7 @@ program writer
       lon(:,j) = [(comm_rank*nx_loc*dx + real(i)*dx - dx/2, i=1,nx_loc)]
    end do
    do i = 1, nx_loc
-      lat(i,:) = [(real(j)*dy - dy/2, j=1,ny_loc)]
+      lat(i,:) = [(-90.0 + real(j)*dy - dy/2, j=1,ny_loc)]
    end do
    call oasis_write_grid('pyoa', nx_global, ny_global, lon, lat, part_id)
    
@@ -64,9 +65,9 @@ program writer
       clo(:,j,4) = clo(:,j,1)
    end do
    do i = 1, nx_loc
-      cla(i,:,1) = [(real(j-1)*dy, j=1,ny_loc)]
+      cla(i,:,1) = [(-90.0 + real(j-1)*dy, j=1,ny_loc)]
       cla(i,:,2) = cla(i,:,1)
-      cla(i,:,3) = [(real(j)*dy, j=1,ny_loc)]
+      cla(i,:,3) = [(-90.0 + real(j)*dy, j=1,ny_loc)]
       cla(i,:,4) = cla(i,:,3)
    end do
    call oasis_write_corner('pyoa', nx_global, ny_global, ncrn, clo, cla, part_id)
@@ -103,7 +104,8 @@ program writer
    call oasis_write_frac('pyoa', nx_global, ny_global, frac, part_id, companion='STFC')
 
    allocate(area(nx_loc,ny_loc))
-   area(:,:) = (3.141592/180.) * abs(sin(cla(:,:,3))-sin(cla(:,:,1))) * &
+   dp_conv = ATAN(1.)/45. 
+   area(:,:) = dp_conv * abs(sin(cla(:,:,3)*dp_conv)-sin(cla(:,:,1)*dp_conv)) * &
       & abs(clo(:,:,2)-clo(:,:,1))
    call oasis_write_area('pyoa', nx_global, ny_global, area, part_id)
    

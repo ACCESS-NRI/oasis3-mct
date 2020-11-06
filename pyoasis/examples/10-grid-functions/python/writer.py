@@ -17,6 +17,8 @@ ny_loc = 18
 nx_global = comm_size*nx_loc
 ny_global = ny_loc
 
+dp_conv = math.pi/180.
+
 partition = pyoasis.BoxPartition(comm_rank*nx_loc, nx_loc, ny_loc, nx_global)
 
 dx = 360.0/nx_global
@@ -26,7 +28,7 @@ lon = np.array([comm_rank*nx_loc*dx + float(i)*dx + dx/2.0 for i in range(nx_loc
                dtype=np.float64)
 lon = np.tile(lon,(ny_loc,1)).T
 
-lat = np.array([float(j)*dy + dy/2.0 for j in range(ny_loc)],
+lat = np.array([-90.0 + float(j)*dy + dy/2.0 for j in range(ny_loc)],
                dtype=np.float64)
 lat = np.tile(lat,(nx_loc,1))
 
@@ -76,7 +78,8 @@ frc = np.where(msk==1, 0.0, 1.0)
 grid.set_frac(frc)
 
 area = np.zeros((nx_loc,ny_loc), dtype=np.float64)
-area[:,:] = (math.pi/180) * np.abs(np.sin(cla[:,:,2])-np.sin(cla[:,:,0])) * \
+area[:,:] = dp_conv * \
+            np.abs(np.sin(cla[:,:,2]*dp_conv)-np.sin(cla[:,:,0]*dp_conv)) * \
             np.abs(clo[:,:,1]-clo[:,:,0])
 
 grid.set_area(area)
@@ -91,7 +94,7 @@ if comm_rank == 0:
                    dtype=np.float64)
     lonm = np.tile(lonm,(ny_mono,1)).T
 
-    latm = np.array([float(j)*dym + dym/2.0 for j in range(ny_mono)],
+    latm = np.array([-90.0 + float(j)*dym + dym/2.0 for j in range(ny_mono)],
                     dtype=np.float64)
     latm = np.tile(latm,(nx_mono,1))
 
@@ -120,7 +123,8 @@ if comm_rank == 0:
     grid2.set_frac(frcm)
 
     aream = np.zeros((nx_mono,ny_mono), dtype=np.float64)
-    aream[:,:] = (math.pi/180) * np.abs(np.sin(clam[:,:,2])-np.sin(clam[:,:,0])) * \
+    aream[:,:] = dp_conv * \
+                 np.abs(np.sin(clam[:,:,2]*dp_conv)-np.sin(clam[:,:,0]*dp_conv)) * \
                  np.abs(clom[:,:,1]-clom[:,:,0])
 
     grid2.set_area(aream)
