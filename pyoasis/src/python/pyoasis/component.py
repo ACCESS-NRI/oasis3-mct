@@ -75,10 +75,13 @@ class Component(object):
         """
         if self._initialised:
             print("Component {} terminating upon deletion".format(self._name))  
-            error = pyoasis.mod_oasis_method.terminate()
-            if error < 0:
-                pyoasis.oasis_abort(self._id_component, "Component::__del__", "oasis_termaninate failed", "component.py", 79, error)
-        
+            try:
+                error = pyoasis.mod_oasis_method.terminate()
+                if error < 0:
+                    pyoasis.oasis_abort(self._id_component, "Component::__del__", "oasis_termaninate failed", "component.py", 79, error)
+                self._initialised = False 
+            except AttributeError:
+                pass
 
     @property
     def name(self):
