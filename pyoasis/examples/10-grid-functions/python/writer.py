@@ -114,7 +114,7 @@ if comm_rank == 0:
     grid2.set_corners(clom,clam)
 
     mskm = np.zeros((nx_mono,ny_mono), dtype=np.int32)
-    mskm = np.where(np.power(lonm[:,:]-180.,2)+np.power(latm[:,:]-90,2) < 30*30, 1, 0)
+    mskm = np.where(np.power(lonm[:,:]-180.,2)+np.power(latm[:,:],2) < 30*30, 1, 0)
     grid2.set_mask(mskm)
 
     frcm = np.ones((nx_mono,ny_mono), dtype=np.float64)
