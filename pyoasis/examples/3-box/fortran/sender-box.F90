@@ -11,7 +11,7 @@ program sender_box
    character(len=8) :: var_name = "FSENDOCN"
    real, allocatable :: field(:)
    integer :: intra_comm, intra_rank, intra_size
-   integer :: inter_comm, inter_rank, inter_size
+   integer :: inter_comm, inter_rank, inter_size, inter_rsize
 
    print '(2A)', "Component name: ", comp_name
 
@@ -67,7 +67,9 @@ program sender_box
 
    call mpi_comm_size(inter_comm, inter_size, kinfo)
    call mpi_comm_rank(inter_comm, inter_rank, kinfo)
-   print '(A,I0,A,I0)', "Sender inter_comm: rank = ",inter_rank, " of ",inter_size
+   call mpi_comm_remote_size(inter_comm, inter_rsize, kinfo)
+   print '(A,I0,A,I0,A,I0)', "Sender inter_comm: rank = ",inter_rank, " of ",inter_size, &
+      & " Remote size = ",inter_rsize
 
    allocate(field(local_size))
    field=[offsets(comm_rank+1)+1, offsets(comm_rank+1)+2,&

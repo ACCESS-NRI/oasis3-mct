@@ -27,7 +27,9 @@ intracomm = comp.get_intracomm("sender-box")
 intercomm = comp.get_intercomm("sender-box")
 
 print("Receiver intra_comm: rank = {} of {}".format(intracomm.rank, intracomm.size))
-print("Receiver inter_comm: rank = {} of {}".format(intercomm.rank, intercomm.size))
+print("Receiver inter_comm: rank = {} of {} Remote size = {}".format(intercomm.rank,
+                                                                     intercomm.size,
+                                                                     intercomm.remote_size))
 
 date = int(0)
 field = pyoasis.asarray(numpy.zeros(n_points))
