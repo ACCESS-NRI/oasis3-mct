@@ -1,6 +1,6 @@
 #
 # Include file for OASIS3 Makefile for a Linux system using 
-# Portland Group Fortran Compiler and MPICH
+# Intel compilers and MPI
 #
 ###############################################################################
 #
@@ -20,6 +20,7 @@ MPIDIR      = /usr/local/intel/impi/2018.1.163
 MPIBIN      = $(MPIDIR)/bin64
 MPI_INCLUDE = $(MPIDIR)/include64 
 MPILIB      = -L$(MPIDIR)/lib64
+MPIRUN      = $(MPIBIN)/mpirun
 #
 # NETCDF library of the system
 NETCDF_LIB_DIR1=/softs/local_intel/netcdf-fortran/4.4.4_phdf5/lib
@@ -36,6 +37,10 @@ f90         = $(F90)
 f           = $(F90)
 CC          = $(MPIBIN)/mpiicc -I$(MPI_INCLUDE)
 LD          = $(MPIBIN)/mpiifort $(MPILIB)
+# Shared libraries options
+DYNOPT      = -fPIC
+LDDYNOPT    = -shared
+# Static archiver
 AR          = ar
 ARFLAGS     = -ruv
 #
@@ -63,12 +68,13 @@ BINDIR          = $(ARCHDIR)/bin
 # LIBBUILD      : contains a directory for each library
 LIBBUILD        = $(ARCHDIR)/build/lib
 # INCPSMILE     : includes all *o and *mod for each library
-INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/scrip  -I$(LIBBUILD)/mct 
+INCPSMILE       = -I$(ARCHDIR)/include
 
 F90FLAGS  = $(F90FLAGS_1) $(CPPDEF) $(INCPSMILE) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
 f90FLAGS  = $(f90FLAGS_1) $(CPPDEF) $(INCPSMILE) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
 FFLAGS    = $(FFLAGS_1) $(CPPDEF) $(INCPSMILE) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
 fFLAGS    = $(fFLAGS_1) $(CPPDEF) $(INCPSMILE) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
 CCFLAGS   = $(CCFLAGS_1) $(CPPDEF) $(INCPSMILE) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
+LDFLAGS   = $(F90FLAGS_1)
 #
 #############################################################################
