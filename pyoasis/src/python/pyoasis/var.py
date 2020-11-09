@@ -51,6 +51,7 @@ class Var:
         if len(cdport) == 0:
             raise pyoasis.PyOasisException("Name empty")
         id_part = partition.get_id()
+        self._partition_local_size = partition.local_size
         if id_part < 0:
             raise pyoasis.PyOasisException("Partition identifier <0.")
         if not (kinout == pyoasis.OasisParameters.OASIS_IN
@@ -69,6 +70,21 @@ class Var:
             raise pyoasis.OasisException("Error in def_var", error)
         self.var_id = return_value[0]
 
+    def _check_size(self, field):
+        if self.bundle_size == 1:
+            if field.ndim == 3:
+                if field.shape[-1] == 1 and field.size == self._partition_local_size:
+                    return True
+                else:
+                    return False
+            else:
+                return True
+        else:
+            if field.ndim >=2:
+                if field.shape[-1] == self.bundle_size:
+                    if numpy.prod(field.shape[:-1]) == self._partition_local_size:
+                        return True
+            return False
     def get_id(self):
         """
         :returns: the identifier of the variable data
@@ -96,6 +112,8 @@ class Var:
         :raises PyOasisException: if an incorrect parameter is supplied 
         """
         pyoasis.check_types([int, numpy.ndarray, bool], [kstep, field, write_restart])
+        if(not self._check_size(field)):
+            raise pyoasis.OasisException("Field of the wrong size", error)
         error = pyoasis.mod_oasis_getput_interface.put(self.var_id, kstep, field, write_restart)
         if error < 0:
             raise pyoasis.OasisException("Error in sending data to another component", error)
@@ -117,6 +135,8 @@ class Var:
         :raises PyOasisException: if an incorrect parameter is supplied
         """
         pyoasis.check_types([int, numpy.ndarray], [kstep, field])
+        if(not self._check_size(field)):
+            raise pyoasis.OasisException("Field of the wrong size", error)
         error = pyoasis.mod_oasis_getput_interface.get(self.var_id, kstep, field)
         if error < 0:
             raise pyoasis.OasisException("Error in getting data from another component", error)

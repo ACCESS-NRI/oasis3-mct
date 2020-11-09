@@ -30,12 +30,14 @@ import pyoasis.mod_oasis_var
 class Partition(object):
     """Base class handling a partition"""
 
-    def set(self, parameters, global_size, name):
+    def _set(self, parameters, global_size, local_size, name):
         """Sets up the partition. Will be called by the inherited classes.
         :raises: OasisException if OASIS is unable to initialise the\
         partition
         :raises PyOasisException: if an incorrect parameter is supplied        
 """
+        self._local_size=local_size
+
         return_value = pyoasis.mod_oasis_part.def_partition(parameters, global_size, name)
         error = return_value[1]
         if error < 0:
@@ -47,6 +49,10 @@ class Partition(object):
            :rtype: int
         """
         return self.partition_id
+
+    @property
+    def local_size(self):
+        return self._local_size
 
     def __str__(self):
         return "Partition: id: " + str(self.partition_id)
@@ -69,8 +75,10 @@ class SerialPartition(Partition):
         if size <= 0:
             raise pyoasis.PyOasisException("Size must be >0.")
 
+        local_size = size
+
         parameters = [0, 0, size]
-        self.set(parameters, global_size, name)
+        self._set(parameters, global_size, local_size, name)
 
 
 class ApplePartition(Partition):
@@ -93,8 +101,10 @@ class ApplePartition(Partition):
         if size <= 0:
             raise pyoasis.PyOasisException("Size <=0.")
 
+        local_size = size
+
         parameters = [1, offset, size]
-        self.set(parameters, global_size, name)
+        self._set(parameters, global_size, local_size, name)
 
 
 class BoxPartition(Partition):
@@ -130,9 +140,11 @@ class BoxPartition(Partition):
         if global_extent_x <= 0:
             raise pyoasis.PyOasisException("Global extent in x-direction <=0.")
 
+        local_size = local_extent_x * local_extent_y
+
         parameters = [2, global_offset, local_extent_x, local_extent_y,
                       global_extent_x]
-        self.set(parameters, global_size, name)
+        self._set(parameters, global_size, local_size, name)
 
 
 class OrangePartition(Partition):
@@ -161,11 +173,14 @@ class OrangePartition(Partition):
         for extent in extents:
             if extent <= 0:
                 raise pyoasis.PyOasisException("Extent <=0.")
+
+        local_size = sum(extents)
+
         parameters = [3, n_offsets]
         for i in range(n_offsets):
             parameters.append(offsets[i])
             parameters.append(extents[i])
-        self.set(parameters, global_size, name)
+        self._set(parameters, global_size, local_size, name)
 
 
 class PointsPartition(Partition):
@@ -187,7 +202,9 @@ class PointsPartition(Partition):
         if len(global_indices) == 0:
             raise pyoasis.PyOasisException("Global indices list empty.")
 
+        local_size = len(global_indices)
+
         parameters = [4, len(global_indices)]
         for index in global_indices:
             parameters.append(index)
-        self.set(parameters, global_size, name)
+        self._set(parameters, global_size, local_size, name)

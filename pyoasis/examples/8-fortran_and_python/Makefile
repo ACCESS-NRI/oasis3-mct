@@ -1,5 +1,5 @@
 include ../../../util/make_dir/make.inc
-FLAGS=$(F90FLAGS) -L$(ARCHDIR)/lib
+FLAGS=$(F90FLAGS) -I$(ARCHDIR)/include -L$(ARCHDIR)/lib
 
 all: sender-apple receiver-serial
 
