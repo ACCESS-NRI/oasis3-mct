@@ -174,9 +174,9 @@ CONTAINS
               'The models are not exchanging any field ($NFIELDS = 0) '
            WRITE (UNIT = nulprt1,FMT = *)  &
               'so we force OASIS_debug = 0 for all processors '
-           OASIS_debug = 0
            CALL oasis_flush(nulprt1)
        ENDIF
+       OASIS_debug = 0
    ENDIF
 
    !------------------------
@@ -199,7 +199,7 @@ CONTAINS
 
    !------------------------
    !> * Store all the names of the fields exchanged in the namcouple
-   ! which can be different of namsrcfld(:) and namdstfld(:) if multiple 
+   ! which can be different of namsrcfld(:) and namdstfld(:) if multiple
    ! fields are exchanged together
    !------------------------
 
@@ -568,7 +568,7 @@ CONTAINS
 !         WRITE(nullucia,'(2a,2i8)') subname,' OPEN LUCIA load balancing analysis file for pe, unit :',mpi_size_local,nullucia
 !         CALL oasis_flush(nullucia)
       ENDIF
-   ! LB analysis only 
+   ! LB analysis only
    ELSEIF ( LUCIA_debug == 2 ) THEN
       IF (mpi_size_global == 0 ) nullucia=iu
    ENDIF
@@ -576,7 +576,7 @@ CONTAINS
    call oasis_debug_enter(subname)
 
    !------------------------
-   !> * Set mpi_root_global 
+   !> * Set mpi_root_global
    ! (after nulprt set)
    !------------------------
 
@@ -772,7 +772,7 @@ CONTAINS
       call oasis_mpi_barrier(mpi_comm_local, subname)
       call oasis_timer_stop('oasis_enddef_barrier')
    endif
-   
+
    CALL oasis_timer_start ('oasis_enddef')
    if (ABS(LUCIA_debug) > 0 ) &
       CALL oasis_lb_measure(-1,LB_ENDF)
@@ -934,9 +934,9 @@ CONTAINS
 
    elseif ( ABS(LUCIA_debug) > 0 ) then
 
-      WRITE(nulprt,*) ' load balancing special allocate for uncoupled components' 
+      WRITE(nulprt,*) ' load balancing special allocate for uncoupled components'
       CALL flush(nulprt)
- 
+
       CALL oasis_lb_allocate(0)
 
    endif   !  (mpi_comm_local /= MPI_COMM_NULL)
