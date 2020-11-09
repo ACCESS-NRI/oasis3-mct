@@ -142,7 +142,8 @@ try:
     from matplotlib.colors import ListedColormap
     import cartopy.crs as ccrs
 except ImportError:
-    print("The example completed correctly\nbut no plotting library available.\nInstall netcdf, matplotlib and cartopy for plotting the results")
+    if comm_rank == 0:
+        print("The example completed correctly\nbut no plotting library available.\nInstall netcdf, matplotlib and cartopy for plotting the results\nIn the meantime you can visualize the contents of work/masks.nc with ncview work/masks.nc")
     exit(0)
 
 if comm_rank == 0:
