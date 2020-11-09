@@ -133,7 +133,15 @@ if comm_rank == 0:
 
 grid.write()
 
+var_out = pyoasis.Var("FSENDOCN", partition, OASIS.OUT)
+var_in = pyoasis.Var("FRECVATM", partition, OASIS.IN)
+
 comp.enddef()
+
+date = int(0)
+field = pyoasis.asarray(msk)
+var_out.put(date, field)
+var_in.get(date, field)
 
 try:
     import netCDF4
@@ -164,7 +172,7 @@ if comm_rank == 0:
                           np.linspace(0.8, 0.0, 70 - 52 + 1)[:-1],
                           np.linspace(0.0, 0.1, 100 - 70 + 1)))
         alph = np.linspace(1.0, 1.0, 101)
-    
+
         cm = np.array((np.transpose(rcol), np.transpose(gcol), np.transpose(bcol), np.transpose(alph)))
         cm = np.transpose(cm)
         newmap = ListedColormap(cm, name='CaramelBleu')
@@ -179,12 +187,12 @@ if comm_rank == 0:
     dlon = gf.variables[dgrid + '.clo'][:].reshape(dgrid_corners, -1)
     dlat = gf.variables[dgrid + '.cla'][:].reshape(dgrid_corners, -1)
     gf.close()
-    
+
     mf = netCDF4.Dataset('masks.nc', 'r')
     msi = mf.variables[dgrid + '.msk'][:].flatten()
     da_msk = msi == 1
     mf.close()
-    
+
     da_lonlat = np.transpose(np.array([dlon, dlat]))
     da_lonlat = np.delete(da_lonlat, np.where(da_msk), axis=0)
 
@@ -213,6 +221,8 @@ if comm_rank == 0:
     di_gl.top_labels = False
     di_gl.right_labels = False
     di_ax.set_title('Precomputed mask')
-    
+
     plt.subplots_adjust(left=0.10, right=1.00, wspace=0.05, hspace=0.)
     plt.show()
+
+del comp

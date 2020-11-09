@@ -1,13 +1,13 @@
 # This is a typical input file for OASIS3-MCT.
-# Keywords used in previous versions of OASIS3 
+# Keywords used in previous versions of OASIS3
 # but now obsolete are marked "Not used"
-# Don't hesitate to ask precisions or make suggestions (oasishelp@cerfacs.fr). 
+# Don't hesitate to ask precisions or make suggestions (oasishelp@cerfacs.fr).
 #
 # Any line beginning with # is ignored. Blank lines are not allowed.
 #
 #########################################################################
 $NFIELDS
- 0
+ 1
 $END
 ###########################################################################
 $RUNTIME
@@ -18,7 +18,7 @@ $END
 ###########################################################################
 $NLOGPRT
 # Amount of information written to OASIS3-MCT log files (see User Guide)
-  0 
+  0
 $END
 ###########################################################################
 $STRINGS
@@ -28,5 +28,8 @@ $STRINGS
 #
 ######################################################
 #
+FSENDOCN FRECVATM 1 7200 0 rst.nc EXPORTED
+0 0 0 0 null null
+R  0  R  0
 #
 $END
