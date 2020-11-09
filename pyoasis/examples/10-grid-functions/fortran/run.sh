@@ -9,7 +9,6 @@ casename=`basename $srcdir`
 exe1=writer
 
 n1=3
-n2=1
 
 make || exit
 
