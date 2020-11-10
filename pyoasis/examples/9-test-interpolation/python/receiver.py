@@ -9,11 +9,10 @@ from mpi4py import MPI
 from utils import *
 
 try:
+    import cartopy.crs as ccrs
     import matplotlib.pyplot as plt
     import matplotlib.collections
     from matplotlib.colors import ListedColormap
-    import cartopy.crs as ccrs
-
     has_graphics = True
 except ImportError:
     has_graphics = False

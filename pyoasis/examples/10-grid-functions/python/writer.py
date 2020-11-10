@@ -145,10 +145,10 @@ var_in.get(date, field)
 
 try:
     import netCDF4
+    import cartopy.crs as ccrs
     import matplotlib.pyplot as plt
     import matplotlib.collections
     from matplotlib.colors import ListedColormap
-    import cartopy.crs as ccrs
 except ImportError:
     if comm_rank == 0:
         print("The example completed correctly\nbut no plotting library available.\nInstall netcdf, matplotlib and cartopy for plotting the results\nIn the meantime you can visualize the contents of work/masks.nc with ncview work/masks.nc")
@@ -222,7 +222,7 @@ if comm_rank == 0:
     di_gl.right_labels = False
     di_ax.set_title('Precomputed mask')
 
-    plt.subplots_adjust(left=0.10, right=1.00, wspace=0.05, hspace=0.)
+    plt.subplots_adjust(left=0.10, right=0.90, wspace=0.05, hspace=0.)
     plt.show()
 
 del comp
