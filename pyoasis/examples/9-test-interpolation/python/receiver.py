@@ -9,10 +9,12 @@ from mpi4py import MPI
 from utils import *
 
 try:
+    import cartopy
     import cartopy.crs as ccrs
     import matplotlib.pyplot as plt
     import matplotlib.collections
     from matplotlib.colors import ListedColormap
+    import os
     has_graphics = True
 except ImportError:
     has_graphics = False
@@ -115,6 +117,8 @@ print("Data received successfully at time {}".format(date))
 
 if not has_graphics:
     exit()
+
+cartopy.config['data_dir'] = os.path.join('.','cartopy')
 
 for img in range(2):
     ti_str = "Test interpolation with PyOASIS\nBundle field {}".format(img + 1)

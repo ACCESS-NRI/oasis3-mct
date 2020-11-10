@@ -25,6 +25,8 @@ ln -sf $srcdir/$uti $rundir/.
 ln -sf $datadir/grids.nc $rundir/.
 ln -sf $datadir/areas.nc $rundir/.
 
+ln -sf $datadir/cartopy $rundir/.
+
 cd $rundir
 
 ${MPIRUN4PY} -np $n1 python3 $exe1 : -np $n2 python3 $exe2
