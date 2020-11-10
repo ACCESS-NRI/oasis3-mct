@@ -28,19 +28,19 @@ extern "C" {
 #endif
 
 
-void oasis_put_iso_double(int* var_id, int* kstep, int* size1, int* size2, int* size3, double* field, int* kinfo, const bool* write_restart);
+void oasis_put_iso_double(const int* var_id, const int* kstep, const int* size1, const int* size2, const int* size3, const double* field, int* kinfo, const bool* write_restart);
 
-void oasis_get_iso_double(int* var_id, int* kstep, int* size1, int* size2, int* size3, double* field, int* kinfo);
-
-
-void oasis_put_iso_float(int* var_id, int* kstep, int* size1, int* size2, int* size3, float* field, int* kinfo, const bool* write_restart);
-
-void oasis_get_iso_float(int* var_id, int* kstep, int* size1, int* size2, int* size3, float* field, int* kinfo);
+void oasis_get_iso_double(const int* var_id, const int* kstep, const int* size1, const int* size2, const int* size3, double* field, int* kinfo);
 
 
-void put(int var_id, int kstep, int size1, int size2, int size3, int kind, void* field, int *kinfo, const bool write_restart);
+void oasis_put_iso_float(const int* var_id, const int* kstep, const int* size1, const int* size2, const int* size3, const float* field, int* kinfo, const bool* write_restart);
 
-void get(int var_id, int kstep, int size1, int size2, int size3, int kind, void* field, int* kinfo);
+void oasis_get_iso_float(const int* var_id, const int* kstep, const int* size1, const int* size2, const int* size3, float* field, int* kinfo);
+
+
+void put(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int kind, const void* field, int *kinfo, const bool write_restart);
+
+void get(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int kind, void* field, int* kinfo);
 
 
 #ifdef  __cplusplus

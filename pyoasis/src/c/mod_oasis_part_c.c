@@ -21,6 +21,6 @@
 #include <stdio.h>
 #include <string.h>
 
-void def_partition(int* id_part, int n, int* parameters, int global_size, char* name, int* kinfo){
+void def_partition(int* id_part, const int n, const int* parameters, const int global_size, const char* name, int* kinfo){
   oasis_def_partition_iso(id_part, &n, parameters, &global_size, &name, kinfo);   
 }

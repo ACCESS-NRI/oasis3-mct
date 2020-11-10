@@ -22,30 +22,30 @@
 
 void oasis_start_grids_writing_iso(int *kinfo);
       
-void oasis_write_grid_iso(char** cgrid, int* nx, int* ny, int* nx_loc, int* ny_loc, double** lon, double** lat, int* partid);
+void oasis_write_grid_iso(const char** cgrid, const int* nx, const int* ny, const int* nx_loc, const int* ny_loc, const double** lon, const double** lat, const int* partid);
 
-void oasis_write_corner_iso(char** cgrid, int* nx, int* ny, int* nc, int* nx_loc, int* ny_loc, double** clo, double** cla, int* partid);
+void oasis_write_corner_iso(const char** cgrid, const int* nx, const int* ny, const int* nc, const int* nx_loc, const int* ny_loc, const double** clo, const double** cla, const int* partid);
 
-void oasis_write_mask_iso(char** cgrid, int* nx, int* ny, int* nx_loc, int* ny_loc, int** mask, int* partid, char** companion);
+void oasis_write_mask_iso(const char** cgrid, const int* nx, const int* ny, const int* nx_loc, const int* ny_loc, const int** mask, const int* partid, const char** companion);
 
-void oasis_write_frac_iso(char** cgrid, int* nx, int* ny, int* nx_loc, int* ny_loc, double** frac, int* partid, char** companion);
+void oasis_write_frac_iso(const char** cgrid, const int* nx, const int* ny, const int* nx_loc, const int* ny_loc, const double** frac, const int* partid, const char** companion);
 
-void oasis_write_area_iso(char** cgrid, int* nx, int* ny, int* nx_loc, int* ny_loc, double** area, int* partid);
+void oasis_write_area_iso(const char** cgrid, const int* nx, const int* ny, const int* nx_loc, const int* ny_loc, const double** area, const int* partid);
 
 void oasis_terminate_grids_writing_iso();
 
 
 void start_grids_writing(int *kinfo);
       
-void write_grid(char* cgrid, int nx, int ny, int nx_loc, int ny_loc, double* lon, double* lat, int partid);
+void write_grid(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const double* lon, const double* lat, const int partid);
 
-void write_corner(char* cgrid, int nx, int ny, int nc, int nx_loc, int ny_loc, double* clo, double* cla, int partid);
+void write_corner(const char* cgrid, const int nx, const int ny, const int nc, const int nx_loc, const int ny_loc, const double* clo, const double* cla, const int partid);
 
-void write_mask(char* cgrid, int nx, int ny, int nx_loc, int ny_loc, int* mask, int partid, char* companion);
+void write_mask(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const int* mask, const int partid, const char* companion);
 
-void write_frac(char* cgrid, int nx, int ny, int nx_loc, int ny_loc, double* frac, int partid, char* companion);
+void write_frac(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const double* frac, const int partid, const char* companion);
 
-void write_area(char* cgrid, int nx, int ny, int nx_loc, int ny_loc, double* area, int partid);
+void write_area(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const double* area, const int partid);
 
 void terminate_grids_writing();
 

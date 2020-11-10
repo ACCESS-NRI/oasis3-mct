@@ -29,9 +29,9 @@ extern "C" {
 #endif
 
 
-void oasis_def_var_iso(int* id_nports, char** cdport, int* id_part, int* id_var_nodims1, int* id_var_nodims2, int* kinout, int* n, int** id_var_shape, int* ktype, int* kinfo);
+void oasis_def_var_iso(int* id_nports, const char** cdport, const int* id_part, const int* id_var_nodims1, const int* id_var_nodims2, const int* kinout, const int* n, const int** id_var_shape, const int* ktype, int* kinfo);
 
-void def_var(int* id_nports, char* cdport, int id_part, int id_var_nodims1, int id_var_nodims2, int kinout, int n, int* id_var_shape, int ktype, int* kinfo);
+void def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims1, const int id_var_nodims2, const int kinout, const int n, const int* id_var_shape, const int ktype, int* kinfo);
 
 
 #ifdef  __cplusplus

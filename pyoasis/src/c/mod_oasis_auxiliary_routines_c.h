@@ -31,44 +31,44 @@ extern "C" {
 
 void get_localcomm_iso(int* localcomm, int* kinfo);
 
-void create_couplcomm_iso(const int* icpl, int* allcomm, int* cplcomm, int* error);
+void create_couplcomm_iso(const int* icpl, const int* allcomm, int* cplcomm, int* error);
 
-void set_couplcomm_iso(int* localcomm, int* kinfo);
+void set_couplcomm_iso(const int* localcomm, int* kinfo);
 
 void get_intercomm_iso(int* new_comm, char** cdnam, int* error);
 
 void get_intracomm_iso(int* new_comm, char** cdnam, int* error);
 
-void set_debug_iso(int* debug, int* kinfo);
+void set_debug_iso(const int* debug, int* kinfo);
 
 void get_debug_iso(int* debug, int* kinfo);
  
-void put_inquire_iso(int* varid, int* msec, int* kinfo);
+void put_inquire_iso(const int* varid, const int* msec, int* kinfo);
 
-void get_ncpl_iso(int* varid, int* ncpl, int* kinfo);
+void get_ncpl_iso(const int* varid, int* ncpl, int* kinfo);
 
-void get_freqs_iso(int* varid, int* mop, int* ncpl, int* cpl_freqs, int* kinfo);
+void get_freqs_iso(const int* varid, const int* mop, const int* ncpl, int* cpl_freqs, int* kinfo);
 
 
 void get_localcomm(int* localcomm, int* kinfo);
 
-void create_couplcomm(int icpl, int allcomm, int* cplcomm, int* error);
+void create_couplcomm(const int icpl, const int allcomm, int* cplcomm, int* error);
 
-void set_couplcomm(int localcomm, int* kinfo);
+void set_couplcomm(const int localcomm, int* kinfo);
 
 void get_intercomm(int* new_comm, char* cdnam, int* error);
 
 void get_intracomm(int* new_comm, char* cdnam, int* error);
 
-void set_debug(int debug, int* kinfo);
+void set_debug(const int debug, int* kinfo);
 
 void get_debug(int* debug, int* kinfo);
  
 void put_inquire(int varid, int msec, int* kinfo);
 
-void get_ncpl(int varid, int* ncpl, int* kinfo);
+void get_ncpl(const int varid, int* ncpl, int* kinfo);
 
-void get_freqs(int varid, int mop, int ncpl, int* cpl_freqs, int* kinfo);
+void get_freqs(const int varid, const int mop, const int ncpl, int* cpl_freqs, int* kinfo);
 
 
 #ifdef  __cplusplus

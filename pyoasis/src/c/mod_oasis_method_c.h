@@ -29,15 +29,15 @@ extern "C" {
 #endif
 
 
-void init_comp_iso(int* comp_id, const char** comp_name, int* error, const bool* coupled, int* communicator);
+void init_comp_iso(int* comp_id, const char** comp_name, int* error, const bool* coupled, const int* communicator);
 
 void enddef_iso(int* kinfo);
 
 void terminate_iso(int* kinfo);
 
-void get_comm_size_iso(int* communicator, int* comm_size, int* error);
+void get_comm_size_iso(const int* communicator, int* comm_size, int* error);
 
-void get_comm_rank_iso(int* communicator, int* comm_rank, int* error);
+void get_comm_rank_iso(const int* communicator, int* comm_rank, int* error);
 
 
 void init_comp(int* comp_id, const char* comp_name, int* error, const bool coupled, const int communicator);
@@ -46,9 +46,9 @@ void enddef(int* kinfo);
 
 void terminate(int* kinfo);
 
-void get_comm_size(int communicator, int* comm_size, int* error);
+void get_comm_size(const int communicator, int* comm_size, int* error);
 
-void get_comm_rank(int communicator, int* comm_rank, int* error);
+void get_comm_rank(const int communicator, int* comm_rank, int* error);
 
 
 #ifdef  __cplusplus
