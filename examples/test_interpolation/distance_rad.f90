@@ -36,24 +36,23 @@
 !       2.5       V. Gayler      2001/09/20  created
 !
 !-----------------------------------------------------------------------
-      USE constants
-      USE kinds_mod
+      USE mod_oasimod_oasis
 
       IMPLICIT NONE
 !-----------------------------------------------------------------------
 !     INTENT(IN)
 !-----------------------------------------------------------------------
-      REAL (kind=real_kind), INTENT(IN) :: lon1, & ! longitude of first point (rad)
-                                           lon2, & ! longitude of second point (rad)
-                                           lat1, & ! latitude of first point (rad)
-                                           lat2    ! latitude of second point (rad)
+      REAL (kind=ip_double_p), INTENT(IN) :: lon1, & ! longitude of first point (rad)
+                                             lon2, & ! longitude of second point (rad)
+                                             lat1, & ! latitude of first point (rad)
+                                             lat2    ! latitude of second point (rad)
 
 !-----------------------------------------------------------------------
 !     LOCAL VARIABLES
 !-----------------------------------------------------------------------
-      REAL (kind=real_kind) :: x1, y1, z1, & ! coordinates of the first point
-                               x2, y2, z2, & ! coordinates of the second point
-                               distance_rad ! distance between the points (rad)
+      REAL (kind=ip_double_p) :: x1, y1, z1, & ! coordinates of the first point
+                                 x2, y2, z2, & ! coordinates of the second point
+                                 distance_rad ! distance between the points (rad)
 
 !-----------------------------------------------------------------------
 
