@@ -58,7 +58,7 @@ LDFLAGS     = $(F90FLAGS_1)
 # BINDIR        : directory for executables
 BINDIR          = $(ARCHDIR)/bin
 # INCPSMILE     : includes all *o and *mod for each library
-INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/scrip  -I$(LIBBUILD)/mct
+INCPSMILE       = -I$(ARCHDIR)/include
 
 F90FLAGS  = $(F90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
 f90FLAGS  = $(f90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
