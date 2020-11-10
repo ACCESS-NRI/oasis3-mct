@@ -155,13 +155,13 @@ a single description of the interface arguments is provided.
 
 \begin{itemize}
 
-\item {\tt CALL oasis\_init\_comp (compid, comp\_name, ierror, coupled, commworld)}
-\item {\tt CALL prism\_init\_comp\_proto (compid, comp\_name, ierror, coupled, commworld)}
+\item {\tt CALL oasis\_init\_comp (compid, comp\_name, kinfo, coupled, commworld)}
+\item {\tt CALL prism\_init\_comp\_proto (compid, comp\_name, kinfo, coupled, commworld)}
 
   \begin{itemize}
   \item {\tt compid [INTEGER; OUT]}: returned component ID
   \item {\tt comp\_name [CHARACTER; IN]}: component name; maximum length of 80 characters 
-  \item {\tt ierror [INTEGER; OUT]}: returned error code
+  \item {\tt kinfo [INTEGER; OUT]}: returned error code
   \item {\tt coupled [LOGICAL, OPTIONAL; IN]}: flag to specify if the calling task is participating or not to the coupling ({\tt .true.} by default). 
   \item {\tt commworld [INTEGER, OPTIONAL; IN]} : optional argument to specify the global communicator gathering the components of the coupled model. 
   If not specified, {\tt MPI\_COMM\_WORLD} will be used as the default communicator to startup. All components of the coupled model must 
@@ -188,12 +188,12 @@ participating to the coupling will also have to call
 \label{subsec_MPI1}
 
 \begin{itemize}
-\item {\tt CALL oasis\_get\_localcomm (local\_comm, ierror )}
-\item {\tt CALL prism\_get\_localcomm\_proto (local\_comm, ierror )}
+\item {\tt CALL oasis\_get\_localcomm (local\_comm, kinfo )}
+\item {\tt CALL prism\_get\_localcomm\_proto (local\_comm, kinfo )}
 
   \begin{itemize}
   \item {\tt local\_comm [INTEGER; OUT]}: value of local communicator
-  \item {\tt ierror [INTEGER; OUT]}: returned error code.
+  \item {\tt kinfo [INTEGER; OUT]}: returned error code.
   \end{itemize}
 
   This routine returns the value of a local communicator gathering
@@ -280,9 +280,9 @@ they may still call it describing a null partition, i.e. with {\tt ig\_paral(:)=
 
   \vspace{0.2cm}
 \item {\tt CALL oasis\_def\_partition (il\_part\_id, ig\_paral,
-    ierror, ig\_size, name)} or
+    kinfo, ig\_size, name)} or
 \item {\tt CALL prism\_def\_partition\_proto (il\_part\_id, ig\_paral,
-    ierror, ig\_size, name)}
+    kinfo, ig\_size, name)}
 
   \begin{itemize}
   \item {\tt il\_part\_id [INTEGER; OUT]}: partition ID
@@ -291,7 +291,7 @@ they may still call it describing a null partition, i.e. with {\tt ig\_paral(:)=
     has a different expression depending on the type of the partition;
     in OASIS3-MCT, 5 types of partition are supported: Serial (no
     partition), Apple, Box, Orange, and Points (see below).
-  \item {\tt ierror [INTEGER; OUT]}: returned error code.
+  \item {\tt kinfo [INTEGER; OUT]}: returned error code.
   \item {\tt ig\_size [INTEGER, OPTIONAL, IN]}: Optional argument, mandatory
     if the coupling data is exchanged for only a subdomain of the
     global grid; in this case, {\tt ig\_size} must give the total number of grid points.  
@@ -545,17 +545,17 @@ compatibility with OASIS3-MCT\_2.0, they may still call it with any {\tt name} a
 
 \item {\tt CALL oasis\_def\_var (var\_id, name, il\_part\_id,
     var\_nodims, kinout, \newline var\_type,
-    ierror)} or
+    kinfo)} or
     
 \item {\tt CALL oasis\_def\_var (var\_id, name, il\_part\_id,
     var\_nodims, kinout, \newline var\_actual\_shape, var\_type,
-    ierror)} or
+    kinfo)} or
 
 \item {\tt CALL prism\_def\_var\_proto(var\_id, name, il\_part\_id,
-    var\_nodims, kinout, var\_type, ierror)} or
+    var\_nodims, kinout, var\_type, kinfo)} or
 
 \item {\tt CALL prism\_def\_var\_proto(var\_id, name, il\_part\_id,
-    var\_nodims, kinout, var\_actual\_shape, var\_type, ierror)}
+    var\_nodims, kinout, var\_actual\_shape, var\_type, kinfo)}
 
   \begin{itemize}
   \item {\tt var\_id [INTEGER; OUT]}: coupling field ID.  Note that all 
@@ -594,7 +594,7 @@ compatibility with OASIS3-MCT\_2.0, they may still call it with any {\tt name} a
     or double precision real arrays.  All coupling data is treated as
     double precision in the coupling layer, but conversion to or from
     single precision data is supported in the interface.
-  \item {\tt ierror [INTEGER; OUT]}: returned error code.
+  \item {\tt kinfo [INTEGER; OUT]}: returned error code.
   \end{itemize}
 \end{itemize}
 % {coupling field declaration}
@@ -604,10 +604,10 @@ compatibility with OASIS3-MCT\_2.0, they may still call it with any {\tt name} a
 All processes of components at least partly involved in the coupling (e.g. {\tt comp3} in figure
     \ref{Fig_coupling_layouts_b}) have to close the definition phase. Different configurations of components and corresponding use of {\tt oasis\_enddef} are described in section \ref{sec_deploy} and on figures \ref{Fig_coupling_layouts_a} and \ref{Fig_coupling_layouts_b}.
 \begin{itemize}
-\item {\tt CALL oasis\_enddef (ierror)}
-\item {\tt CALL prism\_enddef\_proto(ierror)}
+\item {\tt CALL oasis\_enddef (kinfo)}
+\item {\tt CALL prism\_enddef\_proto(kinfo)}
   \begin{itemize}
-  \item ierror [INTEGER; OUT]: returned error code.
+  \item kinfo [INTEGER; OUT]: returned error code.
   \end{itemize}
 \end{itemize}
 
@@ -914,10 +914,10 @@ for these multiple fields.
 
 \begin{itemize}
 
-\item {\tt CALL oasis\_terminate (ierror)}
-\item {\tt CALL prism\_terminate\_proto(ierror)}
+\item {\tt CALL oasis\_terminate (kinfo)}
+\item {\tt CALL prism\_terminate\_proto(kinfo)}
   \begin{itemize}
-  \item {\tt ierror [INTEGER; OUT]}: returned error code.
+  \item {\tt kinfo [INTEGER; OUT]}: returned error code.
   \end{itemize}
 All processes of components at least partly involved in the coupling (e.g. {\tt comp3} in figure
     \ref{Fig_coupling_layouts_b}) have to terminate the coupling by
@@ -945,8 +945,7 @@ The following auxiliary routines are currently available.
   \item {\tt compid [INTEGER; IN]}: component ID (from {\tt
       oasis\_init\_comp})
   \item {\tt routine\_name [CHARACTER*; IN]}: name of calling routine
-  \item {\tt abort\_message [CHARACTER*; IN]}: message to be written
-    out.
+  \item {\tt abort\_message [CHARACTER*; IN]}: message to be written out
   \item {\tt file [CHARACTER*; OPTIONAL; IN]}: file from which oasis\_abort is called from
   \item {\tt line [INTEGER, OPTIONAL; IN]}: line in file from which oasis\_abort is called from
   \item {\tt rcode [INTEGER, OPTIONAL; IN]}: Optional argument. When OASIS 
@@ -962,10 +961,11 @@ The following auxiliary routines are currently available.
   {\tt oasis\_init\_comp}.
 
   \vspace{0.2cm}
-\item {\tt CALL oasis\_get\_debug(debug\_value)}
-\item {\tt CALL prism\_get\_debug(debug\_value)}
+\item {\tt CALL oasis\_get\_debug(debug, kinfo)}
+\item {\tt CALL prism\_get\_debug(debug, kinfo)}
   \begin{itemize}
-  \item {\tt debug\_value [INTEGER; OUT]}: debug value
+  \item {\tt debug [INTEGER; OUT]}: output debug value
+  \item {\tt kinfo [INTEGER; OUT; OPTIONAL]}: returned error code
   \end{itemize}
 
   This routine may be called at any time to retrieve the current
@@ -974,10 +974,11 @@ The following auxiliary routines are currently available.
   return the original debug value after changing it.
 
   \vspace{0.2cm}
-\item {\tt CALL oasis\_set\_debug(debug\_value)}
-\item {\tt CALL prism\_set\_debug(debug\_value)}
+\item {\tt CALL oasis\_set\_debug(debug, kinfo)}
+\item {\tt CALL prism\_set\_debug(debug, kinfo)}
   \begin{itemize}
-  \item {\tt debug\_value [INTEGER; IN]}: debug value
+  \item {\tt debug [INTEGER; IN]}: input debug value
+  \item {\tt kinfo [INTEGER; OUT; OPTIONAL]}: returned error code
   \end{itemize}
 
   This routine may be called at any time to change the debug level in
@@ -988,29 +989,43 @@ The following auxiliary routines are currently available.
 \item {\tt CALL oasis\_get\_intercomm(new\_comm, cdnam, kinfo)}
 \item {\tt CALL prism\_get\_intercomm(new\_comm, cdnam, kinfo)}
   \begin{itemize}
-  \item {\tt new\_comm [INTEGER; OUT]}: mpi intercomm communicator
+  \item {\tt new\_comm [INTEGER; OUT]}: MPI inter-communicator
   \item {\tt cdnam [CHARACTER*; IN]}: other component name (i.e. 2nd argument of  the call to {\tt oasis\_init\_comp} in that component)
   \item {\tt kinfo [INTEGER; OUT; OPTIONAL]}: returned error code
   \end{itemize}
 
-  This routine sets up an MPI intercomm communicator between the root
-  processors of two components, the local component and the component
+  This routine sets up an MPI inter-communicator between two components,
+  the local component and the component
   associated with {\tt cdnam}.  This call is collective across the
-  tasks of the two components but other components are not involved.
+  tasks of the two components only.
+  An MPI inter-communicator preserves the rank of the original communicators
+  and does not allow collective communication within the communicator.  It
+  provides point to point communication between two non-overlapping MPI groups.
+  This method must be called synchronously across all components involved to
+  minimize the chance of a deadlock, and it should be called only after
+  {\tt oasis\_enddef} is called.
+  See {\tt oasis\_get\_intracomm} below to create an intra-communicator.
 
   \vspace{0.2cm}
 \item {\tt CALL oasis\_get\_intracomm(new\_comm, cdnam, kinfo)}
 \item {\tt CALL prism\_get\_intracomm(new\_comm, cdnam, kinfo)}
   \begin{itemize}
-  \item {\tt new\_comm [INTEGER; OUT]}: mpi intracomm communicator
-  \item {\tt cdnam [CHARACTER*; IN]}: other component name (i.e. 2nd argument of  the call to {\tt oasis\_init\_comp} in that component)
+  \item {\tt new\_comm [INTEGER; OUT]}: MPI intra-communicator
+  \item {\tt cdnam [CHARACTER*; IN]}: other component name(s) (i.e. 2nd argument of  the call to {\tt oasis\_init\_comp} in that component).  This argument can be a single character string or a 1d array of character strings (i.e. cdnam(:)).
   \item {\tt kinfo [INTEGER; OUT; OPTIONAL]}: returned error code
   \end{itemize}
 
-  This routine sets up an MPI intracomm communicator between the root
-  processors of two components, the local component and the component
-  associated with {\tt cdnam} .  This call is collective across the tasks of
-  the two components but other components are not involved.
+  This routine sets up an MPI intra-communicator between two or more
+  components, the local component and the component name(s) passed in
+  {\tt cdnam} .  This call is collective
+  across the tasks of the components creating the intra-communicator only.
+  This method creates a new collective group of tasks with new
+  ranks.  This communicator supports collective communications and is
+  more typically used in MPI applications than inter-communicators
+  (see {\tt oasis\_get\_intercomm} above).  
+  This method must be called synchronously across all components involved to
+  minimize the chance of a deadlock, and it should be called only after
+  {\tt oasis\_enddef} is called.
 
 \item {\tt CALL oasis\_put\_inquire(var\_id, date, kinfo)}
 \item {\tt CALL prism\_put\_inquire\_proto(var\_id, date, kinfo)}
