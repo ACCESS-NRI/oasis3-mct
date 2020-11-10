@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from pyoasis.exception import *
 from pyoasis.parameters import *
 from pyoasis.debug import *

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # pyOASIS - A Python wrapper for OASIS
 # Authors: Philippe Gambron, Rupert Ford
@@ -39,12 +39,20 @@ class Component(object):
     :raises PyOasisException: if an incorrect parameter is supplied
     """
 
+
+    _n_components = 0
+
+
     def __init__(self, name, coupled=True, communicator=MPI.COMM_WORLD):
         """Constructor"""
         self._initialised = False
         self._name = name
         pyoasis.checktypes.check_types([str, bool, MPI.Intracomm],
                                        [name, coupled, communicator])
+        if Component._n_components > 0 :
+            raise pyoasis.PyOasisException("There should be only one component.")
+        ++Component._n_components
+
         if len(name) == 0:
             raise pyoasis.PyOasisException("Component name empty.")
 
@@ -73,12 +81,11 @@ class Component(object):
         Destructor
         Ends the coupling.
         """
-        if self._initialised:
-            print("Component {} terminating upon deletion".format(self._name))  
+        if self._initialised:  
             try:
                 error = pyoasis.mod_oasis_method.terminate()
                 if error < 0:
-                    pyoasis.oasis_abort(self._id_component, "Component::__del__", "oasis_termaninate failed", "component.py", 79, error)
+                    pyoasis.oasis_abort(self._id_component, "Component::__del__", "oasis_terminate failed", "component.py", 79, error)
                 self._initialised = False 
             except AttributeError:
                 pass
