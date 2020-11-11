@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # pyOASIS - A Python wrapper for OASIS
 # Authors: Philippe Gambron, Rupert Ford
 # Copyright (C) 2019 UKRI - STFC
