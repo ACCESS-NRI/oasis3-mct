@@ -40,20 +40,14 @@ class Partition(object):
         error = return_value[1]
         if error < 0:
             raise pyoasis.OasisException("Error in def_partition", error)
-        self.partition_id = return_value[0]
-
-    def get_id(self):
-        """:returns: the partition identifier.
-           :rtype: int
-        """
-        return self.partition_id
+        self._id = return_value[0]
 
     @property
     def local_size(self):
         return self._local_size
 
     def __str__(self):
-        return "Partition: id: " + str(self.partition_id)
+        return "Partition: id: " + str(self._id)
 
 
 class SerialPartition(Partition):

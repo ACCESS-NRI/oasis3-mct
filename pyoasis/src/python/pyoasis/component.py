@@ -62,7 +62,7 @@ class Component(object):
         if error < 0:
             raise pyoasis.OasisException("Error initialising component " + self._name,
                                          error)
-        self.id_component = return_value[0]
+        self._id = return_value[0]
         return_value = pyoasis.mod_oasis_auxiliary_routines.get_localcomm()
         error = return_value[1]
         if error < 0:
@@ -83,7 +83,7 @@ class Component(object):
             try:
                 error = pyoasis.mod_oasis_method.terminate()
                 if error < 0:
-                    pyoasis.oasis_abort(self._id_component, "Component::__del__", "oasis_terminate failed", "component.py", 79, error)
+                    pyoasis.oasis_abort(self._id, "Component::__del__", "oasis_terminate failed", "component.py", 79, error)
                 self._initialised = False 
             except AttributeError:
                 pass
@@ -102,13 +102,6 @@ class Component(object):
         :rtype: string
         """
         return self._name
-
-    def get_id(self):
-        """
-        :returns: the component identifier
-        :rtype: int
-        """
-        return self.id_component
 
     def create_couplcomm(self, icpl):
         """
@@ -204,7 +197,7 @@ class Component(object):
             raise pyoasis.OasisException("Error in enddef", error)
 
     def __str__(self):
-        return "Component: name: " + self._name + ", id: " + str(self.id_component)
+        return "Component: name: " + self._name + ", id: " + str(self._id)
 
     @property
     def debug_level(self):
