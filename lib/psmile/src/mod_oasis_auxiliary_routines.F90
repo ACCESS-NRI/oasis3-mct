@@ -358,6 +358,11 @@ MODULE mod_oasis_auxiliary_routines
           endif
        endif
     enddo
+    ! check there is at least one other valid model to connect to
+    if (icnt <= 1) then
+       write(nulprt,*) subname,estr,'model name list error, no valid other models'
+       call oasis_abort(file=__FILE__,line=__LINE__)
+    endif
 
     ! now sort cdnum so all components are going to call the mpi ops in the same order consistently
     do k = 1,icnt
