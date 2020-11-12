@@ -30,7 +30,7 @@ class Var:
     """
     Variable data
 
-    :param string var_name: name [cdport in OASIS]
+    :param string name: name of the variable data [cdport in OASIS]
     :type partition: partition identifier
     :param inout: flag indicating whether the data is outgoing \
                    or ingoing
@@ -41,12 +41,12 @@ class Var:
     :raises PyOasisException: if an incorrect parameter is supplied
     """
 
-    def __init__(self, var_name, partition, inout, bundle_size=1):
+    def __init__(self, name, partition, inout, bundle_size=1):
         """Constructor"""
 
         pyoasis.check_types([str, pyoasis.Partition, pyoasis.OasisParameters, int],
-                            [var_name, partition, inout, bundle_size])
-        if len(var_name) == 0:
+                            [name, partition, inout, bundle_size])
+        if len(name) == 0:
             raise pyoasis.PyOasisException("Name empty")
         _id_partition = partition._id
         self._partition_local_size = partition.local_size
@@ -57,11 +57,11 @@ class Var:
             raise pyoasis.PyOasisException("inout parameter neither OASIS_IN or OASIS_OUT.")
         if bundle_size < 1:
             raise pyoasis.PyOasisException("Bundle size <1.")
-        self.name = var_name
+        self._name = name
         self.bundle_size = bundle_size
         self.direction = inout
         id_var_nodims = [1, bundle_size]
-        return_value = pyoasis.mod_oasis_var.def_var(_id_partition, self.name, id_var_nodims,
+        return_value = pyoasis.mod_oasis_var.def_var(_id_partition, self._name, id_var_nodims,
                                                      self.direction.value)
         error = return_value[1]
         if error < 0:
@@ -84,12 +84,13 @@ class Var:
                         return True
             return False
 
-    def get_name(self):
+    @property
+    def name(self):
         """
         :returns: name of variable data
         :rtype: string
         """
-        return self.name
+        return self._name
 
     def put(self, time, field, write_restart=False):
         """
@@ -139,7 +140,7 @@ class Var:
             raise pyoasis.OasisException("Error in get: returned value not mapped to Oasis parameters", -1)
 
     def __str__(self):
-        return "Variable data: name: " + self.name + ", id: " + str(self._id)
+        return "Variable data: name: " + self._name + ", id: " + str(self._id)
 
     def put_inquire(self, time):
         """

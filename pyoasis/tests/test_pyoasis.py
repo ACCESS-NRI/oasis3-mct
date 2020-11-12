@@ -401,14 +401,6 @@ def test_Var_constructor8():
         partition = pyoasis.SerialPartition(4)
         var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)      
 
-# get_name
-def test_Var_get_name():
-    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
-    pyoasis.mod_oasis_var.def_var = returns_2_zeros
-    partition = pyoasis.SerialPartition(4)
-    name = "name"
-    var = pyoasis.Var(name, partition, pyoasis.OasisParameters.OASIS_OUT)
-    assert var.get_name() == "name"
 
 # put
 # Wrong type 1st argument
@@ -486,6 +478,6 @@ def test_SerialPartition_str():
     partition = pyoasis.SerialPartition(4)
     var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
     line = str(var)
-    assert line.find(var.get_name()) >=0
+    assert line.find(var._name) >=0
     assert line.find(str(var._id)) >=0     
 
