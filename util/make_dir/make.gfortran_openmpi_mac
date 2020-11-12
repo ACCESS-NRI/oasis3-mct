@@ -1,6 +1,6 @@
 #
-# Include file for OASIS3 Makefile for a Linux system using 
-# Intel compilers and MPI
+# Include file for OASIS3 Makefile for a Mac Os system using
+# Gnu 10 compilers and OpenMPI 4.0.5
 #
 ###############################################################################
 #
@@ -24,8 +24,8 @@ NETCDF_LIBRARY = -L/usr/local/lib -lnetcdff -lnetcdf
 #
 # Make command
 MAKE        = make
-# Compilers 
-F90         = mpifort # underlying ifort from module load compiler/intel/18.0.5.274
+# Compilers
+F90         = mpifort -fallow-argument-mismatch # underlying gfortran 10.2 from Brew
 F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
@@ -40,15 +40,15 @@ AR          = ar
 ARFLAGS     = -ruv
 #
 # CPP keys and compiler options
-# 
+#
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
 FCBASEFLAGS  = -O2 -I. -ffree-line-length-0  -mcmodel=medium
-#FCBASEFLAGS  = -g -ffree-line-length-0 -fbounds-check  -mcmodel=medium
+#FCBASEFLAGS  = -g -ffree-line-length-0 -fcheck=bounds  -mcmodel=medium -fallow-argument-mismatch
 CCBASEFLAGS  = -O2
 #
 # INC_DIR : includes all *mod for each library
-INC_DIR = -I$(ARCHDIR)/include 
+INC_DIR = -I$(ARCHDIR)/include
 #
 F90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 f90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
@@ -56,5 +56,6 @@ FFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 fFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 CCFLAGS  = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 LDFLAGS  = $(FCBASEFLAGS)
+FLIBS    = $(NETCDF_LIBRARY)
 #
 #############################################################################
