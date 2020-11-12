@@ -19,7 +19,7 @@ comm_rank = comp.localcomm.rank
 comm_size = comp.localcomm.size
 
 if comm_rank == 0:
-    print("Component name: {} = Component ID: {}".format(component_name, comp.get_id()))
+    print("Component name: {} = Component ID: {}".format(component_name, comp._id))
 
 n_points = 16
 
@@ -65,16 +65,16 @@ else:
     part_in = pyoasis.OrangePartition(offsets, extents, name="part_in")
 
 if comm_rank == 0:
-    print("{}: part_in  id: {}".format(component_name, part_in.get_id()))
-    print("{}: part_out id: {}".format(component_name, part_out.get_id()))
+    print("{}: part_in  id: {}".format(component_name, part_in._id))
+    print("{}: part_out id: {}".format(component_name, part_out._id))
 
 variable = pyoasis.Var("FRECVATM", part_in, OASIS.IN, bundle_size=2)
 if comm_rank == 0:
-    print("{}: var_name: FRECVATM = var_id: {}".format(component_name, variable.get_id()))
+    print("{}: var_name: FRECVATM = var_id: {}".format(component_name, variable._id))
 
 var_out = pyoasis.Var("FSENDATM", part_out, OASIS.OUT)
 if comm_rank == 0:
-    print("{}: var_name: FSENDATM = var_id: {}".format(component_name, var_out.get_id()))
+    print("{}: var_name: FSENDATM = var_id: {}".format(component_name, var_out._id))
 
 comp.enddef()
 

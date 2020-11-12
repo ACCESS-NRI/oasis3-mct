@@ -30,7 +30,7 @@ class Var:
     """
     Variable data
 
-    :param string var_name: name
+    :param string var_name: name [cdport in OASIS]
     :type partition: partition identifier
     :param inout: flag indicating whether the data is outgoing \
                    or ingoing
@@ -45,7 +45,7 @@ class Var:
         """Constructor"""
 
         pyoasis.check_types([str, pyoasis.Partition, pyoasis.OasisParameters, int],
-                            [var_name, partition, kinout, bundle_size])
+                            [var_name, partition, inout, bundle_size])
         if len(var_name) == 0:
             raise pyoasis.PyOasisException("Name empty")
         _id_partition = partition._id
@@ -95,7 +95,7 @@ class Var:
         """
         Sends data to another model.
 
-        :param int time: model time (in seconds)
+        :param int time: model time (in seconds) [kstep in OASIS]
         :param pyoasis.asarray field: data
         :param bool write_restart: optional flag for writing a restart file
 
@@ -119,7 +119,7 @@ class Var:
         """
         Gets data from another model.
 
-        :param int time: model time (in seconds)
+        :param int time: model time (in seconds) [kstep in OASIS]
         :param pyoasis.asarray field: data
 
         :raises OasisException: if OASIS is unable to receive \
@@ -146,7 +146,7 @@ class Var:
         :returns: return code expected at a specified time 
         for a given variable
         :rtype: integer
-        :param int time: model time (in seconds)
+        :param int time: model time (in seconds) [msec in OASIS]
 
         :raises OasisException: if OASIS is unable to obtain the return code
         :raises PyOasisException: if an incorrect parameter is supplied
@@ -160,12 +160,6 @@ class Var:
     
     @property
     def cpl_freqs(self):
-      """
-      getter for get_freqs
-      """
-      return self.get_freqs()
-
-    def get_freqs(self):
       """
       :returns:  the coupling periods
       :rtype: array of integers

@@ -495,7 +495,13 @@ for more details). Finally the data is handled by the class **Var**.
 
 .. autoclass:: pyoasis.Var
                :members:
-		  
+
+
+Grids are managed by the *Grid* class.
+ 
+.. autoclass:: pyoasis.Grid
+               :members:
+
    
 Acknowledgments
 ---------------

@@ -45,7 +45,7 @@ class Grid(object):
         self._nx_glo = nx_global
         self._ny_glo = ny_global
         if partition:
-            self._part_id = partition.get_id()
+            self._part_id = partition._id
         else:
             self._part_id = -1
 

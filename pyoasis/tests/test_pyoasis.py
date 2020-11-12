@@ -106,7 +106,6 @@ def test_Component_various_functions():
     pyoasis.mod_oasis_method.terminate = returns_zero
     comp = pyoasis.Component("name")
     assert comp.get_name() == "name"
-    assert comp.get_id() == 0
     assert comp.create_couplcomm(1) == 0 
 
 # enddef
@@ -128,7 +127,7 @@ def test_Component_str():
     comp = pyoasis.Component(name)
     line = str(comp)
     assert line.find(comp.get_name()) >=0
-    assert line.find(str(comp.get_id())) >=0
+    assert line.find(str(comp._id)) >=0
     
        
 # SerialPartition
@@ -152,11 +151,6 @@ def test_SerialPartition_constructor3():
         pyoasis.mod_oasis_part.def_partition = returns_2errors
         partition = pyoasis.SerialPartition(4)
 
-# get_id
-def test_SerialPartition_get_id():
-    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
-    partition = pyoasis.SerialPartition(4)
-    assert partition.get_id() == 0
 
 # __str__
 def test_SerialPartition_str():
@@ -164,7 +158,7 @@ def test_SerialPartition_str():
     pyoasis.mod_oasis_part.def_partition = returns_2_zeros
     partition = pyoasis.SerialPartition(4)
     line = str(partition)
-    assert line.find(str(partition.get_id())) >=0
+    assert line.find(str(partition._id)) >=0
 
                      
 # ApplePartition
@@ -199,12 +193,6 @@ def test_ApplePartition_constructor5():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_part.def_partition = returns_2errors
         partition = pyoasis.ApplePartition(0, 4)
-
-# get_id
-def test_ApplePartition_get_id():
-    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
-    partition = pyoasis.ApplePartition(0, 4)
-    assert partition.get_id() == 0
     
 # __str__
 def test_ApplePartition_str():
@@ -212,7 +200,7 @@ def test_ApplePartition_str():
     pyoasis.mod_oasis_part.def_partition = returns_2_zeros
     partition = pyoasis.ApplePartition(0, 4)
     line = str(partition)
-    assert line.find(str(partition.get_id())) >=0
+    assert line.find(str(partition._id)) >=0
 
     
 # BoxPartition
@@ -271,12 +259,6 @@ def test_BoxPartition_constructor9():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_part.def_partition = returns_2errors
         partition = pyoasis.BoxPartition(0, 10, 10, 10)
-        
-# get_id
-def test_BoxPartition_get_id():
-    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
-    partition = pyoasis.BoxPartition(0, 10, 10, 10)
-    assert partition.get_id() == 0
 
 
 # OrangePartition
@@ -330,12 +312,6 @@ def test_OrangePartition_constructor4():
         pyoasis.mod_oasis_part.def_partition = returns_2errors
         partition = pyoasis.OrangePartition([0, 2], [2, 2])
 
-# get_id
-def test_OrangePartition_get_id():
-    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
-    partition = pyoasis.OrangePartition([0, 2], [2, 2])
-    assert partition.get_id() == 0
-
 
 # PointsPartition
 # Constructor
@@ -364,12 +340,6 @@ def test_PointsPartition_constructor4():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_part.def_partition = returns_2errors
         partition = pyoasis.PointsPartition([0, 1])
-        
-# get_id
-def test_PointsPartition_get_id():
-    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
-    partition = pyoasis.PointsPartition([0, 1])
-    assert partition.get_id() == 0
 
     
 # Var
@@ -430,14 +400,6 @@ def test_Var_constructor8():
         pyoasis.mod_oasis_var.def_var = returns_2errors
         partition = pyoasis.SerialPartition(4)
         var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)      
-
-# get_id
-def test_Var_get_id():
-    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
-    pyoasis.mod_oasis_var.def_var = returns_2_zeros
-    partition = pyoasis.SerialPartition(4)
-    var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)
-    assert var.get_id() == 0
 
 # get_name
 def test_Var_get_name():
@@ -525,5 +487,5 @@ def test_SerialPartition_str():
     var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
     line = str(var)
     assert line.find(var.get_name()) >=0
-    assert line.find(str(var.get_id())) >=0     
+    assert line.find(str(var._id)) >=0     
 
