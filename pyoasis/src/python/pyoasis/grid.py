@@ -30,6 +30,7 @@ class Grid(object):
     :param numpy.array lon: longitudes of the cell centres (2D array)
     :param numpy.array lat: latitudes of the cell centres (2D array)
     :param type partition: optional partition object for distributed grids
+    :raises PyOasisException: if the name is empty
     """
 
     _counter = 0
@@ -57,6 +58,13 @@ class Grid(object):
 
 
     def set_corners(self, clo, cla):
+        """
+        Sets corner latitudes and longitudes 
+        :param clo: array longitudes    
+        :type clo: array of double-precision floating numbers
+        :param cla: array longitudes    
+        :type cla: array of double-precision floating numbers        
+        """
         pyoasis.checktypes.check_types([numpy.ndarray, numpy.ndarray],
                                        [clo, cla])
         pyoasis.mod_oasis_grid.write_corner(self._cgrid, self._nx_glo, self._ny_glo,
@@ -64,6 +72,13 @@ class Grid(object):
 
 
     def set_mask(self, mask, companion=None):
+        """
+        Sets integer mask values 
+        :param mask: mask array   
+        :type mask: array of integer numbers
+        :param companion: companion    
+        :type companion: str        
+        """
         pyoasis.checktypes.check_types([numpy.ndarray, str],[mask, companion])
         if not companion:
             companion="NULL-STRING"
@@ -80,12 +95,20 @@ class Grid(object):
 
 
     def set_area(self, area):
+        """
+        Set area values
+        :param area: mask array   
+        :type area: array of double precision floating numbers
+        """
         pyoasis.checktypes.check_types([numpy.ndarray],[area])
         pyoasis.mod_oasis_grid.write_area(self._cgrid, self._nx_glo, self._ny_glo,
                                           area, self._part_id)
 
 
     def write(self):
+        """
+        Writes the grid
+        """
         Grid._counter -= 1
         if Grid._counter == 0:
             pyoasis.mod_oasis_grid.terminate_grids_writing()

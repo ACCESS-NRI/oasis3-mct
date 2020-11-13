@@ -105,7 +105,7 @@ def test_Component_various_functions():
     pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2_zeros
     pyoasis.mod_oasis_method.terminate = returns_zero
     comp = pyoasis.Component("name")
-    assert comp.get_name() == "name"
+    assert comp._name == "name"
     assert comp.create_couplcomm(1) == 0 
 
 # enddef
@@ -126,7 +126,7 @@ def test_Component_str():
     name = "name"
     comp = pyoasis.Component(name)
     line = str(comp)
-    assert line.find(comp.get_name()) >=0
+    assert line.find(comp._name) >=0
     assert line.find(str(comp._id)) >=0
     
        

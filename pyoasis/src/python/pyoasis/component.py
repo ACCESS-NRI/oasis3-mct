@@ -44,7 +44,6 @@ class Component(object):
     def __init__(self, name, coupled=True, communicator=MPI.COMM_WORLD):
         """Constructor"""
         self._initialised = False
-        self._name = name
         pyoasis.checktypes.check_types([str, bool, MPI.Intracomm],
                                        [name, coupled, communicator])
         if Component._n_components > 0 :
@@ -53,7 +52,7 @@ class Component(object):
 
         if len(name) == 0:
             raise pyoasis.PyOasisException("Component name empty.")
-
+        self._name = name
         self._communicator = communicator
         return_value = pyoasis.mod_oasis_method.init_comp(self._name, coupled,
                                                           self._communicator)
@@ -95,17 +94,11 @@ class Component(object):
         :rtype: string
         """
         return self._name
-                
-    def get_name(self):
-        """
-        :returns: the name of the component
-        :rtype: string
-        """
-        return self._name
+        
 
     def create_couplcomm(self, icpl):
         """
-   
+        Creates a coupling communicator
         :param int icpl: coupling switch (1 coupled process, 0 not coupled)
         :returns: error code
         :rtype: int
@@ -130,7 +123,7 @@ class Component(object):
 
     def set_couplcomm(self, couplcomm):
         """
-   
+        Sets the coupling communicator
         :param MPI.communicator couplcomm: coupling communicator
         :returns: error code
         :rtype: int
@@ -148,7 +141,6 @@ class Component(object):
 
     def get_intracomm(self, compname):
         """
-
         :param string compname: name of the other component in the intracommunicator
         :returns: the intracommunicator
         :rtype: MPI.communicator
@@ -167,7 +159,6 @@ class Component(object):
 
     def get_intercomm(self, compname):
         """
-
         :param string compname: name of the other component in the intercommunicator
         :returns: the intercommunicator
         :rtype: MPI.communicator
