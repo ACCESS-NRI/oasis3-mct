@@ -144,13 +144,18 @@ class Var:
 
     def put_inquire(self, time):
         """
-        :returns: return code expected at a specified time 
-        for a given variable
-        :rtype: integer
         :param int time: model time (in seconds) [msec in OASIS]
 
-        :raises OasisException: if OASIS is unable to obtain the return code
-        :raises PyOasisException: if an incorrect parameter is supplied
+        :returns: return value expected at a specified time 
+        for a given variable
+
+        :rtype: pyoasis.OasisParameters
+
+        :raises OasisException: if OASIS is unable to obtain 
+        the return code
+
+        :raises PyOasisException: if an incorrect parameter is 
+        supplied
         """
         pyoasis.check_types([int], [time])
         rcode = pyoasis.mod_oasis_auxiliary_routines.put_inquire(self._id, time)
@@ -164,7 +169,6 @@ class Var:
       """
       :returns:  the coupling periods
       :rtype: array of integers
-
       :raises OasisException: if OASIS is unable to obtain the
       coupling periods
       """

@@ -19,7 +19,7 @@
 
 project = 'pyOASIS'
 copyright = '2020, Philippe Gambron, Rupert Ford'
-author = 'Philippe Gambron, Rupert Ford'
+author = 'Philippe Gambron, Rupert Ford, Andrea Piacentini'
 
 
 # -- General configuration ---------------------------------------------------

@@ -1,5 +1,10 @@
 PYOASIS=$(COUPLE)/pyoasis
 
+
+# Doc
+doc:
+	cd docs && make latexpdf && cp _build/latex/pyoasis.pdf ..
+
 # Test
 
 ifeq ($(PYOASIS),/pyoasis)

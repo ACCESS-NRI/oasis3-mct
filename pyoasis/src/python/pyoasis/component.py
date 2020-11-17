@@ -30,7 +30,7 @@ class Component(object):
     """
     Component that will be coupled by OASIS
 
-    :param string name: name of the component
+    :param str name: name of the component
     :param bool coupled: whether the component will be coupled (default: True)
     :param mpi4py.MPI.Intracomm communicator: global MPI communicator (default: MPI.COMM_WORLD)
     :raises OasisException: if OASIS is unable to initialise the component
@@ -99,9 +99,12 @@ class Component(object):
     def create_couplcomm(self, icpl):
         """
         Creates a coupling communicator
+
         :param int icpl: coupling switch (1 coupled process, 0 not coupled)
+
         :returns: error code
         :rtype: int
+
         :raises OasisException: if OASIS is unable to create the coupling \
                                 communicator
         :raises PyOasisException: if an incorrect parameter is supplied
@@ -125,8 +128,10 @@ class Component(object):
         """
         Sets the coupling communicator
         :param MPI.communicator couplcomm: coupling communicator
+
         :returns: error code
         :rtype: int
+
         :raises OasisException: if OASIS is unable to set the coupling \
                                 communicator
         :raises PyOasisException: if an incorrect parameter is supplied
@@ -194,8 +199,10 @@ class Component(object):
     def debug_level(self):
         """
         Returns the currently set debug level
+
         :returns: debug level
         :rtype: int
+
         :raises OasisException: if OASIS is unable to get the debug level
         """
         return pyoasis.get_debug()

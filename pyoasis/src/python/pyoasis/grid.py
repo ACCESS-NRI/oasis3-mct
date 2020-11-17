@@ -60,8 +60,10 @@ class Grid(object):
     def set_corners(self, clo, cla):
         """
         Sets corner latitudes and longitudes 
+
         :param clo: array longitudes    
         :type clo: array of double-precision floating numbers
+
         :param cla: array longitudes    
         :type cla: array of double-precision floating numbers        
         """
@@ -74,8 +76,10 @@ class Grid(object):
     def set_mask(self, mask, companion=None):
         """
         Sets integer mask values 
+
         :param mask: mask array   
         :type mask: array of integer numbers
+
         :param companion: companion    
         :type companion: str        
         """
@@ -97,7 +101,9 @@ class Grid(object):
     def set_area(self, area):
         """
         Set area values
+
         :param area: mask array   
+
         :type area: array of double precision floating numbers
         """
         pyoasis.checktypes.check_types([numpy.ndarray],[area])
