@@ -38,6 +38,7 @@ Prerequisites
 - An MPI library (tested with version 18 of the Intel MPI Library and versions 4.0.1 and 4.0.5 of OpenMPI)
 - NetCDF 4
 - Python 3 with mpi4py and NumPy
+- Sphinx and Tex Live (for the documentation)
 - [Matplotlib]
 - [GEOS (Geometry Engine, Open Source): package libgeos-dev under Debian or Ubuntu]
 - [proj: package libproj-dev under Debian or Ubuntu] 
