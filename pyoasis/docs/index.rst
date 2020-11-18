@@ -136,7 +136,7 @@ pyOASIS can be tested by issuing, in the directory ${OASIS_ROOT}/pyoasis::
 
     make test
 
-This will test the Python wrapper itself as well as running examples using OASIS. It requires pytest.
+This will test the Python wrapper itself as well as running examples using OASIS (the one in the ``tests`` directory as well as examples 1 to 9). It requires pytest.
 
 
 Documentation
@@ -584,7 +584,7 @@ All the functions have been implemented with their full interface
 except ``put`` which, in the case of pyOASIS, accepts only
 a single field. 
 
-All these functions are tested, at the level of 
+These functions are all tested, at the level of 
 the Python wrapper, using pytest whereas they are tested, while
 running OASIS, by the examples. All these tests cans be executed by 
 the command described in section 2.3.
