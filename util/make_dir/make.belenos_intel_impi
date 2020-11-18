@@ -23,7 +23,7 @@ MPILIB           = -L$(MPIDIR)/lib
 #
 # NETCDF library
 NETCDF_INCLUDE  = /opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2/include
-NETCDF_LIBRARY  = -L/opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2/lib -lnetcdff -lnetcdf 
+NETCDF_LIBRARY  = -L/opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2/lib -lnetcdff 
 #
 # Compiling and other commands
 # You may have to load the corresponding intel module to compile
