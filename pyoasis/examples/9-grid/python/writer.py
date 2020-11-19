@@ -4,13 +4,14 @@ import pyoasis
 from pyoasis import OASIS
 import numpy as np
 import math
+import netCDF4
+
 
 comp = pyoasis.Component("writer")
 
-print(comp)
-
 comm_rank = comp.localcomm.rank
 comm_size = comp.localcomm.size
+
 
 nx_loc = 18
 ny_loc = 18
@@ -143,86 +144,49 @@ field = pyoasis.asarray(msk)
 var_out.put(date, field)
 var_in.get(date, field)
 
-try:
-    import netCDF4
-    import cartopy.crs as ccrs
-    import matplotlib.pyplot as plt
-    import matplotlib.collections
-    from matplotlib.colors import ListedColormap
-except ImportError:
-    if comm_rank == 0:
-        print("The example completed correctly\nbut no plotting library available.\nInstall netcdf, matplotlib and cartopy for plotting the results\nIn the meantime you can visualize the contents of work/masks.nc with ncview work/masks.nc")
-    exit(0)
 
 if comm_rank == 0:
-    def caramelbleucm():
-        rcol = np.hstack((np.linspace(0.1, 0.0, 30 - 0 + 1)[:-1],
-                          np.linspace(0.0, 0.8, 47 - 30 + 1)[:-1],
-                          np.linspace(0.8, 1.0, 52 - 47 + 1)[:-1],
-                          np.linspace(1.0, 1.0, 70 - 52 + 1)[:-1],
-                          np.linspace(1.0, 1.0, 100 - 70 + 1)))
-        gcol = np.hstack((np.linspace(0.1, 0.9, 30 - 0 + 1)[:-1],
-                          np.linspace(0.9, 1.0, 47 - 30 + 1)[:-1],
-                          np.linspace(1.0, 1.0, 52 - 47 + 1)[:-1],
-                          np.linspace(1.0, 0.9, 70 - 52 + 1)[:-1],
-                          np.linspace(0.9, 0.1, 100 - 70 + 1)))
-        bcol = np.hstack((np.linspace(1.0, 1.0, 30 - 0 + 1)[:-1],
-                          np.linspace(1.0, 1.0, 47 - 30 + 1)[:-1],
-                          np.linspace(1.0, 0.8, 52 - 47 + 1)[:-1],
-                          np.linspace(0.8, 0.0, 70 - 52 + 1)[:-1],
-                          np.linspace(0.0, 0.1, 100 - 70 + 1)))
-        alph = np.linspace(1.0, 1.0, 101)
-
-        cm = np.array((np.transpose(rcol), np.transpose(gcol), np.transpose(bcol), np.transpose(alph)))
-        cm = np.transpose(cm)
-        newmap = ListedColormap(cm, name='CaramelBleu')
-        return newmap
-
-    dgrid = 'pyoa'
     gf = netCDF4.Dataset('grids.nc', 'r')
-    lons = gf.variables[dgrid + '.lon'][:, :].flatten()
-    lats = gf.variables[dgrid + '.lat'][:, :].flatten()
-    n_points = lons.size
-    dgrid_corners = len(gf.dimensions['crn_' + dgrid])
-    dlon = gf.variables[dgrid + '.clo'][:].reshape(dgrid_corners, -1)
-    dlat = gf.variables[dgrid + '.cla'][:].reshape(dgrid_corners, -1)
-    gf.close()
+    if not np.amax(gf.variables["pyoa.lat"]) <= 90:
+        exit(-1)
+    if not np.amin(gf.variables["pyoa.lat"]) >= -90:
+        exit(-1)
+    if not np.amax(gf.variables["pyoa.lon"]) <= 180:
+        exit(-1)
+    if not np.amin(gf.variables["pyoa.lon"]) >= -180:
+        exit(-1)
+    if not np.amax(gf.variables["mono.lat"]) <= 90:
+        exit(-1)
+    if not np.amin(gf.variables["mono.lat"]) >= -90:
+        exit(-1)
+    if not np.amax(gf.variables["mono.lon"]) <= 360:
+        exit(-1)
+    if not np.amin(gf.variables["mono.lon"]) >= 0:
+        exit(-1)
 
     mf = netCDF4.Dataset('masks.nc', 'r')
-    msi = mf.variables[dgrid + '.msk'][:].flatten()
-    da_msk = msi == 1
+    mf_msk = mf.variables["mono.msk"]
+    epsilon=1e-4
+    for i in range(mf_msk.shape[0]):
+        for j in range(mf_msk.shape[1]):
+            d=math.sqrt((i-mf_msk.shape[0]/2)**2+(j-mf_msk.shape[1]/2)**2)
+            if(d<14):
+                if(abs(mf_msk[i][j]-1)>epsilon):
+                    exit(-1)
+            elif d>16:
+               if(abs(mf_msk[i][j])>epsilon):
+                   exit(-1)
+                   
+                    
+    af = netCDF4.Dataset('areas.nc', 'r')
+    af_msk = af.variables["pyoa.srf"]
+    for i in range(af_msk.shape[0]):
+        for j in range(af_msk.shape[1]):
+            if(abs(af_msk[i][j]-0.020205*math.sin((i+0.5)*math.pi/af_msk.shape[0]))>epsilon):
+               exit(-1)
+            
+    af.close()        
     mf.close()
-
-    da_lonlat = np.transpose(np.array([dlon, dlat]))
-    da_lonlat = np.delete(da_lonlat, np.where(da_msk), axis=0)
-
-    dp_conv = math.pi / 180.
-    field1 = 2.0 + np.sin(2.0 * lats * dp_conv) ** 4.0 * \
-             np.cos(4.0 * lons * dp_conv)
-
-    field1 = np.delete(field1, np.where(da_msk))
-
-    ti_str = "Grid and mask created by PyOasis"
-    fig = plt.figure(0, figsize=(8.25, 4.125), frameon=True)
-    plt.suptitle(ti_str)
-    cmap = caramelbleucm()
-    sd_proj = ccrs.PlateCarree()
-    di_ax = plt.subplot(111, projection=sd_proj)
-    di_ax.set_global()
-    #di_ax.coastlines(resolution='110m', linewidth=0.5)
-    di_pc = matplotlib.collections.PolyCollection(da_lonlat)
-    di_pc.set_array(field1)
-    di_pc.set_cmap(cmap)
-    di_pc.set_edgecolor('black')
-    di_pc.set_linewidth(0.3)
-    di_ax.add_collection(di_pc)
-    di_gl = di_ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-                            linewidth=0.0, linestyle=':', color='gray')
-    di_gl.top_labels = False
-    di_gl.right_labels = False
-    di_ax.set_title('Precomputed mask')
-
-    plt.subplots_adjust(left=0.10, right=0.90, wspace=0.05, hspace=0.)
-    plt.show()
+    gf.close()
 
 del comp

@@ -587,7 +587,7 @@ a single field.
 
 These functions are all tested, at the level of 
 the Python wrapper, using pytest whereas they are tested, while
-running OASIS, by the examples. All these tests cans be executed by 
+running OASIS, by the examples. All these tests can be executed by 
 the command described in section 2.3.
 
 

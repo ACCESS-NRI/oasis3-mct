@@ -44,3 +44,6 @@ example7:
 
 example8:
 	cd $(PYOASIS)/examples/8-fortran_and_python && bash run.sh
+
+example9:
+	cd $(PYOASIS)/examples/9-grid && bash run.sh
