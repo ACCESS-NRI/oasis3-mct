@@ -26,7 +26,8 @@ comp.enddef()
 intracomm = comp.get_intracomm("sender-box")
 intercomm = comp.get_intercomm("sender-box")
 
-print("Receiver intra_comm: rank = {} of {}".format(intracomm.rank, intracomm.size))
+print("Receiver intra_comm: rank = {} of {}".format(intracomm.rank,
+                                                    intracomm.size))
 print("Receiver inter_comm: rank = {} of {} Remote size = {}".format(intercomm.rank,
                                                                      intercomm.size,
                                                                      intercomm.remote_size))

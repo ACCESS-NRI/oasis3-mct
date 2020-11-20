@@ -40,7 +40,8 @@ def caramelbleucm():
                       np.linspace(0.0, 0.1, 100 - 70 + 1)))
     alph = np.linspace(1.0, 1.0, 101)
 
-    cm = np.array((np.transpose(rcol), np.transpose(gcol), np.transpose(bcol), np.transpose(alph)))
+    cm = np.array((np.transpose(rcol), np.transpose(gcol),
+                  np.transpose(bcol), np.transpose(alph)))
     cm = np.transpose(cm)
     newmap = ListedColormap(cm, name='CaramelBleu')
     return newmap
@@ -86,7 +87,7 @@ print("n_points on destination side is {}".format(n_points), flush=True)
 
 partition = pyoasis.SerialPartition(n_points)
 
-variable = pyoasis.Var("FRECVANA", partition,OASIS.IN,bundle_size=2)
+variable = pyoasis.Var("FRECVANA", partition, OASIS.IN, bundle_size=2)
 comp.enddef()
 
 date = int(0)
@@ -104,7 +105,7 @@ expected_field1 = 2.0 + np.sin(2.0 * lats * dp_conv) ** 4.0 * \
 
 expected_field1 = np.delete(expected_field1, np.where(da_msk))
 
-expected_field2 = 2.0 - np.cos(math.pi * \
+expected_field2 = 2.0 - np.cos(math.pi *
                                (np.arccos(np.cos(lons * dp_conv) *
                                           np.cos(lats * dp_conv)) /
                                 (1.2 * math.pi)))
@@ -118,7 +119,7 @@ print("Data received successfully at time {}".format(date))
 if not has_graphics:
     exit()
 
-cartopy.config['data_dir'] = os.path.join('.','cartopy')
+cartopy.config['data_dir'] = os.path.join('.', 'cartopy')
 
 for img in range(2):
     ti_str = "Test interpolation with PyOASIS\nBundle field {}".format(img + 1)

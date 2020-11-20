@@ -3,8 +3,8 @@
 # Copyright (C) 2019 UKRI - STFC
 
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as 
-# published by the Free Software Foundation, either version 3 of the 
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
 # License, or any later version.
 
 # This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
 # GNU Lesser General Public License for more details.
 
 # A copy of the GNU Lesser General Public License, version 3, is supplied
-# with this program, in the file lgpl-3.0.txt. It is also available at 
+# with this program, in the file lgpl-3.0.txt. It is also available at
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
@@ -34,7 +34,8 @@ import traceback
 def oasis_abort(component_id, routine, message, filename, line, error):
     """Aborts OASIS."""
     pyoasis.check_types([int, str, str, str, int, int],
-                        [component_id, routine, message, filename, line, error])
+                        [component_id, routine, message, filename, line,
+                        error])
     pyoasis.mod_oasis_sys.oasis_abort(component_id, routine, message, filename,
                                       line, error)
 
@@ -42,7 +43,7 @@ def oasis_abort(component_id, routine, message, filename, line, error):
 def pyoasis_abort(exception):
     """
     Terminates cleanly the execution of OASIS and pyOASIS
-    while dsiplaying an error message and the context  in which 
+    while dsiplaying an error message and the context  in which
     the exception was raised.
 
     :param Exception exception: exception to be handled

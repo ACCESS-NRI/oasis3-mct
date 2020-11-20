@@ -27,12 +27,12 @@ if icpl == 0:
 comp.set_couplcomm(couplcomm)
 
 if icpl == 1:
-    
+
     n_points = 16
 
     comm_rank = comp.couplcomm.rank
     comm_size = comp.couplcomm.size
-    
+
     local_size = int(n_points/comm_size)
     offset = comm_rank*local_size
     if comm_rank == comm_size - 1:
@@ -49,14 +49,14 @@ comp.enddef()
 if icpl == 1:
 
     date = int(0)
-    
+
     field = pyoasis.asarray(numpy.zeros(local_size))
 
     for i in range(local_size):
         field[i] = offset + i
 
     print("Sent data: "+str(field))
-    
+
     variable.put(date, field)
 
 del comp

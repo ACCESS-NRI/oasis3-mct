@@ -61,8 +61,10 @@ def grid_struct(grid):
 
     return grid_st[grid]
 
+
 valid_grids = ('torc', 'nogt', 'bggd', 'sse7', 'icos')
 ocean_grids = ('torc', 'nogt')
+
 
 def grid_is_valid(grid):
     return grid in valid_grids
@@ -100,8 +102,10 @@ def write_namcouple(sgrid, dgrid, has_graphics):
                                      grid_shape(dgrid)[0], grid_shape(dgrid)[1],
                                      sgrid, dgrid), file=namcouple)
     print("{} {} {} {}".format(grid_perio(sgrid)[0], grid_perio(sgrid)[1],
-                               grid_perio(dgrid)[0], grid_perio(dgrid)[1]), file=namcouple)
+                               grid_perio(dgrid)[0], grid_perio(dgrid)[1]),
+                               file=namcouple)
     print("SCRIPR", file=namcouple)
-    print("CONSERV {} SCALAR LATLON 1 FRACAREA FIRST".format(grid_struct(sgrid)), file=namcouple)
+    print("CONSERV {} SCALAR LATLON 1 FRACAREA FIRST".format(grid_struct(sgrid)),
+                                                             file=namcouple)
     print("$END", file=namcouple)
     namcouple.close()

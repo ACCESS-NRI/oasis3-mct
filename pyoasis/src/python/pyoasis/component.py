@@ -3,8 +3,8 @@
 # Copyright (C) 2019 UKRI - STFC
 
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as 
-# published by the Free Software Foundation, either version 3 of the 
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
 # License, or any later version.
 
 # This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
 # GNU Lesser General Public License for more details.
 
 # A copy of the GNU Lesser General Public License, version 3, is supplied
-# with this program, in the file lgpl-3.0.txt. It is also available at 
+# with this program, in the file lgpl-3.0.txt. It is also available at
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
@@ -31,30 +31,35 @@ class Component(object):
     Component that will be coupled by OASIS
 
     :param str name: name of the component
-    :param bool coupled: whether the component will be coupled (default: True)
-    :param mpi4py.MPI.Intracomm communicator: global MPI communicator (default: MPI.COMM_WORLD)
-    :raises OasisException: if OASIS is unable to initialise the component
-    :raises PyOasisException: if an incorrect parameter is supplied
+    :param bool coupled: whether the component will be coupled
+    (default: True)
+    :param mpi4py.MPI.Intracomm communicator: global MPI
+    communicator (default: MPI.COMM_WORLD)
+    :raises OasisException: if OASIS is unable to initialise the
+    component
+    :raises PyOasisException: if an incorrect parameter is
+    supplied
     """
 
-
     _n_components = 0
-
 
     def __init__(self, name, coupled=True, communicator=MPI.COMM_WORLD):
         """Constructor"""
         self._initialised = False
         pyoasis.checktypes.check_types([str, bool, MPI.Intracomm],
-                                       [name, coupled, communicator])
-        if Component._n_components > 0 :
+                                       [name, coupled,
+                                       communicator])
+        if Component._n_components > 0:
             raise pyoasis.PyOasisException("There should be only one component.")
+
         ++Component._n_components
 
         if len(name) == 0:
             raise pyoasis.PyOasisException("Component name empty.")
         self._name = name
         self._communicator = communicator
-        return_value = pyoasis.mod_oasis_method.init_comp(self._name, coupled,
+        return_value = pyoasis.mod_oasis_method.init_comp(self._name,
+                                                          coupled,
                                                           self._communicator)
         self._initialised = True
         error = return_value[1]
@@ -78,12 +83,14 @@ class Component(object):
         Destructor
         Ends the coupling.
         """
-        if self._initialised:  
+        if self._initialised:
             try:
                 error = pyoasis.mod_oasis_method.terminate()
                 if error < 0:
-                    pyoasis.oasis_abort(self._id, "Component::__del__", "oasis_terminate failed", "component.py", 79, error)
-                self._initialised = False 
+                    pyoasis.oasis_abort(self._id, "Component::__del__",
+                                        "oasis_terminate failed",
+                                        "component.py", 79, error)
+                self._initialised = False
             except AttributeError:
                 pass
 
@@ -94,7 +101,6 @@ class Component(object):
         :rtype: string
         """
         return self._name
-        
 
     def create_couplcomm(self, icpl):
         """
@@ -159,26 +165,28 @@ class Component(object):
         try:
             return MPI.Comm.f2py(new_comm)
         except MPI.Exception:
-            raise pyoasis.OasisException("Error in get_intracomm conversion", -1)
-
+            raise pyoasis.OasisException("Error in get_intracomm conversion",
+                                         -1)
 
     def get_intercomm(self, compname):
         """
-        :param string compname: name of the other component in the intercommunicator
+        :param string compname: name of the other component
+         in the intercommunicator
         :returns: the intercommunicator
         :rtype: MPI.communicator
-        :raises OasisException: if OASIS is unable to create the intercommunicator
+        :raises OasisException: if OASIS is unable to create
+        the intercommunicator
         :raises PyOasisException: if an incorrect parameter is supplied
         """
-        pyoasis.check_types([str],[compname])
+        pyoasis.check_types([str], [compname])
         new_comm, error = pyoasis.mod_oasis_auxiliary_routines.get_intercomm(compname)
         if error < 0:
             raise pyoasis.OasisException("Error in get_intercomm", error)
         try:
             return MPI.Comm.f2py(new_comm)
         except MPI.Exception:
-            raise pyoasis.OasisException("Error in get_intercomm conversion", -1)
-
+            raise pyoasis.OasisException("Error in get_intercomm conversion",
+                                         -1)
 
     @staticmethod
     def enddef():
@@ -215,4 +223,3 @@ class Component(object):
         :raises OasisException: if OASIS is unable to get the debug level
         """
         pyoasis.set_debug(level)
-

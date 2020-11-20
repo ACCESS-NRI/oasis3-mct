@@ -3,8 +3,8 @@
 # Copyright (C) 2019 UKRI - STFC
 
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as 
-# published by the Free Software Foundation, either version 3 of the 
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
 # License, or any later version.
 
 # This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
 # GNU Lesser General Public License for more details.
 
 # A copy of the GNU Lesser General Public License, version 3, is supplied
-# with this program, in the file lgpl-3.0.txt. It is also available at 
+# with this program, in the file lgpl-3.0.txt. It is also available at
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
@@ -32,11 +32,12 @@ class Partition(object):
         """Sets up the partition. Will be called by the inherited classes.
         :raises: OasisException if OASIS is unable to initialise the\
         partition
-        :raises PyOasisException: if an incorrect parameter is supplied        
+        :raises PyOasisException: if an incorrect parameter is supplied
 """
-        self._local_size=local_size
+        self._local_size = local_size
 
-        return_value = pyoasis.mod_oasis_part.def_partition(parameters, global_size, name)
+        return_value = pyoasis.mod_oasis_part.def_partition(parameters,
+                                                            global_size, name)
         error = return_value[1]
         if error < 0:
             raise pyoasis.OasisException("Error in def_partition", error)
@@ -53,7 +54,7 @@ class Partition(object):
 class SerialPartition(Partition):
     """
     Serial partition
-    
+
     :param int size: number of points in the partition
     :param int global_size: global size of the grid (optional)
     :param str name: name of the partition (optional)
@@ -76,18 +77,20 @@ class SerialPartition(Partition):
 class ApplePartition(Partition):
     """
     Apple partition
- 
-    :param int offset: offset according to the global index 
-    :param int size: number of points in the partition  
+
+    :param int offset: offset according to the global index
+    :param int size: number of points in the partition
     :param int global_size: global size of the grid (optional)
     :param str name: name of the partition (optional)
-    :raises OasisException: if OASIS is unable to initialise the partition
+    :raises OasisException: if OASIS is unable to initialise the
+    partition
     :raises PyOasisException: if an incorrect parameter is supplied
     """
 
     def __init__(self, offset, size, global_size=-1, name=""):
         """Constructor"""
-        pyoasis.check_types([int, int, int, str], [offset, size, global_size, name])
+        pyoasis.check_types([int, int, int, str], [offset, size,
+                            global_size, name])
         if offset < 0:
             raise pyoasis.PyOasisException("Offset <0.")
         if size <= 0:
@@ -102,12 +105,12 @@ class ApplePartition(Partition):
 class BoxPartition(Partition):
     """
     Box partition
- 
-    :param int global_offset: offset according to the global index   
+
+    :param int global_offset: offset according to the global index
     :param int local_extent_x: extent in the x direction of the local \
                                partition
     :param int local_extent_y: extent in the y direction of the local \
-                               partition 
+                               partition
     :param int global_extent_x: global extent in the x direction
     :param int global_size: global size of the grid (optional)
     :param str name: name of the partition (optional)
@@ -142,10 +145,10 @@ class BoxPartition(Partition):
 class OrangePartition(Partition):
     """
     Orange partition
- 
-    :param offsets: list of offsets according to the global index  
+
+    :param offsets: list of offsets according to the global index
     :type offsets: list of integers
-    :param extents: list of the partition extents  
+    :param extents: list of the partition extents
     :type extents: list of integers
     :param int global_size: global size of the grid (optional)
     :param str name: name of the partition (optional)
@@ -155,7 +158,8 @@ class OrangePartition(Partition):
 
     def __init__(self, offsets, extents, global_size=-1, name=""):
         """Constructor"""
-        pyoasis.check_types([list, list, int, str], [offsets, extents, global_size, name])
+        pyoasis.check_types([list, list, int, str], [offsets, extents,
+                            global_size, name])
         n_offsets = len(offsets)
         if len(extents) != n_offsets:
             raise pyoasis.PyOasisException("Number of offsets != number of extents")
@@ -178,9 +182,9 @@ class OrangePartition(Partition):
 class PointsPartition(Partition):
     """
     Points partition
- 
-    :param global_indices: list containing the global indices of the \
-                           points in the partition    
+
+    :param global_indices: list containing the global indices of the
+                           points in the partition
     :type global_indices: list of integers
     :param int global_size: global size of the grid (optional)
     :param str name: name of the partition (optional)
@@ -190,7 +194,8 @@ class PointsPartition(Partition):
 
     def __init__(self, global_indices, global_size=-1, name=""):
         """Constructor"""
-        pyoasis.check_types([list, int, str], [global_indices, global_size, name])
+        pyoasis.check_types([list, int, str], [global_indices, global_size,
+                            name])
         if len(global_indices) == 0:
             raise pyoasis.PyOasisException("Global indices list empty.")
 

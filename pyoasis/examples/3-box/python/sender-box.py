@@ -26,7 +26,8 @@ comp.enddef()
 intracomm = comp.get_intracomm("receiver")
 intercomm = comp.get_intercomm("receiver")
 
-print("Sender intra_comm: rank = {} of {}".format(intracomm.rank, intracomm.size))
+print("Sender intra_comm: rank = {} of {}".format(intracomm.rank,
+                                                  intracomm.size))
 print("Sender inter_comm: rank = {} of {} Remote size = {}".format(intercomm.rank,
                                                                    intercomm.size,
                                                                    intercomm.remote_size))
@@ -38,5 +39,5 @@ field = pyoasis.asarray(data[rank])
 
 print(variable.put(date, field))
 
-if rank%2 == 0:
+if rank % 2 == 0:
     del comp

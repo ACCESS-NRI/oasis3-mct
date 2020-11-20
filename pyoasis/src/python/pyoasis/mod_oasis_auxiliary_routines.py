@@ -3,8 +3,8 @@
 # Copyright (C) 2019 UKRI - STFC
 
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as 
-# published by the Free Software Foundation, either version 3 of the 
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
 # License, or any later version.
 
 # This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
 # GNU Lesser General Public License for more details.
 
 # A copy of the GNU Lesser General Public License, version 3, is supplied
-# with this program, in the file lgpl-3.0.txt. It is also available at 
+# with this program, in the file lgpl-3.0.txt. It is also available at
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
@@ -114,64 +114,64 @@ LIB.set_debug.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
 
 
 def set_debug(debug):
-  """Set debug level"""
-  error = c_int(0)
-  LIB.set_debug(debug, error)
-  return error.value
+    """Set debug level"""
+    error = c_int(0)
+    LIB.set_debug(debug, error)
+    return error.value
 
 
-LIB.get_debug.argtypes = [ctypes.POINTER(ctypes.c_int), 
+LIB.get_debug.argtypes = [ctypes.POINTER(ctypes.c_int),
                           ctypes.POINTER(ctypes.c_int)]
 
 
 def get_debug():
-  """Get debug level"""
-  debug = c_int(0)
-  error = c_int(0)
-  LIB.get_debug(debug, error)
-  return debug.value, error.value
+    """Get debug level"""
+    debug = c_int(0)
+    error = c_int(0)
+    LIB.get_debug(debug, error)
+    return debug.value, error.value
 
 
-LIB.put_inquire.argtypes = [ctypes.c_int, ctypes.c_int, 
+LIB.put_inquire.argtypes = [ctypes.c_int, ctypes.c_int,
                             ctypes.POINTER(ctypes.c_int)]
 
 
 def put_inquire(varid, msec):
-  """Gives put return code expected at a specified time 
-  for a given variable"""
-  kinfo = c_int(0)
-  LIB.put_inquire(varid, msec, kinfo)
-  return kinfo.value
+    """Gives put return code expected at a specified time
+    for a given variable"""
+    kinfo = c_int(0)
+    LIB.put_inquire(varid, msec, kinfo)
+    return kinfo.value
 
 
-LIB.get_ncpl.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int), 
+LIB.get_ncpl.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int),
                          ctypes.POINTER(ctypes.c_int)]
 
 
 def get_ncpl(varid):
-  """Returns the number of unique couplings associated with 
-     a variable."""
-  ncpl = c_int(0)
-  error = c_int(0)
-  LIB.get_ncpl(varid, ncpl, error)
-  return ncpl.value, error.value
+    """Returns the number of unique couplings associated with
+    a variable."""
+    ncpl = c_int(0)
+    error = c_int(0)
+    LIB.get_ncpl(varid, ncpl, error)
+    return ncpl.value, error.value
 
 
-LIB.get_freqs.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int, 
+LIB.get_freqs.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
                           ctypes.c_void_p, ctypes.POINTER(ctypes.c_int)]
 
 
 def get_freqs(varid, mop, ncpl):
-  """Returns the coupling periods for a given variable."""
-  cpl_freqs_p = numpy.zeros(ncpl, dtype = numpy.int32)
-  error = c_int(0)
-  LIB.get_freqs(varid, c_int(mop), c_int(ncpl), cpl_freqs_p.ctypes.data, error)
-  cpl_freqs = cpl_freqs_p.tolist()
-  return cpl_freqs, error.value
+    """Returns the coupling periods for a given variable."""
+    cpl_freqs_p = numpy.zeros(ncpl, dtype=numpy.int32)
+    error = c_int(0)
+    LIB.get_freqs(varid, c_int(mop), c_int(ncpl), cpl_freqs_p.ctypes.data,
+                  error)
+    cpl_freqs = cpl_freqs_p.tolist()
+    return cpl_freqs, error.value
 
 
 def get_freqs_array(varid, mop):
-  """Returns the coupling periods for a given variable."""
-  ncpl, error = get_ncpl(varid)
-  return get_freqs(varid, mop, ncpl)
-
+    """Returns the coupling periods for a given variable."""
+    ncpl, error = get_ncpl(varid)
+    return get_freqs(varid, mop, ncpl)

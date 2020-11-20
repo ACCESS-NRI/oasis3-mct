@@ -33,9 +33,11 @@ if comm.rank == 0:
         print('Only one grid can be for ocean', flush=True)
         comm.Abort()
     if sgrid == 'torc' or dgrid == 'torc':
-        os.symlink(os.path.join('..', 'data', 'masks_torc_scrip.nc'), 'masks.nc')
+        os.symlink(os.path.join('..', 'data', 'masks_torc_scrip.nc'),
+                   'masks.nc')
     elif sgrid == 'nogt' or dgrid == 'nogt':
-        os.symlink(os.path.join('..', 'data', 'masks_nogt_scrip.nc'), 'masks.nc')
+        os.symlink(os.path.join('..', 'data', 'masks_nogt_scrip.nc'),
+                   'masks.nc')
     else:
         os.symlink(os.path.join('..', 'data', 'masks_no_atm.nc'), 'masks.nc')
     write_namcouple(sgrid, dgrid, has_graphics)

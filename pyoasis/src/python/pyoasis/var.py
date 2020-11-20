@@ -3,8 +3,8 @@
 # Copyright (C) 2019 UKRI - STFC
 
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as 
-# published by the Free Software Foundation, either version 3 of the 
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
 # License, or any later version.
 
 # This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
 # GNU Lesser General Public License for more details.
 
 # A copy of the GNU Lesser General Public License, version 3, is supplied
-# with this program, in the file lgpl-3.0.txt. It is also available at 
+# with this program, in the file lgpl-3.0.txt. It is also available at
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
@@ -37,14 +37,15 @@ class Var:
     :type inout: pyoasis.OasisParameter
     :param int bundle_size: size of a bundle of fields
     :raises OasisException: if OASIS is unable to initialise \
-                            the variable data 
+                            the variable data
     :raises PyOasisException: if an incorrect parameter is supplied
     """
 
     def __init__(self, name, partition, inout, bundle_size=1):
         """Constructor"""
 
-        pyoasis.check_types([str, pyoasis.Partition, pyoasis.OasisParameters, int],
+        pyoasis.check_types([str, pyoasis.Partition,
+                            pyoasis.OasisParameters, int],
                             [name, partition, inout, bundle_size])
         if len(name) == 0:
             raise pyoasis.PyOasisException("Name empty")
@@ -61,7 +62,9 @@ class Var:
         self.bundle_size = bundle_size
         self.direction = inout
         id_var_nodims = [1, bundle_size]
-        return_value = pyoasis.mod_oasis_var.def_var(_id_partition, self._name, id_var_nodims,
+        return_value = pyoasis.mod_oasis_var.def_var(_id_partition,
+                                                     self._name,
+                                                     id_var_nodims,
                                                      self.direction.value)
         error = return_value[1]
         if error < 0:
@@ -78,7 +81,7 @@ class Var:
             else:
                 return True
         else:
-            if field.ndim >=2:
+            if field.ndim >= 2:
                 if field.shape[-1] == self.bundle_size:
                     if numpy.prod(field.shape[:-1]) == self._partition_local_size:
                         return True
@@ -102,12 +105,14 @@ class Var:
 
         :raises OasisException: if OASIS is unable to send \
          data to the other component
-        :raises PyOasisException: if an incorrect parameter is supplied 
+        :raises PyOasisException: if an incorrect parameter is supplied
         """
-        pyoasis.check_types([int, numpy.ndarray, bool], [time, field, write_restart])
+        pyoasis.check_types([int, numpy.ndarray, bool], [time, field,
+                            write_restart])
         if(not self._check_size(field)):
             raise pyoasis.OasisException("Field of the wrong size", error)
-        error = pyoasis.mod_oasis_getput_interface.put(self._id, time, field, write_restart)
+        error = pyoasis.mod_oasis_getput_interface.put(self._id, time,
+                                                       field, write_restart)
         if error < 0:
             raise pyoasis.OasisException("Error in sending data to another component", error)
 
@@ -132,7 +137,8 @@ class Var:
             raise pyoasis.OasisException("Field of the wrong size", error)
         error = pyoasis.mod_oasis_getput_interface.get(self._id, time, field)
         if error < 0:
-            raise pyoasis.OasisException("Error in getting data from another component", error)
+            raise pyoasis.OasisException("Error in getting data from another component",
+                                         error)
 
         try:
             return pyoasis.OasisParameters(error)
@@ -146,33 +152,36 @@ class Var:
         """
         :param int time: model time (in seconds) [msec in OASIS]
 
-        :returns: return value expected at a specified time 
+        :returns: return value expected at a specified time
         for a given variable
 
         :rtype: pyoasis.OasisParameters
 
-        :raises OasisException: if OASIS is unable to obtain 
+        :raises OasisException: if OASIS is unable to obtain
         the return code
 
-        :raises PyOasisException: if an incorrect parameter is 
+        :raises PyOasisException: if an incorrect parameter is
         supplied
         """
         pyoasis.check_types([int], [time])
-        rcode = pyoasis.mod_oasis_auxiliary_routines.put_inquire(self._id, time)
+        rcode = pyoasis.mod_oasis_auxiliary_routines.put_inquire(self._id,
+                                                                 time)
         try:
             return pyoasis.OasisParameters(rcode)
         except ValueError:
             raise pyoasis.OasisException("Error in put_inquire: returned value not mapped to Oasis parameters", -1)
-    
+
     @property
     def cpl_freqs(self):
-      """
-      :returns:  the coupling periods
-      :rtype: array of integers
-      :raises OasisException: if OASIS is unable to obtain the
-      coupling periods
-      """
-      freqs, error = pyoasis.mod_oasis_auxiliary_routines.get_freqs_array(self._id, self.direction.value)
-      if error < 0:
-          raise pyoasis.OasisException("Error in getting coupling frequencies", error)
-      return freqs
+        """
+        :returns:  the coupling periods
+        :rtype: array of integers
+        :raises OasisException: if OASIS is unable to obtain the
+        coupling periods
+        """
+        freqs, error = pyoasis.mod_oasis_auxiliary_routines.get_freqs_array(self._id,
+                                                                            self.direction.value)
+        if error < 0:
+            raise pyoasis.OasisException("Error in getting coupling frequencies",
+                                         error)
+        return freqs

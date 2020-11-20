@@ -3,8 +3,8 @@
 # Copyright (C) 2019 UKRI - STFC
 
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as 
-# published by the Free Software Foundation, either version 3 of the 
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
 # License, or any later version.
 
 # This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
 # GNU Lesser General Public License for more details.
 
 # A copy of the GNU Lesser General Public License, version 3, is supplied
-# with this program, in the file lgpl-3.0.txt. It is also available at 
+# with this program, in the file lgpl-3.0.txt. It is also available at
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
@@ -24,16 +24,22 @@ import ctypes
 from ctypes import c_int, cdll, CDLL
 
 cdll.LoadLibrary("liboasis.C.bindings.so")
-LIB=CDLL("liboasis.C.bindings.so")
+LIB = CDLL("liboasis.C.bindings.so")
 
-LIB.start_grids_writing.argtypes=[ctypes.POINTER(ctypes.c_int)]
+
+LIB.start_grids_writing.argtypes = [ctypes.POINTER(ctypes.c_int)]
+
 
 def start_grids_writing():
     kinfo = c_int(0)
     LIB.start_grids_writing(kinfo)
     return kinfo.value
 
-LIB.write_grid.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int]
+
+LIB.write_grid.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int,
+                           ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
+                           ctypes.c_void_p, ctypes.c_int]
+
 
 def write_grid(cgrid, nx, ny, lon, lat, partid):
     lon = numpy.asfortranarray(lon, dtype=numpy.float64)
@@ -46,12 +52,16 @@ def write_grid(cgrid, nx, ny, lon, lat, partid):
         raise pyoasis.PyOasisException("Write grid: lon and lat shape not conforming")
     nx_loc = lon.shape[0]
     ny_loc = lon.shape[1]
-    LIB.write_grid(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_lon, p_lat, partid)
+    LIB.write_grid(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_lon, p_lat,
+                   partid)
 
-    
-LIB.write_corner.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int]
 
-def  write_corner(cgrid, nx, ny, clo, cla, partid):
+LIB.write_corner.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int,
+                             ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                             ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int]
+
+
+def write_corner(cgrid, nx, ny, clo, cla, partid):
     clo = numpy.asfortranarray(clo, dtype=numpy.float64)
     cla = numpy.asfortranarray(cla, dtype=numpy.float64)
     p_clo = clo.ctypes.data
@@ -63,10 +73,14 @@ def  write_corner(cgrid, nx, ny, clo, cla, partid):
     nx_loc = clo.shape[0]
     ny_loc = clo.shape[1]
     ncrn   = clo.shape[2]
-    LIB.write_corner(cgrid.encode(), nx, ny, ncrn, nx_loc, ny_loc, p_clo, p_cla, partid)
+    LIB.write_corner(cgrid.encode(), nx, ny, ncrn, nx_loc, ny_loc, p_clo,
+                     p_cla, partid)
 
 
-LIB.write_mask.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
+LIB.write_mask.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int,
+                           ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
+                           ctypes.c_int, ctypes.c_char_p]
+
 
 def write_mask(cgrid, nx, ny, mask, partid, companion):
     mask = numpy.asfortranarray(mask, dtype=numpy.int32)
@@ -75,10 +89,14 @@ def write_mask(cgrid, nx, ny, mask, partid, companion):
         raise pyoasis.PyOasisException("Write mask: maks has to be a 2D arrays")
     nx_loc = mask.shape[0]
     ny_loc = mask.shape[1]
-    LIB.write_mask(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_mask, partid, companion.encode())
+    LIB.write_mask(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_mask, partid,
+                   companion.encode())
 
 
-LIB.write_frac.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int, ctypes.c_char_p]
+LIB.write_frac.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int,
+                           ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
+                           ctypes.c_int, ctypes.c_char_p]
+
 
 def write_frac(cgrid, nx, ny, frac, partid, companion):
     frac = numpy.asfortranarray(frac, dtype=numpy.float64)
@@ -87,10 +105,14 @@ def write_frac(cgrid, nx, ny, frac, partid, companion):
         raise pyoasis.PyOasisException("Write frac: frac has to be a 2D arrays")
     nx_loc = frac.shape[0]
     ny_loc = frac.shape[1]
-    LIB.write_frac(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_frac, partid, companion.encode())
+    LIB.write_frac(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_frac, partid,
+                   companion.encode())
 
 
-LIB.write_area.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_int]
+LIB.write_area.argtypes=[ctypes.c_char_p, ctypes.c_int, ctypes.c_int,
+                         ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
+                         ctypes.c_int]
+
 
 def write_area(cgrid, nx, ny, area, partid):
     area = numpy.asfortranarray(area, dtype=numpy.float64)
@@ -100,6 +122,7 @@ def write_area(cgrid, nx, ny, area, partid):
     nx_loc = area.shape[0]
     ny_loc = area.shape[1]
     LIB.write_area(cgrid.encode(), nx, ny, nx_loc, ny_loc, p_area, partid)
+
 
 def terminate_grids_writing():
     LIB.terminate_grids_writing()

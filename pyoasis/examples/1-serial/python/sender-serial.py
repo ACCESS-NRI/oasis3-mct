@@ -14,14 +14,16 @@ component_name = "sender-serial"
 stt = time.time()
 comp = pyoasis.Component(component_name, True, comm)
 print(comp)
-print('Sender: Time for Component = {} s.'.format(time.time() - stt), flush=True)
+print('Sender: Time for Component = {} s.'.format(time.time() - stt),
+      flush=True)
 
 n_points = 1600
 
 stt = time.time()
 partition = pyoasis.SerialPartition(n_points)
 print(partition)
-print('Sender: Time for partition = {} s.'.format(time.time() - stt), flush=True)
+print('Sender: Time for partition = {} s.'.format(time.time() - stt),
+      flush=True)
 
 stt = time.time()
 variable = pyoasis.Var("FSENDOCN", partition,
