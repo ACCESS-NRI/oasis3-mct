@@ -76,7 +76,12 @@
                                             map_type_bilinear = 2, &
                                             map_type_bicubic  = 3, &
                                             map_type_distwgt  = 4, &
-                                            map_type_gauswgt  = 5
+                                            map_type_gauswgt  = 5, &
+                                            map_type_loccwgt  = 6
+
+      integer (kind=int_kind), parameter :: norm_locc_uniform  = 1, &
+                                            norm_locc_distwgt  = 2, &
+                                            norm_locc_gauswgt  = 3
 
       integer (kind=int_kind), save :: max_links_map1,  & ! current size of link arrays
                                        num_links_map1,  & ! actual number of links for remapping
@@ -87,7 +92,8 @@
                                        map_type,        & ! identifier for remapping method
                                        norm_opt,        & ! option for normalization (conserv only)
                                        conserve_opt,    & ! option for conservation first or second
-                                       resize_increment ! default amount to increase array size
+                                       resize_increment,& ! default amount to increase array size
+                                       norm_locc           ! locally conservative normalisation
 
       integer (kind=int_kind), dimension(:), allocatable, save :: &
            grid1_add_map1, & ! grid1 address for each link in mapping 1
@@ -181,6 +187,8 @@
         num_wts = 1
       case(map_type_gauswgt)
         num_wts = 1
+      case(map_type_loccwgt)
+        num_wts = 1
       end select
 
 !-----------------------------------------------------------------------
@@ -209,6 +217,8 @@
           max_links_map1 = id_scripvoi*grid2_size
       case(map_type_gauswgt)
           max_links_map1 = id_scripvoi*grid2_size
+      case(map_type_loccwgt)
+          max_links_map1 = id_scripvoi*grid1_size
       END select
 
       if (num_maps > 1) then

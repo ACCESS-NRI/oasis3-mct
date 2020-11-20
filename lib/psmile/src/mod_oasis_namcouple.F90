@@ -78,13 +78,13 @@ MODULE mod_oasis_namcouple
   REAL (kind=ip_realwp_p) ,public,pointer :: namflddmu(:)  !< dst multipler term
   REAL (kind=ip_realwp_p) ,public,pointer :: namflddad(:)  !< dst additive term
 
-  CHARACTER(len=ic_med)   ,public,pointer :: namscrmet(:)  !< scrip method (CONSERV, DISTWGT, DISTWGTNF, BILINEAR, BILINEARNF, BICUBIC, BICUBICNF, GAUSWGT, GAUSWGTNF)
+  CHARACTER(len=ic_med)   ,public,pointer :: namscrmet(:)  !< scrip method (CONSERV, DISTWGT, DISTWGTNF, BILINEAR, BILINEARNF, BICUBIC, BICUBICNF, GAUSWGT, GAUSWGTNF, LOCCUNIF, LOCCDIST and LOCCGAUS)
   character(len=ic_med)   ,public,pointer :: namscrnor(:)  !< scrip conserv normalization (FRACAREA, DESTAREA, FRACNNEI, DESTNNEI, FRACARTR, DESTARTR, FRACNNTR, DESTNNTR)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrtyp(:)  !< scrip mapping type (SCALAR, VECTOR)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrord(:)  !< scrip conserve order (FIRST, SECOND)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrres(:)  !< scrip search restriction (LATLON, LATITUDE)
   REAL (kind=ip_realwp_p) ,public,pointer :: namscrvam(:)  !< scrip gauss weight distance weighting for GAUSWGT
-  INTEGER(kind=ip_i4_p)   ,public,pointer :: namscrnbr(:)  !< scrip number of neighbors for GAUSWGT and DISTWGT
+  INTEGER(kind=ip_i4_p)   ,public,pointer :: namscrnbr(:)  !< scrip number of neighbors for GAUSWGT, DISTWGT, LOCCUNIF, LOCCDIST and LOCCGAUS)
   REAL (kind=ip_realwp_p) ,public,pointer :: namscrnth(:)  !< scrip conserv north threshold
   REAL (kind=ip_realwp_p) ,public,pointer :: namscrsth(:)  !< scrip conserv south threshold
   INTEGER(kind=ip_i4_p)   ,public,pointer :: namscrbin(:)  !< script number of search bins
@@ -2291,13 +2291,16 @@ SUBROUTINE inipar
                   cmap_method(ig_number_field(jf)) .NE. 'DISTWGT' .AND. &
                   cmap_method(ig_number_field(jf)) .NE. 'DISTWGTNF' .AND. &
                   cmap_method(ig_number_field(jf)) .NE. 'GAUSWGT' .AND. &
-                  cmap_method(ig_number_field(jf)) .NE. 'GAUSWGTNF') THEN
+                  cmap_method(ig_number_field(jf)) .NE. 'GAUSWGTNF' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'LOCCUNIF' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'LOCCDIST' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'LOCCGAUS' ) THEN
                  IF (mpi_rank_global == 0) THEN
                     WRITE(nulprt1,*) '    '
                  ENDIF
                  CALL prtout('ERROR in namcouple for map method of field',jf,1)
                  write(tmpstr1, *) TRIM(cmap_method(ig_number_field(jf)))// &
-                    '==> must be [CONSERV,BILINEAR,BICUBIC,DISTWGT,GAUSWGT] + [ ,NF]'
+                    '==> must be [CONSERV,BILINEAR,BICUBIC,DISTWGT,GAUSWGT,LOCCUNIF,LOCCDIST,LOCCGAUS] + [ ,NF]'
                  CALL namcouple_abort(subname,__LINE__,tmpstr1)
               ENDIF
 !* Get source grid type
@@ -2422,11 +2425,14 @@ SUBROUTINE inipar
               ELSE
                  cnorm_opt(ig_number_field(jf))='NONORM'
               ENDIF
-!* Get number of neighbours for DISTWGT and GAUSWGT
+!* Get number of neighbours for DISTWGT, GAUSWGT, LOCCUNIF, LOCCDIST and LOCCGAUS
               IF (cmap_method(ig_number_field(jf)) .EQ. 'DISTWGT' .or. &
                   cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGT' .or. &
                   cmap_method(ig_number_field(jf)) .EQ. 'DISTWGTNF' .or. &
-                  cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGTNF') THEN
+                  cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGTNF' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'LOCCUNIF' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'LOCCDIST' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'LOCCGAUS' ) THEN
                  CALL parse(clline, clvari, 6, jpeighty, ilen, __LINE__)
                  IF (ilen .LE. 0) THEN
                     IF (mpi_rank_global == 0) THEN
@@ -2439,15 +2445,16 @@ SUBROUTINE inipar
                     READ(clvari, FMT=2003)nscripvoi(ig_number_field(jf))
                  ENDIF 
               ENDIF
-!* Get gaussian variance for GAUSWGT
+!* Get gaussian variance for GAUSWGT and LOCCGAUS
               IF (cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGT' .or. &
-                  cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGTNF') THEN
+                  cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGTNF' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'LOCCGAUS') THEN
                  CALL parse(clline, clvari, 7, jpeighty, ilen, __LINE__)
                  IF (ilen .LE. 0) THEN
                     IF (mpi_rank_global == 0) THEN
                        WRITE(nulprt1,*) '    '
                     ENDIF
-                    CALL prtout('ERROR in namcouple for GAUSWGT for field',jf,1)
+                    CALL prtout('ERROR in namcouple for GAUSWGT or LOCCGAUS for field',jf,1)
                     WRITE(tmpstr1,*) '==> Variance must be indicated at end of line'
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
                  ELSE
