@@ -52,7 +52,7 @@ class Component(object):
         if Component._n_components > 0:
             raise pyoasis.PyOasisException("There should be only one component.")
 
-        ++Component._n_components
+        Component._n_components += 1
 
         if len(name) == 0:
             raise pyoasis.PyOasisException("Component name empty.")

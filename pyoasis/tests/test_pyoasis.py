@@ -22,6 +22,7 @@
 import pytest
 import numpy
 import pyoasis
+from mpi4py import MPI
 
 
 # Functions for monkeypatching
@@ -43,9 +44,10 @@ def returns_2errors(*args):
 
 # Wrong type for 1st argument
 def test_Component_constructor1():
-    with pytest.raises(pyoasis.PyOasisException):
+    with pytest.raises(pyoasis.PyOasisException):       
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.Component._n_components = 0
         comp = pyoasis.Component(42, True)
 
 # Wrong type for 2nd argument        
@@ -53,6 +55,7 @@ def test_component_constructor2():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.Component._n_components = 0
         comp = pyoasis.Component("name", 42)
 
 # Wrong type for 3rd argument
@@ -60,31 +63,71 @@ def test_component_constructor3():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.Component._n_components = 0
         comp = pyoasis.Component("name", True, 42)
 
 # Empty name        
 def test_component_constructor4():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
-        pyoasis.mod_oasis_method.terminate=returns_zero
         pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.Component._n_components = 0
         comp = pyoasis.Component("")
 
-# Failure
+# 2 components
 def test_component_constructor5():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_method.terminate=returns_zero
+        pyoasis.Component._n_components = 0
+        comp1 = pyoasis.Component("component1")
+        comp2 = pyoasis.Component("component2")
+
+# Failure
+def test_component_constructor6():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2errors
         pyoasis.mod_oasis_method.terminate=returns_zero
+        pyoasis.Component._n_components = 0
         comp = pyoasis.Component("name")
 
+# get_localcomm failing in constructor
+def test_component_constructor7():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2errors
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.Component._n_components = 0
+        comp = pyoasis.Component("name")
+
+# name
+def test_component_name():
+    pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2_zeros
+    pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+    pyoasis.mod_oasis_method.terminate=returns_zero
+    pyoasis.Component._n_components = 0
+    name = "name"
+    comp = pyoasis.Component(name)
+    assert(comp.name == name)    
+
+# __del__ failing
+def test_destructor():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2_zeros
+        pyoasis.mod_oasis_method.init_comp = returns_2errors
+        pyoasis.mod_oasis_method.terminate = returns_error
+        pyoasis.Component._n_components = 0
+        comp = pyoasis.Component("name")
 
 # create_couplcomm
 # Wrong argument type
 def test_component_create_couplcomm():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2_zeros
         pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2_zeros
         pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.Component._n_components = 0
         comp = pyoasis.Component("name")
         couplcomm =  comp.create_couplcomm("abc")
 
@@ -94,16 +137,54 @@ def test_component_create_couplcomm3():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2errors
+        pyoasis.Component._n_components = 0
         pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.Component._n_components = 0
         comp = pyoasis.Component("name")
         couplcomm = comp.create_couplcomm(1)
 
-        
+# set_couplcomm
+# Failure
+def test_component_set_couplcomm():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2errors
+        pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.pyoasis.mod_oasis_auxiliary_routines.set_couplcomm = returns_error
+        pyoasis.Component._n_components = 0
+        comp = pyoasis.Component("name")
+        comp.set_couplcomm(MPI.COMM_NULL)
+
+# get_intracomm
+# Failure
+def test_component_get_intracomm():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2errors
+        pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.mod_oasis_auxiliary_routines.get_intracomm = returns_2errors
+        pyoasis.Component._n_components = 0
+        comp = pyoasis.Component("name")
+        comp.get_intracomm("othercomponent")
+
+# get_intercomm
+# Failure
+def test_component_set_intercomm():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2errors
+        pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.mod_oasis_auxiliary_routines.get_intercomm = returns_2errors
+        pyoasis.Component._n_components = 0
+        comp = pyoasis.Component("name")
+        comp.get_intercomm("othercomponent")
+
 # Various functions        
 def test_Component_various_functions():
     pyoasis.mod_oasis_method.init_comp=returns_2_zeros
     pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2_zeros
     pyoasis.mod_oasis_method.terminate = returns_zero
+    pyoasis.Component._n_components = 0
     comp = pyoasis.Component("name")
     assert comp._name == "name"
     assert comp.create_couplcomm(1) == 0 
@@ -115,6 +196,7 @@ def test_Component_enddef():
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_method.enddef = returns_error
         pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.Component._n_components = 0
         comp = pyoasis.Component("name")
         localcomm =  comp.enddef()
 
@@ -123,6 +205,7 @@ def test_Component_str():
     pyoasis.mod_oasis_method.init_comp = returns_2_zeros
     pyoasis.mod_oasis_method.terminate = returns_zero
     pyoasis.mod_oasis_method.terminate = returns_zero
+    pyoasis.Component._n_components = 0
     name = "name"
     comp = pyoasis.Component(name)
     line = str(comp)
@@ -401,6 +484,24 @@ def test_Var_constructor8():
         partition = pyoasis.SerialPartition(4)
         var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)      
 
+# partition_id < 0
+def test_Var_constructor9():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        partition = pyoasis.SerialPartition(4)
+        partition._id=-1
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)  
+
+#name
+def test_Var_name():
+    pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+    pyoasis.mod_oasis_var.def_var = returns_2_zeros
+    pyoasis.mod_oasis_getput_interface.put=returns_zero
+    partition = pyoasis.SerialPartition(4)
+    name = "name"
+    var = pyoasis.Var(name, partition, pyoasis.OasisParameters.OASIS_OUT)
+    assert(var.name == name)
 
 # put
 # Wrong type 1st argument
@@ -424,6 +525,17 @@ def test_Var_put2():
         var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)
         field = pyoasis.asarray(range(4))
         var.put(0, 42)
+
+# Field wrong side
+def test_Var_put4():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        pyoasis.mod_oasis_getput_interface.put = returns_zero
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_OUT)
+        field = pyoasis.asarray(range(4), range(4))
+        var.put(0, field)
 
 # Failure
 def test_Var_put3():
@@ -479,5 +591,23 @@ def test_SerialPartition_str():
     var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
     line = str(var)
     assert line.find(var._name) >=0
-    assert line.find(str(var._id)) >=0     
+    assert line.find(str(var._id)) >=0 
 
+# cpl_freqs
+def test_Var_cpl_freqs():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_part.def_partition = returns_2_zeros
+        pyoasis.mod_oasis_var.def_var = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.get_freqs_array = returns_2errors
+        partition = pyoasis.SerialPartition(4)
+        var = pyoasis.Var("name", partition, pyoasis.OasisParameters.OASIS_IN)
+        var.cpl_freqs
+
+
+# Grid
+# Constructor
+# Grid name empty
+def test_Grid_constructor():
+    with pytest.raises(pyoasis.PyOasisException):    
+        grid = pyoasis.Grid("", 2, 2, pyoasis.asarray([[1, 2], [3, 4]]),
+                        pyoasis.asarray([[1, 2], [3, 4]]))
