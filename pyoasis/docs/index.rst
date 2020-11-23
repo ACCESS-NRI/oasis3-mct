@@ -478,7 +478,7 @@ Component
 +------------------------------------+-----------------------------------+
 | oasis_terminate(ierror)            | __del__()                         |
 +------------------------------------+-----------------------------------+
-| oasis_create_couplcomm(icpl,       | create_couplcomm(icpl)            |
+| oasis_create_couplcomm(icpl,       | create_couplcomm(coupled)         |
 | localcomm, couplcomm, kinfo)       |                                   |
 +------------------------------------+-----------------------------------+
 | oasis_set_couplcomm(couplcomm,     | set_couplcomm(couplcomm)          |
