@@ -132,16 +132,15 @@ def test_component_create_couplcomm():
         couplcomm =  comp.create_couplcomm("abc")
 
 # create_couplcomm
-# Wrong argument value
+# Failure
 def test_component_create_couplcomm3():
     with pytest.raises(pyoasis.OasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2errors
-        pyoasis.Component._n_components = 0
         pyoasis.mod_oasis_method.terminate = returns_zero
         pyoasis.Component._n_components = 0
         comp = pyoasis.Component("name")
-        couplcomm = comp.create_couplcomm(1)
+        couplcomm = comp.create_couplcomm(True)
 
 # set_couplcomm
 # Failure
@@ -187,7 +186,7 @@ def test_Component_various_functions():
     pyoasis.Component._n_components = 0
     comp = pyoasis.Component("name")
     assert comp._name == "name"
-    assert comp.create_couplcomm(1) == 0 
+    assert comp.create_couplcomm(True) == 0 
 
 # enddef
 # failure

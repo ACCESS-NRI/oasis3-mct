@@ -102,11 +102,11 @@ class Component(object):
         """
         return self._name
 
-    def create_couplcomm(self, icpl):
+    def create_couplcomm(self, coupled):
         """
         Creates a coupling communicator
 
-        :param int icpl: coupling switch (1 coupled process, 0 not coupled)
+        :param bool coupled: coupling flag
 
         :returns: error code
         :rtype: int
@@ -116,7 +116,11 @@ class Component(object):
         :raises PyOasisException: if an incorrect parameter is supplied
         """
         allcomm = self._localcomm_hdle
-        pyoasis.check_types([int, int], [icpl, allcomm])
+        pyoasis.check_types([bool, int], [coupled, allcomm])
+        if coupled:
+            icpl = 1
+        else:
+            icpl = MPI.UNDEFINED
         return_value = pyoasis.mod_oasis_auxiliary_routines.create_couplcomm(icpl,
                                                                              allcomm)
         error = return_value[1]

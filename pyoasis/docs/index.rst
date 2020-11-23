@@ -24,130 +24,6 @@ pyOASIS is distributed under the GNU Lesser General Public
 License. For more details, see the file lgpl-3.0.txt or
 https://www.gnu.org/licenses/lgpl-3.0.en.html.
 
-Installation
-------------
-The sections between brackets are necessary only when Cartopy plots are required, for the examples 10 and 11.
-
-Under GNU/Linux
-+++++++++++++++
-
-Prerequisites
-.............
-
-- A Fortran and C compiler suite (tested with version 18 of the Intel compilers as well as versions 7.3, 8.3 and 9 of the GNU compilers).
-- An MPI library (tested with version 18 of the Intel MPI Library and versions 4.0.1 and 4.0.5 of OpenMPI)
-- NetCDF 4
-- Python 3 with mpi4py and NumPy
-- Sphinx and Tex Live (for the documentation)
-- [Matplotlib]
-- [GEOS (Geometry Engine, Open Source): package libgeos-dev under Debian or Ubuntu]
-- [proj: package libproj-dev under Debian or Ubuntu] 
-
-Installation
-............
-- Obtain OASIS (refer to OASIS User Guide for details).
-- Change directory to ${OASIS_ROOT}/util/make_dir.
-- Create your own make.inc file based on make.intel_davinci, make.gfortran_openmpi_linux or make.bindings.
-- Build and install OASIS and pyOASIS::
-
-    make -f TopMakefile realclean
-    make -f TopMakefile pyoasis
-
-- Append the lines displayed at the end of the compilation to your .bashrc file or, alternatively, before using pyOASIS, source the script mentioned there. 
-
-[Extra software]
-................
-
-- Create a virtual environment: ::
-
-    export VENVDIR=~/INSTALL/PY_ENV/PyO   directory containing the virtual environment 
-    python3 -m venv ${VENVDIR}
-    source ${VENVDIR}/bin/activate
-    
-- Install software: ::
-
-    pip install --upgrade pip
-    pip uninstall shapely   
-    pip install shapely --no-binary shapely
-    pip install cartopy
-    pip install pykdtree
-
-The uninstall steps are needed only if a previous version of the software was already there. The last package is not necessary. It is only used for optimisation. 
-
-
-Under macOS
-+++++++++++
-
-Prerequisites
-.............
-
-::
-   
-   brew install gcc   
-   brew install openblas
-   brew install openmpi 
-   [brew install geos]
-   [brew install proj]
-
-(This has been tested with gcc 10.2.0.)
-   
-Installation
-............
-Same as under GNU/Linux. See previous section.
-
-
-Virtual Python environment
-..........................
-
-- Create a virtual environment:
-
-    Same as under GNU/Linux, see previous section.
-    
-- Install packages: ::
-
-    pip install mpi4py
-    pip uninstall numpy 
-    pip cache remove numpy
-    OPENBLAS="$(brew --prefix openblas)" pip install --global-option=build-ext numpy
-    pip install netcdf4
-    [pip uninstall scipy]
-    [pip cache remove scipy]
-    [pip install --global-option=build-ext scipy]
-    [pip uninstall shapely]
-    [pip install shapely --no-binary shapely]
-    [pip install matplotlib]
-    [pip install cartopy]
-    [pip install pykdtree]
-
-The uninstall steps are needed only if a previous version of the software was already there. The last package is not necessary. It is only used for optimisation. 
-
-
-Set up the environment
-......................
-At the end of your .bashrc, ::
-
-    export TMPDIR=/tmp
-    export OMPI_MCA_mca_base_env_list=LD_LIBRARY_PATH=${PYOASIS_ROOT}/lib
-
-
-Tests
-+++++
-
-pyOASIS can be tested by issuing, in the directory ${OASIS_ROOT}/pyoasis::
-
-    make test
-
-This will test the Python wrapper itself as well as running examples using OASIS (the one in the ``tests`` directory as well as examples 1 to 9). It requires pytest.
-
-
-Documentation
-+++++++++++++
-
-If pyOASIS is modified, this document can be regenerated, using Sphinx,
-by typing the following command in the directory ${OASIS_ROOT}/pyoasis::
-  
-   make doc
-
 
 Using pyOASIS
 -------------
@@ -617,7 +493,7 @@ Component
 | oasis_enddef(ierror)               | enddef()                          |
 +------------------------------------+-----------------------------------+
 | oasis_get_local_comm(local_comm,   | localcomm                         |
-| ierror)                           |                                    |
+| ierror)                            |                                   |
 +------------------------------------+-----------------------------------+
 | oasis_get_debug(debugvalue)        | debug_level                       |
 +------------------------------------+-----------------------------------+
@@ -713,13 +589,139 @@ Utilities
 +---------------------------------+-------------------------------+
 
 
+Installation
+------------
+The sections between brackets are necessary only when Cartopy plots are required, for the examples 10 and 11.
+
+Under GNU/Linux
++++++++++++++++
+
+Prerequisites
+.............
+
+- A Fortran and C compiler suite (tested with version 18 of the Intel compilers as well as versions 7.3, 8.3 and 9 of the GNU compilers).
+- An MPI library (tested with version 18 of the Intel MPI Library and versions 4.0.1 and 4.0.5 of OpenMPI)
+- NetCDF 4
+- Python 3 with mpi4py and NumPy
+- Sphinx and Tex Live (for the documentation)
+- [Matplotlib]
+- [GEOS (Geometry Engine, Open Source): package libgeos-dev under Debian or Ubuntu]
+- [proj: package libproj-dev under Debian or Ubuntu] 
+
+Installation
+............
+- Obtain OASIS (refer to OASIS User Guide for details).
+- Change directory to ${OASIS_ROOT}/util/make_dir.
+- Create your own make.inc file based on make.intel_davinci, make.gfortran_openmpi_linux or make.bindings.
+- Build and install OASIS and pyOASIS::
+
+    make -f TopMakefile realclean
+    make -f TopMakefile pyoasis
+
+- Append the lines displayed at the end of the compilation to your .bashrc file or, alternatively, before using pyOASIS, source the script mentioned there. 
+
+[Extra software]
+................
+
+- Create a virtual environment: ::
+
+    export VENVDIR=~/INSTALL/PY_ENV/PyO   directory containing the virtual environment 
+    python3 -m venv ${VENVDIR}
+    source ${VENVDIR}/bin/activate
+    
+- Install software: ::
+
+    pip install --upgrade pip
+    pip uninstall shapely   
+    pip install shapely --no-binary shapely
+    pip install cartopy
+    pip install pykdtree
+
+The uninstall steps are needed only if a previous version of the software was already there. The last package is not necessary. It is only used for optimisation. 
+
+
+Under macOS
++++++++++++
+
+Prerequisites
+.............
+
+::
+   
+   brew install gcc   
+   brew install openblas
+   brew install openmpi 
+   [brew install geos]
+   [brew install proj]
+
+(This has been tested with gcc 10.2.0.)
+   
+Installation
+............
+Same as under GNU/Linux. See previous section.
+
+
+Virtual Python environment
+..........................
+
+- Create a virtual environment:
+
+    Same as under GNU/Linux, see previous section.
+    
+- Install packages: ::
+
+    pip install mpi4py
+    pip uninstall numpy 
+    pip cache remove numpy
+    OPENBLAS="$(brew --prefix openblas)" pip install --global-option=build-ext numpy
+    pip install netcdf4
+    [pip uninstall scipy]
+    [pip cache remove scipy]
+    [pip install --global-option=build-ext scipy]
+    [pip uninstall shapely]
+    [pip install shapely --no-binary shapely]
+    [pip install matplotlib]
+    [pip install cartopy]
+    [pip install pykdtree]
+
+The uninstall steps are needed only if a previous version of the software was already there. The last package is not necessary. It is only used for optimisation. 
+
+
+Set up the environment
+......................
+At the end of your .bashrc, ::
+
+    export TMPDIR=/tmp
+    export OMPI_MCA_mca_base_env_list=LD_LIBRARY_PATH=${PYOASIS_ROOT}/lib
+
+
+Tests
++++++
+
+pyOASIS can be tested by issuing, in the directory ${OASIS_ROOT}/pyoasis::
+
+    make test
+
+This will test the Python wrapper itself as well as running examples using OASIS (the one in the ``tests`` directory as well as examples 1 to 9). It requires pytest.
+
+
+Documentation
++++++++++++++
+
+If pyOASIS is modified, this document can be regenerated, using Sphinx,
+by typing the following command in the directory ${OASIS_ROOT}/pyoasis::
+  
+   make doc
+  
+
 Acknowledgments
 ---------------
 
 This work has been financed by the ISENES3 project which has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 824084.
 
 .. image:: euflag.png
-	   
+
+  
 Index and search
 ----------------
 

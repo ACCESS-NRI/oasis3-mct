@@ -15,16 +15,16 @@ comp = pyoasis.Component(component_name, True, comm)
 local_comm_rank = comp.localcomm.rank
 local_comm_size = comp.localcomm.size
 
-icpl = 1
+coupled = True
 if local_comm_size > 3:
     if local_comm_rank >= local_comm_size - 2:
-        icpl = MPI.UNDEFINED
+        coupled = False
 
 print(comp, flush=True)
 
-comp.create_couplcomm(icpl)
+comp.create_couplcomm(coupled)
 
-if icpl == 1:
+if coupled:
     comm_rank = comp.couplcomm.rank
     comm_size = comp.couplcomm.size
 
@@ -43,7 +43,7 @@ if icpl == 1:
 
 comp.enddef()
 
-if icpl == 1:
+if coupled:
     date = int(0)
 
     field = pyoasis.asarray(numpy.zeros(extent))
