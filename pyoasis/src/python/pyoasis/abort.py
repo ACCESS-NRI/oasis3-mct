@@ -32,7 +32,18 @@ import traceback
 # oasis_abort instead of simply abort because there
 # was a clash with another function name
 def oasis_abort(component_id, routine, message, filename, line, error):
-    """Aborts OASIS."""
+    """    
+    Stops the execution of all the processes corresponding to the components
+    after having displayed an error message and written to the log 
+    files information about the error and the context in which it 
+    took place.
+    
+    :param int component_id: Identifier of the component 
+    :param str routine: Name of the routine
+    :param str message: Error message
+    :param int line: Line
+    :param int error: Error code
+    """
     pyoasis.check_types([int, str, str, str, int, int],
                         [component_id, routine, message, filename, line,
                         error])
@@ -41,13 +52,14 @@ def oasis_abort(component_id, routine, message, filename, line, error):
 
 
 def pyoasis_abort(exception):
-    """
-    Terminates cleanly the execution of OASIS and pyOASIS
-    while dsiplaying an error message and the context  in which
-    the exception was raised.
-
+    """    
+    Stops the execution of all the processes corresponding to the components
+    after having displayed an error message and written to the log 
+    files information about the error and the context in which it 
+    took place.
+    
     :param Exception exception: exception to be handled
-    :raises PyOasisException: if an incorrect parameter is supplied
+    :raises PyOasisException: if the argument is not an exception
     """
     pyoasis.check_types([Exception], [exception])
     print(traceback.format_exc())

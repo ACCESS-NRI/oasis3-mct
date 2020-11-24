@@ -255,6 +255,13 @@ occurs in OASIS, an **OasisException** is raised. ::
     except (pyoasis.OasisException, pyoasis.PyOasisException) as exception:
         pyoasis.pyoasis_abort(exception)
 
+The function ``pyoasis.pyoasis_abort`` takes an exception as argument.
+It stops the execution  of all the processes after having displayed an error message and 
+written information in the log files about the error and the context in 
+which it took place. Another function is available, ``pyoasis.pyoasis_abort``, 
+for the cases in which no exception has been raised. Its interface mimics the 
+corresponding OASIS function. See Chapter 4 for more details.
+
 A more complete example involving exceptions can be found in
 ``test/apple_and_orange``, in the files ``receiver-orange.py`` and
 ``sender-apple.py``. These are used to test pyOASIS with a working
@@ -266,6 +273,9 @@ when the name of the variable data is inconsistent with the contents of
 the ``namcouple`` file. However, in such a case, one can rely on the error
 interception taking place in OASIS which will describe the issue in the log
 files.
+
+
+
 
 
 Examples
@@ -445,11 +455,14 @@ for more details). Finally the data is handled by the class **Var**.
 .. autoclass:: pyoasis.Var
                :members:
 
-
 Grids are managed by the *Grid* class.
  
 .. autoclass:: pyoasis.Grid
                :members:
+
+.. autofunction:: pyoasis.pyoasis_abort
+
+.. autofunction:: pyoasis.oasis_abort
 
 
 Correspondence with the OASIS interface
@@ -712,7 +725,7 @@ If pyOASIS is modified, this document can be regenerated, using Sphinx,
 by typing the following command in the directory ${OASIS_ROOT}/pyoasis::
   
    make doc
-  
+
 
 Acknowledgments
 ---------------
