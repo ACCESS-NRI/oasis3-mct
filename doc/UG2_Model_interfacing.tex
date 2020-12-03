@@ -1014,37 +1014,52 @@ The following auxiliary routines are currently available.
   \item {\tt cdnam [CHARACTER*; IN]}: other component name (i.e. 2nd argument of the call to {\tt oasis\_init\_comp} in that component).  This argument is a single string.
   \item {\tt kinfo [INTEGER; OUT; OPTIONAL]}: returned error code
   \end{itemize}
-\item {\tt CALL oasis\_get\_intracomm(new\_comm, cdnam, kinfo, root\_ranks)}
-\item {\tt CALL prism\_get\_intracomm(new\_comm, cdnam, kinfo, root\_ranks)}
+
+  This routine sets up an MPI intra-communicator between two 
+  components, the local component and the component defined by
+  the string {\tt cdnam}.  This call is collective
+  across the tasks of the two components creating the intra-communicator only,
+  and it must be called synchronously across all tasks of the two components
+  to minimize the chance of a deadlock.  It should be called only after
+  {\tt oasis\_enddef} is called.
+  This method creates a new communicator consisting of a new collective group
+  of tasks with new ranks.
+  This communicator supports collective communications and is
+  more typically used in MPI applications than inter-communicators
+  (see {\tt oasis\_get\_intercomm} above).
+  See also {\tt oasis\_get\_multi\_intracomm} for another method that
+  supports creating an MPI intra-communicator between two or more components.
+
+  \vspace{0.2cm}
+\item {\tt CALL oasis\_get\_multi\_intracomm(new\_comm, cdnam, root\_ranks, kinfo)}
+\item {\tt CALL prism\_get\_multi\_intracomm(new\_comm, cdnam, root\_ranks, kinfo)}
   \begin{itemize}
   \item {\tt new\_comm [INTEGER; OUT]}: MPI intra-communicator
-  \item {\tt cdnam [CHARACTER*; IN]}: component name(s) (i.e. 2nd argument of the call to {\tt oasis\_init\_comp} in that component).  This argument is a 1d array of character strings (i.e. cdnam(:)).
-  \item {\tt kinfo [INTEGER; OUT; OPTIONAL]}: returned error code
-  \item {\tt root\_ranks [INTEGER; OUT; OPTIONAL]}: this integer array must be the same size as the cdnam array.  The output has the root rank of each component in cdnam in the new communicator.
+  \item {\tt cdnam [CHARACTER*; IN]}: array of component names (i.e. 2nd argument of the call to {\tt oasis\_init\_comp} in that component).  This argument is a 1d array of character strings (i.e. cdnam(:)).
+  \item {\tt root\_ranks [INTEGER; OUT]}: array of root ranks.  This argument is a 1d integer array (i.e. root\_ranks(:)) of the same size as {\tt cdnam}.
+  \item {\tt kinfo [INTEGER; OUT]}: returned error code
   \end{itemize}
 
   This routine sets up an MPI intra-communicator between two or more
-  components.  In the first interface, a single other component name is passed
-  in and an intra-communicator is created between the local component and the
-  single other component.  In the second option, an array of component
-  names is passed into the interface and an intra-communicator is created
-  between them all.  In this instance, the local model name MUST BE one of the
+  components defined by the component names passed in the {\tt cdnam} array
+  argument.  The local model name MUST BE one of the
   models defined in the {\tt cdnam} array.  The component names must 
-  be valid names, but blank component names are allowed and ignored.
+  be valid names, but empty strings are allowed and ignored.
   This call is collective
-  across the tasks of the components creating the intra-communicator only.
+  across all the tasks of the components defined in {\tt cdnam},
+  and it must be called synchronously and consistently across all tasks of
+  those components to minimize the chance of a deadlock.  It should be called only after
+  {\tt oasis\_enddef} is called.
   This method creates a new communicator consisting of a new collective group
-  of tasks with new
-  ranks.  The root ranks of the components can be optionally computed
-  using the {\tt root\_ranks} argument in the interface where {\tt cdnam}
-  is an array.  The size of {\tt cdnam} and {\tt root\_ranks} should be
-  identical.
+  of tasks with new ranks.  The root ranks of the individual components relative
+  to the new communicator is output in the {\tt root\_ranks} argument.
+  The size of {\tt cdnam} and {\tt root\_ranks} should be identical,
+  and the values of {\tt root\_ranks} are consistent with the order of {\tt cdnam}..
   This communicator supports collective communications and is
   more typically used in MPI applications than inter-communicators
   (see {\tt oasis\_get\_intercomm} above).  
-  This method must be called synchronously across all components involved to
-  minimize the chance of a deadlock, and it should be called only after
-  {\tt oasis\_enddef} is called.
+  See also {\tt oasis\_get\_intracomm} for another method that
+  supports creating an MPI intra-communicator between two components.
 
 \item {\tt CALL oasis\_put\_inquire(var\_id, date, kinfo)}
 \item {\tt CALL prism\_put\_inquire\_proto(var\_id, date, kinfo)}
