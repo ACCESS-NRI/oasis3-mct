@@ -25,14 +25,10 @@ MODULE mod_oasis_auxiliary_routines
     public oasis_set_debug
     public oasis_get_intercomm
     public oasis_get_intracomm
+    public oasis_get_multi_intracomm
     public oasis_get_ncpl
     public oasis_put_inquire
     public oasis_get_freqs
-
-    interface oasis_get_intracomm ; module procedure &
-      oasis_get_intracomm_cdnam1, &
-      oasis_get_intracomm_cdnamx
-    end interface
 
 #include "oasis_os.h"
 
@@ -266,7 +262,7 @@ MODULE mod_oasis_auxiliary_routines
 
 !> OASIS user interface to establish an intracomm communicator between two components
 
-  SUBROUTINE oasis_get_intracomm_cdnam1(new_comm, cdnam, kinfo)
+  SUBROUTINE oasis_get_intracomm(new_comm, cdnam, kinfo)
 
     IMPLICIT NONE
 
@@ -276,7 +272,7 @@ MODULE mod_oasis_auxiliary_routines
 
     INTEGER (kind=ip_intwp_p)  :: tmp_intercomm, ierr
 !   ---------------------------------------------------------
-    character(len=*),parameter :: subname = '(oasis_get_intracomm_cdnam1)'
+    character(len=*),parameter :: subname = '(oasis_get_intracomm)'
 !   ---------------------------------------------------------
 
     call oasis_debug_enter(subname)
@@ -291,39 +287,35 @@ MODULE mod_oasis_auxiliary_routines
 
     call oasis_debug_exit(subname)
 
-  END SUBROUTINE oasis_get_intracomm_cdnam1
+  END SUBROUTINE oasis_get_intracomm
 
 !----------------------------------------------------------------------
 
 !> OASIS user interface to establish an intracomm communicator between two or more components
 
-  SUBROUTINE oasis_get_intracomm_cdnamx(new_comm, cdnam, kinfo, root_ranks)
+  SUBROUTINE oasis_get_multi_intracomm(new_comm, cdnam, root_ranks, kinfo)
 
     IMPLICIT NONE
 
-    INTEGER (kind=ip_intwp_p),intent(out) :: new_comm  !< output MPI communicator
-    CHARACTER(len=*),intent(in) :: cdnam(:)            !< other model names
-    INTEGER (kind=ip_intwp_p),intent(out),optional :: kinfo  !< return code
-    INTEGER (kind=ip_intwp_p),intent(out),optional :: root_ranks(:) !< root rank of each model in cdnam in new comm
+    INTEGER (kind=ip_intwp_p),intent(out) :: new_comm      !< output MPI communicator
+    CHARACTER(len=*)         ,intent(in)  :: cdnam(:)      !< other model names
+    INTEGER (kind=ip_intwp_p),intent(out) :: root_ranks(:) !< root rank of each model in cdnam in new comm
+    INTEGER (kind=ip_intwp_p),intent(out) :: kinfo         !< return code
 
     INTEGER (kind=ip_intwp_p) :: tmp_comm, inter_comm, tmpsize, tmprank
     INTEGER (kind=ip_intwp_p),allocatable :: cdnum(:),rranks(:)
     INTEGER (kind=ip_intwp_p) :: n, k, k2, ierr, tag, icnt, remote_leader
     LOGICAL :: found, found_myself, inter_high
 !   ---------------------------------------------------------
-    character(len=*),parameter :: subname = '(oasis_get_intracomm_cdnamx)'
+    character(len=*),parameter :: subname = '(oasis_get_multi_intracomm)'
 !   ---------------------------------------------------------
 
     call oasis_debug_enter(subname)
-    if (present(kinfo)) then
-       kinfo = OASIS_OK
-    endif
+    kinfo = OASIS_OK
 
-    if (present(root_ranks)) then
-       if (size(cdnam) /= size(root_ranks)) then
-          write(nulprt,*) subname,estr,'cdnam and root_ranks sizes not the same'
-          call oasis_abort(file=__FILE__,line=__LINE__)
-       endif
+    if (size(cdnam) /= size(root_ranks)) then
+       write(nulprt,*) subname,estr,'cdnam and root_ranks sizes not the same'
+       call oasis_abort(file=__FILE__,line=__LINE__)
     endif
 
     allocate(cdnum(size(cdnam)))
@@ -441,23 +433,21 @@ MODULE mod_oasis_auxiliary_routines
     enddo
 
     new_comm = tmp_comm
-    if (present(root_ranks)) then
-       root_ranks = -1
-       do n = 1,icnt
-          do k = 1,size(cdnam)
-             if (cdnam(k) == prism_modnam(cdnum(n))) then
-                root_ranks(k) = rranks(n)
-             endif
-          enddo
+    root_ranks = -1
+    do n = 1,icnt
+       do k = 1,size(cdnam)
+          if (cdnam(k) == prism_modnam(cdnum(n))) then
+             root_ranks(k) = rranks(n)
+          endif
        enddo
-       if (OASIS_debug >= 2) then
-          do k = 1,size(cdnam)
-             write(nulprt,'(2a,i4,3a,i8)') subname,' k =',k, &
-                             ' cdnam = ',trim(cdnam(k)), &
-                             ' root_rank = ',root_ranks(k)
-          enddo
-          call oasis_flush(nulprt)
-       endif
+    enddo
+    if (OASIS_debug >= 2) then
+       do k = 1,size(cdnam)
+          write(nulprt,'(2a,i4,3a,i8)') subname,' k =',k, &
+                          ' cdnam = ',trim(cdnam(k)), &
+                          ' root_rank = ',root_ranks(k)
+       enddo
+       call oasis_flush(nulprt)
     endif
 
     deallocate(rranks)
@@ -465,7 +455,7 @@ MODULE mod_oasis_auxiliary_routines
 
     call oasis_debug_exit(subname)
 
-  END SUBROUTINE oasis_get_intracomm_cdnamx
+  END SUBROUTINE oasis_get_multi_intracomm
 !----------------------------------------------------------------------
 
 !> OASIS user query for the number of unique couplings associated with a variable
