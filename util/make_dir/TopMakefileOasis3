@@ -206,7 +206,8 @@ makemctsta: configuremctsta compilemctsta installmctsta
 configuremctsta:
 	@echo "=> Configuring libraries mpeu and mct"
 	@(cd $(LIBBUILD)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
-         ./configure MPIFC="$(F90)" FC="$(F90)" CC="$(CC)" \
+         ./configure MPIFC="$(F90)" FC="$(F90)" FCFLAGS="$(FFLAGS)" \
+         CC="$(CC)" "CFLAGS=$(CCFLAGS)" \
          1>> $(LOGSTA) 2>> $(ERRSTA) ;)
 compilemctsta:
 	@echo "=> Compiling libraries mpeu and mct"
