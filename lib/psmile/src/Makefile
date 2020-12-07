@@ -16,7 +16,7 @@ clean:
 
 all:	$(LIBRARY)
 
-shared:	$(DYNLIBRARY)
+dynamic: $(DYNLIBRARY)
 
 $(LIBRARY): PREBUILTDIR := $(LIBBUILD)
 $(LIBRARY): $(OBJS1) 

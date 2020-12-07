@@ -1,9 +1,7 @@
 util/make_dir/COMP.err
 util/make_dir/COMP.log
-util/make_dir/COMP-shared.err
-util/make_dir/COMP-shared.log
-util/make_dir/COMP-c-bind.err
-util/make_dir/COMP-c-bind.log
+util/make_dir/COMP-dynamic.err
+util/make_dir/COMP-dynamic.log
 util/make_dir/COMP-pyoasis.err
 util/make_dir/COMP-pyoasis.log
 *.o

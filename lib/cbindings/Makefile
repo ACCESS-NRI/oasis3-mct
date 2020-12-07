@@ -1,26 +1,31 @@
 %.o: %.mod
 
-PYOASIS=$(COUPLE)/pyoasis
+CBINDSRC=$(COUPLE)/lib/cbindings
 
-SRC_C = $(PYOASIS)/src/c
-SRC_F = $(PYOASIS)/src/fortran_isoc
+SRC_C = $(CBINDSRC)/c
+SRC_F = $(CBINDSRC)/fortran_isoc
 
-FFLAGS = $(F90FLAGS) $(DYNOPT) -I$(LIBBUILDDYN)/mct -I$(LIBBUILDDYN)/psmile.$(CHAN)
-CFLAGS = $(CCFLAGS) $(DYNOPT) -I$(SRC_C)
+ifeq ($(MAKECMDGOALS),libdynamic)
+  FFLAGS = $(F90FLAGS) $(DYNOPT) -I$(LIBBUILDDYN)/mct -I$(LIBBUILDDYN)/psmile.$(CHAN)
+  CFLAGS = $(CCFLAGS) $(DYNOPT) -I$(SRC_C)
+  LFLAGS = $(LDFLAGS) $(DYNOPT) $(LDDYNOPT) -L$(ARCHDIR)/lib $(NETCDF_LIBRARY)
+else
+  FFLAGS = $(F90FLAGS) -I$(LIBBUILD)/mct -I$(LIBBUILD)/psmile.$(CHAN)
+  CFLAGS = $(CCFLAGS) -I$(SRC_C)
+  LFLAGS = $(LDFLAGS) $(LDOPT) -L$(ARCHDIR)/lib $(NETCDF_LIBRARY)
+endif
 
-LFLAGS = $(LDFLAGS) $(DYNOPT) $(LDDYNOPT) -L$(ARCHDIR)/lib $(NETCDF_LIBRARY)
-
-all: lib
-
-lib: $(ARCHDIR)/lib/liboasis.C.bindings.so 
+default: libstatic
 
 OBJS_F = cbindings.o mod_oasis_auxiliary_routines_iso.o mod_oasis_getput_interface_iso.o mod_oasis_method_iso.o mod_oasis_part_iso.o mod_oasis_sys_iso.o mod_oasis_var_iso.o mod_oasis_grid_iso.o
 
 OBJS_C = mod_oasis_auxiliary_routines_c.o mod_oasis_getput_interface_c.o mod_oasis_method_c.o mod_oasis_part_c.o mod_oasis_sys_c.o mod_oasis_var_c.o mod_oasis_grid_c.o
 
-$(ARCHDIR)/lib/liboasis.C.bindings.so: $(OBJS_F) $(OBJS_C)
-	$(F90) $(LFLAGS) $(OBJS_F) $(OBJS_C) -lpsmile.$(CHAN) -lscrip -lmct -lmpeu -o $(ARCHDIR)/lib/liboasis.C.bindings.so
+libstatic: $(OBJS_F) $(OBJS_C)
+	$(AR) $(ARFLAGS) $(ARCHDIR)/lib/liboasis.C.bindings.a $(OBJS_F) $(OBJS_C)
 
+libdynamic: $(OBJS_F) $(OBJS_C)
+	$(F90) $(LFLAGS) $(OBJS_F) $(OBJS_C) -lpsmile.$(CHAN) -lscrip -lmct -lmpeu -o $(ARCHDIR)/lib/liboasis.C.bindings.so
 
 # C
 
