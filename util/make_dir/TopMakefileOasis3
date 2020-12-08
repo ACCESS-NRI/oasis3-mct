@@ -307,7 +307,7 @@ makecbindingsshared:
 
 makepyoasis:
 	@echo "=> Installing the PyOasis Modules"
-	@(cp -f -r -p $(COUPLE)/pyoasis/src $(ARCHDIR)/python \
+	@(cp -f -r -p $(COUPLE)/pyoasis/src/* $(ARCHDIR)/python \
           1>> $(LOGPYO) 2>> $(ERRPYO) )
 	@echo export PYOASIS_ROOT=${ARCHDIR} > ${ARCHDIR}/python/init.sh
 	@echo setenv PYOASIS_ROOT ${ARCHDIR} > ${ARCHDIR}/python/init.csh
