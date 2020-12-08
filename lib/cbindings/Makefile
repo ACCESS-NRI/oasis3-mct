@@ -2,11 +2,11 @@
 
 CBINDSRC=$(COUPLE)/lib/cbindings
 
-SRC_C = $(CBINDSRC)/c
+SRC_C = $(CBINDSRC)/c_src
 SRC_F = $(CBINDSRC)/fortran_isoc
 
-ifeq ($(MAKECMDGOALS),libdynamic)
-  FFLAGS = $(F90FLAGS) $(DYNOPT) -I$(LIBBUILDDYN)/mct -I$(LIBBUILDDYN)/psmile.$(CHAN)
+ifeq ($(MAKECMDGOALS),libshared)
+  FFLAGS = $(F90FLAGS) $(DYNOPT) -I$(LIBBUILDSHARED)/mct -I$(LIBBUILDSHARED)/psmile.$(CHAN)
   CFLAGS = $(CCFLAGS) $(DYNOPT) -I$(SRC_C)
   LFLAGS = $(LDFLAGS) $(DYNOPT) $(LDDYNOPT) -L$(ARCHDIR)/lib $(NETCDF_LIBRARY)
 else
@@ -24,7 +24,7 @@ OBJS_C = mod_oasis_auxiliary_routines_c.o mod_oasis_getput_interface_c.o mod_oas
 libstatic: $(OBJS_F) $(OBJS_C)
 	$(AR) $(ARFLAGS) $(ARCHDIR)/lib/liboasis.C.bindings.a $(OBJS_F) $(OBJS_C)
 
-libdynamic: $(OBJS_F) $(OBJS_C)
+libshared: $(OBJS_F) $(OBJS_C)
 	$(F90) $(LFLAGS) $(OBJS_F) $(OBJS_C) -lpsmile.$(CHAN) -lscrip -lmct -lmpeu -o $(ARCHDIR)/lib/liboasis.C.bindings.so
 
 # C

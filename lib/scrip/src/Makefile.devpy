@@ -19,7 +19,7 @@ clean:
 
 all:	$(LIBRARY)
 
-shared: $(DYNLIBRARY)
+shared:	$(DYNLIBRARY)
 
 $(LIBRARY): $(OBJS1)  $(OBJS3) $(OBJS4)
 	$(AR) $(ARFLAGS) $(LIBRARY) $(OBJS1) $(OBJS3) $(OBJS4)

@@ -7,16 +7,16 @@
 #
 ###############################################################################
 #
-# CHAN	: communication technique used in OASIS3 (MPI1/MPI2/NONE)
-CHAN            = MPI1
+# CHAN  : communication technique used in OASIS3 (MPI1/MPI2/NONE)
+CHAN        = MPI1
 #
 # Paths for libraries, object files and binaries
 #
-# COUPLE	: path for oasis3-mct main directory
-COUPLE          = $(HOME)/oasis3-mct
+# COUPLE : path for oasis3-mct main directory
+COUPLE      = $(HOME)/oasis3-mct
 #
-# ARCHDIR       : directory created when compiling
-ARCHDIR         = $(COUPLE)/../compile_oa3-mct
+# ARCHDIR : directory created when compiling
+ARCHDIR     = $(COUPLE)/../compile_oa3-mct
 #
 # MPI library
 MPIDIR      = /usr/local
@@ -58,15 +58,15 @@ LDFLAGS     =  -O2
 #
 # Additional definitions that should not be changed
 #
-FLIBS		= $(NETCDF_LIBRARY)
-# BINDIR        : directory for executables
-BINDIR          = $(ARCHDIR)/bin
-# LIBBUILD      : contains a directory for each library
-LIBBUILD        = $(ARCHDIR)/build/lib
-# LIBBUILDDYN   : contains a directory for each shared library
-LIBBUILDDYN     = $(ARCHDIR)/build-shared/lib
-# INCPSMILE     : includes all *o and *mod for each library
-INCPSMILE       = -I$(ARCHDIR)/include
+FLIBS            = $(NETCDF_LIBRARY)
+# BINDIR         : directory for executables
+BINDIR           = $(ARCHDIR)/bin
+# LIBBUILD       : contains a directory for each library
+LIBBUILD         = $(ARCHDIR)/build/lib
+# LIBBUILDSHARED : contains a directory for each shared library
+LIBBUILDSHARED   = $(ARCHDIR)/build-shared/lib
+# INCPSMILE      : includes all *o and *mod for each library
+INCPSMILE        = -I$(ARCHDIR)/include
 
 F90FLAGS  = $(F90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
 f90FLAGS  = $(f90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
