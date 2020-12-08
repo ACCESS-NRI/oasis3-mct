@@ -13,7 +13,7 @@ CHAN            = MPI1
 COUPLE          = $(HOME)/oasis3-mct
 #
 # ARCHDIR       : directory created when compiling
-ARCHDIR         = $(COUPLE)/compile_intelmpi_training
+ARCHDIR         = $(COUPLE)/compile_intelmpi_tioman
 #
 # MPI library ((see the file /etc/modulefiles/mpi/openmpi-x86_64)
 MPIDIR      = /softs/intel/impi/2018.1.163
