@@ -996,6 +996,28 @@ CONTAINS
       ENDIF
    enddo
 
+   !------------------------
+   !--- set mpi_comp_size
+   !------------------------
+
+   if (allocated(mpi_comp_size)) then
+      deallocate(mpi_comp_size)
+   endif
+   allocate(mpi_comp_size(prism_amodels))
+   allocate(tmparr(prism_amodels))
+   tmparr = 0
+   tmparr(compid) = mpi_size_local
+   call oasis_mpi_max(tmparr,mpi_comp_size,mpi_comm_global, &
+      string=subname//':mpi_comp_size',all=.true.)
+   deallocate(tmparr)
+
+   do n = 1,prism_amodels
+      IF (mpi_comp_size(n) < 1) THEN
+         WRITE(nulprt,*) subname,estr,'comp size invalid, check couplcomm for active tasks'
+         call oasis_abort(file=__FILE__,line=__LINE__)
+      ENDIF
+   enddo
+
 END SUBROUTINE mod_oasis_setrootglobal
 !----------------------------------------------------------------------
 
