@@ -46,15 +46,15 @@ oasis3_psmile: static-libs
 
 oasis3-psmile: static-libs
 
-makedirs: makedirsstatic
+makedirs: makedirs-static
 
-makemct: makemctstatic
+makemct: makemct-static
 
-makelibs: makescripsstatic
+makelibs: makescrip-static
 
-makepsmile: makepsmilestatic
+makepsmile: makepsmile-static
 
-cleanlibs: cleanstaticlibs
+cleanlibs: clean-static
 
 ########################################################################################
 
@@ -87,10 +87,10 @@ static-libs: check-vars
 	@rm -f $(LOGSTATIC) $(ERRSTATIC)
 	$(call check_defined, AR, static lib. archiver command)
 	$(call check_defined, ARFLAGS, static lib. archiver options)
-	@$(MAKEf) makedirsstatic
-	@$(MAKEf) makemctstatic
-	@$(MAKEf) makescripsstatic
-	@$(MAKEf) makepsmilestatic
+	@$(MAKEf) makedirs-static
+	@$(MAKEf) makemct-static
+	@$(MAKEf) makescrip-static
+	@$(MAKEf) makepsmile-static
 	@(echo "DONE" ; echo "")
 
 shared-libs: check-vars
@@ -100,24 +100,24 @@ shared-libs: check-vars
 	@echo "Build errors to $(ERRSHARED)"
 	@rm -f $(LOGSHARED) $(ERRSHARED)
 	$(call check_defined, DYNOPT LDDYNOPT, shared lib. compilation options)
-	@$(MAKEf) makedirsshared
-	@$(MAKEf) makemctshared
-	@$(MAKEf) makescripsshared
-	@$(MAKEf) makepsmileshared
+	@$(MAKEf) makedirs-shared
+	@$(MAKEf) makemct-shared
+	@$(MAKEf) makescrip-shared
+	@$(MAKEf) makepsmile-shared
 	@(echo "DONE" ; echo "")
 
 static-cbindings: static-libs
 	@echo "Compilation of the OASIS3-MCT C bindings static libraries"
 	@echo "Build output to $(LOGSTATIC)"
 	@echo "Build errors to $(ERRSTATIC)"
-	@$(MAKEf) makecbindingsstatic
+	@$(MAKEf) makecbindings-static
 	@(echo "DONE" ; echo "")
 
 shared-cbindings: shared-libs
 	@echo "Compilation of the OASIS3-MCT C bindings shared libraries"
 	@echo "Build output to $(LOGSHARED)"
 	@echo "Build errors to $(ERRSHARED)"
-	@$(MAKEf) makecbindingsshared
+	@$(MAKEf) makecbindings-shared
 	@(echo "DONE" ; echo "")
 
 pyoasis: shared-cbindings
@@ -126,17 +126,17 @@ pyoasis: shared-cbindings
 	@echo "Build errors to $(ERRPYO)"
 	@rm -f $(LOGPYO) $(ERRPYO)
 	$(call check_defined, MPIRUN, mpi launcher mnemonic helper)
-	@$(MAKEf) makedirspy
+	@$(MAKEf) makedirs-py
 	@$(MAKEf) makepyoasis
 	@(echo "DONE" ; echo "")
 
 realclean: check-vars
-	$(MAKEf) cleanstaticlibs cleansharedlibs cleanpyoasis
+	$(MAKEf) clean-static clean-shared clean-pyoasis
 
 ########################################################################################
 # Rules for creating build and library directories
 
-makedirsstatic:
+makedirs-static:
 	@echo "=> Creating directories for compiling the static libraries"
 	@echo "   in $(LIBBUILD)"
 	@mkdir -p $(LIBBUILD)/scrip
@@ -147,7 +147,7 @@ makedirsstatic:
 	@mkdir -p $(ARCHDIR)/include
 	@mkdir -p $(ARCHDIR)/lib
 
-makedirsshared:
+makedirs-shared:
 	@echo "=> Creating directories for compiling the shared libraries"
 	@echo "   in $(LIBBUILDSHARED)"
 	@mkdir -p $(LIBBUILDSHARED)/scrip
@@ -158,14 +158,14 @@ makedirsshared:
 	@mkdir -p $(ARCHDIR)/include
 	@mkdir -p $(ARCHDIR)/lib
 
-makedirspy:
+makedirs-py:
 	@echo "=> Creating pyoasis installation path"
 	@mkdir -p $(ARCHDIR)/python/pyoasis
 
 ########################################################################################
 # Rules for cleaning
 
-cleanstaticlibs:
+clean-static:
 	@echo cleaning oasis3-mct static libraries
 	rm -r -f $(LIBBUILD)/scrip
 	rm -r -f $(LIBBUILD)/mct
@@ -179,7 +179,7 @@ cleanstaticlibs:
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).a
 	rm -f $(ARCHDIR)/lib/liboasis.C.bindings.a
 
-cleansharedlibs:
+clean-shared:
 	@echo cleaning oasis3-mct shared libraries
 	rm -r -f $(LIBBUILDSHARED)/scrip
 	rm -r -f $(LIBBUILDSHARED)/mct
@@ -193,55 +193,45 @@ cleansharedlibs:
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).so
 	rm -f $(ARCHDIR)/lib/liboasis.C.bindings.so
 
-cleanpyoasis:
+clean-pyoasis:
 	@echo cleaning pyoasis
 	rm -r -f $(ARCHDIR)/python
 
 ########################################################################################
 # Rules for compiling mpeu/mct library
 
-makemctstatic: configuremctstatic compilemctstatic installmctstatic
-
-configuremctstatic:
+makemct-static:
 	@echo "=> Configuring libraries mpeu and mct"
 	@(cd $(LIBBUILD)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
          ./configure MPIFC="$(F90)" FC="$(F90)" FCFLAGS="$(FFLAGS)" \
          CC="$(CC)" "CFLAGS=$(CCFLAGS)" \
          1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ;)
-compilemctstatic:
 	@echo "=> Compiling libraries mpeu and mct"
 	@(cd $(LIBBUILD)/mctdir; \
          $(MAKE) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ;)
-installmctstatic:
 	@echo "=> Installing libraries mpeu and mct"
 	@(cd $(LIBBUILD)/mctdir; \
          cp -f ./*/lib*.a   $(ARCHDIR)/lib/; \
          cp -f ./*/*.o    $(LIBBUILD)/mct/; \
          cp -f ./*/*.mod  $(LIBBUILD)/mct/;)
 
-makemctshared: configuremctshared compilemctshared linkmpeushared linkmctshared installmctshared
-
-configuremctshared:
+makemct-shared:
 	@echo "=> Configuring shared libraries mpeu and mct"
 	@(cd $(LIBBUILDSHARED)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
          ./configure MPIFC="$(F90)" FC="$(F90)" FCFLAGS="$(FFLAGS) $(DYNOPT)" \
          CC="$(CC)" "CFLAGS=$(CCFLAGS) $(DYNOPT)" \
          1>> $(LOGSHARED) 2>> $(ERRSHARED) ;)
-compilemctshared:
 	@echo "=> Compiling shared libraries mpeu and mct"
 	@(cd $(LIBBUILDSHARED)/mctdir; \
 	 $(MAKE) 1>> $(LOGSHARED) 2>> $(ERRSHARED) ; )
-linkmpeushared:
 	@echo "=> Creating shared library libmpeu.so"
 	@(cd $(LIBBUILDSHARED)/mctdir ; \
 	 $(F90) $(DYNOPT) $(LDFLAGS) $(LDDYNOPT) \
          -o $(ARCHDIR)/lib/libmpeu.so ./mpeu/*.o $(NETCDF_LIBRARY); )
-linkmctshared:
 	@echo "=> Creating shared library libmct.so"
 	@(cd $(LIBBUILDSHARED)/mctdir ; \
 	 $(F90) $(DYNOPT) $(LDFLAGS) $(LDDYNOPT) \
          -o $(ARCHDIR)/lib/libmct.so ./mct/*.o -L$(ARCHDIR)/lib -lmpeu $(NETCDF_LIBRARY); )
-installmctshared:
 	@echo "=> Installing shared libraries mpeu and mct"
 	@(cd $(LIBBUILDSHARED)/mctdir ; \
          cp -f ./*/*.o    $(LIBBUILDSHARED)/mct/; \
@@ -250,12 +240,12 @@ installmctshared:
 ########################################################################################
 # Rules for compiling the libraries scrip
 
-makescripsstatic:
+makescrip-static:
 	@echo "=> Compiling library scrip"
 	@(cd $(LIBBUILD)/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
          $(modifmakefile) ; $(MAKE) all 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
 
-makescripsshared:
+makescrip-shared:
 	@echo "=> Compiling shared library scrip"
 	@(cd $(LIBBUILDSHARED)/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
          $(modifmakefile) ; $(MAKE) shared 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
@@ -263,26 +253,20 @@ makescripsshared:
 ########################################################################################
 # Rules for compiling the libraries psmile
 
-makepsmilestatic: compilepsmilestatic installpsmilestatic
-
-compilepsmilestatic:
+makepsmile-static:
 	@echo "=> Compiling library psmile"
 	@(cd $(LIBBUILD)/psmile.$(CHAN) ; \
          cp -f $(LIBSRC)/psmile/src/Makefile . ; $(modifmakefile) ; \
          $(MAKE) all 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ; )
-installpsmilestatic:
 	@echo "=> Installing library psmile"
 	@(cd $(LIBBUILD)/psmile.$(CHAN) ; \
 	 cp -f *.mod $(ARCHDIR)/include ; )
 
-makepsmileshared: compilepsmileshared installpsmileshared
-
-compilepsmileshared:
+makepsmile-shared:
 	@echo "=> Compiling shared library psmile"
 	@(cd $(LIBBUILDSHARED)/psmile.$(CHAN) ; \
          cp -f $(LIBSRC)/psmile/src/Makefile . ; $(modifmakefile) ; \
          $(MAKE) shared 1>> $(LOGSHARED) 2>> $(ERRSHARED) ; )
-installpsmileshared:
 	@echo "=> Installing shared library psmile"
 	@(cd $(LIBBUILDSHARED)/psmile.$(CHAN) ; \
 	 cp -f *.mod $(ARCHDIR)/include ; )
@@ -290,13 +274,13 @@ installpsmileshared:
 ########################################################################################
 # Rules for compiling the oasis C bindings
 
-makecbindingsstatic:
+makecbindings-static:
 	@echo "=> Compiling the C bindings static"
 	@(cd $(LIBBUILD)/cbindings ; \
 	 cp -f -r -p $(LIBSRC)/cbindings/Makefile .; $(modifmakefile) ; \
          $(MAKE) libstatic 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
 
-makecbindingsshared:
+makecbindings-shared:
 	@echo "=> Compiling the C bindings shared"
 	@(cd $(LIBBUILDSHARED)/cbindings ; \
 	 cp -f -r -p $(LIBSRC)/cbindings/Makefile .; $(modifmakefile) ; \
