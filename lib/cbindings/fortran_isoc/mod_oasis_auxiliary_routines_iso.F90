@@ -3,8 +3,8 @@
 ! Copyright (C) 2019 UKRI - STFC
 
 ! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU Lesser General Public License as 
-! published by the Free Software Foundation, either version 3 of the 
+! it under the terms of the GNU Lesser General Public License as
+! published by the Free Software Foundation, either version 3 of the
 ! License, or any later version.
 
 ! This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
 ! GNU Lesser General Public License for more details.
 
 ! A copy of the GNU Lesser General Public License, version 3, is supplied
-! with this program, in the file lgpl-3.0.txt. It is also available at 
+! with this program, in the file lgpl-3.0.txt. It is also available at
 ! <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
@@ -32,7 +32,7 @@ subroutine get_localcomm_iso(localcomm, kinfo) bind(C)
 
   localcomm=localcomm_f
   kinfo=kinfo_f
-  
+
 end subroutine get_localcomm_iso
 
 
@@ -61,19 +61,19 @@ subroutine set_couplcomm_iso(localcomm, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
-  integer (c_int), intent(in) :: localcomm 
+  integer (c_int), intent(in) :: localcomm
   integer (c_int), intent(inout) :: kinfo
-  
+
   integer :: localcomm_f
   integer :: kinfo_f
-  
+
   localcomm_f=localcomm
   kinfo_f=kinfo
-  
+
   call oasis_set_couplcomm(localcomm_f, kinfo_f)
-  
+
   kinfo=kinfo_f
-  
+
 end subroutine set_couplcomm_iso
 
 
@@ -82,35 +82,35 @@ subroutine get_intercomm_iso(new_comm, cdnam, kinfo) bind(C)
   use cbindings, only: string_to_fortran
   use mod_oasis
   implicit none
-  integer (c_int), intent(out) :: new_comm 
+  integer (c_int), intent(out) :: new_comm
   type(c_ptr), intent(in) :: cdnam
   integer (c_int), intent(inout) :: kinfo
-  
-  integer :: new_comm_f 
+
+  integer :: new_comm_f
   character(len=:), allocatable :: cdnam_f
   integer :: kinfo_f
-  
+
   kinfo_f=kinfo
   cdnam_f=string_to_fortran(cdnam)
-  
+
   call oasis_get_intercomm(new_comm_f, cdnam_f, kinfo_f)
-  
+
   new_comm=new_comm_f
   kinfo=kinfo_f
-  
+
 end subroutine get_intercomm_iso
 
 
 subroutine get_intracomm_iso(new_comm, cdnam, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_ptr
-  use cbindings, only: string_to_fortran 
+  use cbindings, only: string_to_fortran
   use mod_oasis
   implicit none
-  integer (c_int), intent(out) :: new_comm 
+  integer (c_int), intent(out) :: new_comm
   type(c_ptr), intent(in) :: cdnam
   integer (c_int), intent(inout) :: kinfo
 
-  integer :: new_comm_f 
+  integer :: new_comm_f
   character(len=:), allocatable :: cdnam_f
   integer :: kinfo_f
 
@@ -118,45 +118,75 @@ subroutine get_intracomm_iso(new_comm, cdnam, kinfo) bind(C)
   cdnam_f=string_to_fortran(cdnam)
 
   call oasis_get_intracomm(new_comm_f, cdnam_f, kinfo_f)
-  
+
   new_comm=new_comm_f
   kinfo=kinfo_f
-  
+
 end subroutine get_intracomm_iso
+
+
+subroutine get_multi_intracomm_iso(new_comm, n, cdnam, root_ranks, kinfo) bind(C)
+  use iso_c_binding, only: c_int, c_ptr
+  use cbindings, only: stringarray_to_fortran
+  use mod_oasis
+  implicit none
+  integer (c_int), intent(out) :: new_comm
+  integer (c_int), intent(in)  :: n
+  type(c_ptr), dimension(n), intent(in) :: cdnam
+  integer(c_int), dimension(n), intent(out) :: root_ranks
+  integer (c_int), intent(inout) :: kinfo
+
+  integer :: new_comm_f
+  character(len=:), allocatable  :: cdnam_f(:)
+  integer :: kinfo_f
+
+  integer :: ib_str
+
+  kinfo_f=kinfo
+  cdnam_f=stringarray_to_fortran(n, cdnam)
+
+  call oasis_get_multi_intracomm(new_comm_f, cdnam_f, root_ranks, kinfo_f)
+
+  new_comm=new_comm_f
+  kinfo=kinfo_f
+
+  deallocate(cdnam_f)
+
+end subroutine get_multi_intracomm_iso
 
 
 subroutine set_debug_iso(debug, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
-  
+
   integer(c_int), intent(in) :: debug
   integer(c_int), intent(inout) :: kinfo
-  
+
   integer :: debug_f
   integer :: kinfo_f
-  
+
   debug_f=debug;
-  
+
   call oasis_set_debug(debug_f, kinfo_f)
-  
+
   kinfo=kinfo_f
 end subroutine set_debug_iso
 
-  
+
 subroutine get_debug_iso(debug, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
-  
+
   integer(c_int), intent(out) :: debug
   integer(c_int), intent(inout) :: kinfo
-  
+
   integer :: debug_f
   integer :: kinfo_f
-  
+
   call oasis_get_debug(debug_f, kinfo_f)
-  
+
   debug=debug_f;
   kinfo=kinfo_f
 end subroutine get_debug_iso
@@ -169,16 +199,16 @@ subroutine put_inquire_iso(varid, msec, kinfo) bind(C)
   integer(c_int), intent(in) :: varid
   integer(c_int), intent(in) :: msec
   integer(c_int), intent(out) :: kinfo
-  
+
   integer :: varid_f
   integer :: msec_f
   integer :: kinfo_f
-  
+
   varid_f=varid
   msec_f=msec
-  
+
   call oasis_put_inquire(varid_f, msec_f, kinfo_f)
-  
+
   kinfo=kinfo_f
 end subroutine put_inquire_iso
 
@@ -190,15 +220,15 @@ subroutine get_ncpl_iso(varid, ncpl, kinfo) bind(C)
   integer(c_int), intent(in) :: varid
   integer(c_int), intent(out) :: ncpl
   integer(c_int), intent(out) :: kinfo
- 
+
   integer :: varid_f
   integer :: ncpl_f
   integer :: kinfo_f
-  
+
   varid_f=varid
-  
+
   call oasis_get_ncpl(varid_f, ncpl_f, kinfo_f)
-  
+
   ncpl=ncpl_f
   kinfo=kinfo_f
 end subroutine get_ncpl_iso
@@ -208,23 +238,22 @@ subroutine get_freqs_iso(varid, mop, ncpl, cpl_freqs, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
-  integer(c_int), intent(in) :: varid        
-  integer(c_int), intent(in) :: mop        
-  integer(c_int), intent(in) :: ncpl       
+  integer(c_int), intent(in) :: varid
+  integer(c_int), intent(in) :: mop
+  integer(c_int), intent(in) :: ncpl
   integer(c_int), intent(out) :: cpl_freqs(ncpl)
-  integer(c_int), intent(out) :: kinfo          
-  
+  integer(c_int), intent(out) :: kinfo
+
   integer :: varid_f
   integer :: mop_f
   integer :: ncpl_f
-  integer :: kinfo_f 
+  integer :: kinfo_f
 
   varid_f=varid
   mop_f=mop
   ncpl_f=ncpl
-  
+
   call oasis_get_freqs(varid_f, mop_f, ncpl_f, cpl_freqs, kinfo_f)
 
   kinfo=kinfo_f
 end subroutine get_freqs_iso
-
