@@ -23,8 +23,8 @@ import numpy
 import ctypes
 from ctypes import c_int, cdll, CDLL
 
-cdll.LoadLibrary("liboasis.C.bindings.so")
-LIB = CDLL("liboasis.C.bindings.so")
+cdll.LoadLibrary("liboasis.cbind.so")
+LIB = CDLL("liboasis.cbind.so")
 
 
 LIB.start_grids_writing.argtypes = [ctypes.POINTER(ctypes.c_int)]

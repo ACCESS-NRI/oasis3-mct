@@ -177,7 +177,7 @@ clean-static:
 	rm -f $(ARCHDIR)/lib/libmct.a
 	rm -f $(ARCHDIR)/lib/libmpeu.a
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).a
-	rm -f $(ARCHDIR)/lib/liboasis.C.bindings.a
+	rm -f $(ARCHDIR)/lib/liboasis.cbind.a
 
 clean-shared:
 	@echo cleaning oasis3-mct shared libraries
@@ -191,7 +191,7 @@ clean-shared:
 	rm -f $(ARCHDIR)/lib/libmct.so
 	rm -f $(ARCHDIR)/lib/libmpeu.so
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).so
-	rm -f $(ARCHDIR)/lib/liboasis.C.bindings.so
+	rm -f $(ARCHDIR)/lib/liboasis.cbind.so
 
 clean-pyoasis:
 	@echo cleaning pyoasis

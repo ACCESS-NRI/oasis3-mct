@@ -23,8 +23,8 @@ import ctypes
 from ctypes import cdll, CDLL, c_int
 import numpy
 
-cdll.LoadLibrary("liboasis.C.bindings.so")
-LIB = CDLL("liboasis.C.bindings.so")
+cdll.LoadLibrary("liboasis.cbind.so")
+LIB = CDLL("liboasis.cbind.so")
 
 LIB.get_localcomm.argtypes = [ctypes.POINTER(ctypes.c_int),
                               ctypes.POINTER(ctypes.c_int)]

@@ -25,8 +25,8 @@ import numpy as np
 from numpy import float32, float64
 from ctypes import c_int, cdll, CDLL
 
-cdll.LoadLibrary("liboasis.C.bindings.so")
-LIB = CDLL("liboasis.C.bindings.so")
+cdll.LoadLibrary("liboasis.cbind.so")
+LIB = CDLL("liboasis.cbind.so")
 
 
 def get_sizes(field):

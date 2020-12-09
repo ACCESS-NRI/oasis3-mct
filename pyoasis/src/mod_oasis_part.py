@@ -29,8 +29,8 @@ def asintarray(data):
     return numpy.asfortranarray(data, dtype=numpy.int32)
 
 
-cdll.LoadLibrary("liboasis.C.bindings.so")
-LIB = CDLL("liboasis.C.bindings.so")
+cdll.LoadLibrary("liboasis.cbind.so")
+LIB = CDLL("liboasis.cbind.so")
 
 LIB.def_partition.argtypes = [ctypes.POINTER(ctypes.c_int),
                               ctypes.c_int, ctypes.POINTER(ctypes.c_int),

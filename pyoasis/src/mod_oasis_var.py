@@ -29,8 +29,8 @@ class OasisVarParameters(Enum):
     OASIS_DOUBLE = 8
 
 
-cdll.LoadLibrary("liboasis.C.bindings.so")
-LIB = CDLL("liboasis.C.bindings.so")
+cdll.LoadLibrary("liboasis.cbind.so")
+LIB = CDLL("liboasis.cbind.so")
 
 
 LIB.def_var.argtypes = [ctypes.POINTER(ctypes.c_int), c_char_p, ctypes.c_int,
