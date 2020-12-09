@@ -16,3 +16,4 @@ examples/*/fortran/sender-box
 examples/*/fortran/sender-orange
 examples/*/fortran/sender-points
 examples/*/fortran/writer
+*.dSYM
