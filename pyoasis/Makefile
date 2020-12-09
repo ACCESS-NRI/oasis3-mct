@@ -11,9 +11,7 @@ ifeq ($(PYOASIS),/pyoasis)
 PYOASIS := .
 endif
 
-# Exclude wrappertst from systematic testing while waiting for pytest fix
-# test: wrappertest completetest examples
-test: completetest examples
+test: wrappertest completetest examples
 
 wrappertest: wrappertest
 	cd $(PYOASIS)/tests && pytest

@@ -38,6 +38,11 @@ def returns_error(*args):
 def returns_2errors(*args):
     return [-1, -1]
 
+def returns_comm_handle_and_zero(*args):
+    return [MPI.COMM_WORLD.py2f(), 0]
+
+def returns_comm_handle_and_error(*args):
+    return [MPI.COMM_WORLD.py2f(), -1]
 
 # Compoment class
 # Constructor
@@ -79,6 +84,7 @@ def test_component_constructor5():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_method.terminate=returns_zero
+        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_comm_handle_and_zero
         pyoasis.Component._n_components = 0
         comp1 = pyoasis.Component("component1")
         comp2 = pyoasis.Component("component2")
@@ -94,7 +100,7 @@ def test_component_constructor6():
 # get_localcomm failing in constructor
 def test_component_constructor7():
     with pytest.raises(pyoasis.OasisException):
-        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2errors
+        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_comm_handle_and_error
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
         pyoasis.mod_oasis_method.terminate = returns_zero
         pyoasis.Component._n_components = 0
@@ -102,7 +108,7 @@ def test_component_constructor7():
 
 # name
 def test_component_name():
-    pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2_zeros
+    pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_comm_handle_and_zero
     pyoasis.mod_oasis_method.init_comp = returns_2_zeros
     pyoasis.mod_oasis_method.terminate=returns_zero
     pyoasis.Component._n_components = 0
@@ -113,7 +119,7 @@ def test_component_name():
 # __del__ failing
 def test_destructor():
     with pytest.raises(pyoasis.OasisException):
-        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_comm_handle_and_zero
         pyoasis.mod_oasis_method.init_comp = returns_2errors
         pyoasis.mod_oasis_method.terminate = returns_error
         pyoasis.Component._n_components = 0
@@ -124,7 +130,7 @@ def test_destructor():
 def test_component_create_couplcomm():
     with pytest.raises(pyoasis.PyOasisException):
         pyoasis.mod_oasis_method.init_comp = returns_2_zeros
-        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_2_zeros
+        pyoasis.mod_oasis_auxiliary_routines.get_localcomm = returns_comm_handle_and_zero
         pyoasis.mod_oasis_auxiliary_routines.create_couplcomm = returns_2_zeros
         pyoasis.mod_oasis_method.terminate = returns_zero
         pyoasis.Component._n_components = 0
