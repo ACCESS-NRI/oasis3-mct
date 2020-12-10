@@ -34,7 +34,7 @@ degeneration of the structures. Thanks to MCT, all transformations,
 including remapping, are performed in parallel on the set of source or
 target component processes and all coupling echanges are now executed
 in parallel directly between the component processes via Message Passing Interface
-(MPI). OASIS3-MCT also supports file I/O using netcdf. 
+(MPI). OASIS3-MCT also supports file I/O using netcdf and has C language bindings. 
 
 The developments realised in the different versions of OASIS3-MCT are described in Appendix \ref{sec_changes}.   
 In spite of the significant changes in underlying implementation,
@@ -99,7 +99,8 @@ OASIS3-MCT directory structure is the following one:
  - oasis3-mct/lib/psmile         OASIS3-MCT coupling library
                  /scrip          SCRIP interpolation library
                  /mct            Model Coupling Toolkit Coupling Software
-                  
+                 /cbindings      C language bindings source code
+
  - oasis3-mct/doc                OASIS3-MCT User Guide
 
  - oasis3-mct/util/make_dir      Utilities to compile OASIS3-MCT
