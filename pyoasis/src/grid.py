@@ -116,6 +116,19 @@ class Grid(object):
                                           self._ny_glo, area,
                                           self._part_id)
 
+    def set_angle(self, angle):
+        """
+        Set angle values
+
+        :param angle: mask array
+
+        :type angle: array of double precision floating numbers
+        """
+        pyoasis.checktypes.check_types([numpy.ndarray], [angle])
+        pyoasis.mod_oasis_grid.write_angle(self._cgrid, self._nx_glo,
+                                           self._ny_glo, angle,
+                                           self._part_id)
+
     def write(self):
         """
         Writes the grid

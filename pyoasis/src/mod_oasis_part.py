@@ -32,10 +32,10 @@ def asintarray(data):
 cdll.LoadLibrary("liboasis.cbind.so")
 LIB = CDLL("liboasis.cbind.so")
 
-LIB.def_partition.argtypes = [ctypes.POINTER(ctypes.c_int),
+LIB.oasis_c_def_partition.argtypes = [ctypes.POINTER(ctypes.c_int),
                               ctypes.c_int, ctypes.POINTER(ctypes.c_int),
-                              ctypes.c_int, ctypes.c_char_p,
-                              ctypes.POINTER(ctypes.c_int)]
+                              ctypes.POINTER(ctypes.c_int),
+                              ctypes.c_int, ctypes.c_char_p]
 
 
 def def_partition(parameters, global_size, name):
@@ -45,6 +45,6 @@ def def_partition(parameters, global_size, name):
     parameters_array = asintarray(parameters)
     n_parameters = len(parameters_array)
     p_parameters = (ctypes.c_int * n_parameters)(*parameters_array)
-    LIB.def_partition(id_part, n_parameters, p_parameters,
-                      global_size, name.encode(), kinfo)
+    LIB.oasis_c_def_partition(id_part, n_parameters, p_parameters,
+                              kinfo, global_size, name.encode())
     return id_part.value, kinfo.value

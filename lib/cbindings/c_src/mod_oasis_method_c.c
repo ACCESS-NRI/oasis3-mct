@@ -21,23 +21,23 @@
 #include <stdio.h>
 
 
-void init_comp(int* comp_id, const char* comp_name, int* error, const bool coupled, int communicator){
+void oasis_c_init_comp(int* comp_id, const char* comp_name, int* error, const bool coupled, int communicator){
     int communicator_f=communicator;
-    init_comp_iso(comp_id, &comp_name, error, &coupled, &communicator_f);
+    oasis_init_comp_iso(comp_id, &comp_name, error, &coupled, &communicator_f);
 }
 
-void enddef(int* kinfo){
-  enddef_iso(kinfo);
+void oasis_c_enddef(int* kinfo){
+  oasis_enddef_iso(kinfo);
 }
 
-void terminate(int* kinfo){
-  terminate_iso(kinfo);
+void oasis_c_terminate(int* kinfo){
+  oasis_terminate_iso(kinfo);
 }
 
-void get_comm_size(const int communicator, int* comm_size, int* error){
-  get_comm_size_iso(&communicator, comm_size, error);  
+void oasis_c_mpi_get_comm_size(const int communicator, int* comm_size, int* error){
+  oasis_mpi_get_comm_size_iso(&communicator, comm_size, error);
 }
 
-void get_comm_rank(const int communicator, int* comm_rank, int* error){
-  get_comm_rank_iso(&communicator, comm_rank, error);  
+void oasis_c_mpi_get_comm_rank(const int communicator, int* comm_rank, int* error){
+  oasis_mpi_get_comm_rank_iso(&communicator, comm_rank, error);
 }

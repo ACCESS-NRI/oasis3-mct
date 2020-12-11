@@ -86,6 +86,10 @@ area[:, :] = dp_conv * \
 
 grid.set_area(area)
 
+angle = np.zeros((nx_loc, ny_loc), dtype=np.float64)
+
+grid.set_angle(angle)
+
 if comm_rank == 0:
     nx_mono = 180
     ny_mono = 90
@@ -133,6 +137,10 @@ if comm_rank == 0:
                                   ) * np.abs(clom[:, :, 1]-clom[:, :, 0])
 
     grid2.set_area(aream)
+
+    anglem = np.zeros((nx_mono, ny_mono), dtype=np.float64)
+
+    grid2.set_angle(anglem)
 
     grid2.write()
 

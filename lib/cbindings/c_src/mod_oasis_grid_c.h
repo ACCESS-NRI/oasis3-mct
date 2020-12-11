@@ -32,22 +32,26 @@ void oasis_write_frac_iso(const char** cgrid, const int* nx, const int* ny, cons
 
 void oasis_write_area_iso(const char** cgrid, const int* nx, const int* ny, const int* nx_loc, const int* ny_loc, const double* area, const int* partid);
 
+void oasis_write_angle_iso(const char** cgrid, const int* nx, const int* ny, const int* nx_loc, const int* ny_loc, const double* angle, const int* partid);
+
 void oasis_terminate_grids_writing_iso();
 
 
-void start_grids_writing(int *kinfo);
+void oasis_c_start_grids_writing(int *kinfo);
 
-void write_grid(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const double* lon, const double* lat, const int partid);
+void oasis_c_write_grid(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const double* lon, const double* lat, const int partid);
 
-void write_corner(const char* cgrid, const int nx, const int ny, const int nc, const int nx_loc, const int ny_loc, const double* clo, const double* cla, const int partid);
+void oasis_c_write_corner(const char* cgrid, const int nx, const int ny, const int nc, const int nx_loc, const int ny_loc, const double* clo, const double* cla, const int partid);
 
-void write_mask(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const int* mask, const int partid, const char* companion);
+void oasis_c_write_mask(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const int* mask, const int partid, const char* companion);
 
-void write_frac(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const double* frac, const int partid, const char* companion);
+void oasis_c_write_frac(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const double* frac, const int partid, const char* companion);
 
-void write_area(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const double* area, const int partid);
+void oasis_c_write_area(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const double* area, const int partid);
 
-void terminate_grids_writing();
+void oasis_c_write_angle(const char* cgrid, const int nx, const int ny, const int nx_loc, const int ny_loc, const double* angle, const int partid);
+
+void oasis_c_terminate_grids_writing();
 
 
 #endif

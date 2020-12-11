@@ -17,15 +17,15 @@
 ! <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-subroutine oasis_def_partition_iso(id_part, n, parameters, size, name, kinfo) bind(C)
+subroutine oasis_def_partition_iso(id_part, kparal_size, kparal, kinfo, ig_size, name) bind(C)
   use iso_c_binding, only: c_int, c_ptr
   use cbindings
   use mod_oasis
   implicit none
   integer (c_int), intent(out) :: id_part
-  integer (c_int), intent(in) :: n
-  integer (c_int), intent(in), dimension(n) :: parameters
-  integer (c_int), intent(in) :: size
+  integer (c_int), intent(in) :: kparal_size
+  integer (c_int), intent(in), dimension(kparal_size) :: kparal
+  integer (c_int), intent(in) :: ig_size
   type    (c_ptr), intent(in) :: name
   integer (c_int), intent(out) :: kinfo
 
@@ -33,22 +33,22 @@ subroutine oasis_def_partition_iso(id_part, n, parameters, size, name, kinfo) bi
   integer :: kinfo_f
   character(len=:), allocatable :: name_f
   
-  name_f=string_to_fortran(name)
+  name_f=foasis_string_to_fortran(name)
   
-  if (size <= 0) then
+  if (ig_size <= 0) then
      if ( trim(name_f) == "" ) then
-        call oasis_def_partition(id_part_f, parameters, kinfo_f)
+        call oasis_def_partition(id_part_f, kparal, kinfo_f)
      else
-        call oasis_def_partition(id_part_f, parameters, kinfo_f, &
+        call oasis_def_partition(id_part_f, kparal, kinfo_f, &
            & name=trim(name_f))
      end if
   else
      if ( trim(name_f) == "" ) then
-        call oasis_def_partition(id_part_f, parameters, kinfo_f, &
-           & ig_size=size)
+        call oasis_def_partition(id_part_f, kparal, kinfo_f, &
+           & ig_size=ig_size)
      else
-        call oasis_def_partition(id_part_f, parameters, kinfo_f, &
-           & ig_size=size, name=trim(name_f))
+        call oasis_def_partition(id_part_f, kparal, kinfo_f, &
+           & ig_size=ig_size, name=trim(name_f))
      end if
   end if
   

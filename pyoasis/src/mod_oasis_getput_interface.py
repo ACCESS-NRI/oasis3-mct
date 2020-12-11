@@ -36,7 +36,7 @@ def get_sizes(field):
     return sizes
 
 
-LIB.put.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
+LIB.oasis_c_put.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
                     ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
                     ctypes.POINTER(ctypes.c_int), ctypes.c_bool]
 
@@ -47,17 +47,17 @@ def put(var_id, kstep, field, write_restart):
     error = c_int(0)
     p_field = field.ctypes.data
     if field.dtype == float32:
-        kind = c_int(4)
+        fkind = c_int(4)
     elif field.dtype == float64:
-        kind = c_int(8)
+        fkind = c_int(8)
     else:
         raise pyoasis.PyOasisException("Data type of field can only by float32 or float64")
-    LIB.put(var_id, kstep, sizes[0], sizes[1], sizes[2], kind,
+    LIB.oasis_c_put(var_id, kstep, sizes[0], sizes[1], sizes[2], fkind,
             p_field, error, write_restart)
     return error.value
 
 
-LIB.get.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+LIB.oasis_c_get.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
                     ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
                     ctypes.POINTER(ctypes.c_int)]
 
@@ -68,10 +68,10 @@ def get(var_id, kstep, field):
     error = c_int(0)
     p_field = field.ctypes.data
     if field.dtype == float32:
-        kind = c_int(4)
+        fkind = c_int(4)
     elif field.dtype == float64:
-        kind = c_int(8)
+        fkind = c_int(8)
     else:
         raise pyoasis.PyOasisException("Data type of field can only by float32 or float64")
-    LIB.get(var_id, kstep, sizes[0], sizes[1], sizes[2], kind, p_field, error)
+    LIB.oasis_c_get(var_id, kstep, sizes[0], sizes[1], sizes[2], fkind, p_field, error)
     return error.value

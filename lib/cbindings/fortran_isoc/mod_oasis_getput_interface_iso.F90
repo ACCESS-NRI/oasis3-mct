@@ -20,7 +20,7 @@
 subroutine oasis_put_iso_double(var_id, &
                                 kstep, &
                                 size1, size2, size3, &
-                                field, &
+                                fld1, &
                                 kinfo, &
                                 write_restart) BIND(C)
                              
@@ -42,28 +42,28 @@ subroutine oasis_put_iso_double(var_id, &
   integer (c_int),  intent(in)         :: var_id
   integer (c_int),  intent(in)         :: kstep
   integer (c_int),  intent(in)         :: size1, size2, size3
-  real (c_double),  intent(in), target :: field(size1*size2*size3)
+  real (c_double),  intent(in), target :: fld1(size1*size2*size3)
   integer (c_int),  intent(out)        :: kinfo
   logical (c_bool), intent(in)         :: write_restart
   integer :: var_id_f
   integer :: kstep_f
   integer :: kinfo_f
   logical :: write_restart_f
-  real (c_double), pointer :: field2(:,:)
-  real (c_double), pointer :: field3(:,:,:)
+  real (c_double), pointer :: tfld2d(:,:)
+  real (c_double), pointer :: tfld3d(:,:,:)
   
   var_id_f=var_id
   kstep_f=kstep
   write_restart_f=write_restart
 
   if(size3>1) then
-    field3(1:size1,1:size2,1:size3)=>field(:)
-    call oasis_put(var_id_f, kstep_f, field3, kinfo_f, write_restart=write_restart_f)
+    tfld3d(1:size1,1:size2,1:size3)=>fld1(:)
+    call oasis_put(var_id_f, kstep_f, tfld3d, kinfo_f, write_restart=write_restart_f)
   else if(size2>1) then
-    field2(1:size1,1:size2)=>field(:)
-    call oasis_put(var_id_f, kstep_f, field2, kinfo_f, write_restart=write_restart_f)
+    tfld2d(1:size1,1:size2)=>fld1(:)
+    call oasis_put(var_id_f, kstep_f, tfld2d, kinfo_f, write_restart=write_restart_f)
   else
-    call oasis_put(var_id_f, kstep_f, field, kinfo_f, write_restart=write_restart_f)
+    call oasis_put(var_id_f, kstep_f, fld1, kinfo_f, write_restart=write_restart_f)
   end if
     
   kinfo=kinfo_f
@@ -72,7 +72,7 @@ end subroutine oasis_put_iso_double
 
 
 
-subroutine oasis_get_iso_double(var_id, kstep, size1, size2, size3, field, kinfo) bind(C)
+subroutine oasis_get_iso_double(var_id, kstep, size1, size2, size3, fld1, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
   use cbindings
   use mod_oasis
@@ -89,25 +89,25 @@ subroutine oasis_get_iso_double(var_id, kstep, size1, size2, size3, field, kinfo
   integer (c_int), intent(in)            :: var_id
   integer (c_int), intent(in)            :: kstep
   integer (c_int), intent(in)            :: size1, size2, size3
-  real (c_double), intent(inout), target :: field(size1*size2*size3)
+  real (c_double), intent(inout), target :: fld1(size1*size2*size3)
   integer(c_int) , intent(out)           :: kinfo
   integer :: var_id_f
   integer :: kstep_f
   integer :: kinfo_f
-  real (c_double), pointer :: field2(:,:)
-  real (c_double), pointer :: field3(:,:,:)
+  real (c_double), pointer :: tfld2d(:,:)
+  real (c_double), pointer :: tfld3d(:,:,:)
   
   var_id_f=var_id
   kstep_f=kstep
    
   if(size3>1) then
-    field3(1:size1,1:size2,1:size3)=>field(:)
-    call oasis_get(var_id_f, kstep_f, field3, kinfo_f)
+    tfld3d(1:size1,1:size2,1:size3)=>fld1(:)
+    call oasis_get(var_id_f, kstep_f, tfld3d, kinfo_f)
   else if(size2>1) then
-    field2(1:size1,1:size2)=>field(:)
-    call oasis_get(var_id_f, kstep_f, field2, kinfo_f)
+    tfld2d(1:size1,1:size2)=>fld1(:)
+    call oasis_get(var_id_f, kstep_f, tfld2d, kinfo_f)
   else
-    call oasis_get(var_id_f, kstep_f, field, kinfo_f)
+    call oasis_get(var_id_f, kstep_f, fld1, kinfo_f)
   end if
   
   kinfo=kinfo_f
@@ -118,7 +118,7 @@ end subroutine oasis_get_iso_double
 subroutine oasis_put_iso_float(var_id, &
                                kstep, &
                                size1, size2, size3, &
-                               field, &
+                               fld1, &
                                kinfo, &
                                write_restart) BIND(C)
                              
@@ -140,28 +140,28 @@ subroutine oasis_put_iso_float(var_id, &
   integer (c_int),  intent(in)         :: var_id
   integer (c_int),  intent(in)         :: kstep
   integer (c_int),  intent(in)         :: size1, size2, size3
-  real (c_float),   intent(in), target :: field(size1*size2*size3)
+  real (c_float),   intent(in), target :: fld1(size1*size2*size3)
   integer (c_int),  intent(out)        :: kinfo
   logical (c_bool), intent(in)         :: write_restart
   integer :: var_id_f
   integer :: kstep_f
   integer :: kinfo_f
   logical :: write_restart_f
-  real (c_float), pointer :: field2(:,:)
-  real (c_float), pointer :: field3(:,:,:)
+  real (c_float), pointer :: tfld2d(:,:)
+  real (c_float), pointer :: tfld3d(:,:,:)
   
   var_id_f=var_id
   kstep_f=kstep
   write_restart_f=write_restart
 
   if(size3>1) then
-    field3(1:size1,1:size2,1:size3)=>field(:)
-    call oasis_put(var_id_f, kstep_f, field3, kinfo_f, write_restart=write_restart_f)
+    tfld3d(1:size1,1:size2,1:size3)=>fld1(:)
+    call oasis_put(var_id_f, kstep_f, tfld3d, kinfo_f, write_restart=write_restart_f)
   else if(size2>1) then
-    field2(1:size1,1:size2)=>field(:)
-    call oasis_put(var_id_f, kstep_f, field2, kinfo_f, write_restart=write_restart_f)
+    tfld2d(1:size1,1:size2)=>fld1(:)
+    call oasis_put(var_id_f, kstep_f, tfld2d, kinfo_f, write_restart=write_restart_f)
   else
-    call oasis_put(var_id_f, kstep_f, field, kinfo_f, write_restart=write_restart_f)
+    call oasis_put(var_id_f, kstep_f, fld1, kinfo_f, write_restart=write_restart_f)
   end if
     
   kinfo=kinfo_f
@@ -170,7 +170,7 @@ end subroutine oasis_put_iso_float
 
 
 
-subroutine oasis_get_iso_float(var_id, kstep, size1, size2, size3, field, kinfo) bind(C)
+subroutine oasis_get_iso_float(var_id, kstep, size1, size2, size3, fld1, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_float, c_ptr, c_bool
   use cbindings
   use mod_oasis
@@ -187,25 +187,25 @@ subroutine oasis_get_iso_float(var_id, kstep, size1, size2, size3, field, kinfo)
   integer (c_int), intent(in)            :: var_id
   integer (c_int), intent(in)            :: kstep
   integer (c_int), intent(in)            :: size1, size2, size3
-  real (c_float),  intent(inout), target :: field(size1*size2*size3)
+  real (c_float),  intent(inout), target :: fld1(size1*size2*size3)
   integer(c_int) , intent(out)           :: kinfo
   integer :: var_id_f
   integer :: kstep_f
   integer :: kinfo_f
-  real (c_float), pointer :: field2(:,:)
-  real (c_float), pointer :: field3(:,:,:)
+  real (c_float), pointer :: tfld2d(:,:)
+  real (c_float), pointer :: tfld3d(:,:,:)
   
   var_id_f=var_id
   kstep_f=kstep
    
   if(size3>1) then
-    field3(1:size1,1:size2,1:size3)=>field(:)
-    call oasis_get(var_id_f, kstep_f, field3, kinfo_f)
+    tfld3d(1:size1,1:size2,1:size3)=>fld1(:)
+    call oasis_get(var_id_f, kstep_f, tfld3d, kinfo_f)
   else if(size2>1) then
-    field2(1:size1,1:size2)=>field(:)
-    call oasis_get(var_id_f, kstep_f, field2, kinfo_f)
+    tfld2d(1:size1,1:size2)=>fld1(:)
+    call oasis_get(var_id_f, kstep_f, tfld2d, kinfo_f)
   else
-    call oasis_get(var_id_f, kstep_f, field, kinfo_f)
+    call oasis_get(var_id_f, kstep_f, fld1, kinfo_f)
   end if
   
   kinfo=kinfo_f

@@ -586,6 +586,10 @@ Grid
 |   nx_glo, ny_glo, frac,         |   companion=None)            |
 |   part_id, companion)           |                              |
 +---------------------------------+------------------------------+
+| oasis_write_angle(cgrid,        | set_angle(angle)             |
+|   nx_global, ny_global,         |                              |
+|   angle, il_partid)             |                              |
++---------------------------------+------------------------------+
 | oasis_terminate_grids_writing() | write()                      |
 +---------------------------------+------------------------------+
 

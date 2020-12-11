@@ -17,28 +17,28 @@
 ! <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-subroutine oasis_abort_iso(comp_id, routine, message, filename, line, error) bind(C)
+subroutine oasis_abort_iso(id_compid, cd_routine, cd_message, file, line, rcode) bind(C)
   use iso_c_binding, only: c_int, c_ptr
   use cbindings
   use mod_oasis
   implicit none
-  integer(kind=c_int), intent(in) :: comp_id
-  type(c_ptr), intent(in) :: routine
-  type(c_ptr), intent(in) :: message
-  type(c_ptr), intent(in) :: filename
+  integer(kind=c_int), intent(in) :: id_compid
+  type(c_ptr), intent(in) :: cd_routine
+  type(c_ptr), intent(in) :: cd_message
+  type(c_ptr), intent(in) :: file
   integer(kind=c_int), intent(in) :: line
-  integer(kind=c_int), intent(in) :: error
+  integer(kind=c_int), intent(in) :: rcode
 
-  integer :: comp_id_f
-  character(len=:), allocatable :: routine_f, message_f, filename_f
-  integer :: line_f, error_f
+  integer :: id_compid_f
+  character(len=:), allocatable :: cd_routine_f, cd_message_f, file_f
+  integer :: line_f, rcode_f
 
-  comp_id_f=comp_id
-  routine_f=string_to_fortran(routine)
-  message_f=string_to_fortran(message)
-  filename_f=string_to_fortran(filename)
+  id_compid_f=id_compid
+  cd_routine_f=foasis_string_to_fortran(cd_routine)
+  cd_message_f=foasis_string_to_fortran(cd_message)
+  file_f=foasis_string_to_fortran(file)
   line_f=line
-  error_f=error
+  rcode_f=rcode
       
-  call oasis_abort(comp_id_f, routine_f, message_f, filename_f, line_f, error_f)    
+  call oasis_abort(id_compid_f, cd_routine_f, cd_message_f, file_f, line_f, rcode_f)
 end subroutine oasis_abort_iso

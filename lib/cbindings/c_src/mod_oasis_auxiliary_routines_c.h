@@ -29,50 +29,50 @@ extern "C" {
 #endif
 
 
-void get_localcomm_iso(int* localcomm, int* kinfo);
+void oasis_get_localcomm_iso(int* localcomm, int* kinfo);
 
-void create_couplcomm_iso(const int* icpl, const int* allcomm, int* cplcomm, int* error);
+void oasis_create_couplcomm_iso(const int* icpl, const int* allcomm, int* cplcomm, int* kinfo);
 
-void set_couplcomm_iso(const int* localcomm, int* kinfo);
+void oasis_set_couplcomm_iso(const int* localcomm, int* kinfo);
 
-void get_intercomm_iso(int* new_comm, char** cdnam, int* error);
+void oasis_get_intercomm_iso(int* new_comm, char** cdnam, int* kinfo);
 
-void get_intracomm_iso(int* new_comm, char** cdnam, int* error);
+void oasis_get_intracomm_iso(int* new_comm, char** cdnam, int* kinfo);
 
-void get_multi_intracomm_iso(int* new_comm, const int* n, char** cdnam, int* root_ranks, int* error);
+void oasis_get_multi_intracomm_iso(int* new_comm, const int* cdnam_size, char** cdnam, int* root_ranks, int* kinfo);
 
-void set_debug_iso(const int* debug, int* kinfo);
+void oasis_set_debug_iso(const int* debug, int* kinfo);
 
-void get_debug_iso(int* debug, int* kinfo);
+void oasis_get_debug_iso(int* debug, int* kinfo);
 
-void put_inquire_iso(const int* varid, const int* msec, int* kinfo);
+void oasis_put_inquire_iso(const int* varid, const int* msec, int* kinfo);
 
-void get_ncpl_iso(const int* varid, int* ncpl, int* kinfo);
+void oasis_get_ncpl_iso(const int* varid, int* ncpl, int* kinfo);
 
-void get_freqs_iso(const int* varid, const int* mop, const int* ncpl, int* cpl_freqs, int* kinfo);
+void oasis_get_freqs_iso(const int* varid, const int* mop, const int* ncpl, int* cpl_freqs, int* kinfo);
 
 
-void get_localcomm(int* localcomm, int* kinfo);
+void oasis_c_get_localcomm(int* localcomm, int* kinfo);
 
-void create_couplcomm(const int icpl, const int allcomm, int* cplcomm, int* error);
+void oasis_c_create_couplcomm(const int icpl, const int allcomm, int* cplcomm, int* kinfo);
 
-void set_couplcomm(const int localcomm, int* kinfo);
+void oasis_c_set_couplcomm(const int localcomm, int* kinfo);
 
-void get_intercomm(int* new_comm, char* cdnam, int* error);
+void oasis_c_get_intercomm(int* new_comm, char* cdnam, int* kinfo);
 
-void get_intracomm(int* new_comm, char* cdnam, int* error);
+void oasis_c_get_intracomm(int* new_comm, char* cdnam, int* kinfo);
 
-void get_multi_intracomm(int* new_comm, const int n, char** cdnam, int* root_ranks, int* error);
+void oasis_c_get_multi_intracomm(int* new_comm, const int cdnam_size, char** cdnam, int* root_ranks, int* kinfo);
 
-void set_debug(const int debug, int* kinfo);
+void oasis_c_set_debug(const int debug, int* kinfo);
 
-void get_debug(int* debug, int* kinfo);
+void oasis_c_get_debug(int* debug, int* kinfo);
 
-void put_inquire(int varid, int msec, int* kinfo);
+void oasis_c_put_inquire(int varid, int msec, int* kinfo);
 
-void get_ncpl(const int varid, int* ncpl, int* kinfo);
+void oasis_c_get_ncpl(const int varid, int* ncpl, int* kinfo);
 
-void get_freqs(const int varid, const int mop, const int ncpl, int* cpl_freqs, int* kinfo);
+void oasis_c_get_freqs(const int varid, const int mop, const int ncpl, int* cpl_freqs, int* kinfo);
 
 
 #ifdef  __cplusplus

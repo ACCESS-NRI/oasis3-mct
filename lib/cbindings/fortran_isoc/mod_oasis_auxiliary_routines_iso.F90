@@ -17,7 +17,7 @@
 ! <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-subroutine get_localcomm_iso(localcomm, kinfo) bind(C)
+subroutine oasis_get_localcomm_iso(localcomm, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
@@ -33,10 +33,10 @@ subroutine get_localcomm_iso(localcomm, kinfo) bind(C)
   localcomm=localcomm_f
   kinfo=kinfo_f
 
-end subroutine get_localcomm_iso
+end subroutine oasis_get_localcomm_iso
 
 
-subroutine create_couplcomm_iso(icpl, allcomm, cplcomm, kinfo) bind(C)
+subroutine oasis_create_couplcomm_iso(icpl, allcomm, cplcomm, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
@@ -54,10 +54,10 @@ subroutine create_couplcomm_iso(icpl, allcomm, cplcomm, kinfo) bind(C)
   cplcomm=cplcomm_f
   kinfo=kinfo_f
 
-end subroutine create_couplcomm_iso
+end subroutine oasis_create_couplcomm_iso
 
 
-subroutine set_couplcomm_iso(localcomm, kinfo) bind(C)
+subroutine oasis_set_couplcomm_iso(localcomm, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
@@ -74,12 +74,12 @@ subroutine set_couplcomm_iso(localcomm, kinfo) bind(C)
 
   kinfo=kinfo_f
 
-end subroutine set_couplcomm_iso
+end subroutine oasis_set_couplcomm_iso
 
 
-subroutine get_intercomm_iso(new_comm, cdnam, kinfo) bind(C)
+subroutine oasis_get_intercomm_iso(new_comm, cdnam, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_ptr
-  use cbindings, only: string_to_fortran
+  use cbindings, only: foasis_string_to_fortran
   use mod_oasis
   implicit none
   integer (c_int), intent(out) :: new_comm
@@ -91,19 +91,19 @@ subroutine get_intercomm_iso(new_comm, cdnam, kinfo) bind(C)
   integer :: kinfo_f
 
   kinfo_f=kinfo
-  cdnam_f=string_to_fortran(cdnam)
+  cdnam_f=foasis_string_to_fortran(cdnam)
 
   call oasis_get_intercomm(new_comm_f, cdnam_f, kinfo_f)
 
   new_comm=new_comm_f
   kinfo=kinfo_f
 
-end subroutine get_intercomm_iso
+end subroutine oasis_get_intercomm_iso
 
 
-subroutine get_intracomm_iso(new_comm, cdnam, kinfo) bind(C)
+subroutine oasis_get_intracomm_iso(new_comm, cdnam, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_ptr
-  use cbindings, only: string_to_fortran
+  use cbindings, only: foasis_string_to_fortran
   use mod_oasis
   implicit none
   integer (c_int), intent(out) :: new_comm
@@ -115,25 +115,25 @@ subroutine get_intracomm_iso(new_comm, cdnam, kinfo) bind(C)
   integer :: kinfo_f
 
   kinfo_f=kinfo
-  cdnam_f=string_to_fortran(cdnam)
+  cdnam_f=foasis_string_to_fortran(cdnam)
 
   call oasis_get_intracomm(new_comm_f, cdnam_f, kinfo_f)
 
   new_comm=new_comm_f
   kinfo=kinfo_f
 
-end subroutine get_intracomm_iso
+end subroutine oasis_get_intracomm_iso
 
 
-subroutine get_multi_intracomm_iso(new_comm, n, cdnam, root_ranks, kinfo) bind(C)
+subroutine oasis_get_multi_intracomm_iso(new_comm, cdnam_size, cdnam, root_ranks, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_ptr
-  use cbindings, only: stringarray_to_fortran
+  use cbindings, only: foasis_stringarray_to_fortran
   use mod_oasis
   implicit none
   integer (c_int), intent(out) :: new_comm
-  integer (c_int), intent(in)  :: n
-  type(c_ptr), dimension(n), intent(in) :: cdnam
-  integer(c_int), dimension(n), intent(out) :: root_ranks
+  integer (c_int), intent(in)  :: cdnam_size
+  type(c_ptr), dimension(cdnam_size), intent(in) :: cdnam
+  integer(c_int), dimension(cdnam_size), intent(out) :: root_ranks
   integer (c_int), intent(inout) :: kinfo
 
   integer :: new_comm_f
@@ -143,7 +143,7 @@ subroutine get_multi_intracomm_iso(new_comm, n, cdnam, root_ranks, kinfo) bind(C
   integer :: ib_str
 
   kinfo_f=kinfo
-  cdnam_f=stringarray_to_fortran(n, cdnam)
+  cdnam_f=foasis_stringarray_to_fortran(cdnam_size, cdnam)
 
   call oasis_get_multi_intracomm(new_comm_f, cdnam_f, root_ranks, kinfo_f)
 
@@ -152,10 +152,10 @@ subroutine get_multi_intracomm_iso(new_comm, n, cdnam, root_ranks, kinfo) bind(C
 
   deallocate(cdnam_f)
 
-end subroutine get_multi_intracomm_iso
+end subroutine oasis_get_multi_intracomm_iso
 
 
-subroutine set_debug_iso(debug, kinfo) bind(C)
+subroutine oasis_set_debug_iso(debug, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
@@ -171,10 +171,10 @@ subroutine set_debug_iso(debug, kinfo) bind(C)
   call oasis_set_debug(debug_f, kinfo_f)
 
   kinfo=kinfo_f
-end subroutine set_debug_iso
+end subroutine oasis_set_debug_iso
 
 
-subroutine get_debug_iso(debug, kinfo) bind(C)
+subroutine oasis_get_debug_iso(debug, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
@@ -189,10 +189,10 @@ subroutine get_debug_iso(debug, kinfo) bind(C)
 
   debug=debug_f;
   kinfo=kinfo_f
-end subroutine get_debug_iso
+end subroutine oasis_get_debug_iso
 
 
-subroutine put_inquire_iso(varid, msec, kinfo) bind(C)
+subroutine oasis_put_inquire_iso(varid, msec, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
@@ -210,10 +210,10 @@ subroutine put_inquire_iso(varid, msec, kinfo) bind(C)
   call oasis_put_inquire(varid_f, msec_f, kinfo_f)
 
   kinfo=kinfo_f
-end subroutine put_inquire_iso
+end subroutine oasis_put_inquire_iso
 
 
-subroutine get_ncpl_iso(varid, ncpl, kinfo) bind(C)
+subroutine oasis_get_ncpl_iso(varid, ncpl, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
@@ -231,10 +231,10 @@ subroutine get_ncpl_iso(varid, ncpl, kinfo) bind(C)
 
   ncpl=ncpl_f
   kinfo=kinfo_f
-end subroutine get_ncpl_iso
+end subroutine oasis_get_ncpl_iso
 
 
-subroutine get_freqs_iso(varid, mop, ncpl, cpl_freqs, kinfo) bind(C)
+subroutine oasis_get_freqs_iso(varid, mop, ncpl, cpl_freqs, kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
@@ -256,4 +256,4 @@ subroutine get_freqs_iso(varid, mop, ncpl, cpl_freqs, kinfo) bind(C)
   call oasis_get_freqs(varid_f, mop_f, ncpl_f, cpl_freqs, kinfo_f)
 
   kinfo=kinfo_f
-end subroutine get_freqs_iso
+end subroutine oasis_get_freqs_iso

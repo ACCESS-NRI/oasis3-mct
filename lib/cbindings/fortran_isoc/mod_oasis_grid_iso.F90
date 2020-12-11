@@ -52,7 +52,7 @@ subroutine oasis_write_grid_iso(cgrid, nx, ny, nx_loc, ny_loc, lon, lat, partid)
   real (c_double), pointer :: lon2D(:,:)
   real (c_double), pointer :: lat2D(:,:)
   
-  cgrid_f=string_to_fortran(cgrid)
+  cgrid_f=foasis_string_to_fortran(cgrid)
   nx_f=nx
   ny_f=ny
   partid_f=partid
@@ -85,7 +85,7 @@ subroutine oasis_write_corner_iso(cgrid, nx, ny, nc, nx_loc, ny_loc, clo, cla, p
   real (c_double), pointer :: clo3D(:,:,:)
   real (c_double), pointer :: cla3D(:,:,:)
   
-  cgrid_f=string_to_fortran(cgrid)
+  cgrid_f=foasis_string_to_fortran(cgrid)
   nx_f=nx
   ny_f=ny
   nc_f=nc
@@ -99,7 +99,7 @@ subroutine oasis_write_corner_iso(cgrid, nx, ny, nc, nx_loc, ny_loc, clo, cla, p
     call oasis_write_corner(cgrid_f, nx_f, ny_f, nc_f, clo3D, cla3D)
   endif
 
-end subroutine
+end subroutine oasis_write_corner_iso
 
 
 subroutine oasis_write_mask_iso(cgrid, nx, ny, nx_loc, ny_loc, mask, partid, companion) bind(C)
@@ -122,12 +122,12 @@ subroutine oasis_write_mask_iso(cgrid, nx, ny, nx_loc, ny_loc, mask, partid, com
   character(len=:), allocatable :: companion_f
   logical :: has_companion
   
-  cgrid_f=string_to_fortran(cgrid)
+  cgrid_f=foasis_string_to_fortran(cgrid)
   nx_f=nx
   ny_f=ny
   partid_f=partid
   mask2D(1:nx_loc, 1:ny_loc) => mask(:)
-  companion_f=string_to_fortran(companion)
+  companion_f=foasis_string_to_fortran(companion)
   has_companion = trim(companion_f) /= "NULL-STRING"
   
   if(partid_f>=0) then
@@ -166,12 +166,12 @@ subroutine oasis_write_frac_iso(cgrid, nx, ny, nx_loc, ny_loc, frac, partid, com
   character(len=:), allocatable :: companion_f
   logical :: has_companion
   
-  cgrid_f=string_to_fortran(cgrid)
+  cgrid_f=foasis_string_to_fortran(cgrid)
   nx_f=nx
   ny_f=ny
   partid_f=partid
   frac2D(1:nx_loc, 1:ny_loc) => frac(:)
-  companion_f=string_to_fortran(companion)
+  companion_f=foasis_string_to_fortran(companion)
   has_companion = trim(companion_f) /= "NULL-STRING"
   
   if(partid_f>=0) then
@@ -207,7 +207,7 @@ subroutine oasis_write_area_iso(cgrid, nx, ny, nx_loc, ny_loc, area, partid) bin
   integer :: partid_f
   real (c_double), pointer :: area2D(:,:)
   
-  cgrid_f=string_to_fortran(cgrid)
+  cgrid_f=foasis_string_to_fortran(cgrid)
   nx_f=nx
   ny_f=ny
   partid_f=partid
@@ -219,6 +219,37 @@ subroutine oasis_write_area_iso(cgrid, nx, ny, nx_loc, ny_loc, area, partid) bin
     call oasis_write_area(cgrid_f, nx_f, ny_f, area2D)
   end if
 end subroutine oasis_write_area_iso
+
+
+subroutine oasis_write_angle_iso(cgrid, nx, ny, nx_loc, ny_loc, angle, partid) bind(C)
+  use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
+  use cbindings
+  use mod_oasis
+  implicit none
+
+  type(c_ptr), intent(in) :: cgrid
+  integer (c_int), intent (in) :: nx, ny
+  integer (c_int), intent (in) :: nx_loc, ny_loc
+  real (c_double), intent(in), target :: angle(nx_loc*ny_loc)
+  integer(c_int), intent (in) :: partid  ! -1 if absent
+
+  character(len=:), allocatable :: cgrid_f
+  integer :: nx_f, ny_f
+  integer :: partid_f
+  real (c_double), pointer :: angle2D(:,:)
+
+  cgrid_f=foasis_string_to_fortran(cgrid)
+  nx_f=nx
+  ny_f=ny
+  partid_f=partid
+  angle2D(1:nx_loc, 1:ny_loc) => angle(:)
+
+  if(partid_f>=0) then
+    call oasis_write_angle(cgrid_f, nx_f, ny_f, angle2D, partid_f)
+  else
+    call oasis_write_angle(cgrid_f, nx_f, ny_f, angle2D)
+  end if
+end subroutine oasis_write_angle_iso
 
 
 subroutine oasis_terminate_grids_writing_iso() bind(C)

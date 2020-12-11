@@ -17,36 +17,36 @@
 ! <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-subroutine init_comp_iso(comp_id, comp_name, error, coupled, communicator) bind(C)
+subroutine oasis_init_comp_iso(mynummod, cdnam, kinfo, coupled, commworld) bind(C)
   use iso_c_binding, only: c_int, c_ptr, c_bool
   use cbindings
   use mod_oasis
   implicit none
   include "mpif.h"
-  integer (c_int), intent(out) :: comp_id   
-  type(c_ptr), intent(in) :: comp_name 
-  integer (c_int), intent(out) :: error
+  integer (c_int), intent(out) :: mynummod
+  type(c_ptr), intent(in) :: cdnam
+  integer (c_int), intent(out) :: kinfo
   logical (c_bool), intent(in) :: coupled
-  integer (c_int), intent(in) :: communicator
+  integer (c_int), intent(in) :: commworld
 
-  integer :: comp_id_f
-  character(len=:), allocatable :: comp_name_f
-  integer :: error_f
+  integer :: mynummod_f
+  character(len=:), allocatable :: cdnam_f
+  integer :: kinfo_f
   logical :: coupled_f
-  integer :: communicator_f
+  integer :: commworld_f
 
-  comp_name_f=string_to_fortran(comp_name)
+  cdnam_f=foasis_string_to_fortran(cdnam)
   coupled_f=coupled
-  communicator_f=communicator
+  commworld_f=commworld
   
-  call oasis_init_comp(comp_id_f, comp_name_f, error_f, coupled_f, communicator_f)
+  call oasis_init_comp(mynummod_f, cdnam_f, kinfo_f, coupled_f, commworld_f)
 
-  comp_id=comp_id_f
-  error=error_f
-end subroutine init_comp_iso
+  mynummod=mynummod_f
+  kinfo=kinfo_f
+end subroutine oasis_init_comp_iso
 
 
-subroutine enddef_iso(kinfo) bind(C)
+subroutine oasis_enddef_iso(kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
@@ -59,10 +59,10 @@ subroutine enddef_iso(kinfo) bind(C)
   call oasis_enddef(kinfo_f)
   
   kinfo=kinfo_f
-end subroutine enddef_iso
+end subroutine oasis_enddef_iso
 
 
-subroutine terminate_iso(kinfo) bind(C)
+subroutine oasis_terminate_iso(kinfo) bind(C)
   use iso_c_binding, only: c_int
   use mod_oasis
   implicit none
@@ -73,10 +73,10 @@ subroutine terminate_iso(kinfo) bind(C)
   kinfo_f=kinfo
   call oasis_terminate(kinfo_f)
   kinfo=kinfo_f
-end subroutine terminate_iso
+end subroutine oasis_terminate_iso
 
 
-subroutine get_comm_size_iso(communicator, comm_size, error) bind(C)
+subroutine oasis_mpi_get_comm_size_iso(communicator, comm_size, error) bind(C)
   use iso_c_binding, only: c_int
   implicit none
   include "mpif.h"
@@ -91,10 +91,10 @@ subroutine get_comm_size_iso(communicator, comm_size, error) bind(C)
   
   comm_size=comm_size_f
   error=error_f
-end subroutine get_comm_size_iso
+end subroutine oasis_mpi_get_comm_size_iso
 
 
-subroutine get_comm_rank_iso(communicator, comm_rank, error) bind(C)
+subroutine oasis_mpi_get_comm_rank_iso(communicator, comm_rank, error) bind(C)
   use iso_c_binding, only: c_int
   implicit none
   include "mpif.h"
@@ -109,4 +109,4 @@ subroutine get_comm_rank_iso(communicator, comm_rank, error) bind(C)
   
   comm_rank=comm_rank_f
   error=error_f
-end subroutine get_comm_rank_iso
+end subroutine oasis_mpi_get_comm_rank_iso

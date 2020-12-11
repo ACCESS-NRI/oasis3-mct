@@ -33,7 +33,7 @@ cdll.LoadLibrary("liboasis.cbind.so")
 LIB = CDLL("liboasis.cbind.so")
 
 
-LIB.def_var.argtypes = [ctypes.POINTER(ctypes.c_int), c_char_p, ctypes.c_int,
+LIB.oasis_c_def_var.argtypes = [ctypes.POINTER(ctypes.c_int), c_char_p, ctypes.c_int,
                         ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
                         ctypes.POINTER(ctypes.c_int), ctypes.c_int,
                         ctypes.POINTER(ctypes.c_int)]
@@ -45,7 +45,7 @@ def def_var(id_part, cdport, id_var_nodims, kinout):
     id_var_shape = c_int(0)
     kinfo = c_int(0)
     id_var_shape = c_int(0)
-    LIB.def_var(id_nports, cdport.encode(), id_part, id_var_nodims[0],
+    LIB.oasis_c_def_var(id_nports, cdport.encode(), id_part, id_var_nodims[0],
                 id_var_nodims[1], kinout, 0, id_var_shape,
                 OasisVarParameters.OASIS_DOUBLE.value, kinfo)
     return id_nports.value, kinfo.value

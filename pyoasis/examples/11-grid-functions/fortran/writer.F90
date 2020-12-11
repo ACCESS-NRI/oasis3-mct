@@ -13,7 +13,7 @@ program writer
    integer :: ncrn = 4
    real(kind=8), allocatable :: lon(:,:), lat(:,:)
    integer, allocatable :: imsk(:,:)
-   real(kind=8), allocatable :: frac(:,:), area(:,:)
+   real(kind=8), allocatable :: frac(:,:), area(:,:), angle(:,:)
    real(kind=8), allocatable :: clo(:,:,:), cla(:,:,:) 
    real(kind=8) :: dx, dy
    real(kind=8) :: dp_conv
@@ -109,10 +109,14 @@ program writer
       & abs(clo(:,:,2)-clo(:,:,1))
    call oasis_write_area('pyoa', nx_global, ny_global, area, part_id)
 
+   allocate(angle(nx_loc,ny_loc))
+   angle(:,:) = 0.
+   call oasis_write_angle('pyoa', nx_global, ny_global, angle, part_id)
+
    deallocate(lon, lat)
    deallocate(clo, cla)
    deallocate(imsk)
-   deallocate(frac, area)
+   deallocate(frac, area, angle)
 
    if ( comm_rank == 0 ) then
       nx_global = 180
@@ -163,10 +167,14 @@ program writer
          & abs(clo(:,:,2)-clo(:,:,1))
       call oasis_write_area('mono', nx_global, ny_global, area)
 
+      allocate(angle(nx_global,ny_global))
+      angle(:,:) = 0.
+      call oasis_write_angle('mono', nx_global, ny_global, angle)
+
       deallocate(lon, lat)
       deallocate(clo, cla)
       deallocate(imsk)
-      deallocate(frac, area)
+      deallocate(frac, area, angle)
    end if
    
    call oasis_terminate_grids_writing()

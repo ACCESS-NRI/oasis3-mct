@@ -26,9 +26,9 @@ extern "C" {
 #endif
 
 
-extern void oasis_def_partition_iso(int* id_part, const int* n, const int* parameters, const int *global_size, const char** name, int* kinfo); 
+extern void oasis_def_partition_iso(int* id_part, const int* kparal_size, const int* kparal, int* kinfo, const int *ig_size, const char** name);
 
-void def_partition(int* id_part, const int n, const int* parameters, const int global_size, const char* name, int* kinfo);
+void oasis_c_def_partition(int* id_part, const int kparal_size, const int* kparal, int* kinfo, const int ig_size, const char* name);
 
 
 #ifdef  __cplusplus
