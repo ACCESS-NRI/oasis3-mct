@@ -21,17 +21,23 @@
 #include <stdio.h>
 
 
-void oasis_c_init_comp(int* comp_id, const char* comp_name, int* error, const bool coupled, int communicator){
-    int communicator_f=communicator;
-    oasis_init_comp_iso(comp_id, &comp_name, error, &coupled, &communicator_f);
+int oasis_c_init_comp(int* comp_id, const char* comp_name, const bool coupled, int communicator){
+  int communicator_f=communicator;
+  int kinfo;
+  oasis_init_comp_iso(comp_id, &comp_name, &kinfo, &coupled, &communicator_f);
+  return kinfo;
 }
 
-void oasis_c_enddef(int* kinfo){
-  oasis_enddef_iso(kinfo);
+int oasis_c_enddef(){
+  int kinfo;
+  oasis_enddef_iso(&kinfo);
+  return kinfo;
 }
 
-void oasis_c_terminate(int* kinfo){
-  oasis_terminate_iso(kinfo);
+int oasis_c_terminate(){
+  int kinfo;
+  oasis_terminate_iso(&kinfo);
+  return kinfo;
 }
 
 void oasis_c_mpi_get_comm_size(const int communicator, int* comm_size, int* error){

@@ -26,126 +26,127 @@ import numpy
 cdll.LoadLibrary("liboasis.cbind.so")
 LIB = CDLL("liboasis.cbind.so")
 
-LIB.oasis_c_get_localcomm.argtypes = [ctypes.POINTER(ctypes.c_int),
-                              ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_get_localcomm.argtypes = [ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_get_localcomm.restype = ctypes.c_int
 
 
 def get_localcomm():
     """OASIS user query for the local MPI communicator"""
     localcomm = c_int(0)
     kinfo = c_int(0)
-    LIB.oasis_c_get_localcomm(localcomm, kinfo)
-    return localcomm.value, kinfo.value
+    kinfo = LIB.oasis_c_get_localcomm(localcomm)
+    return localcomm.value, kinfo
 
 
 LIB.oasis_c_create_couplcomm.argtypes = [ctypes.c_int, ctypes.c_int,
-                                 ctypes.POINTER(ctypes.c_int),
                                  ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_create_couplcomm.restype = ctypes.c_int
 
 
 def create_couplcomm(icpl, allcomm):
     """OASIS user call to create a new communicator"""
     cplcomm = c_int(0)
     kinfo = c_int(0)
-    LIB.oasis_c_create_couplcomm(icpl, allcomm, cplcomm, kinfo)
-    return cplcomm.value, kinfo.value
+    kinfo = LIB.oasis_c_create_couplcomm(icpl, allcomm, cplcomm)
+    return cplcomm.value, kinfo
 
 
-LIB.oasis_c_set_couplcomm.argtypes = [ctypes.c_int,
-                              ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_set_couplcomm.argtypes = [ctypes.c_int]
+LIB.oasis_c_set_couplcomm.restype = ctypes.c_int
 
 
 def set_couplcomm(couplcomm):
     """OASIS user call to specify a local communicator"""
     kinfo = c_int(0)
-    LIB.oasis_c_set_couplcomm(couplcomm.py2f(), kinfo)
-    return kinfo.value
+    kinfo = LIB.oasis_c_set_couplcomm(couplcomm.py2f())
+    return kinfo
 
 
-LIB.oasis_c_get_intercomm.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_char_p,
-                              ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_get_intercomm.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_char_p]
+LIB.oasis_c_get_intercomm.restype = ctypes.c_int
 
 
 def get_intercomm(cdnam):
     """OASIS user interface to establish an intercomm communicator between the root of two models"""
     new_comm = c_int(0)
     kinfo = c_int(0)
-    LIB.oasis_c_get_intercomm(new_comm, cdnam.encode(), kinfo)
-    return new_comm.value, kinfo.value
+    kinfo = LIB.oasis_c_get_intercomm(new_comm, cdnam.encode())
+    return new_comm.value, kinfo
 
 
-LIB.oasis_c_get_intracomm.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_char_p,
-                              ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_get_intracomm.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_char_p]
+LIB.oasis_c_get_intracomm.restype = ctypes.c_int
 
 
 def get_intracomm(cdnam):
     """OASIS user interface to establish an intracomm communicator between the root of two models"""
     new_comm = c_int(0)
     kinfo = c_int(0)
-    LIB.oasis_c_get_intracomm(new_comm, cdnam.encode(), kinfo)
-    return new_comm.value, kinfo.value
+    kinfo = LIB.oasis_c_get_intracomm(new_comm, cdnam.encode())
+    return new_comm.value, kinfo
 
 
-LIB.oasis_c_mpi_get_comm_size.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int),
-                              ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_mpi_get_comm_size.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_mpi_get_comm_size.restype = ctypes.c_int
 
 
 def get_comm_size(communicator):
     """Returns the size of a communicator."""
     comm_size = c_int(0)
     kinfo = c_int(0)
-    LIB.oasis_c_mpi_get_comm_size(communicator, comm_size, kinfo)
-    return comm_size.value, kinfo.value
+    kinfo = LIB.oasis_c_mpi_get_comm_size(communicator, comm_size)
+    return comm_size.value, kinfo
 
 
-LIB.oasis_c_mpi_get_comm_rank.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int),
-                              ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_mpi_get_comm_rank.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_mpi_get_comm_rank.restype = ctypes.c_int
 
 
 def get_comm_rank(communicator):
     """Returns the rank in a communicator."""
     comm_rank = c_int(0)
     kinfo = c_int(0)
-    LIB.oasis_c_mpi_get_comm_rank(communicator, comm_rank, kinfo)
-    return comm_rank.value, kinfo.value
+    kinfo = LIB.oasis_c_mpi_get_comm_rank(communicator, comm_rank)
+    return comm_rank.value, kinfo
 
 
-LIB.oasis_c_set_debug.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_set_debug.argtypes = [ctypes.c_int]
+LIB.oasis_c_set_debug.restype = ctypes.c_int
 
 
 def set_debug(debug):
     """Set debug level"""
     kinfo = c_int(0)
-    LIB.oasis_c_set_debug(debug, kinfo)
-    return kinfo.value
+    kinfo = LIB.oasis_c_set_debug(debug)
+    return kinfo
 
 
-LIB.oasis_c_get_debug.argtypes = [ctypes.POINTER(ctypes.c_int),
-                          ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_get_debug.argtypes = [ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_get_debug.restype = ctypes.c_int
 
 
 def get_debug():
     """Get debug level"""
     debug = c_int(0)
     kinfo = c_int(0)
-    LIB.oasis_c_get_debug(debug, kinfo)
-    return debug.value, kinfo.value
+    kinfo = LIB.oasis_c_get_debug(debug)
+    return debug.value, kinfo
 
 
-LIB.oasis_c_put_inquire.argtypes = [ctypes.c_int, ctypes.c_int,
-                            ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_put_inquire.argtypes = [ctypes.c_int, ctypes.c_int]
+LIB.oasis_c_put_inquire.restype = ctypes.c_int
 
 
 def put_inquire(varid, msec):
     """Gives put return code expected at a specified time
     for a given variable"""
     kinfo = c_int(0)
-    LIB.oasis_c_put_inquire(varid, msec, kinfo)
-    return kinfo.value
+    kinfo = LIB.oasis_c_put_inquire(varid, msec)
+    return kinfo
 
 
-LIB.oasis_c_get_ncpl.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int),
-                         ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_get_ncpl.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_get_ncpl.restype = ctypes.c_int
 
 
 def get_ncpl(varid):
@@ -153,22 +154,22 @@ def get_ncpl(varid):
     a variable."""
     ncpl = c_int(0)
     kinfo = c_int(0)
-    LIB.oasis_c_get_ncpl(varid, ncpl, kinfo)
-    return ncpl.value, kinfo.value
+    kinfo = LIB.oasis_c_get_ncpl(varid, ncpl)
+    return ncpl.value, kinfo
 
 
 LIB.oasis_c_get_freqs.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
-                          ctypes.c_void_p, ctypes.POINTER(ctypes.c_int)]
+                          ctypes.c_void_p]
+LIB.oasis_c_get_freqs.restype = ctypes.c_int
 
 
 def get_freqs(varid, mop, ncpl):
     """Returns the coupling periods for a given variable."""
     cpl_freqs_p = numpy.zeros(ncpl, dtype=numpy.int32)
     kinfo = c_int(0)
-    LIB.oasis_c_get_freqs(varid, c_int(mop), c_int(ncpl), cpl_freqs_p.ctypes.data,
-                  kinfo)
+    kinfo = LIB.oasis_c_get_freqs(varid, c_int(mop), c_int(ncpl), cpl_freqs_p.ctypes.data)
     cpl_freqs = cpl_freqs_p.tolist()
-    return cpl_freqs, kinfo.value
+    return cpl_freqs, kinfo
 
 
 def get_freqs_array(varid, mop):

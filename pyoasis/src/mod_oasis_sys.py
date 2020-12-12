@@ -26,11 +26,12 @@ cdll.LoadLibrary("liboasis.cbind.so")
 LIB = CDLL("liboasis.cbind.so")
 
 
-LIB.oasis_c_abort.argtypes = [ctypes.c_int, c_char_p, c_char_p, c_char_p,
-                            c_int, c_int]
+LIB.oasis_c_abort.argtypes = [ctypes.c_int, c_char_p, c_char_p, c_char_p, c_int]
+LIB.oasis_c_abort.restype = ctypes.c_int
 
-
-def oasis_abort(comp_id, routine, message, filename, line, error):
+def oasis_abort(comp_id, routine, message, filename, line):
     """OASIS abort method, publicly available to users"""
-    LIB.oasis_c_abort(comp_id, routine.encode(), message.encode(),
-                    filename.encode(), line, error)
+    kinfo = c_int(0)
+    kinfo = LIB.oasis_c_abort(comp_id, routine.encode(), message.encode(),
+                    filename.encode(), line)
+    return kinfo

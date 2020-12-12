@@ -28,34 +28,36 @@ LIB = CDLL("liboasis.cbind.so")
 
 
 LIB.oasis_c_init_comp.argtypes = [ctypes.POINTER(ctypes.c_int), c_char_p,
-                          ctypes.POINTER(ctypes.c_int), ctypes.c_bool,
-                          ctypes.c_int]
+                          ctypes.c_bool, ctypes.c_int]
+LIB.oasis_c_init_comp.restype = ctypes.c_int
 
 
 def init_comp(comp_name, coupled, communicator):
     """OASIS user init method"""
     comp_id = c_int(0)
-    error = c_int(0)
-    LIB.oasis_c_init_comp(comp_id, comp_name.encode(), error, coupled,
+    kinfo = c_int(0)
+    kinfo = LIB.oasis_c_init_comp(comp_id, comp_name.encode(), coupled,
                   communicator.py2f())
-    return comp_id.value, error.value
+    return comp_id.value, kinfo
 
 
-LIB.oasis_c_enddef.argtypes = [ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_enddef.argtypes = None
+LIB.oasis_c_enddef.restype = ctypes.c_int
 
 
 def enddef():
     """OASIS user interface specifying the OASIS definition phase is complete"""
-    error = c_int(0)
-    LIB.oasis_c_enddef(error)
-    return error.value
+    kinfo = c_int(0)
+    kinfo = LIB.oasis_c_enddef()
+    return kinfo
 
 
-LIB.oasis_c_terminate.argtypes = [ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_terminate.argtypes = None
+LIB.oasis_c_terminate.restype = ctypes.c_int
 
 
 def terminate():
     """OASIS user finalize method"""
-    error = c_int(0)
-    LIB.oasis_c_terminate(error)
-    return error.value
+    kinfo = c_int(0)
+    kinfo = LIB.oasis_c_terminate()
+    return kinfo

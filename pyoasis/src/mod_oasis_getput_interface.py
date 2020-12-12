@@ -38,13 +38,14 @@ def get_sizes(field):
 
 LIB.oasis_c_put.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
                     ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
-                    ctypes.POINTER(ctypes.c_int), ctypes.c_bool]
+                    ctypes.c_bool]
+LIB.oasis_c_put.restype = ctypes.c_int
 
 
 def put(var_id, kstep, field, write_restart):
     """Send 8-byte multidimensional field"""
     sizes = get_sizes(field)
-    error = c_int(0)
+    kinfo = c_int(0)
     p_field = field.ctypes.data
     if field.dtype == float32:
         fkind = c_int(4)
@@ -52,20 +53,20 @@ def put(var_id, kstep, field, write_restart):
         fkind = c_int(8)
     else:
         raise pyoasis.PyOasisException("Data type of field can only by float32 or float64")
-    LIB.oasis_c_put(var_id, kstep, sizes[0], sizes[1], sizes[2], fkind,
-            p_field, error, write_restart)
-    return error.value
+    kinfo = LIB.oasis_c_put(var_id, kstep, sizes[0], sizes[1], sizes[2], fkind,
+            p_field, write_restart)
+    return kinfo
 
 
 LIB.oasis_c_get.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
-                    ctypes.c_int, ctypes.c_int, ctypes.c_void_p,
-                    ctypes.POINTER(ctypes.c_int)]
+                    ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
+LIB.oasis_c_get.restype = ctypes.c_int
 
 
 def get(var_id, kstep, field):
     """Receive 8-byte multidimensional field"""
     sizes = get_sizes(field)
-    error = c_int(0)
+    kinfo = c_int(0)
     p_field = field.ctypes.data
     if field.dtype == float32:
         fkind = c_int(4)
@@ -73,5 +74,5 @@ def get(var_id, kstep, field):
         fkind = c_int(8)
     else:
         raise pyoasis.PyOasisException("Data type of field can only by float32 or float64")
-    LIB.oasis_c_get(var_id, kstep, sizes[0], sizes[1], sizes[2], fkind, p_field, error)
-    return error.value
+    kinfo = LIB.oasis_c_get(var_id, kstep, sizes[0], sizes[1], sizes[2], fkind, p_field)
+    return kinfo

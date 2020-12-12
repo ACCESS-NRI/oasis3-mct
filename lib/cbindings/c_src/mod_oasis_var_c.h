@@ -31,7 +31,7 @@ extern "C" {
 
 void oasis_def_var_iso(int* id_nports, const char** cdport, const int* id_part, const int* id_var_nodims1, const int* id_var_nodims2, const int* kinout, const int* id_var_shape_size, const int** id_var_shape, const int* ktype, int* kinfo);
 
-void oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims1, const int id_var_nodims2, const int kinout, const int id_var_shape_size, const int* id_var_shape, const int ktype, int* kinfo);
+int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims1, const int id_var_nodims2, const int kinout, const int id_var_shape_size, const int* id_var_shape, const int ktype);
 
 
 #ifdef  __cplusplus

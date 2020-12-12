@@ -20,18 +20,22 @@
 #include "mod_oasis_getput_interface_c.h"
 #include<stdio.h>
 
-void oasis_c_put(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const void* fld1, int *kinfo, const bool write_restart){
+int oasis_c_put(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const void* fld1, const bool write_restart){
+  int kinfo;
   if ( fkind == 4) {
-    oasis_put_iso_float(&var_id, &kstep, &size1, &size2, &size3, (float*)fld1, kinfo, &write_restart);
+    oasis_put_iso_float(&var_id, &kstep, &size1, &size2, &size3, (float*)fld1, &kinfo, &write_restart);
   } else {
-    oasis_put_iso_double(&var_id, &kstep, &size1, &size2, &size3, fld1, kinfo, &write_restart);
+    oasis_put_iso_double(&var_id, &kstep, &size1, &size2, &size3, fld1, &kinfo, &write_restart);
   }
+  return kinfo;
 }
 
-void oasis_c_get(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, void* fld1, int* kinfo){
+int oasis_c_get(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, void* fld1){
+  int kinfo;
   if ( fkind == 4) {
-    oasis_get_iso_float(&var_id, &kstep, &size1, &size2, &size3, (float*)fld1, kinfo);
+    oasis_get_iso_float(&var_id, &kstep, &size1, &size2, &size3, (float*)fld1, &kinfo);
   } else {
-    oasis_get_iso_double(&var_id, &kstep, &size1, &size2, &size3, fld1, kinfo);
+    oasis_get_iso_double(&var_id, &kstep, &size1, &size2, &size3, fld1, &kinfo);
   }
+  return kinfo;
 }

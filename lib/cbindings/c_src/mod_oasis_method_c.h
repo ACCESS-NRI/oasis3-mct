@@ -40,11 +40,11 @@ void oasis_mpi_get_comm_size_iso(const int* communicator, int* comm_size, int* e
 void oasis_mpi_get_comm_rank_iso(const int* communicator, int* comm_rank, int* error);
 
 
-void oasis_c_init_comp(int* mynummod, const char* cdnam, int* kinfo, const bool coupled, const int commworld);
+int oasis_c_init_comp(int* mynummod, const char* cdnam, const bool coupled, const int commworld);
 
-void oasis_c_enddef(int* kinfo);
+int oasis_c_enddef();
 
-void oasis_c_terminate(int* kinfo);
+int oasis_c_terminate();
 
 void oasis_c_mpi_get_comm_size(const int communicator, int* comm_size, int* error);
 

@@ -20,6 +20,8 @@
 #include "mod_oasis_sys_c.h"
 
 
-void oasis_c_abort(const int id_compid, const char* cd_routine, const char* cd_message, const char* file, const int line, const int rcode){
+int oasis_c_abort(const int id_compid, const char* cd_routine, const char* cd_message, const char* file, const int line){
+  int rcode;
   oasis_abort_iso(&id_compid, &cd_routine, &cd_message, &file, &line, &rcode);
+  return rcode;
 }

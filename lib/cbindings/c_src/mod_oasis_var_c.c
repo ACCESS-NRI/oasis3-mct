@@ -22,6 +22,8 @@
 #include <stdio.h>
 
 
-void oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims1, const int id_var_nodims2, const int kinout, const int id_var_shape_size, const int* id_var_shape, const int ktype, int* kinfo){
-  oasis_def_var_iso(id_nports, &cdport, &id_part, &id_var_nodims1, &id_var_nodims2, &kinout, &id_var_shape_size, &id_var_shape, &ktype, kinfo);
+int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims1, const int id_var_nodims2, const int kinout, const int id_var_shape_size, const int* id_var_shape, const int ktype){
+  int kinfo;
+  oasis_def_var_iso(id_nports, &cdport, &id_part, &id_var_nodims1, &id_var_nodims2, &kinout, &id_var_shape_size, &id_var_shape, &ktype, &kinfo);
+  return kinfo;
 }

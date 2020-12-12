@@ -28,7 +28,7 @@ extern "C" {
 
 void oasis_abort_iso(const int* id_compid, const char** cd_routine, const char** cd_message, const char** file, const int* line, const int* rcode);
 
-void oasis_c_abort(const int id_compid, const char* cd_routine, const char* cd_message, const char* file, const int line, const int rcode);
+int oasis_c_abort(const int id_compid, const char* cd_routine, const char* cd_message, const char* file, const int line);
 
 
 #ifdef  __cplusplus
