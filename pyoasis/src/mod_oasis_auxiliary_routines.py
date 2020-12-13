@@ -86,6 +86,31 @@ def get_intracomm(cdnam):
     return new_comm.value, kinfo
 
 
+LIB.oasis_c_get_multi_intracomm.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_int, ctypes.POINTER(ctypes.c_char_p), ctypes.c_void_p]
+LIB.oasis_c_get_multi_intracomm.restype = ctypes.c_int
+
+
+def get_multi_intracomm(cdnam):
+    """OASIS user interface to establish an intracomm communicator between the root of more than two models"""
+    if isinstance(cdnam, list):
+        ncomp = len(cdnam)
+    else:
+        ncomp = 1
+        cdnam = [cdnam]
+    new_comm = c_int(0)
+    root_ranks_p = numpy.zeros(ncomp, dtype=numpy.int32)
+    cdnam_p = (ctypes.c_char_p * ncomp)()
+    for i, comp in enumerate(cdnam):
+        cdnam_p[i] = comp.encode()
+    kinfo = c_int(0)
+    kinfo = LIB.oasis_c_get_multi_intracomm(new_comm, c_int(ncomp), cdnam_p, root_ranks_p.ctypes.data)
+    root_ranks_l = root_ranks_p.tolist()
+    root_ranks = {}
+    for key, value in zip(cdnam, root_ranks_l):
+        root_ranks[key] = value
+    return new_comm.value, root_ranks, kinfo
+
+
 LIB.oasis_c_mpi_get_comm_size.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
 LIB.oasis_c_mpi_get_comm_size.restype = ctypes.c_int
 

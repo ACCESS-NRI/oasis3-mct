@@ -172,6 +172,24 @@ class Component(object):
             raise pyoasis.OasisException("Error in get_intracomm conversion",
                                          -1)
 
+    def get_multi_intracomm(self, complist):
+        """
+        :param string complist: list of names of the other component in the intracommunicator
+        :returns: the intracommunicator and a dictionary of the ranks of the component roots in the intracommunicator
+        :rtype: MPI.communicator, dict
+        :raises OasisException: if OASIS is unable to create the intracommunicator
+        :raises PyOasisException: if an incorrect parameter is supplied
+        """
+        pyoasis.check_types([list],[complist])
+        new_comm, root_ranks, error = pyoasis.mod_oasis_auxiliary_routines.get_multi_intracomm(complist)
+        if error < 0:
+            raise pyoasis.OasisException("Error in get_multi_intracomm", error)
+        try:
+            return MPI.Comm.f2py(new_comm), root_ranks
+        except MPI.Exception:
+            raise pyoasis.OasisException("Error in get_multi_intracomm conversion",
+                                         -1)
+
     def get_intercomm(self, compname):
         """
         :param string compname: name of the other component
