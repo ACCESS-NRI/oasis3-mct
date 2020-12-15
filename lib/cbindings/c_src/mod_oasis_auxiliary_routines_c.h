@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+// FORTRAN interfaces
 
 void oasis_get_localcomm_iso(int* localcomm, int* kinfo);
 
@@ -52,17 +53,36 @@ void oasis_get_ncpl_iso(const int* varid, int* ncpl, int* kinfo);
 void oasis_get_freqs_iso(const int* varid, const int* mop, const int* ncpl, int* cpl_freqs, int* kinfo);
 
 
-int oasis_c_get_localcomm(int* localcomm);
 
-int oasis_c_create_couplcomm(const int icpl, const int allcomm, int* cplcomm);
+// C interfaces with MPI Communicator defined as int (for python)
 
-int oasis_c_set_couplcomm(const int localcomm);
+int oasis_c_get_localcomm_iso2c(int* localcomm);
 
-int oasis_c_get_intercomm(int* new_comm, char* cdnam);
+int oasis_c_create_couplcomm_iso2c(const int icpl, const int allcomm, int* cplcomm);
 
-int oasis_c_get_intracomm(int* new_comm, char* cdnam);
+int oasis_c_set_couplcomm_iso2c(const int localcomm);
 
-int oasis_c_get_multi_intracomm(int* new_comm, const int cdnam_size, char** cdnam, int* root_ranks);
+int oasis_c_get_intercomm_iso2c(int* new_comm, char* cdnam);
+
+int oasis_c_get_intracomm_iso2c(int* new_comm, char* cdnam);
+
+int oasis_c_get_multi_intracomm_iso2c(int* new_comm, const int cdnam_size, char** cdnam, int* root_ranks);
+
+
+
+// C interfaces with MPI Communicator defined as C MPI_Comm (for C)
+
+int oasis_c_get_localcomm(MPI_Comm* localcomm);
+
+int oasis_c_create_couplcomm(const int icpl, const MPI_Comm allcomm, MPI_Comm* cplcomm);
+
+int oasis_c_set_couplcomm(const MPI_Comm localcomm);
+
+int oasis_c_get_intercomm(MPI_Comm* new_comm, char* cdnam);
+
+int oasis_c_get_intracomm(MPI_Comm* new_comm, char* cdnam);
+
+int oasis_c_get_multi_intracomm(MPI_Comm* new_comm, const int cdnam_size, char** cdnam, int* root_ranks);
 
 int oasis_c_set_debug(const int debug);
 

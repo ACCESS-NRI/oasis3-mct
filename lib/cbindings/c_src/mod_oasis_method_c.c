@@ -21,10 +21,17 @@
 #include <stdio.h>
 
 
-int oasis_c_init_comp(int* comp_id, const char* comp_name, const bool coupled, int communicator){
-  int communicator_f=communicator;
+int oasis_c_init_comp_iso2c(int* comp_id, const char* comp_name, const bool coupled, int commworld){
+  int commworld_f=commworld;
   int kinfo;
-  oasis_init_comp_iso(comp_id, &comp_name, &kinfo, &coupled, &communicator_f);
+  oasis_init_comp_iso(comp_id, &comp_name, &kinfo, &coupled, &commworld_f);
+  return kinfo;
+}
+
+int oasis_c_init_comp(int* comp_id, const char* comp_name, const bool coupled, const MPI_Comm commworld){
+  int commworld_f = MPI_Comm_c2f(commworld);
+  int kinfo;
+  oasis_init_comp_iso(comp_id, &comp_name, &kinfo, &coupled, &commworld_f);
   return kinfo;
 }
 

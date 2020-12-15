@@ -28,13 +28,15 @@ def check_types(types, arguments):
     i = 0
     for (t, a) in zip(types, arguments):
         if t == list:
-            ty_list = type(a[0])
+#            ty_list = type(a[0])
             for element in a:
-                if (type(element) != int and type(element) != str) or \
-                    type(element) != ty_list:
+                if type(element) != int:
+#                if (type(element) != int and type(element) != str) or \
+#                    type(element) != ty_list:
                     raise pyoasis.PyOasisException(
                         "The elements of the list in argument "
-                        + str(i) + " must be all integers or strings.")
+                        + str(i) + " must be all integers.")
+#                        + str(i) + " must be all integers or strings.")
         else:
             if a is not None and not isinstance(a, t):
                 raise pyoasis.PyOasisException("Argument " + str(i)

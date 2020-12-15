@@ -26,68 +26,68 @@ import numpy
 cdll.LoadLibrary("liboasis.cbind.so")
 LIB = CDLL("liboasis.cbind.so")
 
-LIB.oasis_c_get_localcomm.argtypes = [ctypes.POINTER(ctypes.c_int)]
-LIB.oasis_c_get_localcomm.restype = ctypes.c_int
+LIB.oasis_c_get_localcomm_iso2c.argtypes = [ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_get_localcomm_iso2c.restype = ctypes.c_int
 
 
 def get_localcomm():
     """OASIS user query for the local MPI communicator"""
     localcomm = c_int(0)
     kinfo = c_int(0)
-    kinfo = LIB.oasis_c_get_localcomm(localcomm)
+    kinfo = LIB.oasis_c_get_localcomm_iso2c(localcomm)
     return localcomm.value, kinfo
 
 
-LIB.oasis_c_create_couplcomm.argtypes = [ctypes.c_int, ctypes.c_int,
+LIB.oasis_c_create_couplcomm_iso2c.argtypes = [ctypes.c_int, ctypes.c_int,
                                  ctypes.POINTER(ctypes.c_int)]
-LIB.oasis_c_create_couplcomm.restype = ctypes.c_int
+LIB.oasis_c_create_couplcomm_iso2c.restype = ctypes.c_int
 
 
 def create_couplcomm(icpl, allcomm):
     """OASIS user call to create a new communicator"""
     cplcomm = c_int(0)
     kinfo = c_int(0)
-    kinfo = LIB.oasis_c_create_couplcomm(icpl, allcomm, cplcomm)
+    kinfo = LIB.oasis_c_create_couplcomm_iso2c(icpl, allcomm, cplcomm)
     return cplcomm.value, kinfo
 
 
-LIB.oasis_c_set_couplcomm.argtypes = [ctypes.c_int]
-LIB.oasis_c_set_couplcomm.restype = ctypes.c_int
+LIB.oasis_c_set_couplcomm_iso2c.argtypes = [ctypes.c_int]
+LIB.oasis_c_set_couplcomm_iso2c.restype = ctypes.c_int
 
 
 def set_couplcomm(couplcomm):
     """OASIS user call to specify a local communicator"""
     kinfo = c_int(0)
-    kinfo = LIB.oasis_c_set_couplcomm(couplcomm.py2f())
+    kinfo = LIB.oasis_c_set_couplcomm_iso2c(couplcomm.py2f())
     return kinfo
 
 
-LIB.oasis_c_get_intercomm.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_char_p]
-LIB.oasis_c_get_intercomm.restype = ctypes.c_int
+LIB.oasis_c_get_intercomm_iso2c.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_char_p]
+LIB.oasis_c_get_intercomm_iso2c.restype = ctypes.c_int
 
 
 def get_intercomm(cdnam):
     """OASIS user interface to establish an intercomm communicator between the root of two models"""
     new_comm = c_int(0)
     kinfo = c_int(0)
-    kinfo = LIB.oasis_c_get_intercomm(new_comm, cdnam.encode())
+    kinfo = LIB.oasis_c_get_intercomm_iso2c(new_comm, cdnam.encode())
     return new_comm.value, kinfo
 
 
-LIB.oasis_c_get_intracomm.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_char_p]
-LIB.oasis_c_get_intracomm.restype = ctypes.c_int
+LIB.oasis_c_get_intracomm_iso2c.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_char_p]
+LIB.oasis_c_get_intracomm_iso2c.restype = ctypes.c_int
 
 
 def get_intracomm(cdnam):
     """OASIS user interface to establish an intracomm communicator between the root of two models"""
     new_comm = c_int(0)
     kinfo = c_int(0)
-    kinfo = LIB.oasis_c_get_intracomm(new_comm, cdnam.encode())
+    kinfo = LIB.oasis_c_get_intracomm_iso2c(new_comm, cdnam.encode())
     return new_comm.value, kinfo
 
 
-LIB.oasis_c_get_multi_intracomm.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_int, ctypes.POINTER(ctypes.c_char_p), ctypes.c_void_p]
-LIB.oasis_c_get_multi_intracomm.restype = ctypes.c_int
+LIB.oasis_c_get_multi_intracomm_iso2c.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_int, ctypes.POINTER(ctypes.c_char_p), ctypes.c_void_p]
+LIB.oasis_c_get_multi_intracomm_iso2c.restype = ctypes.c_int
 
 
 def get_multi_intracomm(cdnam):
@@ -103,7 +103,7 @@ def get_multi_intracomm(cdnam):
     for i, comp in enumerate(cdnam):
         cdnam_p[i] = comp.encode()
     kinfo = c_int(0)
-    kinfo = LIB.oasis_c_get_multi_intracomm(new_comm, c_int(ncomp), cdnam_p, root_ranks_p.ctypes.data)
+    kinfo = LIB.oasis_c_get_multi_intracomm_iso2c(new_comm, c_int(ncomp), cdnam_p, root_ranks_p.ctypes.data)
     root_ranks_l = root_ranks_p.tolist()
     root_ranks = {}
     for key, value in zip(cdnam, root_ranks_l):
