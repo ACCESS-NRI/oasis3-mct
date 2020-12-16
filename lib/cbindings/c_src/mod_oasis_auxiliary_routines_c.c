@@ -60,7 +60,7 @@ int oasis_c_get_multi_intracomm_iso2c(int* new_comm, const int cdnam_size, char*
 
 int oasis_c_get_localcomm(MPI_Comm *localcomm){
   int kinfo;
-  int fcomm;
+  MPI_Fint fcomm;
   oasis_get_localcomm_iso(&fcomm, &kinfo);
   *localcomm = MPI_Comm_f2c(fcomm);
   return kinfo;
@@ -68,8 +68,8 @@ int oasis_c_get_localcomm(MPI_Comm *localcomm){
 
 int oasis_c_create_couplcomm(const int icpl, const MPI_Comm allcomm, MPI_Comm *cplcomm){
   int kinfo;
-  int fcplcomm;
-  int fallcomm;
+  MPI_Fint fcplcomm;
+  MPI_Fint fallcomm;
   fallcomm = MPI_Comm_c2f(allcomm);
   oasis_create_couplcomm_iso(&icpl, &fallcomm, &fcplcomm, &kinfo);
   *cplcomm = MPI_Comm_f2c(fcplcomm);
@@ -78,7 +78,7 @@ int oasis_c_create_couplcomm(const int icpl, const MPI_Comm allcomm, MPI_Comm *c
 
 int oasis_c_set_couplcomm(const MPI_Comm localcomm){
   int kinfo;
-  int fcomm;
+  MPI_Fint fcomm;
   fcomm = MPI_Comm_c2f(localcomm);
   oasis_set_couplcomm_iso(&fcomm, &kinfo);
   return kinfo;
@@ -86,7 +86,7 @@ int oasis_c_set_couplcomm(const MPI_Comm localcomm){
 
 int oasis_c_get_intercomm(MPI_Comm *new_comm, char* cdnam){
   int kinfo;
-  int fcomm;
+  MPI_Fint fcomm;
   oasis_get_intercomm_iso(&fcomm, &cdnam, &kinfo);
   *new_comm = MPI_Comm_f2c(fcomm);
   return kinfo;
@@ -94,7 +94,7 @@ int oasis_c_get_intercomm(MPI_Comm *new_comm, char* cdnam){
 
 int oasis_c_get_intracomm(MPI_Comm *new_comm, char* cdnam){
   int kinfo;
-  int fcomm;
+  MPI_Fint fcomm;
   oasis_get_intracomm_iso(&fcomm, &cdnam, &kinfo);
   *new_comm = MPI_Comm_f2c(fcomm);
   return kinfo;
@@ -102,7 +102,7 @@ int oasis_c_get_intracomm(MPI_Comm *new_comm, char* cdnam){
 
 int oasis_c_get_multi_intracomm(MPI_Comm *new_comm, const int cdnam_size, char** cdnam, int* root_ranks){
   int kinfo;
-  int fcomm;
+  MPI_Fint fcomm;
   oasis_get_multi_intracomm_iso(&fcomm, &cdnam_size, cdnam, root_ranks, &kinfo);
   *new_comm = MPI_Comm_f2c(fcomm);
   return kinfo;

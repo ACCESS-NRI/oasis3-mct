@@ -29,8 +29,8 @@ int oasis_c_init_comp_iso2c(int* comp_id, const char* comp_name, const bool coup
 }
 
 int oasis_c_init_comp(int* comp_id, const char* comp_name, const bool coupled, const MPI_Comm commworld){
-  int commworld_f = MPI_Comm_c2f(commworld);
   int kinfo;
+  MPI_Fint commworld_f = MPI_Comm_c2f(commworld);
   oasis_init_comp_iso(comp_id, &comp_name, &kinfo, &coupled, &commworld_f);
   return kinfo;
 }
