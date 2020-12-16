@@ -1,7 +1,9 @@
 program receiver
+   use mpi
    use mod_oasis
    implicit none
    integer :: i, kinfo, date
+   integer :: commworld
    integer :: comp_id, part_id, var_id
    integer, parameter :: n_points = 16
    integer :: part_params(3)
@@ -12,7 +14,9 @@ program receiver
 
    print '(2A)', "Component name: ", comp_name
 
-   call oasis_init_comp(comp_id, comp_name, kinfo)
+   call MPI_Init(kinfo)
+   call MPI_Comm_Dup(MPI_COMM_WORLD, commworld, kinfo)
+   call oasis_init_comp(comp_id, comp_name, kinfo, commworld = commworld)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_init_comp: ", rcode=kinfo)
    print '(A,I0)', "Receiver: Component ID: ", comp_id
@@ -47,11 +51,13 @@ program receiver
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_terminate: ", rcode=kinfo)
 
+   call MPI_Finalize(kinfo)
+
    epsilon=1e-8
    error=0.
    do i = 1, n_points
       error=error+abs(field(i)-i)
    end do
-   if(error<epsilon) print '(A)', "Receiver: Data received successfully" 
+   if(error<epsilon) print '(A)', "Receiver: Data received successfully"
 
 end program receiver
