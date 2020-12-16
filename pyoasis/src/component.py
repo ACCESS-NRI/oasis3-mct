@@ -43,7 +43,7 @@ class Component(object):
 
     _n_components = 0
 
-    def __init__(self, name, coupled=True, communicator=MPI.COMM_WORLD):
+    def __init__(self, name, coupled=True, communicator=None):
         """Constructor"""
         self._initialised = False
         pyoasis.checktypes.check_types([str, bool, MPI.Intracomm],
@@ -57,10 +57,13 @@ class Component(object):
         if len(name) == 0:
             raise pyoasis.PyOasisException("Component name empty.")
         self._name = name
-        self._communicator = communicator
-        return_value = pyoasis.mod_oasis_method.init_comp_with_comm(self._name,
-                                                          coupled,
-                                                          self._communicator)
+        if communicator:
+            self._communicator = communicator
+            return_value = pyoasis.mod_oasis_method.init_comp_with_comm(self._name,
+                                                                        coupled,
+                                                                        self._communicator)
+        else:
+            return_value = pyoasis.mod_oasis_method.init_comp(self._name,coupled)
         self._initialised = True
         error = return_value[1]
         if error < 0:
