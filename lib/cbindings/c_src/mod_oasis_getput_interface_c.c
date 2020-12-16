@@ -17,7 +17,7 @@
 // <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-#include "mod_oasis_getput_interface_c.h"
+#include "oasis_c.h"
 #include<stdio.h>
 
 int oasis_c_put(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const void* fld1, const bool write_restart){

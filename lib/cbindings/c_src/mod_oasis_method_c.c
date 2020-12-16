@@ -17,7 +17,7 @@
 // <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-#include "mod_oasis_method_c.h"
+#include "oasis_c.h"
 #include <stdio.h>
 
 
@@ -60,10 +60,3 @@ int oasis_c_terminate(){
   return kinfo;
 }
 
-void oasis_c_mpi_get_comm_size(const int communicator, int* comm_size, int* error){
-  oasis_mpi_get_comm_size_iso(&communicator, comm_size, error);
-}
-
-void oasis_c_mpi_get_comm_rank(const int communicator, int* comm_rank, int* error){
-  oasis_mpi_get_comm_rank_iso(&communicator, comm_rank, error);
-}

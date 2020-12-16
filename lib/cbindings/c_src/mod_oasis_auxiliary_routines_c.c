@@ -17,7 +17,7 @@
 // <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-#include "mod_oasis_auxiliary_routines_c.h"
+#include "oasis_c.h"
 
 
 int oasis_c_get_localcomm_iso2c(int* localcomm){

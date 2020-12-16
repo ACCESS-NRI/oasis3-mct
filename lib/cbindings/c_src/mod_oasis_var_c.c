@@ -17,7 +17,7 @@
 // <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-#include "mod_oasis_var_c.h"
+#include "oasis_c.h"
 #include <stdlib.h>
 #include <stdio.h>
 

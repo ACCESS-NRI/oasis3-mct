@@ -17,7 +17,7 @@
 // <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-#include "mod_oasis_grid_c.h"
+#include "oasis_c.h"
 
 int oasis_c_start_grids_writing(){
   int kinfo;

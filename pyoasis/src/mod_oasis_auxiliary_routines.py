@@ -111,30 +111,6 @@ def get_multi_intracomm(cdnam):
     return new_comm.value, root_ranks, kinfo
 
 
-LIB.oasis_c_mpi_get_comm_size.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
-LIB.oasis_c_mpi_get_comm_size.restype = ctypes.c_int
-
-
-def get_comm_size(communicator):
-    """Returns the size of a communicator."""
-    comm_size = c_int(0)
-    kinfo = c_int(0)
-    kinfo = LIB.oasis_c_mpi_get_comm_size(communicator, comm_size)
-    return comm_size.value, kinfo
-
-
-LIB.oasis_c_mpi_get_comm_rank.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
-LIB.oasis_c_mpi_get_comm_rank.restype = ctypes.c_int
-
-
-def get_comm_rank(communicator):
-    """Returns the rank in a communicator."""
-    comm_rank = c_int(0)
-    kinfo = c_int(0)
-    kinfo = LIB.oasis_c_mpi_get_comm_rank(communicator, comm_rank)
-    return comm_rank.value, kinfo
-
-
 LIB.oasis_c_set_debug.argtypes = [ctypes.c_int]
 LIB.oasis_c_set_debug.restype = ctypes.c_int
 

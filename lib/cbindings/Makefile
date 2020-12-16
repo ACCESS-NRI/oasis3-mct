@@ -29,25 +29,25 @@ libshared: $(OBJS_F) $(OBJS_C)
 
 # C
 
-mod_oasis_part_c.o: $(SRC_C)/mod_oasis_part_c.h $(SRC_C)/mod_oasis_part_c.c
+mod_oasis_part_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_part_c.c
 	$(CC) $(CFLAGS) -c $(SRC_C)/mod_oasis_part_c.c
 
-mod_oasis_var_c.o: $(SRC_C)/mod_oasis_var_c.h $(SRC_C)/mod_oasis_var_c.c
+mod_oasis_var_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_var_c.c
 	$(CC) $(CFLAGS) -c $(SRC_C)/mod_oasis_var_c.c
 
-mod_oasis_getput_interface_c.o: $(SRC_C)/mod_oasis_getput_interface_c.h $(SRC_C)/mod_oasis_getput_interface_c.c
+mod_oasis_getput_interface_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_getput_interface_c.c
 	$(CC) $(CFLAGS) -c $(SRC_C)/mod_oasis_getput_interface_c.c
 
-mod_oasis_auxiliary_routines_c.o: $(SRC_C)/mod_oasis_auxiliary_routines_c.h $(SRC_C)/mod_oasis_auxiliary_routines_c.c
+mod_oasis_auxiliary_routines_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_auxiliary_routines_c.c
 	$(CC) $(CFLAGS) -c  $(SRC_C)/mod_oasis_auxiliary_routines_c.c
 
-mod_oasis_sys_c.o: $(SRC_C)/mod_oasis_sys_c.h $(SRC_C)/mod_oasis_sys_c.c
+mod_oasis_sys_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_sys_c.c
 	$(CC) $(CFLAGS) -c  $(SRC_C)/mod_oasis_sys_c.c
 
-mod_oasis_method_c.o: $(SRC_C)/mod_oasis_method_c.h $(SRC_C)/mod_oasis_method_c.c
+mod_oasis_method_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_method_c.c
 	$(CC) $(CFLAGS) -c  $(SRC_C)/mod_oasis_method_c.c
 
-mod_oasis_grid_c.o: $(SRC_C)/mod_oasis_grid_c.h $(SRC_C)/mod_oasis_grid_c.c
+mod_oasis_grid_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_grid_c.c
 	$(CC) $(CFLAGS) -c  $(SRC_C)/mod_oasis_grid_c.c
 
 

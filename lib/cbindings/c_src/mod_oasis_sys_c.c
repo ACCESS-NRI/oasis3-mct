@@ -17,7 +17,7 @@
 // <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-#include "mod_oasis_sys_c.h"
+#include "oasis_c.h"
 
 
 int oasis_c_abort(const int id_compid, const char* cd_routine, const char* cd_message, const char* file, const int line){
