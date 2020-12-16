@@ -17,7 +17,7 @@
 ! <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
-subroutine oasis_init_comp_iso(mynummod, cdnam, kinfo, coupled, commworld) bind(C)
+subroutine oasis_init_comp_with_comm_iso(mynummod, cdnam, kinfo, coupled, commworld) bind(C)
   use iso_c_binding, only: c_int, c_ptr, c_bool
   use cbindings
   use mod_oasis
@@ -38,9 +38,31 @@ subroutine oasis_init_comp_iso(mynummod, cdnam, kinfo, coupled, commworld) bind(
   cdnam_f=foasis_string_to_fortran(cdnam)
   coupled_f=coupled
   commworld_f=commworld
-  
   call oasis_init_comp(mynummod_f, cdnam_f, kinfo_f, coupled_f, commworld_f)
+  mynummod=mynummod_f
+  kinfo=kinfo_f
+end subroutine oasis_init_comp_with_comm_iso
 
+
+subroutine oasis_init_comp_iso(mynummod, cdnam, kinfo, coupled) bind(C)
+  use iso_c_binding, only: c_int, c_ptr, c_bool
+  use cbindings
+  use mod_oasis
+  implicit none
+  include "mpif.h"
+  integer (c_int), intent(out) :: mynummod
+  type(c_ptr), intent(in) :: cdnam
+  integer (c_int), intent(out) :: kinfo
+  logical (c_bool), intent(in) :: coupled
+
+  integer :: mynummod_f
+  character(len=:), allocatable :: cdnam_f
+  integer :: kinfo_f
+  logical :: coupled_f
+
+  cdnam_f=foasis_string_to_fortran(cdnam)
+  coupled_f=coupled
+  call oasis_init_comp(mynummod_f, cdnam_f, kinfo_f, coupled_f)
   mynummod=mynummod_f
   kinfo=kinfo_f
 end subroutine oasis_init_comp_iso
@@ -55,9 +77,7 @@ subroutine oasis_enddef_iso(kinfo) bind(C)
   integer :: kinfo_f
 
   kinfo_f=kinfo
-  
   call oasis_enddef(kinfo_f)
-  
   kinfo=kinfo_f
 end subroutine oasis_enddef_iso
 
@@ -83,12 +103,10 @@ subroutine oasis_mpi_get_comm_size_iso(communicator, comm_size, error) bind(C)
   integer (c_int), intent(in) :: communicator
   integer (c_int), intent(out) :: error, comm_size
 
-  integer communicator_f, comm_size_f, error_f 
-  
+  integer communicator_f, comm_size_f, error_f
+
   communicator_f=communicator
-  
   call mpi_comm_size(communicator_f, comm_size_f, error_f)
-  
   comm_size=comm_size_f
   error=error_f
 end subroutine oasis_mpi_get_comm_size_iso
@@ -101,12 +119,10 @@ subroutine oasis_mpi_get_comm_rank_iso(communicator, comm_rank, error) bind(C)
   integer (c_int), intent(in) :: communicator
   integer (c_int), intent(out) :: error, comm_rank
 
-  integer communicator_f, comm_rank_f, error_f 
-  
+  integer communicator_f, comm_rank_f, error_f
+
   communicator_f=communicator
-  
   call mpi_comm_rank(communicator_f, comm_rank_f, error_f)
-  
   comm_rank=comm_rank_f
   error=error_f
 end subroutine oasis_mpi_get_comm_rank_iso

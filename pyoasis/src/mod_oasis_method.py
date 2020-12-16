@@ -27,17 +27,30 @@ cdll.LoadLibrary("liboasis.cbind.so")
 LIB = CDLL("liboasis.cbind.so")
 
 
-LIB.oasis_c_init_comp_iso2c.argtypes = [ctypes.POINTER(ctypes.c_int), c_char_p,
+LIB.oasis_c_init_comp_with_comm_iso2c.argtypes = [ctypes.POINTER(ctypes.c_int), c_char_p,
                           ctypes.c_bool, ctypes.c_int]
-LIB.oasis_c_init_comp_iso2c.restype = ctypes.c_int
+LIB.oasis_c_init_comp_with_comm_iso2c.restype = ctypes.c_int
 
 
-def init_comp(comp_name, coupled, communicator):
+def init_comp_with_comm(comp_name, coupled, communicator):
     """OASIS user init method"""
     comp_id = c_int(0)
     kinfo = c_int(0)
-    kinfo = LIB.oasis_c_init_comp_iso2c(comp_id, comp_name.encode(), coupled,
+    kinfo = LIB.oasis_c_init_comp_with_comm_iso2c(comp_id, comp_name.encode(), coupled,
                   communicator.py2f())
+    return comp_id.value, kinfo
+
+
+LIB.oasis_c_init_comp_iso2c.argtypes = [ctypes.POINTER(ctypes.c_int), c_char_p,
+                          ctypes.c_bool]
+LIB.oasis_c_init_comp_iso2c.restype = ctypes.c_int
+
+
+def init_comp(comp_name, coupled):
+    """OASIS user init method"""
+    comp_id = c_int(0)
+    kinfo = c_int(0)
+    kinfo = LIB.oasis_c_init_comp_iso2c(comp_id, comp_name.encode(), coupled)
     return comp_id.value, kinfo
 
 

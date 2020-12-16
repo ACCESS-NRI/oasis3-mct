@@ -58,7 +58,7 @@ class Component(object):
             raise pyoasis.PyOasisException("Component name empty.")
         self._name = name
         self._communicator = communicator
-        return_value = pyoasis.mod_oasis_method.init_comp(self._name,
+        return_value = pyoasis.mod_oasis_method.init_comp_with_comm(self._name,
                                                           coupled,
                                                           self._communicator)
         self._initialised = True
