@@ -274,6 +274,10 @@
         luse_grid_centers = .true.
       case ('GAUSWGT','GAUSWGTNF')
         luse_grid_centers = .true.
+      case ('LOCCUNIF', 'LOCCDIST', 'LOCCGAUS')
+        luse_grid_centers = .true.
+        lstore_grid1_area = lstore_src_area
+        lstore_grid2_area = lstore_dst_area
       case default
         stop 'unknown mapping method'
       end select

@@ -75,6 +75,7 @@
       use remap_distance_gaussian_weight  ! routines for dist-weight and gaussian remap
       use remap_bi_interp            ! routines for bicubic  interp
       use remap_bicubic_reduced      ! routines for bicubic interp
+      use remap_locc_weight      ! routines for bicubic interp
       use remap_write                ! routines for remap output
       use fracnnei_mod
 
@@ -101,7 +102,7 @@
                                           lnorth_thresh, & ! conservative north threshold
                                           lsouth_thresh    ! conservative south threshold
 
-      INTEGER (kind=int_kind), intent(in) :: id_scripvoi  ! number of neighbours for DISTWGT and GAUSWGT
+      INTEGER (kind=int_kind), intent(in) :: id_scripvoi  ! number of neighbours for DISTWGT, GAUSWGT, LOCCUNIF, LOCCDIST and LOCCGAUS
 
       integer (kind=int_kind), intent(in) :: mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
 
@@ -180,6 +181,8 @@
         map_type = map_type_distwgt
       case ('GAUSWGT','GAUSWGTNF')
         map_type = map_type_gauswgt
+      case ('LOCCUNIF', 'LOCCDIST', 'LOCCGAUS')
+        map_type = map_type_loccwgt
       case default
         stop 'unknown mapping method'
       end select
@@ -198,6 +201,17 @@
         lfracnnei = .true.
       case default
         lfracnnei = .false.
+      end select
+
+   !--- Locally conservative normalization ---
+
+      select case(map_method)
+      case ('LOCCUNIF')
+        norm_locc = norm_locc_uniform
+      case ('LOCCDIST')
+        norm_locc = norm_locc_distwgt
+      case ('LOCCGAUS')
+        norm_locc = norm_locc_gauswgt
       end select
 
    !--- CONSERV normalization ---
@@ -272,6 +286,12 @@
           CALL remap_dist_gaus_wgt (lextrapdone, ll_nnei, id_scripvoi, &
                                     mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map, &
                                     rl_varmul)
+
+      case(map_type_loccwgt)
+          CALL timer_start(1,'remap_locc_wgt overall')
+          CALL remap_locc_wgt ( id_scripvoi, norm_locc, rl_varmul, &
+                                  mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
+
       case(map_type_bicubic)
           IF (restrict_TYPE == 'REDUCED') then
               CALL timer_start(1,'remap_bicubic_reduced overall')
@@ -718,6 +738,8 @@
 !-----------------------------------------------------------------------
 
       end subroutine uniq_add
+
+!-----------------------------------------------------------------------
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
