@@ -18,6 +18,8 @@ In section \ref{sec_notes}, the reader will also find an overview of the MCT lib
 algorithms with OASIS3-MCT using the {\tt LAG} index (see \ref{subsec_lag}), and on the {\tt
   SEQ} index (see \ref{subsec_sec}).
 
+C bindings for OASIS3-MCT are also provided and described in chapter \ref{sec_cbindings}.
+
 \section{Configurations of components supported}
 \label{sec_deploy}
 
@@ -522,6 +524,18 @@ Must be called to start the grid writing process.
   Writes of the component grid cell areas. Needed for some {\tt SCRIPR} options and for the {\tt CONSERV}
   operation (see section \ref{subsec_cooking}).    The area field is written to the {\em areas.nc} file.
   The surfaces may be given in any units but they must be the same on the source and target sides; furthermore they must be in square radians if the True Area (TR) correction is activated, see section 4.3.
+
+  \vspace{0.2cm}
+\item {\tt CALL oasis\_write\_angle (cgrid, nx\_global, ny\_global, angle, il\_part\_id)}
+\item {\tt CALL prism\_write\_angle (cgrid, nx\_global, ny\_global, angle, il\_part\_id)}
+
+  \begin{itemize}
+  \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
+  \item {\tt angle [REAL, DIMENSION(nx,ny); IN]} : single or double real array of grid cell
+    angles covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition 
+  \end{itemize}
+  Writes of the component grid cell angles.  The angle field is written to the {\em grids.nc} file.  This field does not play a role in OASIS3-MCT implementation and is never needed.
+
 
   \vspace{0.2cm}
 \item {\tt CALL prism\_terminate\_grids\_writing()} or

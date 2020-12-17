@@ -1,0 +1,184 @@
+\newpage
+\chapter{Oasis C Bindings}
+\label{sec_cbindings}
+
+OASIS3-MCT is distributed with C bindings and can be called from models written
+in C.  These bindings leverage the Fortran ISO\_C\_BINDING standard.  The model
+interface names match, more or less, the Fortran implementation and are documented
+below.  The cbindings can be compiled into static or shared libraries by the
+Oasis TopMakefileOasis3 as documented in \ref{subsec_compile}.
+
+To use the Oasis C bindings, the statement
+
+\vspace{0.2cm}
+  {\tt \#include ``oasis\_c.h''}
+\vspace{0.2cm}
+
+needs to be added to the C model source code.  All available parameters and
+interfaces are defined there.
+
+
+\section{Model interfaces for C}
+\label{sec_cinterfaces}
+
+The C interfaces are specified below.  These interfaces largely match up with equivalent interfaces in Fortran.  An interface named oasis\_interface in Fortran can be expected to be named oasis\_c\_interface in C.  All of the C interfaces return an integer error code, consistent with the {\it kinfo} argument in the Fortran interfaces.  For example, in Fortran
+
+\vspace{0.2cm}
+{\tt call oasis\_get\_localcomm(localcomm, kinfo)}
+
+\vspace{0.2cm}
+is
+
+\vspace{0.2cm}
+{\tt kinfo = oasis\_c\_get\_localcomm(localcomm)}
+
+\vspace{0.2cm}
+in C.  More information about all these interfaces can be found in the Fortran interface section (see \ref{API}).  Notes and deviations from the Fortran standard are noted below.
+
+\vspace{0.2cm}
+\begin{itemize}
+
+\item {\tt int oasis\_c\_init\_comp(int* mynummod, const char* cdnam, const bool coupled)}
+  \begin{itemize}
+  \item This init\_comp interface includes the coupled flag but NO communicator argument
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_init\_comp\_with\_comm(int* mynummod, const char* cdnam, const bool coupled, const MPI\_Comm commworld)}
+  \begin{itemize}
+  \item This init\_comp interface has the coupled flag and a C MPI\_Comm communicator
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_localcomm(MPI\_Comm* localcomm)}
+  \begin{itemize}
+  \item Takes a C MPI\_Comm type as an argument
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_create\_couplcomm(const int icpl, const MPI\_Comm allcomm, MPI\_Comm* cplcomm)}
+  \begin{itemize}
+  \item allcomm is a C MPI\_Comm type output argument
+  \item cplcomm is a C MPI\_Comm type input argument
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_set\_couplcomm(const MPI\_Comm localcomm)}
+  \begin{itemize}
+  \item Takes a C MPI\_Comm type as an argument
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_def\_partition(int* id\_part, const int kparal\_size, const int* kparal, const int ig\_size, const char* name)}
+  \begin{itemize}
+  \item kparal\_size is the size of the array kparal
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_start\_grids\_writing()}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_grid(const char* cgrid, const int nx, const int ny, const int nx\_loc, const int ny\_loc, const double* lon, const double* lat, const int partid)}
+  \begin{itemize}
+  \item nx\_loc and ny\_loc is the two-dimensional size of the arrays lon and lat
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_corner(const char* cgrid, const int nx, const int ny, const int nc, const int nx\_loc, const int ny\_loc, const double* clo, const double* cla, const int partid)}
+  \begin{itemize}
+  \item nx\_loc, ny\_loc, and nc is the three-dimensional size of the arrays clo and cla
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_mask(const char* cgrid, const int nx, const int ny, const int nx\_loc, const int ny\_loc, const int* mask, const int partid, const char* companion)}
+  \begin{itemize}
+  \item nx\_loc and ny\_loc is the two-dimensional size of the array mask
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_frac(const char* cgrid, const int nx, const int ny, const int nx\_loc, const int ny\_loc, const double* frac, const int partid, const char* companion)}
+  \begin{itemize}
+  \item nx\_loc and ny\_loc is the two-dimensional size of the array frac
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_area(const char* cgrid, const int nx, const int ny, const int nx\_loc, const int ny\_loc, const double* area, const int partid)}
+  \begin{itemize}
+  \item nx\_loc and ny\_loc is the two-dimensional size of the array area
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_angle(const char* cgrid, const int nx, const int ny, const int nx\_loc, const int ny\_loc, const double* angle, const int partid)}
+  \begin{itemize}
+  \item nx\_loc and ny\_loc is the two-dimensional size of the array angle
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_terminate\_grids\_writing()}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_def\_var(int* id\_nports, const char* cdport, const int id\_part, const int id\_var\_nodims1, const int id\_var\_nodims2, const int kinout, const int id\_var\_shape\_size, const int* id\_var\_shape, const int ktype)}
+  \begin{itemize}
+  \item id\_var\_shape\_size is the size of the array id\_var\_shape
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_enddef()}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_put(const int var\_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const void* fld1, const bool write\_restart)}
+  \begin{itemize}
+  \item This interface does not support higher order mapping through optional fields at this time.
+  \item size1, size2, and size3 are the size of the array fld1.  For a two dimensional field, a three dimensional field is still passed but size3 is set to 1.
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get(const int var\_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, void* fld1)}
+  \begin{itemize}
+  \item This interface does not support higher order mapping through optional fields at this time.
+  \item size1, size2, and size3 are the size of the array fld1.  For a two dimensional field, a three dimensional field is still passed but size3 is set to 1.
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_terminate()}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_abort(const int id\_compid, const char* cd\_routine, const char* cd\_message, const char* file, const int line)}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_debug(int* debug)}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_set\_debug(const int debug)}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_intercomm(MPI\_Comm* new\_comm, char* cdnam)}
+  \begin{itemize}
+  \item Takes a C MPI\_Comm type as an argument
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_intracomm(MPI\_Comm* new\_comm, char* cdnam)}
+  \begin{itemize}
+  \item Takes a C MPI\_Comm type as an argument
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_multi\_intracomm(MPI\_Comm* new\_comm, const int cdnam\_size, char** cdnam, int* root\_ranks)}
+  \begin{itemize}
+  \item Takes a C MPI\_Comm type as an argument
+  \item cdnam\_size is the size of the array cdnam
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_put\_inquire(int varid, int msec)}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_ncpl(const int varid, int* ncpl)}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_freqs(const int varid, const int mop, const int ncpl, int*  cpl\_freqs)}
+
+\end{itemize}
+
+
