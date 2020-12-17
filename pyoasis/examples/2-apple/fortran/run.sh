@@ -8,9 +8,11 @@ casename=`basename $srcdir`
 
 exe1=sender-apple
 exe2=receiver
+exe3=non_oasis
 
 n1=4
 n2=1
+n3=2
 
 make || exit
 
@@ -21,9 +23,10 @@ mkdir -p $rundir
 
 cp -f $srcdir/$exe1 $rundir/.
 cp -f $srcdir/$exe2 $rundir/.
+cp -f $srcdir/$exe3 $rundir/.
 
 cp -f $datadir/namcouple $rundir/.
 
 cd $rundir
 
-${MPIRUN4PY} -np $n1 ./$exe1 : -np $n2  ./$exe2
+${MPIRUN4PY} -np $n1 ./$exe1 : -np $n2  ./$exe2 : -np $n3 ./$exe3

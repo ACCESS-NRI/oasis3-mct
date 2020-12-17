@@ -15,7 +15,7 @@ program sender_apple
    print '(2A)', "Component name: ", comp_name
 
    call MPI_Init(kinfo)
-   call MPI_Comm_Dup(MPI_COMM_WORLD, commworld, kinfo)
+   call MPI_Comm_Split(MPI_COMM_WORLD, 1, 0, commworld, kinfo)
    call oasis_init_comp(comp_id, comp_name, kinfo, commworld = commworld)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_init_comp: ", rcode=kinfo)

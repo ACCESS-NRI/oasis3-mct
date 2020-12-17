@@ -7,7 +7,7 @@ from mpi4py import MPI
 
 component_name = "receiver"
 
-commworld = MPI.Comm.Dup(MPI.COMM_WORLD)
+commworld = MPI.COMM_WORLD.Split(1)
 comp = pyoasis.Component(component_name, communicator = commworld)
 print(comp)
 
