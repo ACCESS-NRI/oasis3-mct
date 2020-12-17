@@ -7,7 +7,8 @@ from mpi4py import MPI
 
 component_name = "sender-apple"
 
-comp = pyoasis.Component(component_name)
+commworld = MPI.Comm.Dup(MPI.COMM_WORLD)
+comp = pyoasis.Component(component_name, communicator = commworld)
 print(comp)
 
 comm_rank = comp.localcomm.rank

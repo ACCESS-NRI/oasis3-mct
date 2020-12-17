@@ -1,11 +1,12 @@
 program sender_apple
+   use mpi
    use mod_oasis
    implicit none
    integer :: i, kinfo, date
    integer :: comp_id, part_id, var_id
    integer :: n_points = 16
    integer :: part_params(3), offset, local_size
-   integer :: local_comm, comm_size, comm_rank
+   integer :: local_comm, comm_size, comm_rank, commworld
    integer :: var_nodims(2)
    character(len=13) :: comp_name = "sender-apple"
    character(len=8) :: var_name = "FSENDOCN"
@@ -13,7 +14,9 @@ program sender_apple
 
    print '(2A)', "Component name: ", comp_name
 
-   call oasis_init_comp(comp_id, comp_name, kinfo)
+   call MPI_Init(kinfo)
+   call MPI_Comm_Dup(MPI_COMM_WORLD, commworld, kinfo)
+   call oasis_init_comp(comp_id, comp_name, kinfo, commworld = commworld)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_init_comp: ", rcode=kinfo)
    print '(A,I0)', "Sender: Component ID: ", comp_id
@@ -62,5 +65,6 @@ program sender_apple
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_terminate: ", rcode=kinfo)
 
-end program sender_apple
+   call MPI_Finalize(kinfo)
 
+end program sender_apple
