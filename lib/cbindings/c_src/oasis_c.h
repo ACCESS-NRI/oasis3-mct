@@ -25,12 +25,51 @@
 #include <mpi.h>
 
 
-#ifdef  __cplusplus
+#if defined(c_plusplus) || defined(__cplusplus)
 extern "C" {
 #endif
 
 
-enum params { OASIS_REAL=4, OASIS_OUT=20, OASIS_IN=21};
+enum params
+{
+  OASIS_Real        = 4,
+  OASIS_Double      = 8,
+  OASIS_Ok          = 0,
+  OASIS_NotDef      = -2,
+  OASIS_Var_Uncpl   = -1,
+  OASIS_Out         = 20,
+  OASIS_In          = 21,
+  OASIS_InOut       = 2,
+  OASIS_Recvd       = 3,
+  OASIS_Sent        = 4,
+  OASIS_LocTrans    = 5,
+  OASIS_ToRest      = 6,
+  OASIS_Output      = 7,
+  OASIS_SentOut     = 8,
+  OASIS_ToRestOut   = 9,
+  OASIS_FromRest    = 10,
+  OASIS_Input       = 11,
+  OASIS_RecvOut     = 12,
+  OASIS_FromRestOut = 13,
+  OASIS_Waitgroup   = 14,
+  OASIS_NONE        = 100,
+  OASIS_COMM_READY  = 101,
+  OASIS_COMM_WAIT   = 102,
+  OASIS_PUT         = 103,
+  OASIS_GET         = 104,
+  CLIM_Strategy     = 1,
+  CLIM_Segments     = 2,
+  CLIM_Serial       = 0,
+  CLIM_Apple        = 1,
+  CLIM_Box          = 2,
+  CLIM_Orange       = 3,
+  CLIM_Points       = 4,
+  CLIM_Offset       = 2,
+  CLIM_Length       = 3,
+  CLIM_SizeX        = 3,
+  CLIM_SizeY        = 4,
+  CLIM_LdX          = 5
+};
 
 // C interfaces with MPI Communicator defined as C MPI_Comm (for C)
 
@@ -91,7 +130,7 @@ int oasis_c_abort(const int id_compid, const char* cd_routine, const char* cd_me
 int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims1, const int id_var_nodims2, const int kinout, const int id_var_shape_size, const int* id_var_shape, const int ktype);
 
 
-#ifdef  __cplusplus
+#if defined(c_plusplus) || defined(__cplusplus)
 }
 #endif
 
