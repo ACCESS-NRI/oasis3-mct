@@ -88,7 +88,11 @@ void oasis_abort_iso(const int* id_compid, const char** cd_routine, const char**
 void oasis_def_var_iso(int* id_nports, const char** cdport, const int* id_part, const int* id_var_nodims1, const int* id_var_nodims2, const int* kinout, const int* id_var_shape_size, const int** id_var_shape, const int* ktype, int* kinfo);
 
 
-// C interfaces with MPI Communicator defined as int (for python)
+// C interfaces with MPI Communicator defined as int (for python or C++)
+
+#if defined(c_plusplus) || defined(__cplusplus)
+extern "C" {
+#endif
 
 int oasis_c_get_localcomm_iso2c(int* localcomm);
 
@@ -105,7 +109,6 @@ int oasis_c_get_multi_intracomm_iso2c(int* new_comm, const int cdnam_size, char*
 int oasis_c_init_comp_with_comm_iso2c(int* mynummod, const char* cdnam, const bool coupled, const int commworld);
 
 int oasis_c_init_comp_iso2c(int* mynummod, const char* cdnam, const bool coupled);
-
 
 #endif
 
