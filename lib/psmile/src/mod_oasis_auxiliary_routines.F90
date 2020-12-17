@@ -25,6 +25,7 @@ MODULE mod_oasis_auxiliary_routines
     public oasis_set_debug
     public oasis_get_intercomm
     public oasis_get_intracomm
+    public oasis_get_multi_intracomm
     public oasis_get_ncpl
     public oasis_put_inquire
     public oasis_get_freqs
@@ -98,7 +99,9 @@ MODULE mod_oasis_auxiliary_routines
     mpi_rank_local = -1
     if (mpi_comm_local /= MPI_COMM_NULL) then
        CALL MPI_Comm_Size(mpi_comm_local,mpi_size_local,ierr)
+       call oasis_mpi_chkerr(ierr,trim(subname)//' size')
        CALL MPI_Comm_Rank(mpi_comm_local,mpi_rank_local,ierr)
+       call oasis_mpi_chkerr(ierr,trim(subname)//' rank')
        mpi_root_local = 0
     endif
 
@@ -132,10 +135,7 @@ MODULE mod_oasis_auxiliary_routines
     !------------------------
 
     CALL MPI_COMM_Split(allcomm,icpl,1,cplcomm,ierr)
-    IF (ierr /= 0) THEN
-       WRITE (nulprt,*) subname,estr,'MPI_Comm_Split ierr = ',ierr
-       call oasis_abort(file=__FILE__,line=__LINE__)
-    ENDIF
+    call oasis_mpi_chkerr(ierr,trim(subname)//' split')
 
     !------------------------
     !--- update mpi_comm_local from component
@@ -205,7 +205,7 @@ MODULE mod_oasis_auxiliary_routines
   END SUBROUTINE oasis_set_debug
 !----------------------------------------------------------------------
 
-!> OASIS user interface to establish an intercomm communicator between the root of two models
+!> OASIS user interface to establish an MPI intercomm communicator between two models
 
   SUBROUTINE oasis_get_intercomm(new_comm, cdnam, kinfo)
 
@@ -215,7 +215,7 @@ MODULE mod_oasis_auxiliary_routines
     CHARACTER(len=*),intent(in) :: cdnam               !< other model name to link with
     INTEGER (kind=ip_intwp_p),intent(out),optional :: kinfo  !< return code
 
-    INTEGER (kind=ip_intwp_p)			  :: n, il, ierr, tag
+    INTEGER (kind=ip_intwp_p) :: n, il, ierr, tag
     LOGICAL :: found
 !   ---------------------------------------------------------
     character(len=*),parameter :: subname = '(oasis_get_intercomm)'
@@ -230,7 +230,7 @@ MODULE mod_oasis_auxiliary_routines
     do n = 1,prism_amodels
        if (trim(cdnam) == trim(prism_modnam(n))) then
           if (found) then
-             write(nulprt,*) subname,estr,'found same model name twice'
+             write(nulprt,*) subname,estr,'found same model name twice: ',trim(prism_modnam(n))
              call oasis_abort(file=__FILE__,line=__LINE__)
           endif
           il = n
@@ -253,13 +253,14 @@ MODULE mod_oasis_auxiliary_routines
     tag=ICHAR(TRIM(compnm))+ICHAR(TRIM(cdnam))
     CALL mpi_intercomm_create(mpi_comm_local, 0, mpi_comm_global, &
                               mpi_root_global(il), tag, new_comm, ierr)
+    call oasis_mpi_chkerr(ierr,trim(subname)//' intercomm_create')
 
     call oasis_debug_exit(subname)
 
   END SUBROUTINE oasis_get_intercomm
 !----------------------------------------------------------------------
 
-!> OASIS user interface to establish an intracomm communicator between the root of two models
+!> OASIS user interface to establish an intracomm communicator between two components
 
   SUBROUTINE oasis_get_intracomm(new_comm, cdnam, kinfo)
 
@@ -269,8 +270,7 @@ MODULE mod_oasis_auxiliary_routines
     CHARACTER(len=*),intent(in) :: cdnam               !< other model name
     INTEGER (kind=ip_intwp_p),intent(out),optional :: kinfo  !< return code
 
-    INTEGER (kind=ip_intwp_p)			  :: tmp_intercomm
-    INTEGER (kind=ip_intwp_p)			  :: ierr
+    INTEGER (kind=ip_intwp_p)  :: tmp_intercomm, ierr
 !   ---------------------------------------------------------
     character(len=*),parameter :: subname = '(oasis_get_intracomm)'
 !   ---------------------------------------------------------
@@ -283,10 +283,179 @@ MODULE mod_oasis_auxiliary_routines
     call oasis_get_intercomm(tmp_intercomm, cdnam, kinfo)
 
     CALL mpi_intercomm_merge(tmp_intercomm,.FALSE., new_comm, ierr)
+    call oasis_mpi_chkerr(ierr,trim(subname)//' intercomm_merge')
 
     call oasis_debug_exit(subname)
 
   END SUBROUTINE oasis_get_intracomm
+
+!----------------------------------------------------------------------
+
+!> OASIS user interface to establish an intracomm communicator between two or more components
+
+  SUBROUTINE oasis_get_multi_intracomm(new_comm, cdnam, root_ranks, kinfo)
+
+    IMPLICIT NONE
+
+    INTEGER (kind=ip_intwp_p),intent(out) :: new_comm      !< output MPI communicator
+    CHARACTER(len=*)         ,intent(in)  :: cdnam(:)      !< other model names
+    INTEGER (kind=ip_intwp_p),intent(out) :: root_ranks(:) !< root rank of each model in cdnam in new comm
+    INTEGER (kind=ip_intwp_p),intent(out) :: kinfo         !< return code
+
+    INTEGER (kind=ip_intwp_p) :: tmp_comm, inter_comm, tmpsize, tmprank
+    INTEGER (kind=ip_intwp_p),allocatable :: cdnum(:),rranks(:)
+    INTEGER (kind=ip_intwp_p) :: n, k, k2, ierr, tag, icnt, remote_leader
+    LOGICAL :: found, found_myself, inter_high
+!   ---------------------------------------------------------
+    character(len=*),parameter :: subname = '(oasis_get_multi_intracomm)'
+!   ---------------------------------------------------------
+
+    call oasis_debug_enter(subname)
+    kinfo = OASIS_OK
+
+    if (size(cdnam) /= size(root_ranks)) then
+       write(nulprt,*) subname,estr,'cdnam and root_ranks sizes not the same'
+       call oasis_abort(file=__FILE__,line=__LINE__)
+    endif
+
+    allocate(cdnum(size(cdnam)))
+
+    ! error check list of cdnam values
+    ! create list of components involved, cdnum
+    found_myself=.false.
+    icnt = 0
+    do k = 1,size(cdnam)
+       !--- skip blank lines
+       if (len_trim(cdnam(k)) > 0) then
+          !--- must contain me at some point
+          if (trim(cdnam(k)) == trim(compnm)) then
+             found_myself = .true.
+          endif
+          !--- must not contain redundant values
+          do k2 = k+1 ,size(cdnam)
+             if (trim(cdnam(k)) == trim(cdnam(k2))) then
+                write(nulprt,*) subname,estr,'model name duplicated in cdnam list: ',trim(cdnam(k))
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+          !--- must contain only valid model names
+          found = .false.
+          do n = 1,prism_amodels
+             if (trim(cdnam(k)) == trim(prism_modnam(n))) then
+                if (found) then
+                   write(nulprt,*) subname,estr,'found model name twice in cdnam list: ',trim(cdnam(k))
+                   call oasis_abort(file=__FILE__,line=__LINE__)
+                endif
+                found = .true.
+                icnt = icnt + 1
+                cdnum(icnt) = n
+             endif
+          enddo
+          if (.not.found) then
+             write(nulprt,*) subname,estr,'model name does not exist: ',trim(cdnam(k))
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+    enddo
+
+    ! check that my component name was in cdnam
+    if (.not. found_myself) then
+       write(nulprt,*) subname,estr,'must include my model name when calling',trim(compnm)
+       call oasis_abort(file=__FILE__,line=__LINE__)
+    endif
+
+    ! check there is at least one other valid model to connect to
+    if (icnt <= 1) then
+       write(nulprt,*) subname,estr,'must have at least 2 model names: ',icnt,cdnam
+       call oasis_abort(file=__FILE__,line=__LINE__)
+    endif
+
+    ! now sort cdnum so all components are going to call the mpi ops in the same order consistently
+    do k = 1,icnt
+    do k2 = k+1,icnt
+       if (cdnum(k2) < cdnum(k)) then
+          n = cdnum(k)
+          cdnum(k) = cdnum(k2)
+          cdnum(k2) = n
+       endif
+    enddo
+    enddo
+    if (OASIS_debug >= 2) then
+       write(nulprt,*) subname, 'cdnum=',cdnum(1:icnt)
+       call oasis_flush(nulprt)
+    endif
+
+    ! order calls by model number via cdnum
+    ! create pairwise calls from lower to higher comp ids
+    ! don't need to check here, checks above will trap inconsistencies
+    !   including each value in cdnam is not repeated and is valid
+    ! compute rranks
+
+    allocate(rranks(icnt))
+    rranks=-1
+    rranks(1)=0
+    call MPI_comm_dup(mpi_comm_local, tmp_comm, ierr)
+    call oasis_mpi_chkerr(ierr,trim(subname)//' comm_dup local')
+    do k = 2,icnt
+       n = cdnum(k)
+       rranks(k) = rranks(k-1) + mpi_comp_size(cdnum(k-1))
+       tag=8000+n
+       if (compid == n) then
+          remote_leader = mpi_root_global(cdnum(1))  ! root of 1st model 
+          inter_high = .true.
+       else
+          remote_leader = mpi_root_global(n)         ! root of model k
+          inter_high = .false.
+       endif
+       if (compid <= n) then
+          if (OASIS_debug >= 2) then
+             write(nulprt,'(2a,2i4,a,i6,a,i8)') subname,' k,n =',k,n, &
+                             ' remote_leader=',remote_leader, ' tag=',tag
+             call MPI_Comm_Size(tmp_comm,tmpsize,ierr)
+             call oasis_mpi_chkerr(ierr,trim(subname)//' size')
+             call MPI_Comm_Rank(tmp_comm,tmprank,ierr)
+             call oasis_mpi_chkerr(ierr,trim(subname)//' rank')
+             write(nulprt,*) subname,' tmp_comm size,rank=',tmpsize,tmprank
+             call oasis_flush(nulprt)
+          endif
+          ! inter_comm = tmp_comm + remote_comm
+          call MPI_intercomm_create(tmp_comm, 0, mpi_comm_global, &
+                                    remote_leader, tag, inter_comm, ierr)
+          call oasis_mpi_chkerr(ierr,trim(subname)//' intercomm_create')
+          call MPI_comm_free(tmp_comm,ierr)
+          call oasis_mpi_chkerr(ierr,trim(subname)//' comm_free tmp_comm')
+          ! tmp_comm = inter2intra(inter_comm)
+          call MPI_intercomm_merge(inter_comm, inter_high, tmp_comm, ierr)
+          call oasis_mpi_chkerr(ierr,trim(subname)//' intercomm_merge')
+          call MPI_comm_free(inter_comm,ierr)
+          call oasis_mpi_chkerr(ierr,trim(subname)//' comm_free inter_comm')
+       endif
+    enddo
+
+    new_comm = tmp_comm
+    root_ranks = -1
+    do n = 1,icnt
+       do k = 1,size(cdnam)
+          if (cdnam(k) == prism_modnam(cdnum(n))) then
+             root_ranks(k) = rranks(n)
+          endif
+       enddo
+    enddo
+    if (OASIS_debug >= 2) then
+       do k = 1,size(cdnam)
+          write(nulprt,'(2a,i4,3a,i8)') subname,' k =',k, &
+                          ' cdnam = ',trim(cdnam(k)), &
+                          ' root_rank = ',root_ranks(k)
+       enddo
+       call oasis_flush(nulprt)
+    endif
+
+    deallocate(rranks)
+    deallocate(cdnum)
+
+    call oasis_debug_exit(subname)
+
+  END SUBROUTINE oasis_get_multi_intracomm
 !----------------------------------------------------------------------
 
 !> OASIS user query for the number of unique couplings associated with a variable
@@ -483,7 +652,7 @@ MODULE mod_oasis_auxiliary_routines
 
        if (msec >= maxtime) then
           write(nulprt,*) subname,' at ',msec,mseclag,'  ERROR: ',trim(vname)
-          write(nulprt,*) subname,estr,'model time beyond namcouple maxtime',&
+          write(nulprt,*) subname,estr,'model time must be strictly smaller than namcouple $RUNTIME =',&
                           msec,maxtime
           call oasis_abort(file=__FILE__,line=__LINE__)
        endif

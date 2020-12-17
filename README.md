@@ -1,7 +1,17 @@
 This version is the master branch of the OASIS3-MCT climate coupler. It will contain the future developments for OASIS3-MCT_5.0
 
 Since the first developments of OASIS3-MCT, it includes:
-- A hybrid MPI+OpenMP parallelisation of the SCRIP library (previously fully sequential) leading to great reduction in the offline calculation
+- A first beta version of Python API available (STFC)
+- Add ability to set north and south thresholds on the SCRIPR CONSERV namcouple line. 
+- Add number of neighbors to the mapping filename for DISTWGT and GAUSWGT mapping files 
+- A « True » area normalisation in conservative remapping
+- An addition of “additional nearest-neighbour” option in SCRIP CONSERV/DESTAREA (DESTNNEI, DESTNNTR)
+- The possibility to deactivate the “additional nearest-neighbour” option (BILINEARNF, BICUBICNF, DISTWGTNF, and GAUSWGTNF)
+- A bugfix for local distance calculation in DISTWGT and GAUSWGT interpolation
+- More systematic test of NetCDF returned error code
+- Fractional masks for the global conservation operation CONSERV (ESiWACE2)
+- New options in global CONSERV to conserve fields with positive and negative values with average value close to zero (ESiWACE2)
+- An hybrid MPI+OpenMP parallelisation of the SCRIP library (previously fully sequential) leading to great reduction in the offline calculation
 - A new communication method, using the remapping weights to define the intermediate mapping decomposition, offering a significant gain at run
 - New methods introduced in the global CONSERV operation reducing its costs by one order of magnitude while still ensuring an appropriate level
 - Support for bundle coupling fields;

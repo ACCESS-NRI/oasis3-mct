@@ -43,6 +43,7 @@ MODULE mod_oasis
   USE mod_oasis_auxiliary_routines ,ONLY: oasis_set_couplcomm
   USE mod_oasis_auxiliary_routines ,ONLY: oasis_create_couplcomm
   USE mod_oasis_auxiliary_routines ,ONLY: oasis_get_intracomm
+  USE mod_oasis_auxiliary_routines ,ONLY: oasis_get_multi_intracomm
   USE mod_oasis_auxiliary_routines ,ONLY: oasis_get_intercomm
   USE mod_oasis_auxiliary_routines ,ONLY: oasis_set_debug
   USE mod_oasis_auxiliary_routines ,ONLY: oasis_get_debug

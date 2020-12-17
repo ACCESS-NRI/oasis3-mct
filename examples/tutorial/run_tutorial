@@ -18,7 +18,7 @@ casename=`basename $srcdir`
 #
 #
 ## - Define architecture and coupler 
-arch=training_computer   #training_computer/Linux pgi openmpi/Linux gfortran openmpi
+arch=machine_test   #training_computer/Linux pgi openmpi/Linux gfortran openmpi
                     #nemo_lenovo intel impi, kraken intel impi, beaufix intel impi, 
 		    #ada, Cray, machine_test 
 #
@@ -54,7 +54,7 @@ elif [ ${arch} == ukmo_cray_xc40 ] || [ ${arch} == ukmo_cray_xc40_rose ]; then
     rundir=$PWD/runDir
 # Machine_test (for developments, here tioman pgi 17.10)
 elif [ ${arch} == machine_test ]; then
-    MPIRUN=/usr/local/pgi/linux86-64/17.10/mpi/openmpi-2.1.2/bin/mpirun
+    MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun
     rundir=$srcdir/work_${casename}_${exe1}_${nproc_exe1}_${exe2}_${nproc_exe2}
 fi
 #

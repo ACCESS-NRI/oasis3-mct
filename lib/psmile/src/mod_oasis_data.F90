@@ -61,9 +61,9 @@ MODULE mod_oasis_data
   LOGICAL               :: mpi_in_map
   CHARACTER(len=MPI_MAX_PROCESSOR_NAME) :: mpi_node_name
   INTEGER(kind=ip_i4_p) :: mpi_err
-  INTEGER(kind=ip_i4_p),allocatable :: mpi_root_global(:)  ! for each model, the rank in comm_world 
+  INTEGER(kind=ip_i4_p),allocatable :: mpi_root_global(:)  ! for each model, the root rank in comm_world 
+  INTEGER(kind=ip_i4_p),allocatable :: mpi_comp_size(:)    ! for each model, the size of the local comm
   character(len=ic_lvar),pointer :: compnmlist(:)
-                                                           ! of the root process
 
 ! PARAMETERS
 
