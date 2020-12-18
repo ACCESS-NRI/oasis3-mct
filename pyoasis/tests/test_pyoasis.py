@@ -44,6 +44,9 @@ def returns_comm_handle_and_zero(*args):
 def returns_comm_handle_and_error(*args):
     return [MPI.COMM_WORLD.py2f(), -1]
 
+def returns_comm_handle_and_2errors(*args):
+    return [MPI.COMM_WORLD.py2f(), -1, -1]
+
 # Compoment class
 # Constructor
 
@@ -183,6 +186,35 @@ def test_component_set_intercomm():
         pyoasis.Component._n_components = 0
         comp = pyoasis.Component("name")
         comp.get_intercomm("othercomponent")
+
+# get_multi_intracomm
+# Wrong call arguments (component name is not a strings list)
+def test_component_get_multi_intracomm1():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.Component._n_components = 0
+        comp = pyoasis.Component("name")
+        comp.get_multi_intracomm(["othercomponent", 42])
+
+# Wrong call arguments (component name is not a list)
+def test_component_get_multi_intracomm2():
+    with pytest.raises(pyoasis.PyOasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.Component._n_components = 0
+        comp = pyoasis.Component("name")
+        comp.get_multi_intracomm("othercomponent")
+
+# Failure
+def test_component_get_multi_intracomm3():
+    with pytest.raises(pyoasis.OasisException):
+        pyoasis.mod_oasis_method.init_comp = returns_2_zeros
+        pyoasis.mod_oasis_method.terminate = returns_zero
+        pyoasis.mod_oasis_auxiliary_routines.get_multi_intracomm = returns_comm_handle_and_2errors
+        pyoasis.Component._n_components = 0
+        comp = pyoasis.Component("name")
+        comp.get_multi_intracomm(["othercomponent", "another"])
 
 # Various functions
 def test_Component_various_functions():
