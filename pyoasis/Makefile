@@ -14,7 +14,7 @@ endif
 test: wrappertest completetest examples
 
 wrappertest: wrappertest
-	cd $(PYOASIS)/tests && pytest
+	cd $(PYOASIS)/tests && ./run_pytest.sh
 
 completetest: 
 	cd $(PYOASIS)/tests/apple_and_orange && bash run.sh
