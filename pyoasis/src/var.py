@@ -61,7 +61,7 @@ class Var:
         self._name = name
         self.bundle_size = bundle_size
         self.direction = inout
-        id_var_nodims = [1, bundle_size]
+        id_var_nodims = bundle_size
         return_value = pyoasis.mod_oasis_var.def_var(_id_partition,
                                                      self._name,
                                                      id_var_nodims,

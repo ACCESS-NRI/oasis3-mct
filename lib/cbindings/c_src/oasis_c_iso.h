@@ -85,7 +85,7 @@ extern void oasis_def_partition_iso(int* id_part, const int* kparal_size, const 
 
 void oasis_abort_iso(const int* id_compid, const char** cd_routine, const char** cd_message, const char** file, const int* line, const int* rcode);
 
-void oasis_def_var_iso(int* id_nports, const char** cdport, const int* id_part, const int* id_var_nodims1, const int* id_var_nodims2, const int* kinout, const int* id_var_shape_size, const int** id_var_shape, const int* ktype, int* kinfo);
+void oasis_def_var_iso(int* id_nports, const char** cdport, const int* id_part, const int* id_var_nodims, const int* kinout, const int* ktype, int* kinfo);
 
 
 // C interfaces with MPI Communicator defined as int (for python or C++)

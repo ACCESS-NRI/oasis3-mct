@@ -11,3 +11,5 @@ receiver: receiver.F90
 
 clean:
 	rm -f sender-serial receiver
+	rm -f *~
+	rm -fr work

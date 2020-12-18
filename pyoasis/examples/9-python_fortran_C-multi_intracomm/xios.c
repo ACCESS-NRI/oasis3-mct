@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-  char comp_name[8] = "xios";
+  char *comp_name = "xios";
   int il_x;
 
   fprintf(stdout,"Component name: %s\n", comp_name);

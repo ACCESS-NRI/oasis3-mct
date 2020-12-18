@@ -18,8 +18,7 @@
 
 
 subroutine oasis_def_var_iso(id_nports, cdport, id_part, &
-     id_var_nodims1, id_var_nodims2, kinout, id_var_shape_size, &
-     id_var_shape, ktype, kinfo) bind(C)
+     id_var_nodims, kinout, ktype, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_ptr, c_bool
   use cbindings
   use mod_oasis
@@ -28,10 +27,8 @@ subroutine oasis_def_var_iso(id_nports, cdport, id_part, &
   integer (c_int), intent(out) :: id_nports
   type(c_ptr), intent(in) :: cdport
   integer (c_int), intent(in) :: id_part
-  integer (c_int), intent(in) :: id_var_nodims1, id_var_nodims2
+  integer (c_int), intent(in) :: id_var_nodims
   integer (c_int), intent(in) :: kinout
-  integer (c_int), intent(in) :: id_var_shape_size
-  integer (c_int), intent(in) :: id_var_shape(:) 
   integer (c_int), intent(in) :: ktype
   integer (c_int), intent(out) :: kinfo
   
@@ -40,7 +37,6 @@ subroutine oasis_def_var_iso(id_nports, cdport, id_part, &
   integer :: id_part_f
   integer :: id_var_nodims_f(2)
   integer kinout_f
-  integer :: id_var_shape_f(id_var_shape_size) 
   integer :: ktype_f
   integer :: kinfo_f
   
@@ -48,17 +44,13 @@ subroutine oasis_def_var_iso(id_nports, cdport, id_part, &
   
   cdport_f=foasis_string_to_fortran(cdport)
   id_part_f=id_part
-  id_var_nodims_f(1)=id_var_nodims1
-  id_var_nodims_f(2)=id_var_nodims2
+  id_var_nodims_f(1)=0
+  id_var_nodims_f(2)=id_var_nodims
   kinout_f=kinout
-
-  do i=1, id_var_shape_size
-    id_var_shape_f(i)=id_var_shape(i)
-  end do
   ktype_f=ktype
 
   call oasis_def_var(id_nports_f, cdport_f, id_part_f, &
-  id_var_nodims_f, kinout_f, id_var_shape_f, ktype_f, kinfo_f)
+  id_var_nodims_f, kinout_f, ktype_f, kinfo_f)
 
   id_nports=id_nports_f
   kinfo=kinfo_f

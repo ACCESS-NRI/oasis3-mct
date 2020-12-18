@@ -50,7 +50,9 @@ extern "C" {
 enum params
 {
   OASIS_Real        = 4,
+  OASIS_REAL        = 4,
   OASIS_Double      = 8,
+  OASIS_DOUBLE      = 8,
   OASIS_ROW_MAJOR   = 0,
   OASIS_COL_MAJOR   = 1,
   OASIS_Ok          = 0,
@@ -59,7 +61,9 @@ enum params
   OASIS_NotDef      = -2,
   OASIS_Var_Uncpl   = -1,
   OASIS_Out         = 20,
+  OASIS_OUT         = 20,
   OASIS_In          = 21,
+  OASIS_IN          = 21,
   OASIS_InOut       = 2,
   OASIS_Recvd       = 3,
   OASIS_Sent        = 4,
@@ -152,7 +156,7 @@ int oasis_c_def_partition(int* id_part, const int kparal_size, const int* kparal
 
 int oasis_c_abort(const int id_compid, const char* cd_routine, const char* cd_message, const char* file, const int line);
 
-int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims1, const int id_var_nodims2, const int kinout, const int id_var_shape_size, const int* id_var_shape, const int ktype);
+int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims, const int kinout, const int ktype);
 
 #define IS_VALID_PUT(k) ( k == OASIS_Ok) || ( k == OASIS_Output ) || ( k == OASIS_ToRestOut ) || \
       ( k == OASIS_ToRest ) || ( k == OASIS_SentOut ) || ( k == OASIS_Sent ) || \

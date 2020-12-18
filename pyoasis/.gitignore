@@ -5,6 +5,9 @@ tests/*/work/
 examples/*/work
 examples/*/sender-apple
 examples/*/receiver-serial
+examples/*/receiver
+examples/*/nonactive
+examples/*/xios
 examples/*/*/work
 examples/*/fortran/receiver
 examples/*/fortran/receiver-orange
