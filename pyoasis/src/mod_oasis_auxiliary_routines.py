@@ -22,6 +22,7 @@
 import ctypes
 from ctypes import cdll, CDLL, c_int
 import numpy
+import pyoasis.parameters
 
 cdll.LoadLibrary("liboasis.cbind.so")
 LIB = CDLL("liboasis.cbind.so")
@@ -134,7 +135,7 @@ def get_debug():
     return debug.value, kinfo
 
 
-LIB.oasis_c_put_inquire.argtypes = [ctypes.c_int, ctypes.c_int]
+LIB.oasis_c_put_inquire.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
 LIB.oasis_c_put_inquire.restype = ctypes.c_int
 
 
@@ -142,8 +143,9 @@ def put_inquire(varid, msec):
     """Gives put return code expected at a specified time
     for a given variable"""
     kinfo = c_int(0)
-    kinfo = LIB.oasis_c_put_inquire(varid, msec)
-    return kinfo
+    ierr = c_int(0)
+    ierr = LIB.oasis_c_put_inquire(varid, msec, kinfo)
+    return kinfo.value, ierr
 
 
 LIB.oasis_c_get_ncpl.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]

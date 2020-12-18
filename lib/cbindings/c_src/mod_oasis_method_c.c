@@ -18,8 +18,7 @@
 
 
 #include "oasis_c.h"
-#include <stdio.h>
-
+#include "oasis_c_iso.h"
 
 int oasis_c_init_comp_with_comm_iso2c(int* comp_id, const char* comp_name, const bool coupled, int commworld){
   int commworld_f=commworld;

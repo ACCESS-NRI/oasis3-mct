@@ -18,6 +18,7 @@
 
 
 #include "oasis_c.h"
+#include "oasis_c_iso.h"
 
 int oasis_c_start_grids_writing(){
   int kinfo;

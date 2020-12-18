@@ -26,6 +26,7 @@ class OasisParameters(Enum):
     OASIS_IN)
     """
     OASIS_OK          = 0
+    OASIS_ERROR       = -10
     OASIS_NOTDEF      = -2
     OASIS_VAR_UNCPL   = -1
     OASIS_OUT         = 20

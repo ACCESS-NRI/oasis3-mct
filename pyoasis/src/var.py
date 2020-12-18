@@ -164,8 +164,12 @@ class Var:
         supplied
         """
         pyoasis.check_types([int], [time])
-        rcode = pyoasis.mod_oasis_auxiliary_routines.put_inquire(self._id,
-                                                                 time)
+        rcode, ierr = pyoasis.mod_oasis_auxiliary_routines.put_inquire(self._id,
+                                                                       time)
+        
+        if (pyoasis.OasisParameters(ierr) != pyoasis.OasisParameters.OASIS_OK):
+            raise pyoasis.OasisException("Error in put_inquire: returned value not a valid Put inquire answer", -1)
+        
         try:
             return pyoasis.OasisParameters(rcode)
         except ValueError:

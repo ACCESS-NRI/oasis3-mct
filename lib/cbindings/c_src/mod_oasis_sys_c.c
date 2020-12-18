@@ -18,7 +18,7 @@
 
 
 #include "oasis_c.h"
-
+#include "oasis_c_iso.h"
 
 int oasis_c_abort(const int id_compid, const char* cd_routine, const char* cd_message, const char* file, const int line){
   int rcode;

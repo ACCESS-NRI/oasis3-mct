@@ -55,6 +55,7 @@ enum params
   OASIS_COL_MAJOR   = 1,
   OASIS_Ok          = 0,
   OASIS_Success     = 0,
+  OASIS_Error       = -10,
   OASIS_NotDef      = -2,
   OASIS_Var_Uncpl   = -1,
   OASIS_Out         = 20,
@@ -77,6 +78,10 @@ enum params
   OASIS_COMM_WAIT   = 102,
   OASIS_PUT         = 103,
   OASIS_GET         = 104,
+  OASIS_NoRestart   = 0,
+  OASIS_NORESTART   = 0,
+  OASIS_No_Restart  = 0,
+  OASIS_NO_RESTART  = 0,
   CLIM_Strategy     = 1,
   CLIM_Segments     = 2,
   CLIM_Serial       = 0,
@@ -109,15 +114,15 @@ int oasis_c_set_debug(const int debug);
 
 int oasis_c_get_debug(int* debug);
 
-int oasis_c_put_inquire(int varid, int msec);
+int oasis_c_put_inquire(int varid, int msec, int *kinfo);
 
 int oasis_c_get_ncpl(const int varid, int* ncpl);
 
 int oasis_c_get_freqs(const int varid, const int mop, const int ncpl, int* cpl_freqs);
 
-int oasis_c_put(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const void* fld1, const bool write_restart);
+int oasis_c_put(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const int storage, const void* fld1, const bool write_restart, int* kinfo);
 
-int oasis_c_get(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, void* fld1);
+int oasis_c_get(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const int storage, void* fld1, int* kinfo);
 
 int oasis_c_start_grids_writing();
 
@@ -149,6 +154,12 @@ int oasis_c_abort(const int id_compid, const char* cd_routine, const char* cd_me
 
 int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims1, const int id_var_nodims2, const int kinout, const int id_var_shape_size, const int* id_var_shape, const int ktype);
 
+#define IS_VALID_PUT(k) ( k == OASIS_Ok) || ( k == OASIS_Output ) || ( k == OASIS_ToRestOut ) || \
+      ( k == OASIS_ToRest ) || ( k == OASIS_SentOut ) || ( k == OASIS_Sent ) || \
+      ( k == OASIS_LocTrans ) || ( k == OASIS_Waitgroup )
+
+#define IS_VALID_GET(k) ( k == OASIS_Ok) || ( k == OASIS_Input ) || ( k == OASIS_FromRestOut ) || \
+      ( k == OASIS_Recvd ) || ( k == OASIS_RecvOut ) || ( k == OASIS_Output )
 
 #if defined(c_plusplus) || defined(__cplusplus)
 }

@@ -18,6 +18,7 @@
 
 
 #include "oasis_c.h"
+#include "oasis_c_iso.h"
 
 
 int oasis_c_get_localcomm_iso2c(int* localcomm){
@@ -120,10 +121,13 @@ int oasis_c_get_debug(int* debug){
   return kinfo;
 }
 
-int oasis_c_put_inquire(const int varid, const int msec){
-  int kinfo;
-  oasis_put_inquire_iso(&varid, &msec, &kinfo);
-  return kinfo;
+int oasis_c_put_inquire(const int varid, const int msec, int *kinfo){
+  oasis_put_inquire_iso(&varid, &msec, kinfo);
+  if ( IS_VALID_PUT(*kinfo) ) {
+    return OASIS_Ok;
+  } else {
+    return OASIS_Error;
+  }
 }
 
 int oasis_c_get_ncpl(const int varid, int* ncpl){

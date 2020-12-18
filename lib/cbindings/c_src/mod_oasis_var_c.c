@@ -18,9 +18,7 @@
 
 
 #include "oasis_c.h"
-#include <stdlib.h>
-#include <stdio.h>
-
+#include "oasis_c_iso.h"
 
 int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims1, const int id_var_nodims2, const int kinout, const int id_var_shape_size, const int* id_var_shape, const int ktype){
   int kinfo;

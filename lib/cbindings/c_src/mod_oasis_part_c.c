@@ -18,8 +18,7 @@
 
 
 #include "oasis_c.h"
-#include <stdio.h>
-#include <string.h>
+#include "oasis_c_iso.h"
 
 int oasis_c_def_partition(int* id_part, const int kparal_size, const int* kparal, const int ig_size, const char* name){
   int kinfo;
