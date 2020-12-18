@@ -34,6 +34,8 @@ AR          = ar
 ARFLAGS     = -ruv
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared ${NETCDF_LIBRARY}
+# Fortran libraries for C linking
+F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 # CPP keys and compiler options
 # 
@@ -65,5 +67,6 @@ f90FLAGS  = $(f90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
 FFLAGS    = $(FFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
 fFLAGS    = $(fFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
 CCFLAGS   = $(CCFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
+F2C_LDFLAGS = $(F2C_LIBS)
 #
 #############################################################################

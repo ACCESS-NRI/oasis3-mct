@@ -39,6 +39,8 @@ LDDYNOPT    = -shared
 # Static archiver
 AR          = ar
 ARFLAGS     = -ruv
+# Fortran libraries for C linking
+F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 # CPP keys and compiler options
 # 
@@ -57,5 +59,6 @@ FFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 fFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 CCFLAGS  = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 LDFLAGS  = $(FCBASEFLAGS)
+F2C_LDFLAGS = $(F2C_LIBS)
 #
 #############################################################################

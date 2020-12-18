@@ -57,5 +57,6 @@ fFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 CCFLAGS  = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 LDFLAGS  = $(FCBASEFLAGS)
 FLIBS    = $(NETCDF_LIBRARY)
+F2C_LDFLAGS =
 #
 #############################################################################
