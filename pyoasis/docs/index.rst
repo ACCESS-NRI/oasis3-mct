@@ -487,7 +487,7 @@ Component
 | OASIS                              | pyoasis.Component.                |
 +====================================+===================================+
 | oasis_init_comp(comp_id, comp_name,| __init__(name, coupled=True,      |
-| ierror, coupled, comm_world)       |   communicator=MPI.COMM_WORLD)    |
+| ierror, coupled, comm_world)       |   communicator=None)              |
 +------------------------------------+-----------------------------------+
 | oasis_terminate(ierror)            | __del__()                         |
 +------------------------------------+-----------------------------------+
@@ -496,6 +496,9 @@ Component
 +------------------------------------+-----------------------------------+
 | oasis_set_couplcomm(couplcomm,     | set_couplcomm(couplcomm)          |
 | kinfo)                             |                                   |
++------------------------------------+-----------------------------------+
+| oasis_get_multi_intracomm(newcomm, | get_multi_intracomm(complist)     | 
+| cdnam, root_ranks, kinfo)          |                                   |
 +------------------------------------+-----------------------------------+
 | oasis_get_intracomm(newcomm, cdnam,| get_intracomm(compname)           | 
 | kinfo)                             |                                   |
@@ -608,7 +611,7 @@ Utilities
 
 Installation
 ------------
-The sections between brackets are necessary only when Cartopy plots are required, for the examples 10 and 11.
+The sections between brackets are necessary only when Cartopy plots are required, for the examples 11 and 12.
 
 Under GNU/Linux
 +++++++++++++++
@@ -719,7 +722,7 @@ pyOASIS can be tested by issuing, in the directory ${OASIS_ROOT}/pyoasis::
 
     make test
 
-This will test the Python wrapper itself as well as running examples using OASIS (the one in the ``tests`` directory as well as examples 1 to 9). It requires pytest.
+This will test the Python wrapper itself as well as running examples using OASIS (the one in the ``tests`` directory as well as examples 1 to 10). It requires pytest.
 
 
 Documentation

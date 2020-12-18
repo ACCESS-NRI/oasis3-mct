@@ -19,7 +19,7 @@ wrappertest: wrappertest
 completetest: 
 	cd $(PYOASIS)/tests/apple_and_orange && bash run.sh
 
-examples: example1 example2 example3 example4 example5 example6 example8 example7 example9
+examples: example1 example2 example3 example4 example5 example6 example8 example7 example9 example10
 
 example1:
 	cd $(PYOASIS)/examples/1-serial/python && bash run.sh
@@ -46,4 +46,7 @@ example8:
 	cd $(PYOASIS)/examples/8-fortran_and_python && make clean && bash run.sh
 
 example9:
-	cd $(PYOASIS)/examples/9-grid/python && bash run.sh
+	cd $(PYOASIS)/examples/9-python_fortran_C-multi_intracomm  && make clean && bash run.sh
+
+example10:
+	cd $(PYOASIS)/examples/10-grid/python && bash run.sh
