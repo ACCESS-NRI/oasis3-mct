@@ -19,4 +19,14 @@ examples/*/fortran/sender-box
 examples/*/fortran/sender-orange
 examples/*/fortran/sender-points
 examples/*/fortran/writer
+examples/*/C/receiver
+examples/*/C/receiver-orange
+examples/*/C/receiver_one
+examples/*/C/receiver_two
+examples/*/C/sender-serial
+examples/*/C/sender-apple
+examples/*/C/sender-box
+examples/*/C/sender-orange
+examples/*/C/sender-points
+examples/*/C/writer
 *.dSYM
