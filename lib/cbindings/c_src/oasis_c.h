@@ -29,12 +29,32 @@
 extern "C" {
 #endif
 
+#define OASIS_CHECK_ERR(x) { \
+  int retval = (x); \
+  if (retval != OASIS_Ok) { \
+     fprintf(stderr, "Runtime error: %s returned %d at %s:%d\n", #x, retval, __FILE__, __LINE__); \
+     fflush(stderr); \
+     oasis_c_abort(0, #x, "Runtime error", __FILE__, __LINE__); \
+  } \
+}
+
+#define OASIS_CHECK_MPI_ERR(x) { \
+  int retval = (x); \
+  if (retval != MPI_SUCCESS) { \
+     fprintf(stderr, "Runtime MPI error: %s returned %d at %s:%d\n", #x, retval, __FILE__, __LINE__); \
+     fflush(stderr); \
+     oasis_c_abort(0, #x, "Runtime MPI error", __FILE__, __LINE__); \
+  } \
+}
 
 enum params
 {
   OASIS_Real        = 4,
   OASIS_Double      = 8,
+  OASIS_ROW_MAJOR   = 0,
+  OASIS_COL_MAJOR   = 1,
   OASIS_Ok          = 0,
+  OASIS_Success     = 0,
   OASIS_NotDef      = -2,
   OASIS_Var_Uncpl   = -1,
   OASIS_Out         = 20,
