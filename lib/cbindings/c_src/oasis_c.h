@@ -124,9 +124,9 @@ int oasis_c_get_ncpl(const int varid, int* ncpl);
 
 int oasis_c_get_freqs(const int varid, const int mop, const int ncpl, int* cpl_freqs);
 
-int oasis_c_put(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const int storage, const void* fld1, const bool write_restart, int* kinfo);
+int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y_size, const int bundle_size, const int fkind, const int storage, const void* fld1, const bool write_restart, int* kinfo);
 
-int oasis_c_get(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const int storage, void* fld1, int* kinfo);
+int oasis_c_get(const int var_id, const int kstep, const int x_size, const int y_size, const int bundle_size, const int fkind, const int storage, void* fld1, int* kinfo);
 
 int oasis_c_start_grids_writing();
 
@@ -156,7 +156,7 @@ int oasis_c_def_partition(int* id_part, const int kparal_size, const int* kparal
 
 int oasis_c_abort(const int id_compid, const char* cd_routine, const char* cd_message, const char* file, const int line);
 
-int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims, const int kinout, const int ktype);
+int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int bundle_size, const int kinout, const int ktype);
 
 #define IS_VALID_PUT(k) ( k == OASIS_Ok) || ( k == OASIS_Output ) || ( k == OASIS_ToRestOut ) || \
       ( k == OASIS_ToRest ) || ( k == OASIS_SentOut ) || ( k == OASIS_Sent ) || \

@@ -3,8 +3,8 @@
 // Copyright (C) 2019 UKRI - STFC
 
 // This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as 
-// published by the Free Software Foundation, either version 3 of the 
+// it under the terms of the GNU Lesser General Public License as
+// published by the Free Software Foundation, either version 3 of the
 // License, or any later version.
 
 // This program is distributed in the hope that it will be useful,
@@ -13,15 +13,15 @@
 // GNU Lesser General Public License for more details.
 
 // A copy of the GNU Lesser General Public License, version 3, is supplied
-// with this program, in the file lgpl-3.0.txt. It is also available at 
+// with this program, in the file lgpl-3.0.txt. It is also available at
 // <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
 #include "oasis_c.h"
 #include "oasis_c_iso.h"
 
-int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int id_var_nodims, const int kinout, const int ktype){
+int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int bundle_size, const int kinout, const int ktype){
   int kinfo;
-  oasis_def_var_iso(id_nports, &cdport, &id_part, &id_var_nodims, &kinout, &ktype, &kinfo);
+  oasis_def_var_iso(id_nports, &cdport, &id_part, &bundle_size, &kinout, &ktype, &kinfo);
   return kinfo;
 }
