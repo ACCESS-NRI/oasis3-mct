@@ -10,9 +10,9 @@ Oasis TopMakefileOasis3 as documented in \ref{subsec_compile}.
 
 To use the Oasis C bindings, the statement
 
-\vspace{0.2cm}
-  {\tt \#include ``oasis\_c.h''}
-\vspace{0.2cm}
+\begin{verbatim}
+#include "oasis_c.h"
+\end{verbatim}
 
 needs to be added to the C model source code.  All available parameters and
 interfaces are defined there.
@@ -180,5 +180,3 @@ in C.  More information about all these interfaces can be found in the Fortran i
 \item {\tt int oasis\_c\_get\_freqs(const int varid, const int mop, const int ncpl, int*  cpl\_freqs)}
 
 \end{itemize}
-
-
