@@ -23,7 +23,8 @@
 #include <string.h>
 
 int oasis_c_put(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const int storage, const void* fld1, const bool write_restart, int* kinfo){
-  if ( storage == OASIS_COL_MAJOR ) {
+  bool storage_is1D = ((int)( size1 == 1 ) + (int)( size2 == 1 ) + (int)( size3 == 1 )) == 2;
+  if ( storage == OASIS_COL_MAJOR || storage_is1D ) {
     if ( fkind == OASIS_Real) {
       oasis_put_iso_float(&var_id, &kstep, &size1, &size2, &size3, (float*)fld1, kinfo, &write_restart);
     } else {
@@ -35,8 +36,8 @@ int oasis_c_put(const int var_id, const int kstep, const int size1, const int si
       fld2 = (float*) malloc(size1*size2*size3*sizeof(float));
       for (int i=0; i<size1; i++) {
 	for (int j=0; j<size2; j++) {
-	  for (int k=0; i<size3; k++) {
-	    memcpy(&fld2[k*size2*size1+j*size1+i], &fld1[i*size2*size3+j*size3+k], sizeof(float));
+	  for (int k=0; k<size3; k++) {
+	    memcpy(fld2+k*size2*size1+j*size1+i, fld1+(i*size2*size3+j*size3+k)*sizeof(float), sizeof(float));
 	  }
 	}
       }
@@ -47,8 +48,8 @@ int oasis_c_put(const int var_id, const int kstep, const int size1, const int si
       fld2 = (double*) malloc(size1*size2*size3*sizeof(double));
       for (int i=0; i<size1; i++) {
 	for (int j=0; j<size2; j++) {
-	  for (int k=0; i<size3; k++) {
-	    memcpy(&fld2[k*size2*size1+j*size1+i], &fld1[i*size2*size3+j*size3+k], sizeof(double));
+	  for (int k=0; k<size3; k++) {
+	    memcpy(fld2+k*size2*size1+j*size1+i, fld1+(i*size2*size3+j*size3+k)*sizeof(double), sizeof(double));
 	  }
 	}
       }
@@ -64,7 +65,8 @@ int oasis_c_put(const int var_id, const int kstep, const int size1, const int si
 }
 
 int oasis_c_get(const int var_id, const int kstep, const int size1, const int size2, const int size3, const int fkind, const int storage, void* fld1, int* kinfo){
-  if ( storage == OASIS_COL_MAJOR ) {
+  bool storage_is1D = ((int)( size1 == 1 ) + (int)( size2 == 1 ) + (int)( size3 == 1 )) == 2;
+  if ( storage == OASIS_COL_MAJOR || storage_is1D ) {
     if ( fkind == OASIS_Real) {
       oasis_get_iso_float(&var_id, &kstep, &size1, &size2, &size3, (float*)fld1, kinfo);
     } else {
@@ -77,8 +79,8 @@ int oasis_c_get(const int var_id, const int kstep, const int size1, const int si
       oasis_get_iso_float(&var_id, &kstep, &size1, &size2, &size3, fld2, kinfo);
       for (int i=0; i<size1; i++) {
 	for (int j=0; j<size2; j++) {
-	  for (int k=0; i<size3; k++) {
-	    memcpy(&fld1[i*size2*size3+j*size3+k], &fld2[k*size2*size1+j*size1+i], sizeof(float));
+	  for (int k=0; k<size3; k++) {
+	    memcpy(fld1+(i*size2*size3+j*size3+k)*sizeof(float), fld2+k*size2*size1+j*size1+i, sizeof(float));
 	  }
 	}
       }
@@ -89,8 +91,8 @@ int oasis_c_get(const int var_id, const int kstep, const int size1, const int si
       oasis_get_iso_double(&var_id, &kstep, &size1, &size2, &size3, fld2, kinfo);
       for (int i=0; i<size1; i++) {
 	for (int j=0; j<size2; j++) {
-	  for (int k=0; i<size3; k++) {
-	    memcpy(&fld1[i*size2*size3+j*size3+k], &fld2[k*size2*size1+j*size1+i], sizeof(double));
+	  for (int k=0; k<size3; k++) {
+	    memcpy(fld1+(i*size2*size3+j*size3+k)*sizeof(double), fld2+k*size2*size1+j*size1+i, sizeof(double));
 	  }
 	}
       }
