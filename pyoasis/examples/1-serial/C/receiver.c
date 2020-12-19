@@ -29,10 +29,10 @@ int main(int argc, char *argv[])
 
   char *var_name  = "FRECVATM";
   fprintf(stdout, "Receiver: var_name %s\n", var_name);
-  int var_nodims = 1;
+  int bundle_size = 1;
   int var_id;
 
-  OASIS_CHECK_ERR(oasis_c_def_var(&var_id, var_name, part_id, var_nodims, OASIS_IN, OASIS_REAL));
+  OASIS_CHECK_ERR(oasis_c_def_var(&var_id, var_name, part_id, bundle_size, OASIS_IN, OASIS_REAL));
   fprintf(stdout, "Sender: var_id %d\n", var_id);
   fflush(stdout);
   
@@ -60,6 +60,12 @@ int main(int argc, char *argv[])
   if (error < epsilon) {
     fprintf(stdout, "Receiver: Data received successfully\n");
     fflush(stdout);
-  }
+  } else {
+    fprintf(stdout, "Receiver: Got first ten elements\n");
+    for ( int i = 0; i<10 ; i++ ) {
+      fprintf(stdout, "Element %d contains %f instead of %f\n", i, field[i], (float) i);
+    }
+    fflush(stdout);
+  }    
   
 }

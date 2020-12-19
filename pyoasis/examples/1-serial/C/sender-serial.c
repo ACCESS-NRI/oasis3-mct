@@ -28,10 +28,10 @@ int main(int argc, char *argv[])
 
   char *var_name  = "FSENDOCN";
   fprintf(stdout, "Sender: var_name %s\n", var_name);
-  int var_nodims = 1;
+  int bundle_size = 1;
   int var_id;
 
-  OASIS_CHECK_ERR(oasis_c_def_var(&var_id, var_name, part_id, var_nodims, OASIS_OUT, OASIS_REAL));
+  OASIS_CHECK_ERR(oasis_c_def_var(&var_id, var_name, part_id, bundle_size, OASIS_OUT, OASIS_REAL));
   fprintf(stdout, "Sender: var_id %d\n", var_id);
   fflush(stdout);
   
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   int date = 0;
 
   int kinfo;
-  OASIS_CHECK_ERR(oasis_c_put(var_id, date, n_points, 1, 1, OASIS_REAL, OASIS_COL_MAJOR, field, OASIS_NoRestart, &kinfo));
+  OASIS_CHECK_ERR(oasis_c_put(var_id, date, n_points, 1, 1, OASIS_REAL, OASIS_COL_MAJOR, field, OASIS_No_Restart, &kinfo));
   fprintf(stdout, "Sender: oasis_c_put returned kinfo = %d\n", kinfo);
   fflush(stdout);
   
