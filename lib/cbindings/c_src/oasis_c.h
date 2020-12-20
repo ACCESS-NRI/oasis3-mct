@@ -47,7 +47,7 @@ extern "C" {
   } \
 }
 
-enum params
+enum mnemonic_params
 {
   OASIS_Real          = 4,
   OASIS_REAL          = 4,
@@ -55,15 +55,50 @@ enum params
   OASIS_DOUBLE        = 8,
   OASIS_ROW_MAJOR     = 0,
   OASIS_COL_MAJOR     = 1,
+  OASIS_Out           = 20,
+  OASIS_OUT           = 20,
+  OASIS_In            = 21,
+  OASIS_IN            = 21,
+  OASIS_Coupled       = 1,
+  OASIS_COUPLED       = 1,
+  OASIS_Not_Coupled   = 0,
+  OASIS_NOT_COUPLED   = 0,
+  OASIS_Write_Restart = 1,
+  OASIS_WRITE_RESTART = 1,
+  OASIS_No_Restart    = 0,
+  OASIS_NO_RESTART    = 0
+};
+  
+enum partition_params {
+  OASIS_Part_Serial        = 0,
+  OASIS_Part_Apple         = 1,
+  OASIS_Part_Box           = 2,
+  OASIS_Part_Orange        = 3,
+  OASIS_Part_Points        = 4,
+  OASIS_Part_Strategy      = 0,
+  OASIS_Part_Segments      = 1,
+  OASIS_Part_Offset        = 1,
+  OASIS_Part_Length        = 2,
+  OASIS_Part_SizeX         = 2,
+  OASIS_Part_SizeY         = 3,
+  OASIS_Part_LdX           = 4,
+  OASIS_Part_Serial_Params = 3,    
+  OASIS_Part_Apple_Params  = 3,    
+  OASIS_Part_Box_Params    = 5,    
+  OASIS_Part_No_Gsize      = 0
+};
+
+#define OASIS_Part_No_Name ""
+#define OASIS_Part_Orange_Params(n_segments) (2 + 2*n_segments)
+#define OASIS_Part_Points_Params(n_points) (2 + n_points)
+ 
+enum return_codes
+{
   OASIS_Ok            = 0,
   OASIS_Success       = 0,
   OASIS_Error         = -10,
   OASIS_NotDef        = -2,
   OASIS_Var_Uncpl     = -1,
-  OASIS_Out           = 20,
-  OASIS_OUT           = 20,
-  OASIS_In            = 21,
-  OASIS_IN            = 21,
   OASIS_InOut         = 2,
   OASIS_Recvd         = 3,
   OASIS_Sent          = 4,
@@ -76,28 +111,7 @@ enum params
   OASIS_Input         = 11,
   OASIS_RecvOut       = 12,
   OASIS_FromRestOut   = 13,
-  OASIS_Waitgroup     = 14,
-  OASIS_NONE          = 100,
-  OASIS_COMM_READY    = 101,
-  OASIS_COMM_WAIT     = 102,
-  OASIS_PUT           = 103,
-  OASIS_GET           = 104,
-  OASIS_No_Restart    = 0,
-  OASIS_NO_RESTART    = 0,
-  OASIS_Write_Restart = 1,
-  OASIS_WRITE_RESTART = 1,
-  CLIM_Strategy       = 1,
-  CLIM_Segments       = 2,
-  CLIM_Serial         = 0,
-  CLIM_Apple          = 1,
-  CLIM_Box            = 2,
-  CLIM_Orange         = 3,
-  CLIM_Points         = 4,
-  CLIM_Offset         = 2,
-  CLIM_Length         = 3,
-  CLIM_SizeX          = 3,
-  CLIM_SizeY          = 4,
-  CLIM_LdX            = 5
+  OASIS_Waitgroup     = 14
 };
 
 // C interfaces with MPI Communicator defined as C MPI_Comm (for C)

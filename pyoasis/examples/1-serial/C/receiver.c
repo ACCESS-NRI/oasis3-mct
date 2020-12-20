@@ -8,22 +8,21 @@ int main(int argc, char *argv[])
   fprintf(stdout,"Component name: %s\n", comp_name);
   fflush(stdout);
 
-  const bool coupled = 1;
   int comp_id;
 
-  OASIS_CHECK_ERR(oasis_c_init_comp(&comp_id, comp_name, coupled));
+  OASIS_CHECK_ERR(oasis_c_init_comp(&comp_id, comp_name, OASIS_COUPLED));
   fprintf(stdout, "Receiver: Component ID: %d\n", comp_id);
   fflush(stdout);
 
   const int n_points = 1600;
-  const int part_params_size = 3;
-  int part_params[part_params_size];
-  part_params[0] = 0;
-  part_params[1] = 0;
-  part_params[2] = n_points;
+  int part_params[OASIS_Part_Serial_Params];
+  part_params[OASIS_Part_Strategy] = OASIS_Part_Serial;
+  part_params[OASIS_Part_Length] = n_points;
   int part_id;
 
-  OASIS_CHECK_ERR(oasis_c_def_partition(&part_id, part_params_size, part_params, 0, ""));
+  OASIS_CHECK_ERR(oasis_c_def_partition(&part_id, OASIS_Part_Serial_Params,
+					part_params, OASIS_Part_No_Gsize,
+					OASIS_Part_No_Name));
   fprintf(stdout, "Receiver: part_id: %d\n", part_id);
   fflush(stdout);
 
