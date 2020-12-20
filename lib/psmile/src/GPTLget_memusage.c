@@ -29,17 +29,17 @@
 #include <sys/time.h>
 #endif
 
-#ifdef HAVE_SLASHPROC
+#ifdef __APPLE__
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#elif (defined HAVE_SLASHPROC)
 
 #include <sys/time.h>
 #include <sys/types.h>
 #include <stdio.h>
-#include <unistd.h>
-
-#elif (defined __APPLE__)
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 
 #endif
@@ -106,6 +106,23 @@ int gptlget_memusage_ (int *size, int *rss, int *share, int *text, int *datastac
   *text     = -1;
   *datastack = -1;
 
+#elif (defined __APPLE__)
+
+  FILE *fd;
+  char cmd[60];  
+  int pid = (int) getpid ();
+  
+  sprintf (cmd, "ps -o vsz -o rss -o tsiz -p %d | grep -v RSS", pid);
+  fd = popen (cmd, "r");
+
+  if (fd) {
+    fscanf (fd, "%d %d %d", size, rss, text);
+    *share     = -1;
+    *datastack = -1;
+    (void) pclose (fd);
+  }
+
+  return 0;
 
 #elif (defined HAVE_SLASHPROC)
   FILE *fd;                       /* file descriptor for fopen */
@@ -140,24 +157,6 @@ int gptlget_memusage_ (int *size, int *rss, int *share, int *text, int *datastac
   ret = fscanf (fd, "%d %d %d %d %d %d %d", 
 		size, rss, share, text, datastack, &dum, &dum);
   ret = fclose (fd);
-  return 0;
-
-#elif (defined __APPLE__)
-
-  FILE *fd;
-  char cmd[60];  
-  int pid = (int) getpid ();
-  
-  sprintf (cmd, "ps -o vsz -o rss -o tsiz -p %d | grep -v RSS", pid);
-  fd = popen (cmd, "r");
-
-  if (fd) {
-    fscanf (fd, "%d %d %d", size, rss, text);
-    *share     = -1;
-    *datastack = -1;
-    (void) pclose (fd);
-  }
-
   return 0;
 
 #else
