@@ -57,7 +57,11 @@ program receiver
       end do
    end if
    call mpi_bcast(il_x, 1, MPI_INTEGER, root, intra_comm, kinfo)
-   print '(A,I0,A,I0)', "Receiver rank(",comm_rank,") got broadcasted il_x = ",il_x
+   if (il_x == 222) then
+      print '(A,I0,A,I0)', "Receiver rank(",comm_rank,") successfully got broadcasted il_x = ",il_x
+   else
+      print '(A,I0,A,I0)', "Receiver rank(",comm_rank,") got broadcasted il_x = ",il_x
+   end if
 
    call oasis_terminate(kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &

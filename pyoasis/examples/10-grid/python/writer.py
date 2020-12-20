@@ -203,4 +203,7 @@ if comm_rank == 0:
     mf.close()
     gf.close()
 
+if comm_rank == 0:
+    print("Writer: successfully ended writing grids")
+
 del comp
