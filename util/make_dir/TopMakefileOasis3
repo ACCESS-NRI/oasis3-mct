@@ -203,8 +203,7 @@ clean-pyoasis:
 makemct-static:
 	@echo "=> Configuring libraries mpeu and mct"
 	@(cd $(LIBBUILD)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
-         ./configure MPIFC="$(F90)" FC="$(F90)" FCFLAGS="$(FFLAGS)" \
-         CC="$(CC)" "CFLAGS=$(CCFLAGS)" \
+         ./configure MPIFC="$(F90)" FC="$(F90)" CC="$(CC)" \
          1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ;)
 	@echo "=> Compiling libraries mpeu and mct"
 	@(cd $(LIBBUILD)/mctdir; \
@@ -218,8 +217,7 @@ makemct-static:
 makemct-shared:
 	@echo "=> Configuring shared libraries mpeu and mct"
 	@(cd $(LIBBUILDSHARED)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
-         ./configure MPIFC="$(F90)" FC="$(F90)" FCFLAGS="$(FFLAGS) $(DYNOPT)" \
-         CC="$(CC)" "CFLAGS=$(CCFLAGS) $(DYNOPT)" \
+         ./configure MPIFC="$(F90)" FC="$(F90) $(DYNOPT)" CC="$(CC) $(DYNOPT)" \
          1>> $(LOGSHARED) 2>> $(ERRSHARED) ;)
 	@echo "=> Compiling shared libraries mpeu and mct"
 	@(cd $(LIBBUILDSHARED)/mctdir; \
