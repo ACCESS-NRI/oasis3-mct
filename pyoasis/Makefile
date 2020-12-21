@@ -50,3 +50,23 @@ example9:
 
 example10:
 	cd $(PYOASIS)/examples/10-grid/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
+
+examples_f: example1_f example2_f
+
+example1_f:
+	cd $(PYOASIS)/examples/1-serial/fortran && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
+example2_f:
+	cd $(PYOASIS)/examples/2-apple/fortran && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
+
+examples_c: example1_c example2_c
+
+example1_c:
+	cd $(PYOASIS)/examples/1-serial/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
+example2_c:
+	cd $(PYOASIS)/examples/2-apple/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
+

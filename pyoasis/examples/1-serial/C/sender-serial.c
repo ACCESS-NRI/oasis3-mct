@@ -14,14 +14,14 @@ int main(int argc, char *argv[])
   fflush(stdout);
 
   const int n_points = 1600;
-  int part_params[OASIS_Part_Serial_Params];
-  part_params[OASIS_Part_Strategy] = OASIS_Part_Serial;
-  part_params[OASIS_Part_Length] = n_points;
+  int part_params[OASIS_Serial_Params];
+  part_params[OASIS_Strategy] = OASIS_Serial;
+  part_params[OASIS_Length] = n_points;
   int part_id;
 
-  OASIS_CHECK_ERR(oasis_c_def_partition(&part_id, OASIS_Part_Serial_Params,
-					part_params, OASIS_Part_No_Gsize,
-					OASIS_Part_No_Name));
+  OASIS_CHECK_ERR(oasis_c_def_partition(&part_id, OASIS_Serial_Params,
+					part_params, OASIS_No_Gsize,
+					OASIS_No_Name));
   fprintf(stdout, "Sender: part_id: %d\n", part_id);
   fflush(stdout);
 

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include "mpi.h"
 #include "oasis_c.h"
 
 int main(int argc, char *argv[])
@@ -8,13 +9,17 @@ int main(int argc, char *argv[])
   fprintf(stdout,"Component name: %s\n", comp_name);
   fflush(stdout);
 
-  int comp_id;
+  OASIS_CHECK_MPI_ERR(MPI_Init(&argc, &argv));
 
-  OASIS_CHECK_ERR(oasis_c_init_comp(&comp_id, comp_name, OASIS_COUPLED));
+  MPI_Comm commworld;
+  OASIS_CHECK_MPI_ERR(MPI_Comm_split(MPI_COMM_WORLD, 1, 0, &commworld));
+  
+  int comp_id;
+  OASIS_CHECK_ERR(oasis_c_init_comp_with_comm(&comp_id, comp_name, OASIS_COUPLED, commworld));
   fprintf(stdout, "Receiver: Component ID: %d\n", comp_id);
   fflush(stdout);
 
-  const int n_points = 1600;
+  const int n_points = 16;
   int part_params[OASIS_Serial_Params];
   part_params[OASIS_Strategy] = OASIS_Serial;
   part_params[OASIS_Length] = n_points;
@@ -66,5 +71,7 @@ int main(int argc, char *argv[])
     }
     fflush(stdout);
   }    
+
+  OASIS_CHECK_MPI_ERR(MPI_Finalize());
   
 }
