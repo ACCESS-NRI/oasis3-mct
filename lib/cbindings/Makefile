@@ -32,49 +32,49 @@ libshared: header $(OBJS_F) $(OBJS_C)
 
 # C
 
-mod_oasis_part_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_part_c.c
+mod_oasis_part_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_part_c.c $(OBJS_F)
 	$(CC) $(CFLAGS) -c $(SRC_C)/mod_oasis_part_c.c
 
-mod_oasis_var_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_var_c.c
+mod_oasis_var_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_var_c.c $(OBJS_F)
 	$(CC) $(CFLAGS) -c $(SRC_C)/mod_oasis_var_c.c
 
-mod_oasis_getput_interface_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_getput_interface_c.c
+mod_oasis_getput_interface_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_getput_interface_c.c $(OBJS_F)
 	$(CC) $(CFLAGS) -c $(SRC_C)/mod_oasis_getput_interface_c.c
 
-mod_oasis_auxiliary_routines_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_auxiliary_routines_c.c
+mod_oasis_auxiliary_routines_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_auxiliary_routines_c.c $(OBJS_F)
 	$(CC) $(CFLAGS) -c  $(SRC_C)/mod_oasis_auxiliary_routines_c.c
 
-mod_oasis_sys_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_sys_c.c
+mod_oasis_sys_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_sys_c.c $(OBJS_F)
 	$(CC) $(CFLAGS) -c  $(SRC_C)/mod_oasis_sys_c.c
 
-mod_oasis_method_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_method_c.c
+mod_oasis_method_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_method_c.c $(OBJS_F)
 	$(CC) $(CFLAGS) -c  $(SRC_C)/mod_oasis_method_c.c
 
-mod_oasis_grid_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_grid_c.c
+mod_oasis_grid_c.o: $(SRC_C)/oasis_c.h $(SRC_C)/mod_oasis_grid_c.c $(OBJS_F)
 	$(CC) $(CFLAGS) -c  $(SRC_C)/mod_oasis_grid_c.c
 
 
 # ISO C Fortran
 
-mod_oasis_getput_interface_iso.o: $(SRC_F)/mod_oasis_getput_interface_iso.F90
+mod_oasis_getput_interface_iso.o: $(SRC_F)/mod_oasis_getput_interface_iso.F90 cbindings.o
 	$(F90) $(FFLAGS) -c $(SRC_F)/mod_oasis_getput_interface_iso.F90
 
-mod_oasis_var_iso.o: $(SRC_F)/mod_oasis_var_iso.F90
+mod_oasis_var_iso.o: $(SRC_F)/mod_oasis_var_iso.F90 cbindings.o
 	$(F90) $(FFLAGS) -c  $(SRC_F)/mod_oasis_var_iso.F90
 
-mod_oasis_part_iso.o: $(SRC_F)/mod_oasis_part_iso.F90
+mod_oasis_part_iso.o: $(SRC_F)/mod_oasis_part_iso.F90 cbindings.o
 	$(F90) $(FFLAGS) -c  $(SRC_F)/mod_oasis_part_iso.F90
 
-mod_oasis_auxiliary_routines_iso.o: $(SRC_F)/mod_oasis_auxiliary_routines_iso.F90
+mod_oasis_auxiliary_routines_iso.o: $(SRC_F)/mod_oasis_auxiliary_routines_iso.F90 cbindings.o
 	$(F90) $(FFLAGS) -c  $(SRC_F)/mod_oasis_auxiliary_routines_iso.F90
 
-mod_oasis_sys_iso.o: $(SRC_F)/mod_oasis_sys_iso.F90
+mod_oasis_sys_iso.o: $(SRC_F)/mod_oasis_sys_iso.F90 cbindings.o
 	$(F90) $(FFLAGS) -c  $(SRC_F)/mod_oasis_sys_iso.F90
 
-mod_oasis_method_iso.o: $(SRC_F)/mod_oasis_method_iso.F90
+mod_oasis_method_iso.o: $(SRC_F)/mod_oasis_method_iso.F90 cbindings.o
 	$(F90) $(FFLAGS) -c $(SRC_F)/mod_oasis_method_iso.F90
 
-mod_oasis_grid_iso.o: $(SRC_F)/mod_oasis_grid_iso.F90
+mod_oasis_grid_iso.o: $(SRC_F)/mod_oasis_grid_iso.F90 cbindings.o
 	$(F90) $(FFLAGS) -c $(SRC_F)/mod_oasis_grid_iso.F90
 
 cbindings.o: $(SRC_F)/cbindings.F90

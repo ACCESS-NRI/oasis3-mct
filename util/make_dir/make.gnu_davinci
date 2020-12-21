@@ -1,5 +1,5 @@
 #
-# Include file for OASIS3 Makefile for a Linux system using 
+# Include file for OASIS3 Makefile for a Linux system using
 # Intel compilers and MPI
 #
 ###############################################################################
@@ -26,7 +26,7 @@ NETCDF_LIBRARY = -L/usr/lib64 -lnetcdff -lnetcdf
 #
 # Make command
 MAKE        = gmake
-# Compilers 
+# Compilers
 F90         = mpifort # underlying gfortran from module load mpi/openmpi/405_gcc731
 F           = $(F90)
 f90         = $(F90)
@@ -42,7 +42,7 @@ AR          = ar
 ARFLAGS     = -ruv
 #
 # CPP keys and compiler options
-# 
+#
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
 FCBASEFLAGS  = -O2 -ffree-line-length-512
@@ -50,7 +50,7 @@ FCBASEFLAGS  = -O2 -ffree-line-length-512
 CCBASEFLAGS  = -O2
 #
 # INC_DIR : includes all *mod for each library
-INC_DIR = -I$(ARCHDIR)/include 
+INC_DIR = -I$(ARCHDIR)/include
 #
 F90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)
 f90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)
@@ -58,6 +58,6 @@ FFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MO
 fFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)
 CCFLAGS  = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)
 LDFLAGS  = $(FCBASEFLAGS)
-F2C_LDFLAGS =
+F2C_LDFLAGS = -lmpi_mpifh -lgfortran -lm
 #
 #############################################################################

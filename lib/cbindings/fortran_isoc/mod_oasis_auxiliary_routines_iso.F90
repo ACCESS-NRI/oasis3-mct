@@ -137,13 +137,15 @@ subroutine oasis_get_multi_intracomm_iso(new_comm, cdnam_size, cdnam, root_ranks
   integer (c_int), intent(inout) :: kinfo
 
   integer :: new_comm_f
-  character(len=:), allocatable  :: cdnam_f(:)
+  integer :: cdnam_size_f
+  character(len=:), allocatable, dimension(:)  :: cdnam_f
   integer :: kinfo_f
 
   integer :: ib_str
 
   kinfo_f=kinfo
-  cdnam_f=foasis_stringarray_to_fortran(cdnam_size, cdnam)
+  cdnam_size_f=cdnam_size
+  call foasis_stringarray_to_fortran(cdnam_size_f, cdnam, cdnam_f)
 
   call oasis_get_multi_intracomm(new_comm_f, cdnam_f, root_ranks, kinfo_f)
 
