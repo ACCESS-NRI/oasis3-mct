@@ -217,7 +217,7 @@ makemct-static:
 makemct-shared:
 	@echo "=> Configuring shared libraries mpeu and mct"
 	@(cd $(LIBBUILDSHARED)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
-         ./configure MPIFC="$(F90)" FC="$(F90) $(DYNOPT)" CC="$(CC) $(DYNOPT)" \
+         ./configure MPIFC="$(F90) $(DYNOPT)" FC="$(F90) $(DYNOPT)" CC="$(CC) $(DYNOPT)" \
          1>> $(LOGSHARED) 2>> $(ERRSHARED) ;)
 	@echo "=> Compiling shared libraries mpeu and mct"
 	@(cd $(LIBBUILDSHARED)/mctdir; \
