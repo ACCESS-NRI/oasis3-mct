@@ -70,27 +70,27 @@ enum mnemonic_params
 };
   
 enum partition_params {
-  OASIS_Part_Serial        = 0,
-  OASIS_Part_Apple         = 1,
-  OASIS_Part_Box           = 2,
-  OASIS_Part_Orange        = 3,
-  OASIS_Part_Points        = 4,
-  OASIS_Part_Strategy      = 0,
-  OASIS_Part_Segments      = 1,
-  OASIS_Part_Offset        = 1,
-  OASIS_Part_Length        = 2,
-  OASIS_Part_SizeX         = 2,
-  OASIS_Part_SizeY         = 3,
-  OASIS_Part_LdX           = 4,
-  OASIS_Part_Serial_Params = 3,    
-  OASIS_Part_Apple_Params  = 3,    
-  OASIS_Part_Box_Params    = 5,    
-  OASIS_Part_No_Gsize      = 0
+  OASIS_Serial        = 0,
+  OASIS_Apple         = 1,
+  OASIS_Box           = 2,
+  OASIS_Orange        = 3,
+  OASIS_Points        = 4,
+  OASIS_Strategy      = 0,
+  OASIS_Segments      = 1,
+  OASIS_Offset        = 1,
+  OASIS_Length        = 2,
+  OASIS_SizeX         = 2,
+  OASIS_SizeY         = 3,
+  OASIS_LdX           = 4,
+  OASIS_Serial_Params = 3,    
+  OASIS_Apple_Params  = 3,    
+  OASIS_Box_Params    = 5,    
+  OASIS_No_Gsize      = 0
 };
 
-#define OASIS_Part_No_Name ""
-#define OASIS_Part_Orange_Params(n_segments) (2 + 2*n_segments)
-#define OASIS_Part_Points_Params(n_points) (2 + n_points)
+#define OASIS_No_Name ""
+#define OASIS_Orange_Params(n_segments) (2 + 2*n_segments)
+#define OASIS_Points_Params(n_points) (2 + n_points)
  
 enum return_codes
 {

@@ -114,6 +114,29 @@ MODULE mod_oasis_parameters
   INTEGER (kind=ip_intwp_p), PARAMETER :: CLIM_SizeY    = 4 
   INTEGER (kind=ip_intwp_p), PARAMETER :: CLIM_LdX      = 5 
 
+  INTEGER (kind=ip_intwp_p), PARAMETER :: CLIM_Serial_Params = 3
+  INTEGER (kind=ip_intwp_p), PARAMETER :: CLIM_Apple_Params  = 3
+  INTEGER (kind=ip_intwp_p), PARAMETER :: CLIM_Box_Params    = 5
+
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Strategy = CLIM_Strategy 
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Segments = CLIM_Segments 
+                                                          
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Serial   = CLIM_Serial   
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Apple    = CLIM_Apple    
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Box      = CLIM_Box      
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Orange   = CLIM_Orange   
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Points   = CLIM_Points   
+                                                          
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Offset   = CLIM_Offset   
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Length   = CLIM_Length   
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_SizeX    = CLIM_SizeX    
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_SizeY    = CLIM_SizeY    
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_LdX      = CLIM_LdX      
+
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Serial_Params = CLIM_Serial_Params
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Apple_Params  = CLIM_Apple_Params
+  INTEGER (kind=ip_intwp_p), PARAMETER :: OASIS_Box_Params    = CLIM_Box_Params
+  
 !-----Datatypes
 
   INTEGER (kind=ip_intwp_p), PARAMETER :: PRISM_Real   = 4  
@@ -155,6 +178,28 @@ MODULE mod_oasis_parameters
 !  INTEGER (kind=ip_intwp_p), PARAMETER :: CLIM_Mpi       = -22 
 !  INTEGER (kind=ip_intwp_p), PARAMETER :: PRISM_NotFreq  = -23 
 !
+
+CONTAINS
+
+   INTEGER (kind=ip_intwp_p) FUNCTION CLIM_Orange_Params(n_segments)
+      INTEGER (kind=ip_intwp_p), INTENT(IN) :: n_segments
+      CLIM_Orange_Params = 2 + 2*n_segments
+   END FUNCTION CLIM_Orange_Params
+
+   INTEGER (kind=ip_intwp_p) FUNCTION CLIM_Points_Params(n_points)
+      INTEGER (kind=ip_intwp_p), INTENT(IN) :: n_points
+      CLIM_Points_Params = 2 + n_points
+   END FUNCTION CLIM_Points_Params
+
+   INTEGER (kind=ip_intwp_p) FUNCTION OASIS_Orange_Params(n_segments)
+      INTEGER (kind=ip_intwp_p), INTENT(IN) :: n_segments
+      OASIS_Orange_Params = 2 + 2*n_segments
+   END FUNCTION OASIS_Orange_Params
+
+   INTEGER (kind=ip_intwp_p) FUNCTION OASIS_Points_Params(n_points)
+      INTEGER (kind=ip_intwp_p), INTENT(IN) :: n_points
+      OASIS_Points_Params = 2 + n_points
+   END FUNCTION OASIS_Points_Params
 
 END MODULE mod_oasis_parameters
 
