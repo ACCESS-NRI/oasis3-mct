@@ -4,7 +4,6 @@ docs/_build
 tests/*/work/
 examples/*/work
 examples/*/sender-apple
-examples/*/receiver-serial
 examples/*/receiver
 examples/*/nonactive
 examples/*/xios
@@ -13,11 +12,13 @@ examples/*/*/receiver
 examples/*/*/receiver-orange
 examples/*/*/receiver_one
 examples/*/*/receiver_two
+examples/*/*/receiver-serial
 examples/*/*/sender-serial
 examples/*/*/sender-apple
 examples/*/*/sender-box
 examples/*/*/sender-orange
 examples/*/*/sender-points
+examples/*/*/sendrecv-orange
 examples/*/*/writer
 examples/*/*/non_oasis
 *.dSYM

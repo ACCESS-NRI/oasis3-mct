@@ -43,7 +43,7 @@ example7:
 	cd $(PYOASIS)/examples/7-multiple-puts/python && (bash run.sh | tee test_output.txt) && grep -iq "field 2 received successfully at time 40800" test_output.txt && rm -f test_output.txt
 
 example8:
-	cd $(PYOASIS)/examples/8-fortran_and_python && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+	cd $(PYOASIS)/examples/8-interoperability/fortran_and_python && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 example9:
 	cd $(PYOASIS)/examples/9-python_fortran_C-multi_intracomm  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -52,7 +52,7 @@ example10:
 	cd $(PYOASIS)/examples/10-grid/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 
-examples_f: example1_f example2_f example3_f example4_f example5_f example6_f example7_f
+examples_f: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example8_f
 
 example1_f:
 	cd $(PYOASIS)/examples/1-serial/fortran && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -75,8 +75,11 @@ example6_f:
 example7_f:
 	cd $(PYOASIS)/examples/7-multiple-puts/fortran && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
+example8_f:
+	cd $(PYOASIS)/examples/8-interoperability/fortran_and_python && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
-examples_c: example1_c example2_c example3_c example4_c example5_c example6_c example7_c
+
+examples_c: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c
 
 example1_c:
 	cd $(PYOASIS)/examples/1-serial/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -98,3 +101,6 @@ example6_c:
 
 example7_c:
 	cd $(PYOASIS)/examples/7-multiple-puts/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
+example8_c:
+	cd $(PYOASIS)/examples/8-interoperability/fortran_and_C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
