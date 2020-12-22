@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
   OASIS_CHECK_ERR(oasis_c_def_partition(&part_id, OASIS_Box_Params,
 					part_params, OASIS_No_Gsize,
 					OASIS_No_Name));
-  fprintf(stdout, "Receiver: part_id: %d\n", part_id);
+  fprintf(stdout, "Sender rank(%d): part_id: %d\n", comm_rank, part_id);
   fflush(stdout);
 
   char *var_name  = "FSENDOCN";
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
   int date = 0;
 
   int kinfo;
-  OASIS_CHECK_ERR(oasis_c_put(var_id, date, local_size, 1, 1, OASIS_REAL, OASIS_COL_MAJOR, field, OASIS_No_Restart, &kinfo));
+  OASIS_CHECK_ERR(oasis_c_put(var_id, date, local_size, 1, bundle_size, OASIS_REAL, OASIS_COL_MAJOR, field, OASIS_No_Restart, &kinfo));
   fprintf(stdout, "Sender rank(%d): oasis_c_put returned kinfo = %d\n", comm_rank, kinfo);
   fflush(stdout);
 

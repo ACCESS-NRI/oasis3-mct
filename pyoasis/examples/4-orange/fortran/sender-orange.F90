@@ -47,7 +47,7 @@ program sender_orange
 
       if ( mod(n_points,comm_size) /= 0) &
          &  call oasis_abort(comp_id, comp_name, &
-         & "Sender: comm_size has to divide n_points exaclty", rcode=kinfo)
+         & "Sender: comm_size has to divide n_points exactly", rcode=kinfo)
 
       local_size=n_points/comm_size
       offset=comm_rank*local_size
@@ -57,9 +57,10 @@ program sender_orange
       part_params(OASIS_Strategy) = OASIS_Orange
       part_params(OASIS_Segments) = n_segments
       do i = 0, n_segments-1
-         part_params(OASIS_Segments + i + 1) = offset
-         part_params(OASIS_Segments + i + 2) = local_size
+         part_params(OASIS_Segments + 2*i + 1) = offset
+         part_params(OASIS_Segments + 2*i + 2) = local_size
       end do
+
       call oasis_def_partition(part_id, part_params, kinfo)
       if(kinfo<0) call oasis_abort(comp_id, comp_name, &
          & "Error in oasis_def_partition: ", rcode=kinfo)

@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <math.h>
-#include "mpi.h"
 #include "oasis_c.h"
 
 int main(int argc, char *argv[])
@@ -37,29 +36,6 @@ int main(int argc, char *argv[])
   fflush(stdout);
 
   OASIS_CHECK_ERR(oasis_c_enddef());
-
-  MPI_Comm intra_comm;
-  OASIS_CHECK_ERR(oasis_c_get_intracomm(&intra_comm, "sender-box"));
-
-  int intra_size;
-  OASIS_CHECK_MPI_ERR(MPI_Comm_size(intra_comm, &intra_size));
-  int intra_rank;
-  OASIS_CHECK_MPI_ERR(MPI_Comm_rank(intra_comm, &intra_rank));
-  fprintf(stdout,"Receiver intra_comm: rank = %d of %d\n",intra_rank,intra_size);
-  fflush(stdout);
-
-  MPI_Comm inter_comm;
-  OASIS_CHECK_ERR(oasis_c_get_intercomm(&inter_comm, "sender-box"));
-
-  int inter_size;
-  OASIS_CHECK_MPI_ERR(MPI_Comm_size(inter_comm, &inter_size));
-  int inter_rank;
-  OASIS_CHECK_MPI_ERR(MPI_Comm_rank(inter_comm, &inter_rank));
-  int inter_rsize;
-  OASIS_CHECK_MPI_ERR(MPI_Comm_remote_size(inter_comm, &inter_rsize));
-  fprintf(stdout,"Receiver inter_comm: rank = %d of %d Remote size = %d\n",
-	  intra_rank,inter_size,inter_rsize);
-  fflush(stdout);
 
   float field[n_points];
   for (int i = 0; i<n_points; i++) {

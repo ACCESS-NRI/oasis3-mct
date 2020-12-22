@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   OASIS_CHECK_ERR(oasis_c_def_var(&var_id, var_name, part_id, bundle_size, OASIS_OUT, OASIS_REAL));
   fprintf(stdout, "Sender: var_id %d\n", var_id);
   fflush(stdout);
-  
+
   OASIS_CHECK_ERR(oasis_c_enddef());
 
   float field[n_points];
@@ -43,10 +43,10 @@ int main(int argc, char *argv[])
   int date = 0;
 
   int kinfo;
-  OASIS_CHECK_ERR(oasis_c_put(var_id, date, n_points, 1, 1, OASIS_REAL, OASIS_COL_MAJOR, field, OASIS_No_Restart, &kinfo));
+  OASIS_CHECK_ERR(oasis_c_put(var_id, date, n_points, 1, bundle_size, OASIS_REAL, OASIS_COL_MAJOR, field, OASIS_No_Restart, &kinfo));
   fprintf(stdout, "Sender: oasis_c_put returned kinfo = %d\n", kinfo);
   fflush(stdout);
-  
+
   OASIS_CHECK_ERR(oasis_c_terminate());
 
 }

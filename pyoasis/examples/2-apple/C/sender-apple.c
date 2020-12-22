@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 
   MPI_Comm commworld;
   OASIS_CHECK_MPI_ERR(MPI_Comm_split(MPI_COMM_WORLD, 1, 0, &commworld));
-  
+
   int comp_id;
   OASIS_CHECK_ERR(oasis_c_init_comp_with_comm(&comp_id, comp_name, OASIS_COUPLED, commworld));
   fprintf(stdout, "Sender: Component ID: %d\n", comp_id);
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     local_size = n_points - offset;
   }
 
-				     
+
   int part_params[OASIS_Apple_Params];
   part_params[OASIS_Strategy] = OASIS_Apple;
   part_params[OASIS_Offset] = offset;
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
   OASIS_CHECK_ERR(oasis_c_def_var(&var_id, var_name, part_id, bundle_size, OASIS_OUT, OASIS_REAL));
   fprintf(stdout, "Sender rank(%d): var_id %d\n", comm_rank, var_id);
   fflush(stdout);
-  
+
   OASIS_CHECK_ERR(oasis_c_enddef());
 
   float field[local_size];
@@ -66,12 +66,12 @@ int main(int argc, char *argv[])
   int date = 0;
 
   int kinfo;
-  OASIS_CHECK_ERR(oasis_c_put(var_id, date, local_size, 1, 1, OASIS_REAL, OASIS_COL_MAJOR, field, OASIS_No_Restart, &kinfo));
+  OASIS_CHECK_ERR(oasis_c_put(var_id, date, local_size, 1, bundle_size, OASIS_REAL, OASIS_COL_MAJOR, field, OASIS_No_Restart, &kinfo));
   fprintf(stdout, "Sender rank(%d): oasis_c_put returned kinfo = %d\n", comm_rank, kinfo);
   fflush(stdout);
 
   OASIS_CHECK_ERR(oasis_c_terminate());
 
   OASIS_CHECK_MPI_ERR(MPI_Finalize());
-  
+
 }

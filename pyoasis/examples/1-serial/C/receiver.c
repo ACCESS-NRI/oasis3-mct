@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
   OASIS_CHECK_ERR(oasis_c_def_var(&var_id, var_name, part_id, bundle_size, OASIS_IN, OASIS_REAL));
   fprintf(stdout, "Sender: var_id %d\n", var_id);
   fflush(stdout);
-  
+
   OASIS_CHECK_ERR(oasis_c_enddef());
 
   float field[n_points];
@@ -44,10 +44,10 @@ int main(int argc, char *argv[])
   int date = 0;
 
   int kinfo;
-  OASIS_CHECK_ERR(oasis_c_get(var_id, date, n_points, 1, 1, OASIS_REAL, OASIS_COL_MAJOR, field, &kinfo));
+  OASIS_CHECK_ERR(oasis_c_get(var_id, date, n_points, 1, bundle_size, OASIS_REAL, OASIS_COL_MAJOR, field, &kinfo));
   fprintf(stdout, "Receiver: oasis_c_get returned kinfo = %d\n", kinfo);
   fflush(stdout);
-  
+
   OASIS_CHECK_ERR(oasis_c_terminate());
 
   float epsilon = 1.e-8;
@@ -65,6 +65,6 @@ int main(int argc, char *argv[])
       fprintf(stdout, "Element %d contains %f instead of %f\n", i, field[i], (float) i);
     }
     fflush(stdout);
-  }    
-  
+  }
+
 }
