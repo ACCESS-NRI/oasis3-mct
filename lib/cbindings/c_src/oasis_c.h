@@ -68,7 +68,7 @@ enum mnemonic_params
   OASIS_No_Restart    = 0,
   OASIS_NO_RESTART    = 0
 };
-  
+
 enum partition_params {
   OASIS_Serial        = 0,
   OASIS_Apple         = 1,
@@ -77,21 +77,22 @@ enum partition_params {
   OASIS_Points        = 4,
   OASIS_Strategy      = 0,
   OASIS_Segments      = 1,
+  OASIS_Npoints       = 1,
   OASIS_Offset        = 1,
   OASIS_Length        = 2,
   OASIS_SizeX         = 2,
   OASIS_SizeY         = 3,
   OASIS_LdX           = 4,
-  OASIS_Serial_Params = 3,    
-  OASIS_Apple_Params  = 3,    
-  OASIS_Box_Params    = 5,    
+  OASIS_Serial_Params = 3,
+  OASIS_Apple_Params  = 3,
+  OASIS_Box_Params    = 5,
   OASIS_No_Gsize      = 0
 };
 
 #define OASIS_No_Name ""
 #define OASIS_Orange_Params(n_segments) (2 + 2*n_segments)
 #define OASIS_Points_Params(n_points) (2 + n_points)
- 
+
 enum return_codes
 {
   OASIS_Ok            = 0,

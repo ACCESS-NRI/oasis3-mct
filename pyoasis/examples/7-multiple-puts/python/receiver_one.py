@@ -40,7 +40,7 @@ for date in range(43200):
 
     if any([date % freq == 0 for freq in var_2.cpl_freqs]):
         var_2.get(date, field)
-        if abs((field + date).sum()) < 1.e-8:
+        if np.abs(field + date).sum() < 1.e-8:
             print("Recv_one: field 2 received successfully at time {}".format(date))
         else:
             print("Warning: Recv_one at time {} got {} instead of {}".format(date,

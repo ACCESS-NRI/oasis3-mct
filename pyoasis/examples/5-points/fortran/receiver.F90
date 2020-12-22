@@ -4,7 +4,7 @@ program receiver
    integer :: i, kinfo, date
    integer :: comp_id, part_id, var_id
    integer, parameter :: n_points = 16
-   integer :: part_params(3)
+   integer :: part_params(OASIS_Serial_Params)
    integer :: var_nodims(2)
    character(len=8) :: comp_name = "receiver"
    character(len=8) :: var_name = "FRECVATM"
@@ -17,7 +17,8 @@ program receiver
       & "Error in oasis_init_comp: ", rcode=kinfo)
    print '(A,I0)', "Receiver: Component ID: ", comp_id
 
-   part_params=[0, 0, n_points]
+   part_params(OASIS_Strategy) = OASIS_Serial
+   part_params(OASIS_Length)   = n_points
    call oasis_def_partition(part_id, part_params, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_def_partition: ", rcode=kinfo)

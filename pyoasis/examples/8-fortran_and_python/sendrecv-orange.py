@@ -97,7 +97,7 @@ for i in range(2):
     expected_bundle[:, i, :] += (i + 1) * 10
 
 epsilon = 1e-8
-error = abs((bundle - expected_bundle).sum())
+error = numpy.abs(bundle - expected_bundle).sum()
 if error < epsilon:
     print("{}: On rank {} data received successfully".format(component_name,
                                                              comm_rank))

@@ -4,7 +4,8 @@ program sender_points
    integer :: i, kinfo, date
    integer :: comp_id, part_id, var_id
    integer :: n_points = 16
-   integer :: part_params(6), offset
+   integer :: offset
+   integer, allocatable, dimension(:) :: part_params
    integer :: local_comm, local_size, comm_size, comm_rank
    integer :: var_nodims(2)
    character(len=13) :: comp_name = "sender-points"
@@ -32,16 +33,18 @@ program sender_points
    local_size=n_points/comm_size
    offset=comm_rank*local_size
 
-   part_params(1)=4
-   part_params(2)=local_size
-   do i=1, local_size
-      part_params(2+i)=i+offset
+   allocate(part_params(OASIS_Points_Params(local_size)))
+   part_params(OASIS_Strategy)= OASIS_Points
+   part_params(OASIS_Npoints) = local_size
+   do i = 1, local_size
+      part_params(OASIS_Npoints + i) = i+offset
    end do
 
    call oasis_def_partition(part_id, part_params, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_def_partition: ", rcode=kinfo)
    print '(A,I0,A,I0)', "Sender rank(",comm_rank,"): part_id: ", part_id
+   deallocate(part_params)
 
    var_nodims=[1, 1]
    print '(A,I0,2A)', "Sender rank(",comm_rank,"): var_name: ", var_name

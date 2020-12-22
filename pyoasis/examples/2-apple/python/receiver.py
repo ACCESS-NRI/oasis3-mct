@@ -28,7 +28,7 @@ variable.get(date, field)
 
 expected_field = pyoasis.asarray(numpy.arange(n_points, dtype=numpy.float64))
 epsilon = 1e-8
-error = abs((field - expected_field).sum())
+error = numpy.abs(field - expected_field).sum()
 if error < epsilon:
     print("Data received successfully")
 
