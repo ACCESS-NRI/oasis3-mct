@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
   int inter_rsize;
   OASIS_CHECK_MPI_ERR(MPI_Comm_remote_size(inter_comm, &inter_rsize));
   fprintf(stdout,"Sender inter_comm: rank = %d of %d Remote size = %d\n",
-	  intra_rank,inter_size,inter_rsize);
+	  inter_rank,inter_size,inter_rsize);
   fflush(stdout);
 
   float field[local_size];

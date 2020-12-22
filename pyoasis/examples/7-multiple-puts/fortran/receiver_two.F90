@@ -4,7 +4,7 @@ program receiver_two
    integer :: i, kinfo, date
    integer :: comp_id, part_id, var_id(2)
    integer, parameter :: n_points = 1
-   integer :: part_params(3)
+   integer :: part_params(OASIS_Serial_Params)
    integer :: var_nodims(2)
    character(len=12) :: comp_name = "receiver_two"
    character(len=10), dimension(2) :: var_name = ["FRECVICE_1","FRECVICE_2"]
@@ -22,7 +22,8 @@ program receiver_two
       & call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_init_comp: ", rcode=kinfo)
 
-   part_params=(/0, 0, n_points/)
+   part_params(OASIS_Strategy) = OASIS_Serial
+   part_params(OASIS_Length)   = n_points
    call oasis_def_partition(part_id, part_params, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_def_partition: ", rcode=kinfo)
@@ -80,7 +81,7 @@ program receiver_two
          error = sum(abs(field(:)-date))
          if(error<epsilon) then
             print '(A,I0)', &
-               & "Recv_two: field 1 received successfully at time ",date 
+               & "Recv_two: field 1 received successfully at time ",date
          else
             print '(A,I0,A,F6.0,A,F6.0)', &
                & "Warning: Recv_two at time ",date," got ",field(1)," instead of ",1.*date
@@ -97,7 +98,7 @@ program receiver_two
          error = sum(abs(field(:)+date))
          if(error<epsilon) then
             print '(A,I0)', &
-               & "Recv_two: field 2 received successfully at time ",date 
+               & "Recv_two: field 2 received successfully at time ",date
          else
             print '(A,I0,A,F6.0,A,F6.0)', &
                & "Warning: Recv_one at time ",date," got ",field(1)," instead of ",-1.*date

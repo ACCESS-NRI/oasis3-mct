@@ -4,7 +4,7 @@ program receiver_one
    integer :: i, kinfo, date
    integer :: comp_id, part_id, var_id(2)
    integer, parameter :: n_points = 1
-   integer :: part_params(3)
+   integer :: part_params(OASIS_Serial_Params)
    integer :: var_nodims(2)
    character(len=12) :: comp_name = "receiver_one"
    character(len=10), dimension(2) :: var_name = ["FRECVATM_1","FRECVATM_2"]
@@ -22,7 +22,8 @@ program receiver_one
       & call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_init_comp: ", rcode=kinfo)
 
-   part_params=[0, 0, n_points]
+   part_params(OASIS_Strategy) = OASIS_Serial
+   part_params(OASIS_Length)   = n_points
    call oasis_def_partition(part_id, part_params, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_def_partition: ", rcode=kinfo)
@@ -45,7 +46,7 @@ program receiver_one
    call oasis_get_intracomm(intra_one, "sender-serial", kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       &"Error in oasis_get_intracomm: ", rcode=kinfo)
-   
+
    call mpi_comm_size(intra_one, intra_size, kinfo)
    call mpi_comm_rank(intra_one, intra_rank, kinfo)
    print '(A,I0,A,I0)', "Recv_one intra_one: rank = ",intra_rank, " of ",intra_size
@@ -97,7 +98,7 @@ program receiver_one
          error = sum(abs(field(:)+date))
          if(error<epsilon) then
             print '(A,I0)', &
-               & "Recv_one: field 2 received successfully at time ",date 
+               & "Recv_one: field 2 received successfully at time ",date
          else
             print '(A,I0,A,F6.0,A,F6.0)', &
                & "Warning: Recv_one at time ",date," got ",field(1)," instead of ",-1.*date

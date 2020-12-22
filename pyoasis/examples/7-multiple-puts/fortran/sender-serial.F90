@@ -4,7 +4,7 @@ program sender_serial
    integer :: i, kinfo, date
    integer :: comp_id, part_id, var_id(2)
    integer, parameter :: n_points = 1
-   integer :: part_params(3)
+   integer :: part_params(OASIS_Serial_Params)
    integer :: var_nodims(2)
    character(len=13) :: comp_name = "sender-serial"
    character(len=10), dimension(2) :: var_name = ["FSENDOCN_1","FSENDOCN_2"]
@@ -21,13 +21,14 @@ program sender_serial
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_init_comp: ", rcode=kinfo)
 
-   part_params=[0, 0, n_points]
+   part_params(OASIS_Strategy) = OASIS_Serial
+   part_params(OASIS_Length)   = n_points
    call oasis_def_partition(part_id, part_params, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_def_partition: ", rcode=kinfo)
 
    var_nodims=[1, 1]
-   do i = 1, 2 
+   do i = 1, 2
       print '(2A)', "Sender: var_name: ", var_name(i)
       call oasis_def_var(var_id(i), var_name(i), part_id, var_nodims, OASIS_OUT, &
          &               [1], OASIS_REAL, kinfo)
@@ -55,7 +56,7 @@ program sender_serial
    call mpi_comm_size(inter_two, inter_size, kinfo)
    call mpi_comm_rank(inter_two, inter_rank, kinfo)
    print '(A,I0,A,I0)', "Sender inter_two: rank = ",inter_rank, " of ",inter_size
-   
+
    call oasis_get_ncpl(var_id(2), ncpl, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_get_ncpl: ", rcode=kinfo)
