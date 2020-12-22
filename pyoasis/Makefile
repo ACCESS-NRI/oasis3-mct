@@ -16,7 +16,7 @@ test: wrappertest completetest examples
 wrappertest: wrappertest
 	cd $(PYOASIS)/tests && ./run_pytest.sh
 
-completetest: 
+completetest:
 	cd $(PYOASIS)/tests/apple_and_orange && bash run.sh
 
 examples: example1 example2 example3 example4 example5 example6 example8 example7 example9 example10
@@ -52,7 +52,7 @@ example10:
 	cd $(PYOASIS)/examples/10-grid/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 
-examples_f: example1_f example2_f
+examples_f: example1_f example2_f example3_f example4_f
 
 example1_f:
 	cd $(PYOASIS)/examples/1-serial/fortran && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -60,8 +60,14 @@ example1_f:
 example2_f:
 	cd $(PYOASIS)/examples/2-apple/fortran && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
+example3_f:
+	cd $(PYOASIS)/examples/3-box/fortran && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
-examples_c: example1_c example2_c
+example4_f:
+	cd $(PYOASIS)/examples/4-orange/fortran && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
+
+examples_c: example1_c example2_c example3_c
 
 example1_c:
 	cd $(PYOASIS)/examples/1-serial/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -69,4 +75,5 @@ example1_c:
 example2_c:
 	cd $(PYOASIS)/examples/2-apple/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
-
+example3_c:
+	cd $(PYOASIS)/examples/3-box/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt

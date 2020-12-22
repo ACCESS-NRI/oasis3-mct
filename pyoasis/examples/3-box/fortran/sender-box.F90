@@ -4,7 +4,7 @@ program sender_box
    integer :: i, kinfo, date
    integer :: comp_id, part_id, var_id
    integer :: n_points = 16
-   integer :: part_params(5), offsets(4)
+   integer :: part_params(OASIS_Box_Params), offsets(4)
    integer :: local_comm, local_size, comm_size, comm_rank
    integer :: var_nodims(2)
    character(len=13) :: comp_name = "sender-box"
@@ -35,7 +35,11 @@ program sender_box
 
    offsets=[0, 2, 8, 10]
 
-   part_params=[2, offsets(comm_rank+1), 2, 2, 4]
+   part_params(OASIS_Strategy) = OASIS_Box
+   part_params(OASIS_Offset)   = offsets(comm_rank+1)
+   part_params(OASIS_SizeX)    = 2
+   part_params(OASIS_SizeY)    = 2
+   part_params(OASIS_LdX)      = 4
    call oasis_def_partition(part_id, part_params, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_def_partition: ", rcode=kinfo)
@@ -74,7 +78,7 @@ program sender_box
    allocate(field(local_size))
    field=[offsets(comm_rank+1)+1, offsets(comm_rank+1)+2,&
       &   offsets(comm_rank+1)+5, offsets(comm_rank+1)+6]
-   
+
    date=0
 
    call oasis_put(var_id, date, field, kinfo)

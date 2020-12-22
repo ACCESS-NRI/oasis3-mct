@@ -11,3 +11,5 @@ receiver: receiver.F90
 
 clean:
 	rm -f sender-box receiver
+	rm -f *~
+	rm -fr work

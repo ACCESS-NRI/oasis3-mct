@@ -14,3 +14,5 @@ non_oasis: non_oasis.F90
 
 clean:
 	rm -f sender-apple receiver non_oasis
+	rm -f *~
+	rm -fr work
