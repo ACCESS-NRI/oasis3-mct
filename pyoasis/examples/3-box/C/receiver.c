@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   int var_id;
 
   OASIS_CHECK_ERR(oasis_c_def_var(&var_id, var_name, part_id, bundle_size, OASIS_IN, OASIS_REAL));
-  fprintf(stdout, "Sender: var_id %d\n", var_id);
+  fprintf(stdout, "Receiver: var_id %d\n", var_id);
   fflush(stdout);
 
   OASIS_CHECK_ERR(oasis_c_enddef());

@@ -5,7 +5,7 @@ program sender_apple
    integer :: i, kinfo, date
    integer :: comp_id, part_id, var_id
    integer :: n_points = 16
-   integer :: part_params(3), offset, local_size
+   integer :: part_params(OASIS_Apple_Params), offset, local_size
    integer :: local_comm, local_comm_size, local_comm_rank
    integer :: icpl, coupl_comm, comm_size, comm_rank
    integer :: var_nodims(2)
@@ -57,7 +57,9 @@ program sender_apple
       local_size=n_points/comm_size
       offset=comm_rank*local_size
 
-      part_params=[1, offset, local_size]
+      part_params(OASIS_Strategy) = OASIS_Apple
+      part_params(OASIS_Offset)   = offset
+      part_params(OASIS_Length)   = local_size
       call oasis_def_partition(part_id, part_params, kinfo)
       if(kinfo<0) call oasis_abort(comp_id, comp_name, &
          & "Error in oasis_def_partition: ", rcode=kinfo)
@@ -94,4 +96,3 @@ program sender_apple
       & "Error in oasis_terminate: ", rcode=kinfo)
 
 end program sender_apple
-
