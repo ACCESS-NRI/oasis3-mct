@@ -52,7 +52,7 @@ example10:
 	cd $(PYOASIS)/examples/10-grid/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 example11:
-	cd $(PYOASIS)/examples/11-test-interpolation/python && (bash run.sh < data/test_input.in | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+	cd $(PYOASIS)/examples/11-test-interpolation/python && (bash run.sh < ../common_data/test_input.in | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 
 examples_f: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example8_f example9_f example10_f

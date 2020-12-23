@@ -34,13 +34,13 @@ if comm.rank == 0:
         print('Only one grid can be for ocean', flush=True)
         comm.Abort()
     if sgrid == 'torc' or dgrid == 'torc':
-        os.symlink(os.path.join('..', 'data', 'masks_torc_scrip.nc'),
+        os.symlink(os.path.join('..', '..', 'common_data', 'masks_torc_scrip.nc'),
                    'masks.nc')
     elif sgrid == 'nogt' or dgrid == 'nogt':
-        os.symlink(os.path.join('..', 'data', 'masks_nogt_scrip.nc'),
+        os.symlink(os.path.join('..', '..', 'common_data', 'masks_nogt_scrip.nc'),
                    'masks.nc')
     else:
-        os.symlink(os.path.join('..', 'data', 'masks_no_atm.nc'), 'masks.nc')
+        os.symlink(os.path.join('..', '..', 'common_data', 'masks_no_atm.nc'), 'masks.nc')
     do_plot = input('Plot output [yes/no]\n')
     if (do_plot.lower() != 'yes' and do_plot.lower() != 'no'):
         print('{} is not a valid yes/no answer'.format(do_plot), flush=True)

@@ -3,7 +3,7 @@
 mkdir -p work
 
 srcdir=`pwd`
-datadir=$srcdir/data
+datadir=$srcdir/../common_data
 casename=`basename $srcdir`
 
 exe1=sender-apple.py
@@ -30,4 +30,3 @@ ln -sf $datadir/cartopy $rundir/.
 cd $rundir
 
 ${MPIRUN4PY} -np $n1 python3 $exe1 : -np $n2 python3 $exe2
-
