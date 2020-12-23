@@ -53,6 +53,8 @@ has_graphics = comm.bcast(has_graphics, root=comm.rank)
 
 dgrid = None
 dgrid = comm.bcast(dgrid, root=0)
+ll_plot = False
+ll_plot = comm.bcast(ll_plot, root=0)
 
 gf = netCDF4.Dataset('grids.nc', 'r')
 lons = gf.variables[dgrid + '.lon'][:, :].flatten()
@@ -116,7 +118,7 @@ expected_field = np.array([expected_field1, expected_field2]).transpose()
 
 print("Data received successfully at time {}".format(date))
 
-if not has_graphics:
+if not (has_graphics and ll_plot):
     exit()
 
 cartopy.config['data_dir'] = os.path.join('.', 'cartopy')

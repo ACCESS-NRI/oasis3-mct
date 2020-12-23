@@ -19,7 +19,7 @@ wrappertest: wrappertest
 completetest:
 	cd $(PYOASIS)/tests/apple_and_orange && bash run.sh
 
-examples: example1 example2 example3 example4 example5 example6 example8 example7 example9 example10
+examples: example1 example2 example3 example4 example5 example6 example8 example7 example9 example10 example11
 
 example1:
 	cd $(PYOASIS)/examples/1-serial/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -51,8 +51,11 @@ example9:
 example10:
 	cd $(PYOASIS)/examples/10-grid/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
+example11:
+	cd $(PYOASIS)/examples/11-test-interpolation/python && (bash run.sh < data/test_input.in | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
-examples_f: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example8_f
+
+examples_f: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example8_f example9_f
 
 example1_f:
 	cd $(PYOASIS)/examples/1-serial/fortran && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -78,8 +81,11 @@ example7_f:
 example8_f:
 	cd $(PYOASIS)/examples/8-interoperability/fortran_and_python && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
+example9_f:
+	cd $(PYOASIS)/examples/9-python_fortran_C-multi_intracomm  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
-examples_c: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c
+
+examples_c: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c example9_c
 
 example1_c:
 	cd $(PYOASIS)/examples/1-serial/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -104,3 +110,6 @@ example7_c:
 
 example8_c:
 	cd $(PYOASIS)/examples/8-interoperability/fortran_and_C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
+example9_c:
+	cd $(PYOASIS)/examples/9-python_fortran_C-multi_intracomm  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt

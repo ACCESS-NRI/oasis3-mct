@@ -16,6 +16,7 @@ has_graphics = comm.bcast(has_graphics, root=comm.size - 1)
 
 sgrid = None
 dgrid = None
+ll_plot = None
 if comm.rank == 0:
     sgrid = input('Enter the source grid code from {}:\n'.format(set(valid_grids)))
     if not grid_is_valid(sgrid):
@@ -40,9 +41,17 @@ if comm.rank == 0:
                    'masks.nc')
     else:
         os.symlink(os.path.join('..', 'data', 'masks_no_atm.nc'), 'masks.nc')
+    do_plot = input('Plot output [yes/no]\n')
+    if (do_plot.lower() != 'yes' and do_plot.lower() != 'no'):
+        print('{} is not a valid yes/no answer'.format(do_plot), flush=True)
+        comm.Abort()
+    else:
+        ll_plot = do_plot.lower() == 'yes'
+
     write_namcouple(sgrid, dgrid, has_graphics)
 
 dgrid = comm.bcast(dgrid, root=0)
+ll_plot = comm.bcast(ll_plot, root=0)
 
 component_name = "sender-apple"
 comp = pyoasis.Component(component_name, True, comm)
