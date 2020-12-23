@@ -29,6 +29,7 @@ subroutine oasis_start_grids_writing_iso(kinfo) bind(C)
   call oasis_start_grids_writing(kinfo_f)
 
   kinfo = kinfo_f
+  if (kinfo == 1) kinfo = OASIS_Ok
 
 end subroutine oasis_start_grids_writing_iso
 

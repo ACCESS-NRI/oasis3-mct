@@ -8,3 +8,5 @@ writer: writer.F90
 
 clean:
 	rm -f writer
+	rm -f *~
+	rm -fr work

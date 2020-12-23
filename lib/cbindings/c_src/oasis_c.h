@@ -66,8 +66,12 @@ enum mnemonic_params
   OASIS_Write_Restart = 1,
   OASIS_WRITE_RESTART = 1,
   OASIS_No_Restart    = 0,
-  OASIS_NO_RESTART    = 0
+  OASIS_NO_RESTART    = 0,
+  OASIS_No_Part       = -1,
+  OASIS_NO_PART       = -1
 };
+
+#define OASIS_No_Companion "NULL-STRING"
 
 enum partition_params {
   OASIS_Serial        = 0,
