@@ -23,14 +23,14 @@ module cbindings
   implicit none
   contains
 
-    function foasis_string_to_fortran(string_c)
+    subroutine foasis_string_to_fortran(string_c, string_f)
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer, C_NULL_CHAR
       implicit none
       type(c_ptr), intent(in) :: string_c
       character, pointer :: p_char(:)
       character(MAX_LENGTH) :: long_string
       character :: char
-      character(len=:), allocatable :: foasis_string_to_fortran
+      character(len=:), allocatable, intent(out) :: string_f
       integer i
 
       call c_f_pointer(string_c, p_char, [MAX_LENGTH])
@@ -43,9 +43,9 @@ module cbindings
         long_string(i:i)=char
       end do
 
-      allocate(character(len=i-1) :: foasis_string_to_fortran)
-      foasis_string_to_fortran=long_string(1:i-1)
-    end function foasis_string_to_fortran
+      allocate(character(len=i-1) :: string_f)
+      string_f=long_string(1:i-1)
+    end subroutine foasis_string_to_fortran
 
     subroutine foasis_stringarray_to_fortran(n, string_c, string_f)
       use iso_c_binding, only: c_int, c_ptr, c_char, c_f_pointer, C_NULL_CHAR
@@ -83,20 +83,20 @@ module cbindings
 
     end subroutine foasis_stringarray_to_fortran
 
-    function foasis_string_to_c(string_f)
+    subroutine foasis_string_to_c(string_f, string_c)
       use iso_c_binding, only: c_ptr, c_f_pointer, C_NULL_CHAR
       implicit none
       CHARACTER(len=*), intent(in) :: string_f
       character, pointer :: p_char(:)
-      type(c_ptr), target :: foasis_string_to_c
+      type(c_ptr), target, intent(out) :: string_c
       integer i, length
 
       length=len(string_f)
-      call c_f_pointer(foasis_string_to_c, p_char, [length])
+      call c_f_pointer(string_c, p_char, [length])
       do i=1,length
         p_char(i)=string_f(i:i)
       end do
       p_char(length+1)=C_NULL_CHAR
-    end function foasis_string_to_c
+    end subroutine foasis_string_to_c
 
 end module cbindings

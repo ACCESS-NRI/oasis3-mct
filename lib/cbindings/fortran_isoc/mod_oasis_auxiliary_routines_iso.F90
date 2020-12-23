@@ -91,7 +91,7 @@ subroutine oasis_get_intercomm_iso(new_comm, cdnam, kinfo) bind(C)
   integer :: kinfo_f
 
   kinfo_f=kinfo
-  cdnam_f=foasis_string_to_fortran(cdnam)
+  call foasis_string_to_fortran(cdnam, cdnam_f)
 
   call oasis_get_intercomm(new_comm_f, cdnam_f, kinfo_f)
 
@@ -115,7 +115,7 @@ subroutine oasis_get_intracomm_iso(new_comm, cdnam, kinfo) bind(C)
   integer :: kinfo_f
 
   kinfo_f=kinfo
-  cdnam_f=foasis_string_to_fortran(cdnam)
+  call foasis_string_to_fortran(cdnam, cdnam_f)
 
   call oasis_get_intracomm(new_comm_f, cdnam_f, kinfo_f)
 

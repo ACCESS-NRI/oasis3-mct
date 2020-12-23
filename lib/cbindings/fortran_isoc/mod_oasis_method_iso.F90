@@ -3,8 +3,8 @@
 ! Copyright (C) 2019 UKRI - STFC
 
 ! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU Lesser General Public License as 
-! published by the Free Software Foundation, either version 3 of the 
+! it under the terms of the GNU Lesser General Public License as
+! published by the Free Software Foundation, either version 3 of the
 ! License, or any later version.
 
 ! This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
 ! GNU Lesser General Public License for more details.
 
 ! A copy of the GNU Lesser General Public License, version 3, is supplied
-! with this program, in the file lgpl-3.0.txt. It is also available at 
+! with this program, in the file lgpl-3.0.txt. It is also available at
 ! <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
@@ -35,7 +35,7 @@ subroutine oasis_init_comp_with_comm_iso(mynummod, cdnam, kinfo, coupled, commwo
   logical :: coupled_f
   integer :: commworld_f
 
-  cdnam_f=foasis_string_to_fortran(cdnam)
+  call foasis_string_to_fortran(cdnam, cdnam_f)
   coupled_f=coupled
   commworld_f=commworld
   call oasis_init_comp(mynummod_f, cdnam_f, kinfo_f, coupled_f, commworld_f)
@@ -60,7 +60,7 @@ subroutine oasis_init_comp_iso(mynummod, cdnam, kinfo, coupled) bind(C)
   integer :: kinfo_f
   logical :: coupled_f
 
-  cdnam_f=foasis_string_to_fortran(cdnam)
+  call foasis_string_to_fortran(cdnam, cdnam_f)
   coupled_f=coupled
   call oasis_init_comp(mynummod_f, cdnam_f, kinfo_f, coupled_f)
   mynummod=mynummod_f

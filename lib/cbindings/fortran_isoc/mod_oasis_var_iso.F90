@@ -42,7 +42,7 @@ subroutine oasis_def_var_iso(id_nports, cdport, id_part, &
 
   integer :: i
 
-  cdport_f=foasis_string_to_fortran(cdport)
+  call foasis_string_to_fortran(cdport, cdport_f)
   id_part_f=id_part
   id_var_nodims_f(1)=0
   id_var_nodims_f(2)=bundle_size

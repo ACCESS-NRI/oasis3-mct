@@ -3,8 +3,8 @@
 ! Copyright (C) 2019 UKRI - STFC
 
 ! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU Lesser General Public License as 
-! published by the Free Software Foundation, either version 3 of the 
+! it under the terms of the GNU Lesser General Public License as
+! published by the Free Software Foundation, either version 3 of the
 ! License, or any later version.
 
 ! This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
 ! GNU Lesser General Public License for more details.
 
 ! A copy of the GNU Lesser General Public License, version 3, is supplied
-! with this program, in the file lgpl-3.0.txt. It is also available at 
+! with this program, in the file lgpl-3.0.txt. It is also available at
 ! <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
@@ -32,9 +32,9 @@ subroutine oasis_def_partition_iso(id_part, kparal_size, kparal, kinfo, ig_size,
   integer :: id_part_f
   integer :: kinfo_f
   character(len=:), allocatable :: name_f
-  
-  name_f=foasis_string_to_fortran(name)
-  
+
+  call foasis_string_to_fortran(name, name_f)
+
   if (ig_size <= 0) then
      if ( trim(name_f) == "" ) then
         call oasis_def_partition(id_part_f, kparal, kinfo_f)
@@ -51,8 +51,7 @@ subroutine oasis_def_partition_iso(id_part, kparal_size, kparal, kinfo, ig_size,
            & ig_size=ig_size, name=trim(name_f))
      end if
   end if
-  
+
   id_part=id_part_f
   kinfo=kinfo_f
 end subroutine oasis_def_partition_iso
-
