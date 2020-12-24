@@ -88,7 +88,7 @@ example10_f:
 	cd $(PYOASIS)/examples/10-grid/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 
-examples_c: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c example9_c example10_c
+examples_c: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c example9_c example10_c example11_c
 
 example1_c:
 	cd $(PYOASIS)/examples/1-serial/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -119,3 +119,6 @@ example9_c:
 
 example10_c:
 	cd $(PYOASIS)/examples/10-grid/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
+example11_c:
+	cd $(PYOASIS)/examples/11-test-interpolation/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt

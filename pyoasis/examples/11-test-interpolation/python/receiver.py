@@ -116,7 +116,10 @@ expected_field2 = np.delete(expected_field2, np.where(da_msk))
 
 expected_field = np.array([expected_field1, expected_field2]).transpose()
 
-print("Data received successfully at time {}".format(date))
+error = np.average(np.abs((field - expected_field)/expected_field))
+print("Average relative error is {}".format(error))
+if error < 1.e-3:
+    print("Data received successfully at time {}".format(date))
 
 if not (has_graphics and ll_plot):
     exit()
