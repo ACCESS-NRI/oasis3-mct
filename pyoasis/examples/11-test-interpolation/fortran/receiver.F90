@@ -36,7 +36,7 @@ program receiver
    kinfo = nf90_inq_varid(ncid,'bggd.msk',varid)
    kinfo = nf90_get_var(ncid,varid,imsk)
    kinfo = nf90_close(ncid)
-   
+
    part_params(OASIS_Strategy) = OASIS_Serial
    part_params(OASIS_Length)   = n_points
    call oasis_def_partition(part_id, part_params, kinfo)
@@ -76,7 +76,7 @@ program receiver
             & (1.2*atan(1.)*4)))
       end do
    end do
-   
+
    epsilon=1.e-3
    success = .true.
    do k = 1, 2
@@ -91,7 +91,7 @@ program receiver
       if (success) then
          print '(A,I0,A)',"Receiver: Data for bundle ",k," is ok"
       else
-         print '(A,I0,A,E10.6)', "Receiver: Error for bundle ",k," is ",error
+         print '(A,I0,A,E12.5)', "Receiver: Error for bundle ",k," is ",error
       end if
    end do
 

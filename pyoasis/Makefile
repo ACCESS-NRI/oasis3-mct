@@ -11,7 +11,9 @@ ifeq ($(PYOASIS),/pyoasis)
 PYOASIS := .
 endif
 
-test: wrappertest completetest examples
+test: test-python
+test-python: wrappertest completetest examples examples_f examples_c
+test-nopython: examples_f_nopython examples_c_nopython
 
 wrappertest: wrappertest
 	cd $(PYOASIS)/tests && ./run_pytest.sh
@@ -55,7 +57,8 @@ example11:
 	cd $(PYOASIS)/examples/11-test-interpolation/python && (bash run.sh < ../common_data/test_input.in | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 
-examples_f: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example8_f example9_f example10_f
+examples_f: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example8_f example9_f example10_f example11_f
+examples_f_nopython: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example10_f example11_f
 
 example1_f:
 	cd $(PYOASIS)/examples/1-serial/fortran && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -87,8 +90,12 @@ example9_f:
 example10_f:
 	cd $(PYOASIS)/examples/10-grid/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
+example11_f:
+	cd $(PYOASIS)/examples/11-test-interpolation/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
 
 examples_c: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c example9_c example10_c example11_c
+examples_c_nopython: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c example10_c example11_c
 
 example1_c:
 	cd $(PYOASIS)/examples/1-serial/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt

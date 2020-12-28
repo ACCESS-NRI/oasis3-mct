@@ -1,5 +1,5 @@
 #
-# Include file for OASIS3 Makefile for a Linux system using 
+# Include file for OASIS3 Makefile for a Linux system using
 # Intel compilers and MPI
 #
 ###############################################################################
@@ -25,7 +25,7 @@ NETCDF_LIBRARY = `nf-config --flibs`
 #
 # Make command
 MAKE        = gmake
-# Compilers 
+# Compilers
 F90         = mpiifort # underlying ifort from module load compiler/intel/18.0.5.274
 F           = $(F90)
 f90         = $(F90)
@@ -43,15 +43,15 @@ ARFLAGS     = -ruv
 F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 # CPP keys and compiler options
-# 
+#
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
 FCBASEFLAGS  = -O2 -xAVX -I.  -assume byterecl -mt_mpi -qopenmp
 #FCBASEFLAGS  = -g -traceback -O0 -check all -I. -assume byterecl -mt_mpi -qopenmp
-CCBASEFLAGS  = -O2
+CCBASEFLAGS  = -O2 -qopenmp
 #
 # INC_DIR : includes all *mod for each library
-INC_DIR = -I$(ARCHDIR)/include 
+INC_DIR = -I$(ARCHDIR)/include
 #
 F90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 f90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
