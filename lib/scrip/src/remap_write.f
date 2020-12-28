@@ -188,6 +188,8 @@ C***********************************************************************
         map_method = 'Gaussian weighted avg of nearest neighbors'
       case(map_type_bicubic)
         map_method = 'Bicubic remapping'
+      case(map_type_loccwgt)
+        map_method = 'Locally conservative of target nearest neighbors'
       case default
         stop 'Invalid Map Type'
       end select
