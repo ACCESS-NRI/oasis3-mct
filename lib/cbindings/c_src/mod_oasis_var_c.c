@@ -22,6 +22,10 @@
 
 int oasis_c_def_var(int* id_nports, const char* cdport, const int id_part, const int bundle_size, const int kinout, const int ktype){
   int kinfo;
+  if ( kinout != OASIS_OUT && kinout != OASIS_IN )
+    oasis_c_abort(0, "oasis_c_def_var", "kinout argument can only be OASIS_IN or OASIS_OUT", __FILE__, __LINE__);
+  if ( ktype != OASIS_Real && ktype != OASIS_Double )
+    oasis_c_abort(0, "oasis_c_def_var", "ktype argument can only be OASIS_Real or OASIS_Double", __FILE__, __LINE__);
   oasis_def_var_iso(id_nports, &cdport, &id_part, &bundle_size, &kinout, &ktype, &kinfo);
   return kinfo;
 }

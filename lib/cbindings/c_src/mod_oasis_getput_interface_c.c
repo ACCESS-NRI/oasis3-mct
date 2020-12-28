@@ -24,14 +24,18 @@
 
 int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y_size, const int bundle_size, const int fkind, const int storage, const void* fld1, const bool write_restart, int* kinfo){
   bool storage_is1D = ((int)( x_size == 1 ) + (int)( y_size == 1 ) + (int)( bundle_size == 1 )) == 2;
+  if ( storage != OASIS_COL_MAJOR && storage != OASIS_ROW_MAJOR )
+    oasis_c_abort(0, "oasis_c_put", "storage argument can only be OASIS_ROW_MAJOR or OASIS_COL_MAJOR", __FILE__, __LINE__);
   if ( storage == OASIS_COL_MAJOR || storage_is1D ) {
-    if ( fkind == OASIS_Real) {
+    if ( fkind == OASIS_Real ) {
       oasis_put_iso_float(&var_id, &kstep, &x_size, &y_size, &bundle_size, (float*)fld1, kinfo, &write_restart);
-    } else {
+    } else if ( fkind == OASIS_Double ) {
       oasis_put_iso_double(&var_id, &kstep, &x_size, &y_size, &bundle_size, fld1, kinfo, &write_restart);
+    } else {
+      oasis_c_abort(0, "oasis_c_put", "fkind argument can only be OASIS_Real or OASIS_Double", __FILE__, __LINE__);
     }
   } else {
-    if ( fkind == OASIS_Real) {
+    if ( fkind == OASIS_Real ) {
       float* fld2;
       fld2 = (float*) malloc(x_size*y_size*bundle_size*sizeof(float));
       for (int i=0; i<x_size; i++) {
@@ -43,7 +47,7 @@ int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y
       }
       oasis_put_iso_float(&var_id, &kstep, &x_size, &y_size, &bundle_size, fld2, kinfo, &write_restart);
       free(fld2);
-    } else {
+    } else if ( fkind == OASIS_Double ) {
       double* fld2;
       fld2 = (double*) malloc(x_size*y_size*bundle_size*sizeof(double));
       for (int i=0; i<x_size; i++) {
@@ -55,6 +59,8 @@ int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y
       }
       oasis_put_iso_double(&var_id, &kstep, &x_size, &y_size, &bundle_size, fld2, kinfo, &write_restart);
       free(fld2);
+    } else {
+      oasis_c_abort(0, "oasis_c_put", "fkind argument can only be OASIS_Real or OASIS_Double", __FILE__, __LINE__);
     }
   }
   if ( IS_VALID_PUT(*kinfo) ) {
@@ -66,14 +72,18 @@ int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y
 
 int oasis_c_get(const int var_id, const int kstep, const int x_size, const int y_size, const int bundle_size, const int fkind, const int storage, void* fld1, int* kinfo){
   bool storage_is1D = ((int)( x_size == 1 ) + (int)( y_size == 1 ) + (int)( bundle_size == 1 )) == 2;
+  if ( storage != OASIS_COL_MAJOR && storage != OASIS_ROW_MAJOR )
+    oasis_c_abort(0, "oasis_c_get", "storage argument can only be OASIS_ROW_MAJOR or OASIS_COL_MAJOR", __FILE__, __LINE__);
   if ( storage == OASIS_COL_MAJOR || storage_is1D ) {
-    if ( fkind == OASIS_Real) {
+    if ( fkind == OASIS_Real ) {
       oasis_get_iso_float(&var_id, &kstep, &x_size, &y_size, &bundle_size, (float*)fld1, kinfo);
-    } else {
+    } else if ( fkind == OASIS_Double ) {
       oasis_get_iso_double(&var_id, &kstep, &x_size, &y_size, &bundle_size, fld1, kinfo);
+    } else {
+      oasis_c_abort(0, "oasis_c_get", "fkind argument can only be OASIS_Real or OASIS_Double", __FILE__, __LINE__);
     }
   } else {
-    if ( fkind == OASIS_Real) {
+    if ( fkind == OASIS_Real ) {
       float* fld2;
       fld2 = (float*) malloc(x_size*y_size*bundle_size*sizeof(float));
       oasis_get_iso_float(&var_id, &kstep, &x_size, &y_size, &bundle_size, fld2, kinfo);
@@ -85,7 +95,7 @@ int oasis_c_get(const int var_id, const int kstep, const int x_size, const int y
 	}
       }
       free(fld2);
-    } else {
+    } else if ( fkind == OASIS_Double ) {
       double* fld2;
       fld2 = (double*) malloc(x_size*y_size*bundle_size*sizeof(double));
       oasis_get_iso_double(&var_id, &kstep, &x_size, &y_size, &bundle_size, fld2, kinfo);
@@ -97,6 +107,8 @@ int oasis_c_get(const int var_id, const int kstep, const int x_size, const int y
 	}
       }
       free(fld2);
+    } else {
+      oasis_c_abort(0, "oasis_c_get", "fkind argument can only be OASIS_Real or OASIS_Double", __FILE__, __LINE__);
     }
   }
   if ( IS_VALID_GET(*kinfo) ) {

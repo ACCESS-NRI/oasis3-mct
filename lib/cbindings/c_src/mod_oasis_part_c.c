@@ -22,6 +22,10 @@
 
 int oasis_c_def_partition(int* id_part, const int kparal_size, const int* kparal, const int ig_size, const char* name){
   int kinfo;
+  int st = kparal[OASIS_Strategy];
+  if ((st != OASIS_Serial) && (st != OASIS_Apple) && (st != OASIS_Box) &&
+      (st!= OASIS_Orange) && (st != OASIS_Points) )
+    oasis_c_abort(0, "oasis_c_def_partition", "Wrong value for kparal[OASIS_Strategy]", __FILE__, __LINE__);
   if ( kparal[OASIS_Strategy] == OASIS_Points ) {
     int kparalf[kparal_size];
     kparalf[OASIS_Strategy] = OASIS_Points;
