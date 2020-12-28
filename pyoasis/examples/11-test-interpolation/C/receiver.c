@@ -15,40 +15,38 @@ int main(int argc, char *argv[])
   fprintf(stdout, "Receiver: Component ID: %d\n", comp_id);
   fflush(stdout);
 
-  char *sgrid = "nogt";
-
   int nx_global = 144;
   int ny_global = 143;
   int n_points = nx_global*ny_global;
 
   int ncid, varid;
   if (nc_open("grids.nc", 0, &ncid) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in opening grids.nc",
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in opening grids.nc",
 				    __FILE__, __LINE__));
 
   double lon[ny_global][nx_global];
   double lat[ny_global][nx_global];
   if (nc_inq_varid(ncid, "bggd.lon", &varid) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in getting bggd.lon id",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.lon id",__FILE__, __LINE__));
   if (nc_get_var(ncid, varid, &lon[0][0]) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in getting bggd.lon values",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.lon values",__FILE__, __LINE__));
   if (nc_inq_varid(ncid, "bggd.lat", &varid) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in getting bggd.lat id",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.lat id",__FILE__, __LINE__));
   if (nc_get_var(ncid, varid, &lat[0][0]) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in getting bggd.lat values",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.lat values",__FILE__, __LINE__));
   if (nc_close(ncid))
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in closing grids.nc",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in closing grids.nc",__FILE__, __LINE__));
 
   if (nc_open("masks.nc", 0, &ncid) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in opening grids.nc",
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in opening grids.nc",
 				    __FILE__, __LINE__));
   int mask[ny_global][nx_global];
   if (nc_inq_varid(ncid, "bggd.msk", &varid) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in getting bggd.msk id",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.msk id",__FILE__, __LINE__));
   if (nc_get_var(ncid, varid, &mask[0][0]) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in getting bggd.msk values",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.msk values",__FILE__, __LINE__));
   if (nc_close(ncid))
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in closing grids.nc",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in closing grids.nc",__FILE__, __LINE__));
 
   int part_params[OASIS_Serial_Params];
   part_params[OASIS_Strategy] = OASIS_Serial;
@@ -100,7 +98,7 @@ int main(int argc, char *argv[])
       fprintf(stdout, "Receiver: Data for bundle %d is ok\n", k);
       fflush(stdout);
     } else {
-      fprintf(stdout, "Error for bundle %d %f\n", k, error/(double)n_points);
+      fprintf(stdout, "Receiver: Error for bundle %d %f\n", k, error/(double)n_points);
       fflush(stdout);
     }
   }

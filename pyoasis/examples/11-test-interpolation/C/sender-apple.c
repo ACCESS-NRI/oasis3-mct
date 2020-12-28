@@ -20,29 +20,27 @@ int main(int argc, char *argv[])
     fprintf(stdout,"%s: Component ID: %d\n", comp_name, comp_id);
   }
 
-  char *dgrid = "bggd";
-
   int nx_global = 362;
   int ny_global = 294;
   int n_points = nx_global*ny_global;
 
   int ncid, varid;
   if (nc_open("grids.nc", 0, &ncid) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in opening grids.nc",
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Sender: Error in opening grids.nc",
 				    __FILE__, __LINE__));
 
   double lon[n_points];
   double lat[n_points];
   if (nc_inq_varid(ncid, "nogt.lon", &varid) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in getting nogt.lon id",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Sender: Error in getting nogt.lon id",__FILE__, __LINE__));
   if (nc_get_var(ncid, varid, lon) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in getting nogt.lon values",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Sender: Error in getting nogt.lon values",__FILE__, __LINE__));
   if (nc_inq_varid(ncid, "nogt.lat", &varid) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in getting nogt.lat id",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Sender: Error in getting nogt.lat id",__FILE__, __LINE__));
   if (nc_get_var(ncid, varid, lat) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in getting nogt.lat values",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Sender: Error in getting nogt.lat values",__FILE__, __LINE__));
   if (nc_close(ncid))
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Writer: Error in closing grids.nc",__FILE__, __LINE__));
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Sender: Error in closing grids.nc",__FILE__, __LINE__));
 
   int local_size = (int) n_points / comm_size ;
   int offset = comm_rank * local_size;
