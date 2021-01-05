@@ -10,4 +10,9 @@ util/make_dir/COMP-pyoasis.log
 examples/test_interpolation/model1
 examples/test_interpolation/model2
 examples/test_interpolation/test_interpolation_*
-
+doc/*.aux
+doc/*.cb
+doc/*.cb2
+doc/*.idx
+doc/*.log
+doc/*.toc
