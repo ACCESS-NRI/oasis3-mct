@@ -18,7 +18,7 @@ print("Recv_two ", var_2)
 
 comp.enddef()
 
-inter_two = comp.get_intracomm("sender-serial")
+inter_two = comp.get_intercomm("sender-serial")
 print("Recv_two inter_two: rank = {} of {}".format(inter_two.rank,
       inter_two.size))
 

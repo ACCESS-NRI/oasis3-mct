@@ -21,7 +21,7 @@ intra_one = comp.get_intracomm("receiver_one")
 print("Sender intra_one: rank = {} of {}".format(intra_one.rank,
       intra_one.size))
 
-inter_two = comp.get_intracomm("receiver_two")
+inter_two = comp.get_intercomm("receiver_two")
 print("Sender inter_two: rank = {} of {}".format(inter_two.rank,
       inter_two.size))
 
