@@ -21,4 +21,6 @@ examples/*/*/sender-points
 examples/*/*/sendrecv-orange
 examples/*/*/writer
 examples/*/*/non_oasis
+examples/*/test_output.txt
+examples/*/*/test_output.txt
 *.dSYM
