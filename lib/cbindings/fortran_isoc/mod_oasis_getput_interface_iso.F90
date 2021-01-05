@@ -3,8 +3,8 @@
 ! Copyright (C) 2019 UKRI - STFC
 
 ! This program is free software: you can redistribute it and/or modify
-! it under the terms of the GNU Lesser General Public License as 
-! published by the Free Software Foundation, either version 3 of the 
+! it under the terms of the GNU Lesser General Public License as
+! published by the Free Software Foundation, either version 3 of the
 ! License, or any later version.
 
 ! This program is distributed in the hope that it will be useful,
@@ -13,7 +13,7 @@
 ! GNU Lesser General Public License for more details.
 
 ! A copy of the GNU Lesser General Public License, version 3, is supplied
-! with this program, in the file lgpl-3.0.txt. It is also available at 
+! with this program, in the file lgpl-3.0.txt. It is also available at
 ! <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
@@ -23,20 +23,10 @@ subroutine oasis_put_iso_double(var_id, &
                                 fld1, &
                                 kinfo, &
                                 write_restart) BIND(C)
-                             
+
   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
-  use cbindings
   use mod_oasis
-  use mod_oasis_getput_interface
-  
-  use mod_oasis_kinds
-  use mod_oasis_data
-  use mod_oasis_parameters
-  use mod_oasis_advance
-  use mod_oasis_var
-  use mod_oasis_sys
-  use mct_mod
-  
+
   implicit none
 
   integer (c_int),  intent(in)         :: var_id
@@ -51,7 +41,7 @@ subroutine oasis_put_iso_double(var_id, &
   logical :: write_restart_f
   real (c_double), pointer :: tfld2d(:,:)
   real (c_double), pointer :: tfld3d(:,:,:)
-  
+
   var_id_f=var_id
   kstep_f=kstep
   write_restart_f=write_restart
@@ -65,7 +55,7 @@ subroutine oasis_put_iso_double(var_id, &
   else
     call oasis_put(var_id_f, kstep_f, fld1, kinfo_f, write_restart=write_restart_f)
   end if
-    
+
   kinfo=kinfo_f
 
 end subroutine oasis_put_iso_double
@@ -74,18 +64,10 @@ end subroutine oasis_put_iso_double
 
 subroutine oasis_get_iso_double(var_id, kstep, size1, size2, size3, fld1, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
-  use cbindings
   use mod_oasis
-  use mod_oasis_getput_interface
-  use mod_oasis_kinds
-  use mod_oasis_data
-  use mod_oasis_parameters
-  use mod_oasis_advance
-  use mod_oasis_var
-  use mod_oasis_sys
-  use mct_mod 
+
   implicit none
-  
+
   integer (c_int), intent(in)            :: var_id
   integer (c_int), intent(in)            :: kstep
   integer (c_int), intent(in)            :: size1, size2, size3
@@ -96,10 +78,10 @@ subroutine oasis_get_iso_double(var_id, kstep, size1, size2, size3, fld1, kinfo)
   integer :: kinfo_f
   real (c_double), pointer :: tfld2d(:,:)
   real (c_double), pointer :: tfld3d(:,:,:)
-  
+
   var_id_f=var_id
   kstep_f=kstep
-   
+
   if(size3>1) then
     tfld3d(1:size1,1:size2,1:size3)=>fld1(:)
     call oasis_get(var_id_f, kstep_f, tfld3d, kinfo_f)
@@ -109,9 +91,9 @@ subroutine oasis_get_iso_double(var_id, kstep, size1, size2, size3, fld1, kinfo)
   else
     call oasis_get(var_id_f, kstep_f, fld1, kinfo_f)
   end if
-  
+
   kinfo=kinfo_f
-  
+
 end subroutine oasis_get_iso_double
 
 
@@ -121,20 +103,10 @@ subroutine oasis_put_iso_float(var_id, &
                                fld1, &
                                kinfo, &
                                write_restart) BIND(C)
-                             
+
   use iso_c_binding, only: c_int, c_float, c_ptr, c_bool
-  use cbindings
   use mod_oasis
-  use mod_oasis_getput_interface
-  
-  use mod_oasis_kinds
-  use mod_oasis_data
-  use mod_oasis_parameters
-  use mod_oasis_advance
-  use mod_oasis_var
-  use mod_oasis_sys
-  use mct_mod
-  
+
   implicit none
 
   integer (c_int),  intent(in)         :: var_id
@@ -149,7 +121,7 @@ subroutine oasis_put_iso_float(var_id, &
   logical :: write_restart_f
   real (c_float), pointer :: tfld2d(:,:)
   real (c_float), pointer :: tfld3d(:,:,:)
-  
+
   var_id_f=var_id
   kstep_f=kstep
   write_restart_f=write_restart
@@ -163,7 +135,7 @@ subroutine oasis_put_iso_float(var_id, &
   else
     call oasis_put(var_id_f, kstep_f, fld1, kinfo_f, write_restart=write_restart_f)
   end if
-    
+
   kinfo=kinfo_f
 
 end subroutine oasis_put_iso_float
@@ -172,18 +144,10 @@ end subroutine oasis_put_iso_float
 
 subroutine oasis_get_iso_float(var_id, kstep, size1, size2, size3, fld1, kinfo) bind(C)
   use iso_c_binding, only: c_int, c_float, c_ptr, c_bool
-  use cbindings
   use mod_oasis
-  use mod_oasis_getput_interface
-  use mod_oasis_kinds
-  use mod_oasis_data
-  use mod_oasis_parameters
-  use mod_oasis_advance
-  use mod_oasis_var
-  use mod_oasis_sys
-  use mct_mod 
+
   implicit none
-  
+
   integer (c_int), intent(in)            :: var_id
   integer (c_int), intent(in)            :: kstep
   integer (c_int), intent(in)            :: size1, size2, size3
@@ -194,10 +158,10 @@ subroutine oasis_get_iso_float(var_id, kstep, size1, size2, size3, fld1, kinfo) 
   integer :: kinfo_f
   real (c_float), pointer :: tfld2d(:,:)
   real (c_float), pointer :: tfld3d(:,:,:)
-  
+
   var_id_f=var_id
   kstep_f=kstep
-   
+
   if(size3>1) then
     tfld3d(1:size1,1:size2,1:size3)=>fld1(:)
     call oasis_get(var_id_f, kstep_f, tfld3d, kinfo_f)
@@ -207,7 +171,7 @@ subroutine oasis_get_iso_float(var_id, kstep, size1, size2, size3, fld1, kinfo) 
   else
     call oasis_get(var_id_f, kstep_f, fld1, kinfo_f)
   end if
-  
+
   kinfo=kinfo_f
-  
+
 end subroutine oasis_get_iso_float
