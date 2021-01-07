@@ -71,7 +71,7 @@ help:
 	@echo "  static-cbindings  = static oasis libraries plus static c-bindings"
 	@echo "  shared-libs       = shared (dynamic) oasis libraries"  
 	@echo "  shared-cbindings  = shared oasis libraries plus shared c-bindings"
-	@echo "  pyoasis           = builds and installs shared-cbindings package"
+	@echo "  pyoasis           = builds and installs shared-cbindings package and installs higher and intermediate python classes"
 	@echo "  realclean         = cleans and resets the build"
 	@echo " "
 
