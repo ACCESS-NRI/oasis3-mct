@@ -24,12 +24,13 @@ Both of these variables are usually defined in the
 should be compiled with the same compilers and system software as any
 coupled models using it.  After successful compilation, resulting
 libraries are found in the directory in {\tt \$ARCHDIR/lib} while
-object and module files are found in {\tt \$ARCHDIR/build}. 
+object and module files are found in {\tt \$ARCHDIR/build} and {\tt \$ARCHDIR/build\_shared}. 
 
 OASIS3-MCT has historically created static libraries for use in
 Fortran source codes.  However, C language bindings are now
-available and the OASIS3-MCT makefile {\tt TopMakefileOasis3}
+available, and python codes are now fully supported. Therefore, the OASIS3-MCT makefile {\tt TopMakefileOasis3}
 supports compilation of both static and shared libraries.
+
 {\tt TopMakefileOasis3} has several targets such as:
 
 \begin{itemize}
@@ -38,7 +39,7 @@ supports compilation of both static and shared libraries.
 \item  {\tt static-cbindings}  = static oasis libraries plus static c-bindings
 \item  {\tt shared-libs     }  = shared (dynamic) oasis libraries
 \item  {\tt shared-cbindings}  = shared oasis libraries plus shared c-bindings
-\item  {\tt pyoasis         }  = builds and installs shared-cbindings package for use with python (NOTE: python is not fully supported)
+\item  {\tt pyoasis         }  = builds and installs shared-cbindings package and installs files containing higher and intermediate python classes for use with python codes
 \item  {\tt realclean       }  = cleans and resets the build
 \end{itemize}
 
@@ -71,14 +72,11 @@ Log and error messages from compilation are normally saved in the directory
 {\tt COMP.log} and {\tt COMP.err} or similar.  The {\tt TopMakefileOasis3}
 output will direct users to the compile output files.
 
-To interface a component code with OASIS3-MCT and use {\tt mod\_oasis} (see section \ref{subsubsec_Use}), it is often adequate to just include and link the psmile objects, modules (in {\tt \$ARCHDIR/build/lib/psmile.MPI1}), and libraries (in {\tt \$ARCHDIR/lib/libpsmile.MPI1.a}) during the compilation and linking.
-\footnote{If module {\tt mod\_prism} is used in the models, it is necessary to
-include and link both the psmile and the mct objects, modules, and libraries
-during compilation and linking.}
+To interface a component code with OASIS3-MCT and use {\tt mod\_oasis} (see section \ref{subsubsec_Use}), it is required to include OASIS3-MCT modules from {\tt \$ARCHDIR/include} and link with appropriate libraries in {\tt \$ARCHDIR/lib} during the compilation and linking.
 
 Exchange of coupling fields in single and double precision is now supported directly through the interface 
 (see section \ref{subsubsec_Declaration}).  Single precision fields are converted to double precision fields internally and temporarily.
-For double precision coupling fields, there is no need to promote REAL variables to DOUBLE PRECISION at compilation.
+For double precision coupling fields, there is no need to promote REAL variables to DOUBLE PRECISION at compilation; this is done automatically within the OASIS3-MCT library.
 
 \section{CPP keys}
 \label{subsec_cpp}
