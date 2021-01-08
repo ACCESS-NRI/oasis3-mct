@@ -60,6 +60,17 @@ int main(int argc, char *argv[])
   fprintf(stdout, "Sender rank(%d): var_id %d\n", comm_rank, var_id);
   fflush(stdout);
 
+  char *var_name2  = "NOTANAME";
+  fprintf(stdout, "Sender rank(%d): var_name %s\n", comm_rank, var_name2);
+  int var_id2;
+  OASIS_CHECK_ERR(oasis_c_def_var(&var_id2, var_name2, part_id, bundle_size, OASIS_OUT, OASIS_REAL));
+  if (var_id2 < 0) {
+    fprintf(stdout, "Sender rank(%d): var_id %d is not active\n", comm_rank, var_id2);
+  } else {
+    fprintf(stdout, "Sender rank(%d): var_id %d\n", comm_rank, var_id2);
+  }    
+  fflush(stdout);
+
   OASIS_CHECK_ERR(oasis_c_enddef());
 
   MPI_Comm intra_comm;

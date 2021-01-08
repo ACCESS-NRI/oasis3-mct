@@ -95,6 +95,14 @@ class Var:
         """
         return self._name
 
+    @property
+    def is_active(self):
+        """
+        :returns: flag indicating if the variable is mentioned in the namcouple
+        :rtype: bool
+        """
+        return self._id != -1
+    
     def put(self, time, field, write_restart=False):
         """
         Sends data to another model.
