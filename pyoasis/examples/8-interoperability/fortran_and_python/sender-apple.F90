@@ -38,7 +38,7 @@ program sender_apple
    if ( comm_rank == 0 ) &
       & print '(2A,I0)', trim(comp_name),": part_id: ", part_id
 
-   var_nodims=[2, 2]
+   var_nodims=[1, 2]
 
    call oasis_def_var(var_id, var_name, part_id, var_nodims, OASIS_OUT, &
       &               [1], OASIS_REAL, kinfo)
