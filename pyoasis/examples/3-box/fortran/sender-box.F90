@@ -2,13 +2,14 @@ program sender_box
    use mod_oasis
    implicit none
    integer :: i, kinfo, date
-   integer :: comp_id, part_id, var_id
+   INTEGER :: comp_id, part_id, var_id, var_id2
    integer :: n_points = 16
    integer :: part_params(OASIS_Box_Params), offsets(4)
    integer :: local_comm, local_size, comm_size, comm_rank
    integer :: var_nodims(2)
    character(len=13) :: comp_name = "sender-box"
    character(len=8) :: var_name = "FSENDOCN"
+   character(len=8) :: var_name2 = "NOTANAME"
    real, allocatable :: field(:)
    integer :: intra_comm, intra_rank, intra_size
    integer :: inter_comm, inter_rank, inter_size, inter_rsize
@@ -53,6 +54,17 @@ program sender_box
       & "Error in oasis_def_var: ", rcode=kinfo)
    print '(A,I0,A,I0)', "Sender rank(",comm_rank,"): var_id: ", var_id
 
+   print '(A,I0,2A)', "Sender rank(",comm_rank,"): var_name: ", var_name2
+   call oasis_def_var(var_id2, var_name2, part_id, var_nodims, OASIS_OUT, &
+      &               [1], OASIS_REAL, kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_def_var: ", rcode=kinfo)
+   if(var_id2<0) then
+      print '(A,I0,A,I0,A)', "Sender rank(",comm_rank,"): var_id: ", var_id2, " is not active"
+   else
+      print '(A,I0,A,I0)', "Sender rank(",comm_rank,"): var_id: ", var_id2     
+   end if
+   
    call oasis_enddef(kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_enddef: ", rcode=kinfo)

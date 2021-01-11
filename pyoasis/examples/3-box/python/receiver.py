@@ -6,11 +6,9 @@ import numpy
 from mpi4py import MPI
 
 
-comm = MPI.COMM_WORLD
-
 component_name = "receiver"
 
-comp = pyoasis.Component(component_name, True, comm)
+comp = pyoasis.Component(component_name)
 print(comp)
 
 n_points = 16

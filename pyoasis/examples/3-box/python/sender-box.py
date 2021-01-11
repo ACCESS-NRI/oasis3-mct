@@ -4,12 +4,9 @@ import pyoasis
 from pyoasis import OASIS
 from mpi4py import MPI
 
-comm = MPI.COMM_WORLD
-
 component_name = "sender-box"
 
-comp = pyoasis.Component(component_name, True, comm)
-
+comp = pyoasis.Component(component_name)
 print(comp)
 
 rank = comp.localcomm.rank
@@ -20,6 +17,12 @@ print(partition)
 
 variable = pyoasis.Var("FSENDOCN", partition, OASIS.OUT)
 print(variable)
+
+variable2 = pyoasis.Var("NOTANAME", partition, OASIS.OUT)
+if variable2.is_active:
+    print("{} is active".format(variable2))
+else:
+    print("{} is not active".format(variable2))
 
 comp.enddef()
 
