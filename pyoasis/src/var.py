@@ -30,7 +30,7 @@ class Var:
     """
     Variable data
 
-    :param string name: name of the variable data [cdport in OASIS]
+    :param string name: name of the variable data
     :type partition: partition identifier
     :param inout: flag indicating whether the data is outgoing \
                    or ingoing
@@ -98,7 +98,7 @@ class Var:
     @property
     def is_active(self):
         """
-        :returns: flag indicating if the variable is mentioned in the namcouple
+        :returns: flag indicating if the variable is activated in the namcouple
         :rtype: bool
         """
         return self._id != -1
@@ -188,8 +188,7 @@ class Var:
         """
         :returns:  the coupling periods
         :rtype: array of integers
-        :raises OasisException: if OASIS is unable to obtain the
-        coupling periods
+        :raises OasisException: if OASIS is unable to obtain the coupling periods
         """
         freqs, error = pyoasis.mod_oasis_auxiliary_routines.get_freqs_array(self._id,
                                                                             self.direction.value)

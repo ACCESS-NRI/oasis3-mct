@@ -28,17 +28,13 @@ from mpi4py import MPI
 
 class Component(object):
     """
-    Component that will be coupled by OASIS
+    Component that will be coupled by OASIS3-MCT
 
     :param str name: name of the component
-    :param bool coupled: whether the component will be coupled
-    (default: True)
-    :param mpi4py.MPI.Intracomm communicator: global MPI
-    communicator (default: MPI.COMM_WORLD)
-    :raises OasisException: if OASIS is unable to initialise the
-    component
-    :raises PyOasisException: if an incorrect parameter is
-    supplied
+    :param bool coupled: whether the component will be coupled (default: True)
+    :param mpi4py.MPI.Intracomm communicator: global MPI communicator (default: MPI.COMM_WORLD)
+    :raises OasisException: if OASIS is unable to initialise the component
+    :raises PyOasisException: if an incorrect parameter is supplied
     """
 
     _n_components = 0
@@ -107,7 +103,7 @@ class Component(object):
 
     def create_couplcomm(self, coupled):
         """
-        Creates a coupling communicator
+        Creates a coupling communicator toto
 
         :param bool coupled: coupling flag
 
