@@ -90,19 +90,17 @@ optional argument. This should be created with ``mpi4py``. ::
     coupling_flag = True
     comp = pyoasis.Component(component_name, coupling_flag, comm)
 
-Sophie:
-
-To creates a coupling communicator for a subset of processes, one can
-use the method ``create_couplcomm``, with a flag being True for all these
-processes::
+To create a coupling communicator for a subset of processes, one can
+use the method ``create_couplcomm``, with a flag being ``True`` for all these
+processes: ::
   coupled = True
   if local_comm_size > 3:
     if local_comm_rank >= local_comm_size - 2:
         coupled = False
   comp.create_couplcomm(coupled)
 
-If such a communicator already exists in the code, it should simply
-provided to OASIS3-MCT with the method ``set_couplcomm``::
+If such a communicator already exists in the code, it should simply be
+provided to OASIS3-MCT with the method ``set_couplcomm``. Notice that the processes not involved in the coupling should anyway invoke this method providing the ``MPI.COMM_NULL`` communicator (predefined in ``mpi4py``): ::
   couplcomm = comp.localcomm.Split(icpl, local_comm_rank)
   if icpl == 0:
       couplcomm = MPI.COMM_NULL
@@ -114,12 +112,20 @@ below, one can use ``get_intracomm`` or ``get_intercomm``: ::
   intracomm = comp.get_intracomm("receiver")
   intercomm = comp.get_intercomm("receiver")
 
-The current OASIS3-MCT internal debug level (``$NLOGPRT``
-value in the ``namcouple``), is provided by, and can be changed by modifying, the ``debug_level``
-property of the component::
-  comp.debug_level = 2
+To set up an MPI intra-communicator among some of the coupled components, listed in the ``comp_list`` list,
+one can use::
+  intracomm, root_ranks = comp.get_multi_intracomm(comp_list)
 
-End Sophie
+where ``root_ranks`` is a dictionary (the keys are the elements of ``comp_list``) providing the ranks of the component roots in the intra-communicator.
+  
+The current OASIS3-MCT internal debug level (``$NLOGPRT``
+value in the ``namcouple``), can be retrieved as a property of a component,
+namely ``comp.debug_level``, as in: ::
+  print("PyOasis debug level set to {}".format(comp.debug_level)
+
+and can be changed by directly modifying, the ``debug_level`` property
+of the component::
+  comp.debug_level = 2
 
 Creating a partition
 ++++++++++++++++++++
@@ -197,10 +203,8 @@ available in example ``5-points``.) ::
     global_indices=[0, 1, 2, 3]
     partition = pyoasis.PointsPartition(global_indices)
 
-Sophie
-    
-    Defining the coupling grids
-+++++++++++++++++++++
+Defining the coupling grids
++++++++++++++++++++++++++++
 
 The grid data files, containing the definition of the grids onto which
 the coupling data is defined, can be created by the user before the
@@ -211,8 +215,8 @@ about the grid definition can be found in section 2.2.4 of OASIS3-MCT
 User Guide. A full example of writing a grid in sequential and
 parallel models can be found in ``examples/10-grid`` .
 
-To initialise  a grid and write the grid longitudes and latitudes, one
-has to use the ``Grid`` method: ::
+To initialise a grid and write the grid longitudes and latitudes, one
+has to create an instance of the **Grid** class: ::
   [...]
   lon = np.array([-180. + comm_rank*nx_loc*dx + float(i)*dx +
                dx/2.0 for i in range(nx_loc)], dtype=np.float64)
@@ -224,7 +228,7 @@ has to use the ``Grid`` method: ::
   grid = pyoasis.Grid('pyoa', nx_global, ny_global, lon, lat, partition)
 
 To write the grid cell corner longitudes and latitudes, the
-set_corners method can be used ::
+``set_corners`` method can be used ::
   [...]
   ncrn = 4
   clo = pyoasis.asarray(np.zeros((nx_loc, ny_loc, ncrn), dtype=np.float64))
@@ -240,8 +244,8 @@ set_corners method can be used ::
 
   grid.set_corners(clo, cla)
 
- To write the grid cell areas, the
-set_area method can be used : ::
+To write the grid cell areas, the
+``set_area`` method can be used : ::
   [...]
   area = np.zeros((nx_loc, ny_loc), dtype=np.float64)
   area[:, :] = dp_conv * \
@@ -251,21 +255,24 @@ set_area method can be used : ::
 
   grid.set_area(area)
 
-To define the mask of the grid, the set_mask method can be used (here
-a mask where all points have zera value i.e. are valid) : ::
+To define the mask of the grid, the ``set_mask`` method can be used (here
+a mask where all points have zero value i.e. are valid). Notice the optional
+argument ``companion`` providing the name of the corresponding ocean
+grid from which the masks and fractions are obtained: ::
   msk = np.zeros((nx_loc, ny_loc), dtype=np.int32)
   grid.set_mask(msk, companion=None)
 
-To define the grid cell fraction, the set_frac method can be used: ::
+To define the grid cell water fraction,
+the ``set_frac`` method can be used: ::
   frc = np.ones((nx_loc, ny_loc), dtype=np.float64)
   frc = np.where(msk == 1, 0.0, 1.0)
   grid.set_frac(frc, companion=None)
 
- To define the grid cell angles, the set_angle method can be used: ::
-   angle = np.zeros((nx_loc, ny_loc), dtype=np.float64)
-   grid.set_angle(angle)
+To define the grid cell angles,
+the ``set_angle`` method can be used: ::
+  angle = np.zeros((nx_loc, ny_loc), dtype=np.float64)
+  grid.set_angle(angle)
    
-end Sophie
 
 Declaring the coupling data
 +++++++++++++++++++++
@@ -287,8 +294,6 @@ In the case of the receiving model, the code is: ::
     variable = pyoasis.Var(data_name, partition,            
                            pyoasis.OasisParameters.OASIS_IN)
 
-Sophie
-
 The property ``is_active`` can be tested to check if the variable is
 activated in the ``namcouple`` configuring file: ::
   variable2 = pyoasis.Var("NOTANAME", partition, OASIS.OUT)
@@ -304,7 +309,8 @@ which the data is involved by ``len(cpl_freqs)``::
   print("Recv_one: coupling frequencies for {} = ".format(var_1.name),
   var_1.cpl_freqs)
 
-The property put_inquire of the variable tells what would happen to the corresponding data at that date
+The method ``put_inquire`` of the variable tells what would happen
+to the corresponding data at that date
 below the corresponding send action. This maybe useful if, for
 example, the calculation of a coupling field is costly and if one
 wants to compute it only when it is really sent out. The
@@ -316,8 +322,6 @@ OASIS3-MCT User Guide. ::
           var_1.put(date, pyoasis.asarray([date], dtype=np.float64))
   [...]
 
-end Sophie			   
-			   
 
 Ending the definition phase
 +++++++++++++++++++++
@@ -377,8 +381,6 @@ the component: ::
 Exceptions and aborting
 ++++++++++
 
-Sophie
-
 When an error occurs in OASIS3-MCT, the code coupler returns an error
 code and an **OasisException** is raised. In practice, OASIS3-MCT will
 internally handle the error, write an error message in its
@@ -407,9 +409,6 @@ Another function is available, ``pyoasis.oasis_abort``,
 for the cases where a voluntary abort is needed in the code where or
 not an exception has been raised. Its interface mimics the 
 corresponding OASIS3-MCT functio ``oasis_abort``. 
-
-end Sophie
-
 
 
 Examples
