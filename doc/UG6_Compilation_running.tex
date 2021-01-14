@@ -149,6 +149,35 @@ quality of the interpolations and transformations between his source
 and target grids by calculating the error of interpolation on the
 target grid. For more details, see also the document {\tt test\_interpolation.pdf} there in.
 
+\subsection{The Fortran, C and python equivalent examples}
+\label{subsec_equivalent}
+
+Different examples implementing the different parts of the API with the Fortran, C and python interfaces are provided as practical illustrations in directory {\tt pyoasis/examples} :
+
+\begin{itemize}
+
+\item{{\tt 1-serial}}: one coupling exchange between a serial sender and a serial receiver.
+\item{{\tt 2-apple}}: one coupling exchange between an Apple-parallel sender and a serial receiver; an additonal component, not part of the coupling, is also started and the example shows how to use the {\tt commworld} argument, in Fortran and C, and the communicator optional argument when setting the component in python.
+\item{{\tt 3-box}}: one coupling exchange between an Box-parallel sender and a serial receiver; it shows also how to check if a coupling field declared in the code is activated in the configuration file {\it namcouple}.
+\item{{\tt 4-orange}}: one coupling exchange between an Orange-parallel sender and a serial receiver; not all processes of the sender participate in the coupling and this example shows how to use {\tt create\_couplcomm}.
+\item{{\tt 5-points}}: one coupling exchange between a Point-parallel sender and a serial receiver.
+\item{{\tt 6-apple\_and\_orange}}: one coupling exchange between an Apple-parallel sender and an Orange-parallel receiver; not all processes of the sender participate in the coupling and this example shows how to use {\tt set\_couplcomm}.
+\item{{\tt 7-multiple-puts}}: two coupling fields are both sent from a serial sender to two different serial receivers; this example also sets up an intra communicator between the sender and one receiver and an inter communicator between the sender and the other receiver.
+\item{{\tt 8-interoperability/fortran\_and\_C}}: implements a coupling of a bundle field, with two bundle elements, between a Fortran Apple-parallel sender and a C component. This C component is Orange-parallel for the reception of the bundle field; it also defines another partition of type Box onto which a second coupling field is defined and sent to a third Fortran serial receiver. The sum of the Box partitions in the C component does not cover the global grid, hence the fourth argument {\tt ig\_size} is used to specify the grid global size. The C component also illustrates how the order of the partition definition does not need to be the same for the different processes but that, in that case, a meaningful {\tt name} fifth argument must be used.
+\item{{\tt 8-interoperability/fortran\_and\_python}}: implements the same coupling exchanges than {{\tt 8-interoperability/fortran\_and\_C}} but with the C component replaced by a python component.
+\item{{\tt 9-python\_fortran\_C-multi\_intracomm}}: illustrates the set-up of an intracommunicator between a Fortran, a C and a python components using OASIS3-MCT; a bcast is then realised to share some data. In this example, an additional component is also launched at start but does not participate in the coupling and hence uses the {\tt coupled} third argument of {\tt oasis\_initi\_comp}.
+\item{{\tt 10-grid}}: a single Box-parallel component defines and writes two grids {\tt pyoa} and {\tt mono}, the first one with distributed calls from all the processes, the second one from the master process only.
+\item{{\tt 11-test-interpolation}}: one exchange of a coupling bundle field defined on real grids involving a first-order concervative regridding between an Apple-parallel sender and a serial receiver.  In the Fortran and C examples, the grids are fixed, while in the python example, the user chooses the source and target grids interactively, among the ones available in the files available in the {\tt common\_data} directory. This example produces graphical output of the received fields if the following packages are installed
+\begin{itemize}
+\item pip3 install matplotlib
+\item pip3 install scipy
+\item pip3 install cartopy
+\item pip3 uninstall shapely
+\item pip3 install shapely --no-binary shapely
+\end{itemize}
+\item{\tt 12-grid-functions}: Graphical version of {{\tt 10-grid}}, i.e. the {\tt pyoa} grid layout is displayed if the same graphical packages than for {{\tt 11-test-interpolation}} are installed.
+\end{itemize}
+
 \section{Debugging}
 \label{subsec_debug}
 
