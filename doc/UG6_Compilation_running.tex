@@ -31,23 +31,24 @@ Fortran source codes.  However, C language bindings are now
 available, and python codes are now fully supported. Therefore, the OASIS3-MCT makefile {\tt TopMakefileOasis3}
 supports compilation of both static and shared libraries.
 
-{\tt TopMakefileOasis3} has several targets such as:
+{\tt TopMakefileOasis3} has several targets including:
 
 \begin{itemize}
-\item  {\tt oasis3-psmile   }  = static oasis libraries (this is the default)
-\item  {\tt static-libs     }  = static oasis libraries (same as oasis3-psmile)
-\item  {\tt static-cbindings}  = static oasis libraries plus static c-bindings
-\item  {\tt shared-libs     }  = shared (dynamic) oasis libraries
-\item  {\tt shared-cbindings}  = shared oasis libraries plus shared c-bindings
-\item  {\tt pyoasis         }  = builds and installs shared-cbindings package and installs files containing higher and intermediate python classes for use with python codes
-\item  {\tt realclean       }  = cleans and resets the build
+\item  {\tt oasis3-psmile       =} static-libs-fortran (for backwards compatibility)
+\item  {\tt static-libs-fortran =} static oasis libraries for fortran only (default)
+\item  {\tt shared-libs-fortran =} shared (dynamic) oasis libraries for fortran only
+\item  {\tt static-libs         =} static oasis libraries including fortran and c-bindings
+\item  {\tt shared-libs         =} shared (dynamic) oasis libraries including fortran and c-bindings
+\item  {\tt pyoasis             =} builds and installs shared-libs plus higher and intermediate python classes
+\item  {\tt realclean           =} cleans and resets the build
 \end{itemize}
 
 The names of the libraries produced
 are {\it mct}, {\it mpeu},  {\it scrip}, {\it psmile.MPI1}, and {\it oasis.cbind}
 with standard prefixes ({\it lib}) and suffixes ({\it .a} or {\it .so}).
 
-The following targets have been used historically to compile oasis for Fortran codes:
+The following targets have been used historically to compile oasis for Fortran 
+codes and they are all still supported:
 
 \begin{itemize}
 \item {\tt make -f TopMakefileOasis3 help}
