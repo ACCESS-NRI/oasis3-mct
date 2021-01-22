@@ -37,10 +37,11 @@ int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y
   } else {
     if ( fkind == OASIS_Real ) {
       float* fld2;
+      int i,j,k;
       fld2 = (float*) malloc(x_size*y_size*bundle_size*sizeof(float));
-      for (int i=0; i<x_size; i++) {
-	for (int j=0; j<y_size; j++) {
-	  for (int k=0; k<bundle_size; k++) {
+      for (i=0; i<x_size; i++) {
+	for (j=0; j<y_size; j++) {
+	  for (k=0; k<bundle_size; k++) {
 	    memcpy(fld2+k*y_size*x_size+j*x_size+i, fld1+(i*y_size*bundle_size+j*bundle_size+k)*sizeof(float), sizeof(float));
 	  }
 	}
@@ -49,10 +50,11 @@ int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y
       free(fld2);
     } else if ( fkind == OASIS_Double ) {
       double* fld2;
+      int i,j,k;
       fld2 = (double*) malloc(x_size*y_size*bundle_size*sizeof(double));
-      for (int i=0; i<x_size; i++) {
-	for (int j=0; j<y_size; j++) {
-	  for (int k=0; k<bundle_size; k++) {
+      for (i=0; i<x_size; i++) {
+	for (j=0; j<y_size; j++) {
+	  for (k=0; k<bundle_size; k++) {
 	    memcpy(fld2+k*y_size*x_size+j*x_size+i, fld1+(i*y_size*bundle_size+j*bundle_size+k)*sizeof(double), sizeof(double));
 	  }
 	}
@@ -85,11 +87,12 @@ int oasis_c_get(const int var_id, const int kstep, const int x_size, const int y
   } else {
     if ( fkind == OASIS_Real ) {
       float* fld2;
+      int i,j,k;
       fld2 = (float*) malloc(x_size*y_size*bundle_size*sizeof(float));
       oasis_get_iso_float(&var_id, &kstep, &x_size, &y_size, &bundle_size, fld2, kinfo);
-      for (int i=0; i<x_size; i++) {
-	for (int j=0; j<y_size; j++) {
-	  for (int k=0; k<bundle_size; k++) {
+      for (i=0; i<x_size; i++) {
+	for (j=0; j<y_size; j++) {
+	  for (k=0; k<bundle_size; k++) {
 	    memcpy(fld1+(i*y_size*bundle_size+j*bundle_size+k)*sizeof(float), fld2+k*y_size*x_size+j*x_size+i, sizeof(float));
 	  }
 	}
@@ -97,11 +100,12 @@ int oasis_c_get(const int var_id, const int kstep, const int x_size, const int y
       free(fld2);
     } else if ( fkind == OASIS_Double ) {
       double* fld2;
+      int i,j,k;
       fld2 = (double*) malloc(x_size*y_size*bundle_size*sizeof(double));
       oasis_get_iso_double(&var_id, &kstep, &x_size, &y_size, &bundle_size, fld2, kinfo);
-      for (int i=0; i<x_size; i++) {
-	for (int j=0; j<y_size; j++) {
-	  for (int k=0; k<bundle_size; k++) {
+      for (i=0; i<x_size; i++) {
+	for (j=0; j<y_size; j++) {
+	  for (k=0; k<bundle_size; k++) {
 	    memcpy(fld1+(i*y_size*bundle_size+j*bundle_size+k)*sizeof(double), fld2+k*y_size*x_size+j*x_size+i, sizeof(double));
 	  }
 	}

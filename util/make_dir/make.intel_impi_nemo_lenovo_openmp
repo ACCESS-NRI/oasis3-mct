@@ -1,5 +1,12 @@
 #
 # Include file for OASIS3 Makefile for nemo lenovo at Cerfacs with OpenMP
+# To use this, 
+#  module unload mkl
+#  module unload mpi
+#  module unload compiler
+#  module load compiler/intel/18.0.1.163
+#  module load mpi/intelmpi/2018.1.163-ddt
+#  module load lib/netcdf-fortran/4.4.4_phdf5_1.10.4
 #
 ###############################################################################
 #
@@ -9,6 +16,7 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3-mct main directory (defined in .bash_profile)
+COUPLE		= $(HOME)/oasis3-mct
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/NEMO_LENOVO_INTEL
@@ -50,7 +58,7 @@ f90FLAGS_1  = $(F90FLAGS_1)
 FFLAGS_1    = $(F90FLAGS_1)
 fFLAGS_1    = $(F90FLAGS_1)
 CCFLAGS_1   = 
-LDFLAGS     = $(F90FLAGS_1)
+LDFLAGS     = $(F90FLAGS_1)  ${NETCDF_LIBRARY}
 #
 ###################
 #

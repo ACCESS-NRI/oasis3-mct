@@ -40,11 +40,11 @@ ERRPYO = $(COUPLE)/util/make_dir/COMP-pyoasis.err
 ########################################################################################
 # For backwards compatibility
 
-default: static-libs
+default: static-libs-fortran
 
-oasis3_psmile: static-libs
+oasis3_psmile: static-libs-fortran
 
-oasis3-psmile: static-libs
+oasis3-psmile: static-libs-fortran
 
 makedirs: makedirs-static
 
@@ -66,20 +66,21 @@ cleanlibs: clean-static
 help:
 	@echo " "
 	@echo "TopMakefileOasis3 recommended targets:"
-	@echo "  oasis3-psmile     = static oasis libraries"  
-	@echo "  static-libs       = static oasis libraries"  
-	@echo "  static-cbindings  = static oasis libraries plus static c-bindings"
-	@echo "  shared-libs       = shared (dynamic) oasis libraries"  
-	@echo "  shared-cbindings  = shared oasis libraries plus shared c-bindings"
-	@echo "  pyoasis           = builds and installs shared-cbindings package and installs higher and intermediate python classes"
-	@echo "  realclean         = cleans and resets the build"
+	@echo "  static-libs         = static oasis libraries including fortran and c-bindings"
+	@echo "  shared-libs         = shared (dynamic) oasis libraries including fortran and c-bindings"
+	@echo "  pyoasis             = builds and installs shared-libs plus higher and intermediate python classes"
+	@echo "  realclean           = cleans and resets the build"
+	@echo "TopMakefileOasis3 alternative targets:"
+	@echo "  oasis3-psmile       = static-libs-fortran (for backwards compatibility)"
+	@echo "  static-libs-fortran = static oasis libraries for fortran only"
+	@echo "  shared-libs-fortran = shared (dynamic) oasis libraries for fortran only"
 	@echo " "
 
 ########################################################################################
 
-static-and-shared-libs: static-libs shared-libs
+static-and-shared-libs-fortran: static-libs-fortran shared-libs-fortran
 
-static-libs: check-vars
+static-libs-fortran: check-vars
 	@echo ""
 	@echo "Compilation of the OASIS3-MCT static libraries"
 	@echo "Build output to $(LOGSTATIC)"
@@ -93,7 +94,7 @@ static-libs: check-vars
 	@$(MAKEf) makepsmile-static
 	@(echo "DONE" ; echo "")
 
-shared-libs: check-vars
+shared-libs-fortran: check-vars
 	@echo ""
 	@echo "Compilation of the OASIS3-MCT shared libraries"
 	@echo "Build output to $(LOGSHARED)"
@@ -106,21 +107,21 @@ shared-libs: check-vars
 	@$(MAKEf) makepsmile-shared
 	@(echo "DONE" ; echo "")
 
-static-cbindings: static-libs
+static-libs: static-libs-fortran
 	@echo "Compilation of the OASIS3-MCT C bindings static libraries"
 	@echo "Build output to $(LOGSTATIC)"
 	@echo "Build errors to $(ERRSTATIC)"
 	@$(MAKEf) makecbindings-static
 	@(echo "DONE" ; echo "")
 
-shared-cbindings: shared-libs
+shared-libs: shared-libs-fortran
 	@echo "Compilation of the OASIS3-MCT C bindings shared libraries"
 	@echo "Build output to $(LOGSHARED)"
 	@echo "Build errors to $(ERRSHARED)"
 	@$(MAKEf) makecbindings-shared
 	@(echo "DONE" ; echo "")
 
-pyoasis: shared-cbindings
+pyoasis: shared-libs
 	@echo "Installation of PyOasis"
 	@echo "Build output to $(LOGPYO)"
 	@echo "Build errors to $(ERRPYO)"
