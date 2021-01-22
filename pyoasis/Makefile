@@ -12,16 +12,13 @@ PYOASIS := .
 endif
 
 test: test-python
-test-python: wrappertest completetest examples examples_f examples_c
+test-python: wrappertest examples examples_f examples_c
 test-nopython: examples_f_nopython examples_c_nopython
 
 wrappertest: wrappertest
 	cd $(PYOASIS)/tests && ./run_pytest.sh
 
-completetest:
-	cd $(PYOASIS)/tests/apple_and_orange && bash run.sh
-
-examples: example1 example2 example3 example4 example5 example6 example8 example7 example9 example10 example11
+examples: example1 example2 example3 example4 example5 example6 example8 example7 example9 example10
 
 example1:
 	cd $(PYOASIS)/examples/1-serial/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -52,10 +49,6 @@ example9:
 
 example10:
 	cd $(PYOASIS)/examples/10-grid/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
-
-example11:
-	cd $(PYOASIS)/examples/11-test-interpolation/python && (bash run.sh < ../common_data/test_input.in | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
-
 
 examples_f: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example8_f example9_f example10_f example11_f
 examples_f_nopython: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example10_f example11_f
