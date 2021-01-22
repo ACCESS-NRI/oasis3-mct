@@ -9,7 +9,7 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3-mct main directory
-COUPLE          = /scratch/globc/valcke/OASIS3-MCT_before4/oasis3-mct/
+COUPLE          = $(HOME)/oasis3-mct/
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/NEMO_LENOVO_INTEL_NOOMP
