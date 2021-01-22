@@ -1,6 +1,6 @@
 #
 # Include file for OASIS3 Makefile for a Mac Os system using
-# Gnu 10 compilers and OpenMPI 4.0.5
+# Gnu 10 compilers and OpenMPI 4.0.5 (from Homebrew)
 #
 ###############################################################################
 #
