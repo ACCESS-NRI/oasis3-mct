@@ -33,11 +33,12 @@ int main(int argc, char *argv[])
   int local_size = n_points/comm_size;
   int offset = comm_rank*local_size;
   int part_id;
+  int i;
   {
     int part_params[OASIS_Points_Params(local_size)];
     part_params[OASIS_Strategy] = OASIS_Points;
     part_params[OASIS_Npoints]  = local_size;
-    for (int i = 0; i<local_size ; i++) {
+    for (i = 0; i<local_size ; i++) {
       part_params[OASIS_Npoints + i + 1] = i + offset;
     }
     OASIS_CHECK_ERR(oasis_c_def_partition(&part_id, OASIS_Points_Params(local_size),
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
   OASIS_CHECK_ERR(oasis_c_enddef());
 
   float field[local_size];
-  for ( int i = 0; i<local_size; i++) {
+  for (i = 0; i<local_size; i++) {
     field[i] = i + offset;
   }
 

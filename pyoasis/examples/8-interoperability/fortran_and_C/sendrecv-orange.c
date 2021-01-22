@@ -43,12 +43,13 @@ int main(int argc, char *argv[])
   int part_in, part_out;
   int n_segments = 2;
 
+  int i, j, k;
   if ( comm_rank % 2 != 0 ) {
     {
       int part_params[OASIS_Orange_Params(n_segments)];
       part_params[OASIS_Strategy] = OASIS_Orange;
       part_params[OASIS_Segments] = n_segments;
-      for (int i = 0; i<n_segments ; i++) {
+      for (i = 0; i<n_segments ; i++) {
 	part_params[OASIS_Segments + 2*i + 1] = offsets[i];
 	part_params[OASIS_Segments + 2*i + 2] = extents[i];
       }
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
       int part_params[OASIS_Orange_Params(n_segments)];
       part_params[OASIS_Strategy] = OASIS_Orange;
       part_params[OASIS_Segments] = n_segments;
-      for (int i = 0; i<n_segments ; i++) {
+      for (i = 0; i<n_segments ; i++) {
 	part_params[OASIS_Segments + 2*i + 1] = offsets[i];
 	part_params[OASIS_Segments + 2*i + 2] = extents[i];
       }
@@ -125,7 +126,6 @@ int main(int argc, char *argv[])
 
   OASIS_CHECK_ERR(oasis_c_enddef());
 
-  int i, j, k;
   int date=0;
   double bundle[local_lons][2][2];
   for (i=0; i<local_lons; i++) {

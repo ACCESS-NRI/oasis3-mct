@@ -73,8 +73,9 @@ int main(int argc, char *argv[])
 
   double dp_conv = atan(1.)/45.0;
   double expected[bundle_size][ny_global][nx_global];
-  for (int i = 0; i<nx_global; i++)
-    for (int j = 0; j<ny_global; j++) {
+  int i, j, k;
+  for (i = 0; i<nx_global; i++)
+    for (j = 0; j<ny_global; j++) {
       expected[0][j][i] = 2.0 + pow(sin(2.0 * lat[j][i]*dp_conv),4.0) *
 	cos(4.0 * lon[j][i]*dp_conv);;
       expected[1][j][i] = 2.0 - cos(atan(1.)*4.*
@@ -86,10 +87,10 @@ int main(int argc, char *argv[])
 
   bool success = 1;
   double error;
-  for (int k = 0; k<bundle_size; k++) {
+  for (k = 0; k<bundle_size; k++) {
     error = 0.;
-    for (int i = 0; i<nx_global; i++)
-      for (int j = 0; j<ny_global; j++)
+    for (i = 0; i<nx_global; i++)
+      for (j = 0; j<ny_global; j++)
 	if (mask[j][i] == 0)
 	  error += fabs((bundle[k][j][i] - expected[k][j][i])/expected[k][j][i]);
 

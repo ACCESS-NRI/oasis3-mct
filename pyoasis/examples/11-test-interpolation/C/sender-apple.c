@@ -64,7 +64,8 @@ int main(int argc, char *argv[])
 
   double dp_conv = atan(1.)/45.0;
   double bundle[local_size][bundle_size];
-  for (int i = 0; i<local_size; i++) {
+  int i;
+  for (i = 0; i<local_size; i++) {
     bundle[i][0] = 2.0 + pow(sin(2.0 * lat[offset+i]*dp_conv),4.0) *
       cos(4.0 * lon[offset+i]*dp_conv);
     bundle[i][1] = 2.0 - cos(atan(1.)*4.*

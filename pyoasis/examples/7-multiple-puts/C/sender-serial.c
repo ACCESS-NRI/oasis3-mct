@@ -29,7 +29,8 @@ int main(int argc, char *argv[])
   int bundle_size = 1;
   int var_id[2];
 
-  for (int i = 0; i<2; i++) {
+  int i;
+  for (i = 0; i<2; i++) {
     fprintf(stdout, "Sender: var_name %s\n", var_name[i]);
     OASIS_CHECK_ERR(oasis_c_def_var(&var_id[i], var_name[i], part_id, bundle_size, OASIS_OUT, OASIS_REAL));
     fprintf(stdout, "Sender: var_id %d\n", var_id[i]);
@@ -61,28 +62,29 @@ int main(int argc, char *argv[])
 
   char outbuff[256];
   sprintf(outbuff,"Sender: coupling frequencies for %s are",var_name[1]);
-  for (int i = 0; i<ncpl; i++) sprintf(outbuff,"%s %d",outbuff, cpl_freqs[i]);
+  for (i = 0; i<ncpl; i++) sprintf(outbuff,"%s %d",outbuff, cpl_freqs[i]);
   fprintf(stdout,"%s\n",outbuff);
   fflush(stdout);
 
   float field[n_points];
-  for ( int date = 0; date < 43200; date++) {
+  int date;
+  for (date = 0; date < 43200; date++) {
 
     int kinfo;
     OASIS_CHECK_ERR(oasis_c_put_inquire(var_id[1], date, &kinfo));
 
     if ( kinfo == OASIS_Sent ) {
-      for ( int i = 0; i < n_points; i++ ) field[i] = (float) date;
+      for (i = 0; i < n_points; i++ ) field[i] = (float) date;
       OASIS_CHECK_ERR(oasis_c_put(var_id[0], date, n_points, 1, bundle_size,
 				  OASIS_REAL, OASIS_COL_MAJOR, field,
 				  OASIS_No_Restart, &kinfo));
     }
 
     bool do_send = 0;
-    for ( int i = 0; i < ncpl ; i++ ) do_send = do_send || (date % cpl_freqs[i]) == 0;
+    for (i = 0; i < ncpl ; i++ ) do_send = do_send || (date % cpl_freqs[i]) == 0;
     if ( do_send ) {
       OASIS_CHECK_ERR(oasis_c_set_debug(2));
-      for ( int i = 0; i < n_points; i++ ) field[i] = -1.0 * (float) date;
+      for (i = 0; i < n_points; i++ ) field[i] = -1.0 * (float) date;
       bool ll_rst = date % 10800 == 0;
       OASIS_CHECK_ERR(oasis_c_put(var_id[1], date, n_points, 1, bundle_size,
 				  OASIS_REAL, OASIS_COL_MAJOR, field,

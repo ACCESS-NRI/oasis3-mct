@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
   OASIS_CHECK_ERR(oasis_c_enddef());
 
   float field[n_points];
-  for (int i = 0; i<n_points; i++) {
+  int i;
+  for (i = 0; i<n_points; i++) {
     field[i] = (float) i;
   }
   int date = 0;

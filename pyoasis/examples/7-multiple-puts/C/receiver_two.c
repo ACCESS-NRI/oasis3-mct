@@ -30,7 +30,8 @@ int main(int argc, char *argv[])
   int bundle_size = 1;
   int var_id[2];
 
-  for (int i = 0; i<2; i++) {
+  int i;
+  for (i = 0; i<2; i++) {
     fprintf(stdout, "Recv_two: var_name %s\n", var_name[i]);
     OASIS_CHECK_ERR(oasis_c_def_var(&var_id[i], var_name[i], part_id, bundle_size,
 				    OASIS_IN, OASIS_REAL));
@@ -63,16 +64,17 @@ int main(int argc, char *argv[])
   float error;
   int kinfo;
 
-  for ( int date = 0; date < 43200; date++) {
+  int date;
+  for (date = 0; date < 43200; date++) {
 
     do_send = 0;
-    for ( int i = 0; i < ncpl ; i++ ) do_send = do_send || (date % cpl_freqs_0[i]) == 0;
+    for (i = 0; i < ncpl ; i++ ) do_send = do_send || (date % cpl_freqs_0[i]) == 0;
     if ( do_send ) {
-      for ( int i = 0; i < n_points; i++ ) field[i] = 0.0;
+      for (i = 0; i < n_points; i++ ) field[i] = 0.0;
       OASIS_CHECK_ERR(oasis_c_get(var_id[0], date, n_points, 1, bundle_size,
 				  OASIS_REAL, OASIS_COL_MAJOR, field, &kinfo));
       error = 0.;
-      for ( int i = 0; i < n_points; i++ ) error += fabs(field[i] - (float) date);
+      for (i = 0; i < n_points; i++ ) error += fabs(field[i] - (float) date);
       if (error < epsilon) {
 	fprintf(stdout, "Recv_two: field 1 received successfully at time %d\n", date);
       } else {
@@ -83,13 +85,13 @@ int main(int argc, char *argv[])
     }
 
     do_send = 0;
-    for ( int i = 0; i < ncpl ; i++ ) do_send = do_send || (date % cpl_freqs_1[i]) == 0;
+    for (i = 0; i < ncpl ; i++ ) do_send = do_send || (date % cpl_freqs_1[i]) == 0;
     if ( do_send ) {
-      for ( int i = 0; i < n_points; i++ ) field[i] = 0.0;
+      for (i = 0; i < n_points; i++ ) field[i] = 0.0;
       OASIS_CHECK_ERR(oasis_c_get(var_id[1], date, n_points, 1, bundle_size,
 				  OASIS_REAL, OASIS_COL_MAJOR, field, &kinfo));
       error = 0.;
-      for ( int i = 0; i < n_points; i++ ) error += fabs(field[i] + (float) date);
+      for (i = 0; i < n_points; i++ ) error += fabs(field[i] + (float) date);
       if (error < epsilon) {
 	fprintf(stdout, "Recv_two: field 2 received successfully at time %d\n", date);
       } else {

@@ -42,9 +42,10 @@ int main(int argc, char *argv[])
   fflush(stdout);
 
   int orig;
+  int i;
   if ( comm_rank == 0) {
     fflush(stdout);
-    for (int i = 0; i<3 ; i++) {
+    for (i = 0; i<3 ; i++) {
       fprintf(stdout,"Xios: component %s starts at rank %d\n",cnames[i],root_ranks[i]);
       fflush(stdout);
       if ( strcmp(cnames[i], "sender-box") == 0 ) orig = root_ranks[i];
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
   if ( comm_rank == 0) il_x = 222;
 
   int root;
-  for (int i = 0; i<3 ; i++) {
+  for (i = 0; i<3 ; i++) {
     if ( strcmp(cnames[i],comp_name) == 0 ) root = root_ranks[i];
   }
   OASIS_CHECK_MPI_ERR(MPI_Bcast(&il_x, 1, MPI_INT, root, intra_comm));

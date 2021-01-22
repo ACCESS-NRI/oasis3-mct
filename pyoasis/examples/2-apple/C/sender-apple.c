@@ -60,7 +60,8 @@ int main(int argc, char *argv[])
   OASIS_CHECK_ERR(oasis_c_enddef());
 
   float field[local_size];
-  for (int i = 0; i<local_size; i++) {
+  int i;
+  for (i = 0; i<local_size; i++) {
     field[i] = (float) offset+i;
   }
   int date = 0;

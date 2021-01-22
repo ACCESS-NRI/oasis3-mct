@@ -81,7 +81,8 @@ int main(int argc, char *argv[])
 
   if ( icpl == 1 ) {
     float field[local_size];
-    for (int i = 0; i<local_size; i++) {
+    int i;
+    for (i = 0; i<local_size; i++) {
       field[i] = (float) offset+i;
     }
     int date = 0;

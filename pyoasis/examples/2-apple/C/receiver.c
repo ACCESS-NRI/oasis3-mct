@@ -43,7 +43,8 @@ int main(int argc, char *argv[])
   OASIS_CHECK_ERR(oasis_c_enddef());
 
   float field[n_points];
-  for (int i = 0; i<n_points; i++) {
+  int i;
+  for (i = 0; i<n_points; i++) {
     field[i] = 0.;
   }
   int date = 0;
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
   float epsilon = 1.e-8;
   float error = 0.;
 
-  for (int i = 0; i<n_points; i++) {
+  for (i = 0; i<n_points; i++) {
     error += fabs(field[i] - (float) i);
   }
   if (error < epsilon) {
@@ -66,7 +67,7 @@ int main(int argc, char *argv[])
     fflush(stdout);
   } else {
     fprintf(stdout, "Receiver: Got first ten elements\n");
-    for ( int i = 0; i<10 ; i++ ) {
+    for (i = 0; i<10 ; i++ ) {
       fprintf(stdout, "Element %d contains %f instead of %f\n", i, field[i], (float) i);
     }
     fflush(stdout);

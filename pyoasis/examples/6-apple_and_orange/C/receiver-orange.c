@@ -36,11 +36,12 @@ int main(int argc, char *argv[])
 
   int n_segments = 1;
   int part_id;
+  int i;
   {
     int part_params[OASIS_Orange_Params(n_segments)];
     part_params[OASIS_Strategy] = OASIS_Orange;
     part_params[OASIS_Segments] = n_segments;
-    for (int i = 0; i<n_segments ; i++) {
+    for (i = 0; i<n_segments ; i++) {
       part_params[OASIS_Segments + 2*i + 1] = offset;
       part_params[OASIS_Segments + 2*i + 2] = local_size;
     }
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
   OASIS_CHECK_ERR(oasis_c_enddef());
 
   float field[local_size];
-  for (int i = 0; i<local_size; i++) {
+  for (i = 0; i<local_size; i++) {
     field[i] = 0.;
   }
   int date = 0;
@@ -78,7 +79,7 @@ int main(int argc, char *argv[])
   float epsilon = 1.e-8;
   float error = 0.;
 
-  for (int i = 0; i<local_size; i++) {
+  for (i = 0; i<local_size; i++) {
     error += fabs(field[i] - (float) (i+offset));
   }
   if (error < epsilon) {
@@ -86,7 +87,7 @@ int main(int argc, char *argv[])
     fflush(stdout);
   } else {
     fprintf(stdout, "Receiver rank(%d): Got first four elements\n",comm_rank);
-    for ( int i = 0; i<4 ; i++ ) {
+    for (i = 0; i<4 ; i++ ) {
       fprintf(stdout, "[rank %d] Element %d contains %f instead of %f\n",
 	      comm_rank, i, field[i], (float) i);
     }

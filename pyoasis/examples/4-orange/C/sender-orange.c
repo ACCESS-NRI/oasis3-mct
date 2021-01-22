@@ -35,7 +35,8 @@ int main(int argc, char *argv[])
   int offset;
   int bundle_size;
   int var_id;
-
+  int i;
+  
   if ( icpl == 1 ) {
     int comm_size;
     OASIS_CHECK_MPI_ERR(MPI_Comm_size(coupl_comm, &comm_size));
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
       int part_params[OASIS_Orange_Params(n_segments)];
       part_params[OASIS_Strategy] = OASIS_Orange;
       part_params[OASIS_Segments] = n_segments;
-      for (int i = 0; i<n_segments ; i++) {
+      for (i = 0; i<n_segments ; i++) {
 	part_params[OASIS_Segments + 2*i + 1] = offset;
 	part_params[OASIS_Segments + 2*i + 2] = local_size;
       }
@@ -82,7 +83,7 @@ int main(int argc, char *argv[])
 
   if ( icpl == 1 ) {
     float field[local_size];
-    for ( int i = 0; i<local_size; i++) {
+    for (i = 0; i<local_size; i++) {
       field[i] = i + offset;
     }
 
