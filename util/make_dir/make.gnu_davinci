@@ -1,6 +1,10 @@
 #
 # Include file for OASIS3 Makefile for a Linux system using
-# Intel compilers and MPI
+# Gnu compilers and OpenMPI
+# To use this, 
+# module purge
+# module load mpi/openmpi/405_gcc731
+# module load python/3.7.7
 #
 ###############################################################################
 #
