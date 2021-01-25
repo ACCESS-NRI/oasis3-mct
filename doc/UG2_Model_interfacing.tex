@@ -1493,7 +1493,8 @@ interfaces are defined there.
 The source code of pyOASIS is in the directory {\tt pyoasis/src}. A complete documentation is available in {\tt pyoasis/pyoasis.pdf} and examples on how to use pyOASIS are provided in {\tt pyoasis/examples}. 
 
 First, the OASIS3-MCT Fortran code is wrapped in Fortran using ISO-C bindings. The corresponding source files are in the subdirectory {\tt lib/cbindings/fortran\_isoc}. The file names are the same as the corresponding ones in the original source code but ending in {\tt \_iso.F90}. Subsequently, the Fortran with ISO-C bindings is wrapped in C, see the source code in {\tt lib/cbindings/c\_src}. The names of the files are the same as the corresponding Fortran ones, but ending in {\tt \_c.c}. Finally, the C is wrapped in Python in the directory {\tt pyoasis/src}; a low-level wrapper is made using the same file names as the Fortran ones but ending with {\tt .py}. 
-The python wrapper functions, which are briefly described hereafer, can be all tested in {\tt /pyoasis} with {\tt make wrappertest}. To run all tests including python, C and fortran examples from {\tt pyoasis/examples}, use {\tt make test}.
+The python wrapper functions are briefly described hereafer.
+To run all tests including python, C and fortran examples from {\tt pyoasis/examples}, use {\tt make test}.
 
 \begin{itemize}
 \item{Creating a component using MPI}
