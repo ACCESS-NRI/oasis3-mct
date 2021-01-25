@@ -12,7 +12,8 @@ PYOASIS := .
 endif
 
 test: test-python
-test-python: wrappertest examples examples_f examples_c
+test-devel: wrappertest examples examples_f examples_c
+test-python: examples examples_f examples_c
 test-nopython: examples_f_nopython examples_c_nopython
 
 wrappertest: wrappertest
