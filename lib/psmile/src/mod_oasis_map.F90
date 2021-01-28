@@ -875,7 +875,7 @@ subroutine oasis_map_sMatReaddnc_orig(sMat,SgsMap,DgsMap,newdom, &
                 .and. (minval(Sbuf(:,m)) /= 0._R8 .or. maxval(Sbuf(:,m)) /= 0._R8) &
                ) then
                abort_weight = .true.
-               write(nulprt,'(3A,I12,A,I12,A,I12,A,G13.7,A,G13.7,A)') &
+               write(nulprt,'(3A,I12,A,I12,A,I12,A,G14.7,A,G14.7,A)') &
                   subname,wstr,'BAD weight found in '//trim(filename), &
                   m,'=id',Cbuf(m),'=src',Rbuf(m),'=dst',minval(Sbuf(:,m)),'=minS',maxval(Sbuf(:,m)),'=maxS'
             endif
@@ -895,7 +895,7 @@ subroutine oasis_map_sMatReaddnc_orig(sMat,SgsMap,DgsMap,newdom, &
 ! tcx weight = 0
             if (minval(Sbuf(:,m)) /= 0._R8 .or. maxval(Sbuf(:,m)) /= 0._R8) then
                if (OASIS_debug >= 2 .and. namwgtopt /= "ignore_bad_index_silently") then
-                  write(nulprt,'(3A,I12,A,I12,A,I12,A,G13.7,A,G13.7,A)') &
+                  write(nulprt,'(3A,I12,A,I12,A,I12,A,G14.7,A,G14.7,A)') &
                      subname,wstr,'BAD weight found in '//trim(filename), &
                      m,'=id',Cbuf(m),'=src',Rbuf(m),'=dst',minval(Sbuf(:,m)),'=minS',maxval(Sbuf(:,m)),'=maxS'
                endif
@@ -1547,7 +1547,7 @@ subroutine oasis_map_sMatReaddnc_ceg(sMat,SgsMap,DgsMap,newdom, &
                    .and. (minval(SReadData(:,m)) /= 0._R8 .or. maxval(SReadData(:,m)) /= 0._R8) &
                   ) then
                   abort_weight = .true.
-                  write(nulprt,'(3A,I12,A,I12,A,I12,A,G13.7,A,G13.7,A)') &
+                  write(nulprt,'(3A,I12,A,I12,A,I12,A,G14.7,A,G14.7,A)') &
                      subname,wstr,'BAD weight found in '//trim(filename), &
                      m,'=id',CReadData(m),'=src',RReadData(m),'=dst',minval(SReadData(:,m)),'=minS',maxval(SReadData(:,m)),'=maxS'
                endif
@@ -1567,7 +1567,7 @@ subroutine oasis_map_sMatReaddnc_ceg(sMat,SgsMap,DgsMap,newdom, &
 ! tcx weight = 0
                if (minval(SReadData(:,m)) /= 0._R8 .or. maxval(SReadData(:,m)) /= 0._R8) then
                   if (OASIS_debug >= 2 .and. namwgtopt /= "ignore_bad_index_silently") then
-                     write(nulprt,'(3A,I12,A,I12,A,I12,A,G13.7,A,G13.7,A)') &
+                     write(nulprt,'(3A,I12,A,I12,A,I12,A,G14.7,A,G14.7,A)') &
                         subname,wstr,'BAD weight found in '//trim(filename), &
                         m,'=id',CReadData(m),'=src',RReadData(m),'=dst',minval(SReadData(:,m)),'=minS',maxval(SReadData(:,m)),'=maxS'
                   endif

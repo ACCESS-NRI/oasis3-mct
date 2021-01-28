@@ -37,9 +37,9 @@ oasis3_psmile:
 #-------------------------------------------------------------------------------
 #
 model1: $(OBJ_M1) model1.o $(LIBPSMILE) Makefile
-	$(LD) $(LDFLAGS) -o $@ $(OBJ_M1) model1.o $(LIBPSMILE) $(FLIBS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJ_M1) model1.o $(LIBPSMILE) $(NETCDF_LIBRARY)
 model2: $(OBJ_M2) model2.o $(LIBPSMILE) Makefile
-	$(LD) $(LDFLAGS) -o $@ $(OBJ_M2) model2.o $(LIBPSMILE) $(FLIBS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJ_M2) model2.o $(LIBPSMILE) $(NETCDF_LIBRARY)
 #
 #-------------------------------------------------------------------------------
 # Rules for compilation

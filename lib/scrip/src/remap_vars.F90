@@ -103,7 +103,7 @@
 #ifdef TREAT_OVERLAY
       integer (kind=int_kind), dimension(:), allocatable, save :: &
            grid1_add_repl1 ! grid1 address to use after overlap calculation
-#endif TREAT_OVERLAY
+#endif
       real (kind=dbl_kind), dimension(:,:), allocatable, save :: &
            wts_map1, & ! map weights for each link (num_wts,max_links)
            wts_map2    ! map weights for each link (num_wts,max_links)
@@ -239,7 +239,7 @@
                 wts_map1(num_wts, max_links_map1))
 #ifdef TREAT_OVERLAY
       allocate (grid1_add_repl1(grid1_size))
-#endif TREAT_OVERLAY
+#endif
 
 !-----------------------------------------------------------------------
 !
@@ -504,7 +504,7 @@
       deallocate (grid1_add_map1, grid2_add_map1, wts_map1)
 #ifdef TREAT_OVERLAY
       deallocate (grid1_add_repl1)
-#endif TREAT_OVERLAY
+#endif
 
       if (num_maps > 1) then
         deallocate (grid1_add_map2, grid2_add_map2, wts_map2)

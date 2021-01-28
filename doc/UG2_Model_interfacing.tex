@@ -13,7 +13,7 @@ configurations; the different possibilities and how to use
 the OASIS3-MCT library accordingly are described in section
 \ref{sec_deploy}. 
 
-The OASIS3-MCT Application Programming Interface (API) includes different classes of modules or routines that are described in details in section \ref{API}.
+The OASIS3-MCT Application Programming Interface (API) includes different classes of modules or routines that are described in details in sections \ref{API}, \ref{APIC} and \ref{APIpython} for Fortran, C and python codes respectively.
 In section \ref{sec_notes}, the reader will also find an overview of the MCT library (see \ref{subsec_MCT}) and additional notes on how to exchange scalars (see \ref{subsec_scalar}), how to to reproduce different coupling
 algorithms with OASIS3-MCT using the {\tt LAG} index (see \ref{subsec_lag}), and on the {\tt
   SEQ} index (see \ref{subsec_sec}).
@@ -26,8 +26,8 @@ sub-components deployed in a much larger diversity of configurations
 are supported. This is illustrated on figure
 \ref{Fig_coupling_layouts_a} and how to use the OASIS3-MCT library
 accordingly is detailed on figure \ref{Fig_coupling_layouts_b}. All
-OASIS3-MCT API routines are also described in details in section
-\ref{API}. 
+OASIS3-MCT API routines are also described in details in sections
+\ref{API}, \ref{APIC} and \ref{APIpython}. 
 
 We call here an ``executable'' a compiled code
   forming a part of or the whole coupled system (started with the
@@ -39,7 +39,7 @@ We call here an ``executable'' a compiled code
   of course, a component may have only one sub-component
   that gathers all its tasks.
 
-Practical examples of how to use the OASIS3-MCT library are also given in {\tt examples/} {\tt tutorial} and {\tt examples/test\_1bin\_ocnice} (see sections \ref{subsec_tutorial} and \ref{subsec_1bin_ocnice}). 
+Practical examples of how to use the OASIS3-MCT library are also given in {\tt examples/} {\tt tutorial} and {\tt examples/test\_1bin\_ocnice} (see sections \ref{subsec_tutorial} and \ref{subsec_1bin_ocnice}).XXXXXXXXXXXXXX 
 
 Since OASIS3-MCT\_3.0, it is possible to (the text between [ and ] refers to figure \ref{Fig_coupling_layouts_a}) :
 
@@ -96,13 +96,13 @@ coupling fields have to call {\tt oasis\_put} and {\tt oasis\_get} accordingly.
 
 The sequence of OASS3-MCT API routines that have to be called in the different cases is detailed on figure  \ref{Fig_coupling_layouts_b}.  These routines are also described in detail in the next section.
 
-\section{OASIS3-MCT Application Programming Interface (API)}
+\section{OASIS3-MCT Fortran API}
 \label{API}
 
 To interact with the rest of the coupled system, few calls of the
 OASIS3-MCT library routines, which sources can be found in {\tt
-  oasis3-mct/lib/psmile} directory, have to be implemented in the
-component codes. They belong to the following classes:
+  oasis3-mct/lib/psmile} directory, have to be implemented in
+component Fortran codes. They belong to the following classes:
 \begin{enumerate}
 \item Module to use (section \ref{subsubsec_Use})
 \item Initialisation (section \ref{subsubsec_Initialisation})
@@ -431,7 +431,7 @@ If a grid data files does not exist, the corresponding routine will create it; i
 
 These routines can be called only by one component process to write the whole grid or by each process holding a part of a grid. In the former case, optional argument {\tt il\_part\_id} is not needed and the arrays (see below) handling the longitudes of the grid points or corners ({\tt lon}, {\tt clon}), the latitudes of the grid points or corners ({\tt lat}, {\tt clat}), the masks ({\tt mask}), fracs ({\tt frac}), and areas ({\tt area}) of the grid cells need to cover the whole grid; in the later case, the {\tt il\_part\_id} returned by {\tt oasis\_def\_partition} needs to be provided as input argument and the arrays need to cover only the local partition of the grid.
 
-The field names in the {\em grids.nc}, {\em masks.nc}, and {\em areas.nc} follow a well-defined convention.  The fields are normally 2-dimensional, and each field name consists of the gridname followed by a string that identifies the field.  For instance, the center latitudes for the grid torc will be called torc.lat and the center longitudes will be called torc.lon in the netcdf file.  The {\em grids.nc} file contains the center latitudes (.lat) and longitudes (.lat) as well as the corner latitudes (.cla) and corner longitudes (.clo).  The corner fields have a third dimension associated with the number of corners per gridcell.  The {\em area.nc} file constains the area field (.srf).  The {\em masks.nc} file contains the mask (.msk) and frac (.frc) fields.
+The field names in the {\em grids.nc}, {\em masks.nc}, and {\em areas.nc} follow a well-defined convention.  The fields are normally two-dimensional, and each field name consists of the gridname followed by a string that identifies the field.  For instance, the center latitudes for the grid torc will be called torc.lat and the center longitudes will be called torc.lon in the netcdf file.  The {\em grids.nc} file contains the center latitudes (.lat) and longitudes (.lat) as well as the corner latitudes (.cla) and corner longitudes (.clo).  The corner fields have a third dimension associated with the number of corners per gridcell.  The {\em area.nc} file constains the area field (.srf).  The {\em masks.nc} file contains the mask (.msk) and frac (.frc) fields.
 
 \begin{itemize}
 
@@ -522,6 +522,18 @@ Must be called to start the grid writing process.
   Writes of the component grid cell areas. Needed for some {\tt SCRIPR} options and for the {\tt CONSERV}
   operation (see section \ref{subsec_cooking}).    The area field is written to the {\em areas.nc} file.
   The surfaces may be given in any units but they must be the same on the source and target sides; furthermore they must be in square radians if the True Area (TR) correction is activated, see section 4.3.
+
+  \vspace{0.2cm}
+\item {\tt CALL oasis\_write\_angle (cgrid, nx\_global, ny\_global, angle, il\_part\_id)}
+\item {\tt CALL prism\_write\_angle (cgrid, nx\_global, ny\_global, angle, il\_part\_id)}
+
+  \begin{itemize}
+  \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
+  \item {\tt angle [REAL, DIMENSION(nx,ny); IN]} : single or double real array of grid cell
+    angles covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition 
+  \end{itemize}
+  Writes of the component grid cell angles.  The angle field is written to the {\em grids.nc} file.  This field does not play a role in OASIS3-MCT implementation and is never needed.
+
 
   \vspace{0.2cm}
 \item {\tt CALL prism\_terminate\_grids\_writing()} or
@@ -1126,6 +1138,610 @@ This routine can be used to retrieve the coupling period(s) of field with
 corresponding {\tt var\_id}, as defined in the {\it namcouple}
 
 \end{itemize}
+
+\section{OASIS3-MCT C API}
+\label{APIC} 
+
+OASIS3-MCT is distributed with C bindings and can be called from models written
+in C and in C++.  These bindings leverage the Fortran ISO\_C\_BINDING standard.  
+The C bindings can be compiled into static or shared libraries by the
+OASIS3-MCT TopMakefileOasis3 as documented in \ref{subsec_compile}.
+
+The C interfaces largely match
+up with equivalent interfaces in Fortran.  An interface named
+{\tt oasis\_interface} in Fortran can be expected to be named
+{\tt oasis\_c\_interface} in C.
+
+All of the C interfaces return an integer error code which can be
+tested against the {\tt OASIS\_Ok} (or the equivalent {\tt
+  OASIS\_Success}) constant.
+The {\tt OASIS\_CHECK\_ERR} macro aborts
+OASIS3-MCT with a meaningful message in the debug files in case of failure.
+For most of the functions,
+the return code is consistent with the {\tt
+  kinfo} argument in the Fortran interfaces. However, for the put and get communication functions, the return error code only indicates
+success or failure, while the detailed status is returned by the {\tt
+  kinfo} argument (equivalent to the returned value of {\tt
+  info} argument for the Fortran {\tt oasis\_put} and {\tt oasis\_get} routines, see section \ref{prismput}).
+ 
+For example, the following constructs are equivalent in the two languages:
+
+\begin{verbatim}
+call oasis_get_localcomm(localcomm, kinfo)
+if (kinfo .ne. OASIS_Ok)  &
+   &  call OASIS_Abort(comp_id, "oasis_get_localcomm", &
+   &  "Runtime error", __FILE__, __LINE__)
+\end{verbatim}
+
+and
+
+\begin{verbatim}
+OASIS_CHECK_ERR(oasis_get_localcomm(localcomm))
+\end{verbatim}
+
+For convenience a similar macro {\tt OASIS\_CHECK\_MPI\_ERR} has been
+defined for testing the return code of any MPI function against {\tt
+  MPI\_SUCCESS} and cleanly aborting OASIS3-MCT in case of failure.
+
+\vspace{0.2cm}
+More information about all these interfaces can be found in the
+Fortran interface section (see \ref{API}). Use of these C bindings are illustrated in practical examples in
+directories {\tt /C} in the different subdirectories in {\tt pyoasis/examples/}. Notes and deviations from
+the Fortran standard are noted below.
+
+\vspace{0.2cm}
+\begin{itemize}
+
+\item To use the OASIS3-MCT C bindings, the statement
+\begin{verbatim}
+#include "oasis_c.h"
+\end{verbatim}
+needs to be added to the C model source code.  All available
+parameters macros and
+interfaces are defined there.
+
+\item {\tt int oasis\_c\_init\_comp(int* compid, const char* comp\_name, const bool coupled)}
+  \begin{itemize}
+  \item This {\tt oasis\_c\_init\_comp} interface includes the {\tt coupled} flag but
+    NO communicator argument ({\tt commworld}); to indicate a
+    communicator argument, see {\tt oasis\_c\_init\_comp\_with\_comm} below.
+    \item The {\tt coupled} argument can receive the predefined mnemonic boolean constants {\tt
+      OASIS\_Coupled} and {\tt OASIS\_Not\_Coupled}
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_init\_comp\_with\_comm(int* compid, const char* comp\_name, const bool coupled, const MPI\_Comm commworld)}
+  \begin{itemize}
+  \item This alternative {\tt init\_comp} interface has the {\tt coupled} flag and a C {\tt MPI\_Comm} communicator
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_localcomm(MPI\_Comm* local\_comm)}
+  \begin{itemize}
+  \item Returns the local communicator by reference in a C {\tt MPI\_Comm*} type argument
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_create\_couplcomm(const int icpl, const MPI\_Comm local\_comm, MPI\_Comm* coupl\_comm)}
+  \begin{itemize}
+  \item {\tt loca\_comm} is a C {\tt MPI\_Comm} type input argument (by value)
+
+  \item {\tt coupl\_comm} is a C {\tt MPI\_Comm*} type output argument (by reference)
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_set\_couplcomm(const MPI\_Comm coupl\_comm)}
+  \begin{itemize}
+  \item Takes a C {\tt MPI\_Comm} type as an input argument (by value)
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_def\_partition(int* il\_part\_id, const int ig\_paral\_size, const int* ig\_paral, const int ig\_size, const char* name)}
+  \begin{itemize}
+  \item {\tt ig\_paral\_size} is the size of the array {\tt ig\_paral}: the
+    {\tt oasis\_c.h} header provides a set of constants and macros for
+    the size of every partition strategy, namely {\tt
+      OASIS\_Serial\_Params}, {\tt OASIS\_Apple\_Params}, {\tt
+      OASIS\_Box\_Params}, {\tt
+      OASIS\_Orange\_Params(n\_segments)}, {\tt
+      OASIS\_Points\_Params(n\_points)}
+  \item the {\tt oasis\_c.h} header also provides a set of predefined
+    constants for the storages positions in {\tt
+    ig\_paral}, namely {\tt OASIS\_Strategy}, {\tt OASIS\_Segments}, {\tt
+    OASIS\_Npoints}, {\tt OASIS\_Offset}, {\tt OASIS\_Length}, {\tt
+    OASIS\_SizeX}, {\tt OASIS\_SizeY}, {\tt OASIS\_LdX}
+  \item the partition strategy, to be stored in the {\tt
+    OASIS\_Strategy} position of {\tt ig\_paral}, can take one of the
+    following predefined constants values: {\tt OASIS\_Serial}, {\tt
+      OASIS\_Apple}, {\tt OASIS\_Box}, {\tt OASIS\_Orange}, {\tt
+      OASIS\_Points}
+  \item for the cases in which the {\tt ig\_size} and {\tt name}
+    arguments are
+    not relevant for the partition definition, the placeholders {\tt
+      OASIS\_No\_Gsize} and {\tt OASIS\_No\_Name} can be used instead
+  \end{itemize}
+  Here an example for the {\tt OASIS\_Part\_Apple} strategy
+\begin{verbatim}
+  int part_params[OASIS_Apple_Params];
+  part_params[OASIS_Strategy] = OASIS_Apple;
+  part_params[OASIS_Offset] = offset;
+  part_params[OASIS_Length] = local_size;
+  int part_id;
+  OASIS_CHECK_ERR(oasis_c_def_partition(&part_id, OASIS_Apple_Params,
+                                        part_params, OASIS_No_Gsize,
+                                        OASIS_No_Name));
+\end{verbatim}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_start\_grids\_writing()}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_grid(const char* cgrid, const int nx\_global, const int ny\_global, const int nx\_loc, const int ny\_loc, const double* lon, const double* lat, const int il\_partid)}
+  \begin{itemize}
+    \item {\tt nx\_global} and {\tt ny\_global} are the first and second dimensions
+      of the global grid
+    \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
+      of the local arrays {\tt lon} and {\tt lat}
+    \item {\tt lon} and {\tt lat} are stored with a fortran compatible
+      (column major) ordering. For example, if they are declared as double
+      pointers, they have to be {\tt lon[ny\_loc][nx\_loc]}
+    \item {\tt il\_partid} is relevant only for parallel writing. In case
+      of single proc invocations, the constant {\tt OASIS\_No\_Part}
+      can be passed as a placeholder
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_corner(const char* cgrid, const int nx\_global, const int ny\_global, const int nc, const int nx\_loc, const int ny\_loc, const double* clon, const double* clat, const int il\_partid)}
+  \begin{itemize}
+    \item {\tt nx\_global} and {\tt ny\_global} are the first and second dimensions
+      of the global grid
+    \item {\tt nc} is the maximum number of corners per cell
+    \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
+      of the local arrays {\tt clon} and {\tt clat}
+    \item {\tt clon} and {\tt clat} are stored with a fortran compatible
+      (column major) ordering. If they are declared as triple
+      pointers, they have to be {\tt clon[nc][ny\_loc][nx\_loc]}
+    \item {\tt il\_partid} is relevant only for parallel writing. In case
+      of single proc invocations, the constant {\tt OASIS\_No\_Part}
+      can be passed as a placeholder
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_mask(const char* cgrid, const int nx\_global, const int ny\_global, const int nx\_loc, const int ny\_loc, const int* mask, const int il\_partid, const char* companion)}
+  \begin{itemize}
+    \item {\tt nx\_global} and {\tt ny\_global} are the first and second dimensions
+      of the global grid
+    \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
+      of the local array {\tt mask}
+    \item {\tt mask} is stored with a fortran compatible
+      (column major) ordering. If it is  declared as a double
+      pointer, it has to be {\tt mask[ny\_loc][nx\_loc]}
+    \item {\tt il\_partid} is relevant only for parallel writing. In case
+      of single proc invocations, the constant {\tt OASIS\_No\_Part}
+      can be passed as a placeholder
+    \item if no {\tt companion} grid attribute is needed, the constant
+      {\tt OASIS\_No\_Companion} can be passed as a placeholder
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_frac(const char* cgrid, const int nx\_global, const int ny\_global, const int nx\_loc, const int ny\_loc, const double* frac, const int il\_partid, const char* companion)}
+  \begin{itemize}
+    \item {\tt nx\_global} and {\tt ny\_global} are the first and second dimensions
+      of the global grid
+    \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
+      of the local array {\tt frac}
+    \item {\tt frac} is stored with a fortran compatible
+      (column major) ordering. If it is  declared as a double
+      pointer, it has to be {\tt frac[ny\_loc][nx\_loc]}
+    \item {\tt il\_partid} is relevant only for parallel writing. In case
+      of single proc invocations, the constant {\tt OASIS\_No\_Part}
+      can be passed as a placeholder
+    \item if no {\tt companion} grid attribute is needed, the constant
+      {\tt OASIS\_No\_Companion} can be passed as a placeholder
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_area(const char* cgrid, const int nx\_global, const int ny\_global, const int nx\_loc, const int ny\_loc, const double* area, const int il\_partid)}
+  \begin{itemize}
+    \item {\tt nx\_global} and {\tt ny\_global} are the first and second dimensions
+      of the global grid
+    \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
+      of the local array {\tt area}
+    \item {\tt area} is stored with a fortran compatible
+      (column major) ordering. If it is  declared as a double
+      pointer, it has to be {\tt area[ny\_loc][nx\_loc]}
+    \item {\tt il\_partid} is relevant only for parallel writing. In case
+      of single proc invocations, the constant {\tt OASIS\_No\_Part}
+      can be passed as a placeholder
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_write\_angle(const char* cgrid, const int nx\_global, const int ny\_global, const int nx\_loc, const int ny\_loc, const double* angle, const int il\_partid)}
+  \begin{itemize}
+    \item {\tt nx\_global} and {\tt ny\_global} are the first and second dimensions
+      of the global grid
+    \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
+      of the local array {\tt angle}
+    \item {\tt angle} is stored with a fortran compatible
+      (column major) ordering. If it is  declared as a double
+      pointer, it has to be {\tt angle[ny\_loc][nx\_loc]}
+    \item {\tt il\_partid} is relevant only for parallel writing. In case
+      of single proc invocations, the constant {\tt OASIS\_No\_Part}
+      can be passed as a placeholder
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_terminate\_grids\_writing()}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_def\_var(int* var\_id, const char* name, const int il\_part\_id, const bundle\_size, const int kinout, const int var\_type)}
+  \begin{itemize}
+  \item {\tt bundle\_size} is a scalar integer, corresponding to the
+    second entry of the fortran {\tt var\_nodims} array
+  \item {\tt kinout} can receive one of the two predefined constants
+    {\tt OASIS\_In} or {\tt OASIS\_Out} (also in the form
+    {\tt OASIS\_IN} or {\tt OASIS\_OUT})
+  \item {\tt var\_type} can receive one of the two predefined constants
+    {\tt OASIS\_Real} or {\tt OASIS\_Double} (also in the form
+    {\tt OASIS\_REAL} or {\tt OASIS\_DOUBLE})
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_enddef()}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_put(const int var\_id, const int date, const
+  int x\_size, const int y\_size, const int bundle\_size, const int
+  fkind, const int storage, const void* fld1, const bool
+  write\_restart, int* kinfo)}
+  \begin{itemize}
+  \item This interface does not support higher order mapping through optional fields at this time.
+  \item {\tt x\_size}, {\tt y\_size}, are the dimensions of the local
+    portion of the domain, i.e. fld1. The order of these dimensions must be the same than the order of the dimensions of the arrays in the {\tt
+      grids.nc} file, which corresponds to the storage order in the
+    corresponding internal OASIS3-MCT Fortran work arrays. \\
+    Notice that for
+    unstructured grids {\tt y\_size=1}
+  \item {\tt bundle\_size} should be coherent with the argument of
+    same name in the corresponding {\tt oasis\_c\_def\_var}
+  \item {\tt fkind} can take one of the two predefined constants
+    {\tt OASIS\_Real} or {\tt OASIS\_Double} (also in the form
+    {\tt OASIS\_REAL} or {\tt OASIS\_DOUBLE}) should be coherent with
+    the argument {\tt ktype} in {\tt oasis\_c\_def\_var}
+  \item {\tt storage} can take one of the two predefined constants
+    {\tt OASIS\_COL\_MAJOR} or \\
+    {\tt OASIS\_ROW\_MAJOR}. \\
+    In the first
+    case, the array containing the field has to be declared as \\ {\tt
+      field[bundle\_size][y\_size][x\_size]} (or any equivalent
+    storage of total size \\
+    {\tt bundle\_size*y\_size*x\_size} stored in
+    column major order. \\
+    In the second case, the field has to be
+    declared as \\
+    {\tt field[x\_size][y\_size][bundle\_size]} (or any
+    equivalent row major storage). \\
+    Notice that this choice implies an
+    extra memory copy performed internally by OASIS3-MCT before acting on
+    the field and is therefore to be avoided whenever possible.
+  \item {\tt write\_restart} can take one of the two predefined constants
+    {\tt OASIS\_Write\_Restart} or {\tt OASIS\_No\_Restart}
+  \item {\tt kinfo} contains a return status to be compared against
+    the values of the {\tt return\_codes} enumeration in {\tt oasis\_c.h} (equivalent to the returned value of {\tt
+  info} argument for the Fortran {\tt oasis\_put} routine, see section \ref{prismput})
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get(const int var\_id, const int date, const
+  int x\_size, const int y\_size, const int bundle\_size, const int
+  fkind, const int storage, void* fld1, int* kinfo)}
+  \begin{itemize}
+  \item arguments are the same than for {\tt oasis\_c\_put}, except that {\tt kinfo} return
+  status is equivalent to the returned value of {\tt
+  info} argument for the Fortran {\tt oasis\_get} routine, see section \ref{prismput}.
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_terminate()}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_abort(const int compid, const char* routine\_name, const char* abort\_message, const char* file, const int line)}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_debug(int* debug)}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_set\_debug(const int debug)}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_intercomm(MPI\_Comm* new\_comm, char* cdnam)}
+  \begin{itemize}
+  \item Returns a C MPI\_Comm type by reference
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_intracomm(MPI\_Comm* new\_comm, char* cdnam)}
+  \begin{itemize}
+  \item Returns a C MPI\_Comm type as by reference
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_multi\_intracomm(MPI\_Comm* new\_comm, const int cdnam\_size, char** cdnam, int* root\_ranks)}
+  \begin{itemize}
+  \item Returns a C MPI\_Comm type as by reference
+  \item cdnam\_size is the size of the array cdnam
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_put\_inquire(int var\_id, int date, int* kinfo)}
+  \begin{itemize}
+  \item {\tt kinfo} contains a return status to be compared against
+    the values of the {\tt return\_codes} enumeration in {\tt oasis\_c.h}
+  \end{itemize}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_ncpl(const int var\_id, int* ncpl)}
+
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_get\_freqs(const int var\_id, const int mop, const int ncpl, int*  cpl\_freqs)}
+
+\end{itemize}
+
+\section{OASIS3-MCT python API}
+\label{APIpython} 
+
+The source code of pyOASIS is in the directory {\tt pyoasis/src}. A complete documentation is available in {\tt pyoasis/pyoasis.pdf} and examples on how to use pyOASIS are provided in {\tt pyoasis/examples}. 
+
+First, the OASIS3-MCT Fortran code is wrapped in Fortran using ISO-C bindings. The corresponding source files are in the subdirectory {\tt lib/cbindings/fortran\_isoc}. The file names are the same as the corresponding ones in the original source code but ending in {\tt \_iso.F90}. Subsequently, the Fortran with ISO-C bindings is wrapped in C, see the source code in {\tt lib/cbindings/c\_src}. The names of the files are the same as the corresponding Fortran ones, but ending in {\tt \_c.c}. Finally, the C is wrapped in Python in the directory {\tt pyoasis/src}; a low-level wrapper is made using the same file names as the Fortran ones but ending with {\tt .py}. 
+The python wrapper functions are briefly described hereafer.
+To run all tests including python, C and fortran examples from {\tt pyoasis/examples}, use {\tt make test}.
+
+\begin{itemize}
+\item{Creating a component using MPI}
+\label{index:creating-a-component-using-mpi}
+
+In pyOASIS, components are instances of the {\tt Component} class. To
+initialise a component, its name has to be supplied. 
+It is also possible to provide an optional  {\tt coupling\_flag} argument which
+defaults to “True”, which means the component is coupled through OASIS3\_MCT. 
+
+OASIS3\_MCT couples models which communicate using MPI. 
+If the global communicator gathering at start all components of the coupled model is different from the default {\tt MPI\_COMM\_WORLD}, the global communicator has to be passed to the {\tt Component} class through the third
+optional argument. By default, the
+{\tt Component} class will set up MPI internally and provides methods
+to get access to information such as rank and number of processes in
+the local communicator gathering only the component processes.
+
+\begin{verbatim}
+   ____________________________________________________________
+   import pyoasis
+   [...]
+   comm = my_global_comm
+   component_name = "component"
+   coupling_flag = True
+   comp = pyoasis.Component(component_name, coupling_flag, comm)
+   print("Hello world from process " + str(comp.localcomm.rank) 
+            + " of " + str(comp.localcomm.size))
+   ____________________________________________________________
+\end{verbatim}
+
+To create a coupling communicator for a subset of processes, one can
+use the method {\tt create\_couplcomm}, with a flag being {\tt True} for all these
+processes; see {\tt pyoasis/examples/4-orange/python} for a practical example.
+
+If such a communicator already exists in the code, it should simply
+provided to OASIS3\_MCT with the method {\tt set\_couplcomm}; 
+as in {\tt pyoasis/examples/6-apple\_and\_orange/python}. 
+
+To set up an MPI intra communicator or inter communicator between the local component and
+another component, one can use the methods {\tt get\_intracomm} or {\tt get\_intercomm}; 
+\newline
+as in {\tt pyoasis/examples/3-box/python} . 
+
+To set up an MPI intra-communicator among some of the coupled components, listed in the {\tt comp\_list}  list,
+one can use the method {\tt get\_multi\_intracomm}, as in {\tt 9-python\_fortran\_C-multi\_intracomm}. 
+
+Also, the current OASIS3-MCT internal debug level ({\tt \$NLOGPRT}
+value in the {\it namcouple}), can be retrieved as a property of a component,
+namely {\tt debug\_level}, and can be changed by directly modifying this property,
+as in {\tt pyoasis/examples/7-multiple-puts/python}. 
+
+\item{Creating a partition}
+\label{{index:creating-a-partition}}
+
+The data can be partitioned in various ways.
+These correspond to the  {\tt SerialPartition}, {\tt ApplePartition},
+{\tt BoxPartition}, {\tt OrangePartition} and {\tt PointsPartition}
+classes which are inherited from the {\tt Partition} abstract class.
+For details on the different ways to describe the partitions,
+see OASIS3\_MCT User Guide, section 2.2.3 and examples {\tt 1\_serial},
+{\tt 2\_apple}, {\tt 3\_box}, {\tt 4\_orange}, {\tt 5\_points} in {\tt pyoasis/examples}.
+
+The simplest situation is the serial partitioning where all the data is
+held by a single process and only the number of points has to be
+specified (see example {\tt 1\_serial})
+
+In the case of the Apple partitioning, each process contains a segment
+of a linear domain. To initialise such a partitioning, an offset has to
+be supplied for each rank as well as the number of data points that
+will be stored locally (see example  {\tt 2\_apple}).
+
+When we use the Box partitioning, a two-dimensional domain is split
+into several rectangles. The global offset, local extents in the x and
+y directions and the global extent in the x direction have to be supplied
+to the constructor. The global offset is the index of the corner of the local
+rectangle (see example in {\tt 3\_box}) .
+
+The Orange partitioning consists of several segments of a linear domain (see an example with only one segment per process in  {\tt 4\_orange}.)
+
+The last type of partitioning is Points, where we have to
+specify, in a list, the global indices of the points stored by the
+process (see example in {\tt 5\_points}).
+
+\item{Defining the coupling grids}
+\label{index:defining-the-coupling-grids}
+
+The grid data files, containing the definition of the grids onto which
+the coupling data is defined, can be created by the user before the
+run or can be written directly at run time by the components, either
+by one component process to write the whole grid or by each process
+holding a part of a grid. Details
+about the grid definition can be found in section 2.2.4 of OASIS3\_MCT
+User Guide. A full example of writing a grid in sequential and
+parallel models can be found in {\tt examples/10\_grid} .
+
+To initialise  a grid and write the grid longitudes and latitudes, one
+has to create an instance of the {\tt Grid} class. Then to write the grid cell corner longitudes and latitudes, areas, mask, cell valid fraction, angle, the
+{\tt set\_corners}, {\tt set\_area},  {\tt set\_mask},  {\tt set\_frac}, and {\tt set\_angle} methods can be used respectively.
+
+\item{Declaring the coupling data}
+\label{{index:declaring-the-coupling-data}}
+
+The coupling data is handled by the class {\tt Var}. Its constructor requires
+its symbolic name, as it appears in the {\it namcouple} file, the partition and a flag indicating whether the
+data is incoming or outgoing. The latter is an enumerated type and can
+have the values {\tt pyoasis.OasisParameters.OASIS\_OUT} or
+{\tt pyoasis.OasisParameters.OASIS\_IN}. 
+
+The property {\tt is\_active} can be tested to check if the variable is
+activated in the {\it namcouple} configuring file (see {\tt example 3-box/python}).
+
+The coupling period(s) of the data, as defined in the {\it namcouple}, can be
+accessed with the property {\tt cpl\_freqs} and the number of coupling exchanges in
+which the data is involved by {\tt len(cpl\_freqs)} (see example {\tt 7-multiple-puts/python}).
+
+The property {\tt put\_inquire} of the variable tells what would happen to the corresponding data at that date
+below the corresponding send action. This maybe useful if, for
+example, the calculation of a coupling field is costly and if one
+wants to compute it only when it is really sent out. The
+different possible return codes are listed in section 2.2.9 of
+OASIS3\_MCT User Guide.
+
+\item{Ending the definition phase}
+\label{{index:ending-the-definition-phase}}
+
+Then the definition of the component must be ended by calling the {\tt enddef()}
+method. This must be done only once the partitioning and the variable data have been initalised.
+
+\item{Sending and receiving data}
+\label{{index:sending-and-receiving-data}}
+
+pyOASIS expects data to be provided as a {\tt pyoasis.asarray} object:
+
+\begin{verbatim}
+   ____________________________________________________________
+   field = pyoasis.asarray(range(n_points))
+   ____________________________________________________________
+\end{verbatim}
+
+This is a Numpy array but ordered in the Fortran way.
+In C, multidimensional arrays store data in row\_major order where
+contiguous elements are accessed by incrementing the rightmost index
+while varying the other indices will correspond to increasing strides in
+memory as we use indices further towards the left. By default, Numpy arrays
+use that ordering as well. Fortran, on the other hand, uses column\_major
+order. In that case, contiguous elements are accessed by incrementing
+the leftmost index. {\tt pyoasis.asarray} objects use the same ordering as
+Fortran. As a consequence, it is not necessary to transform data in order to
+use it in the OASIS3\_MCT Fortran library.
+
+The sending and receiving actions may be called by the component at
+each timestep. The date argument is automatically analysed and actions
+are actually performed only if date corresponds to a time for which it
+should be activated, given the period indicated by the user in the
+namcouple. See OASIS3\_MCT User Guide section 2.2.7 for details.
+
+The data is sent with the {\tt put} function.
+
+\begin{verbatim}
+   ____________________________________________________________
+   date = int(0) 
+   variable.put(date, field)
+   ____________________________________________________________
+\end{verbatim}
+
+Conversely, it is received with the {\tt get} function, which fills the {\tt pyoasis.asarray} object.
+
+\begin{verbatim}
+   ____________________________________________________________
+   variable.get(date, field)
+   ____________________________________________________________
+\end{verbatim}
+
+\item{Termination}
+\label{{index:termination}}
+
+Finally, the coupling is terminated with the destruction of
+the component:
+
+\begin{verbatim}
+   ____________________________________________________________
+   del comp
+   ____________________________________________________________
+\end{verbatim}
+
+
+\item{Exceptions and aborting}
+\label{{index:exceptions-and-aborting}}
+
+When an error occurs in OASIS3\_MCT, the code coupler returns an error
+code and an {\tt OasisException} is raised. In practice, OASIS3\_MCT will
+internally handle the error, write an error message in its
+debug log files and to the screen, and abort before the exception is raised. It
+may also happen that the code aborts before the error message appears
+on the screen.
+
+When an error is caught by the pyOASIS wrapper, such as an incorrect parameter
+or a wrong argument type, a {\tt PyOasisException} is raised.
+
+In the following example, where we attempt to initialise a component,
+a {\tt PyOasisException} will be raised as the user supplies an empty
+name :
+
+\begin{verbatim}
+   ____________________________________________________________
+   try:
+         comp = pyoasis.Component("")
+   except (pyoasis.PyOasisException) as exception: 
+           pyoasis.pyoasis_abort(exception)
+   ____________________________________________________________
+\end{verbatim}
+
+The function {\tt pyoasis.pyoasis\_abort} takes an exception as argument.
+It stops the execution  of all the processes after having displayed an error message and
+written information in the log files about the error and the context in
+which it took place.
+
+Another function is available, {\tt pyoasis.oasis\_abort},
+for the cases where a voluntary abort is needed in the code where or
+not an exception has been raised. Its interface mimics the
+corresponding OASIS3\_MCT functio {\tt oasis\_abort}.
+
+\end{itemize}
+
+\subsection{Fortran python API correspondence}
+
+Figures \ref{python_corresp_init} , \ref{python_corresp_grid} and \ref{python_corresp_terminate} show the Fortran python API correspondence for different parts of the API. Different examples implementing the different parts of the API with the Fortran, C and python interfaces are also provided as practical illustrations in directory {\tt pyoasis/examples} and are described in section \ref{subsec_equivalent}.
+
+\begin{figure}[h]
+  \includegraphics[scale=.45]{figures/corresp_init.pdf}
+  \caption{Fortran python AP correspondence for the initialisation, communication and partition definition.}
+  \label{python_corresp_init}
+\end{figure}
+
+\begin{figure}[h]
+  \includegraphics[scale=.45]{figures/corresp_grid.pdf}
+  \caption{Fortran python AP correspondence for the grid definition, variable declaration and end of definition phase.}
+  \label{python_corresp_grid}
+\end{figure}
+
+\begin{figure}[h]
+  \includegraphics[scale=.45]{figures/corresp_terminate.pdf}
+  \caption{Fortran python AP correspondence for the coupling field exchanges, termination and auxialiary routines.}
+  \label{python_corresp_terminate}
+\end{figure}
+
+\newpage
 
 \section{Additonal notes on coupling functionality}
 \label{sec_notes}

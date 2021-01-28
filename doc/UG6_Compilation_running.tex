@@ -8,52 +8,76 @@
 \label{subsec_compile}
 
 OASIS3-MCT is an MPI code. Compiling OASIS3-MCT libraries can be done
-in {\tt oasis3-MCT/util/make\_dir} with Makefile {\tt TopMakefileOasis3}
-which must include a header file {\tt make.{\it
-    your\_platform}} specific to the compiling platform used and
-specified in {\tt oasis3-MCT/util/make\_dir/make.inc}.  
+from the {\tt oasis3-MCT/util/make\_dir} directory
+with the makefile {\tt TopMakefileOasis3}.
+{\tt TopMakefileOasis3} includes the header file {\tt make.inc}
+which should then point to (include) your own {\tt make.your\_platform}
+file.  That file is specific to the hardware and compiling platform used.
 
-One of the
-header files distributed with the release can by used as a template
-in particular to see how to use MPI librairies and NetCDF librairies.
-The root of the OASIS3-MCT tree can be anywhere and must be set in the
-variable {\tt COUPLE} in the {\tt make.{\it your\_platform}} file.
+Several header files are distributed with the release and can by used as
+a template to create a custom file for your machine.
+The root of the OASIS3-MCT tree can be anywhere, but it must be defined
+by the variable {\tt COUPLE}.  Similarly, the variable {\tt ARCHDIR} defines
+the location of the compilation directory.
+Both of these variables are usually defined in the
+{\tt make.your\_platform} file.  Finally, the OASIS3-MCT library
+should be compiled with the same compilers and system software as any
+coupled models using it.  After successful compilation, resulting
+libraries are found in the directory in {\tt \$ARCHDIR/lib} while
+object and module files are found in {\tt \$ARCHDIR/build} and {\tt \$ARCHDIR/build\_shared}. 
 
-The coupled models must be compiled with the same libraries as the ones
-used to compile OASIS3-MCT.
+OASIS3-MCT has historically created static libraries for use in
+Fortran source codes.  However, C language bindings are now
+available, and python codes are now fully supported. Therefore, the OASIS3-MCT makefile {\tt TopMakefileOasis3}
+supports compilation of both static and shared libraries.
 
-The following commands are available:
+{\tt TopMakefileOasis3} has several targets including:
 
 \begin{itemize}
-\item {\tt make -f TopMakefileOasis3} or {\tt make oasis3\_psmile -f
-    TopMakefileOasis3} (for backward compatibility):
+\item  {\tt oasis3-psmile       =} static-libs-fortran (for backwards compatibility)
+\item  {\tt static-libs-fortran =} static oasis libraries for fortran only (default)
+\item  {\tt shared-libs-fortran =} shared (dynamic) oasis libraries for fortran only
+\item  {\tt static-libs         =} static oasis libraries including fortran and c-bindings
+\item  {\tt shared-libs         =} shared (dynamic) oasis libraries including fortran and c-bindings
+\item  {\tt pyoasis             =} builds and installs shared-libs plus higher and intermediate python classes
+\item  {\tt realclean           =} cleans and resets the build
+\end{itemize}
 
-  compiles all OASIS3-MCT libraries {\it mct}, {\it scrip} and {\it
-    psmile};
+The names of the libraries produced
+are {\it mct}, {\it mpeu},  {\it scrip}, {\it psmile.MPI1}, and {\it oasis.cbind}
+with standard prefixes ({\it lib}) and suffixes ({\it .a} or {\it .so}).
 
-\item {\tt make realclean -f TopMakefileOasis3}:
+The following targets have been used historically to compile oasis for Fortran 
+codes and they are all still supported:
+
+\begin{itemize}
+\item {\tt make -f TopMakefileOasis3 help}
+
+  provides a current list of available targets.
+
+\item {\tt make -f TopMakefileOasis3 realclean}
 
   removes all OASIS3-MCT compiled sources and librairies.
 
+\item {\tt make -f TopMakefileOasis3} or
+
+      {\tt make -f TopMakefileOasis3 oasis3\_psmile}
+
+  compiles static versions of OASIS3-MCT Fortran libraries {\it mct}, {\it mpeu},
+  {\it scrip} and {\it psmile};
+
 \end{itemize}
 
-Log and error messages from compilation are saved in {\tt /util/make\_dir} in the files
-{\tt COMP.log} and {\tt COMP.err} .
+Log and error messages from compilation are normally saved in the directory
+{\tt /util/make\_dir} in the files
+{\tt COMP.log} and {\tt COMP.err} or similar.  The {\tt TopMakefileOasis3}
+output will direct users to the compile output files.
 
-During compilation, a new compiling directory, defined by variable
-{\tt ARCHDIR} is created.  After successful compilation, resulting
-libraries are found in the compiling directory in {\tt /lib} and
-object and module files in {\tt /build}. 
-
-To interface  a component code with OASIS3-MCT and use the module {\tt mod\_oasis} (see section \ref{subsubsec_Use}), it is enough to include the path of the psmile objects and
-modules ({\tt \$ARCHDIR/build/lib/psmile.MPI1}) during the compilation and to use the psmile library {\tt \$ARCHDIR/lib/libpsmile.MPI1.a} when
-linking\footnote{If module {\tt mod\_prism} is used in the models, it is necessary to
-include the path of the psmile and of the mct objects and modules for
-the compilation (i.e. {\tt \$ARCHDIR/build/lib/psmile.MPI1} and {\tt /mct} and to use both the psmile and mct libraries {\tt \$ARCHDIR/lib/libpsmile.MPI1.a} and {\tt libmct.a} and {\tt libmpeu.a} when linking.}.
+To interface a component code with OASIS3-MCT and use {\tt mod\_oasis} (see section \ref{subsubsec_Use}), it is required to include OASIS3-MCT modules from {\tt \$ARCHDIR/include} and link with appropriate libraries in {\tt \$ARCHDIR/lib} during the compilation and linking.
 
 Exchange of coupling fields in single and double precision is now supported directly through the interface 
-(see section \ref{subsubsec_Declaration}), even if all real variables are now treated in double precision internally.
-For double precision coupling field, there is no need anymore to promote REAL variables to double precision at compilation.
+(see section \ref{subsubsec_Declaration}).  Single precision fields are converted to double precision fields internally and temporarily.
+For double precision coupling fields, there is no need to promote REAL variables to DOUBLE PRECISION at compilation; this is done automatically within the OASIS3-MCT library.
 
 \section{CPP keys}
 \label{subsec_cpp}
@@ -125,6 +149,35 @@ This environment available with the sources in {\tt
 quality of the interpolations and transformations between his source
 and target grids by calculating the error of interpolation on the
 target grid. For more details, see also the document {\tt test\_interpolation.pdf} there in.
+
+\subsection{The Fortran, C and python equivalent examples}
+\label{subsec_equivalent}
+
+Different examples implementing the different parts of the API with the Fortran, C and python interfaces are provided as practical illustrations in directory {\tt pyoasis/examples} :
+
+\begin{itemize}
+
+\item{{\tt 1-serial}}: one coupling exchange between a serial sender and a serial receiver.
+\item{{\tt 2-apple}}: one coupling exchange between an Apple-parallel sender and a serial receiver; an additonal component, not part of the coupling, is also started and the example shows how to use the {\tt commworld} argument, in Fortran and C, and the communicator optional argument when setting the component in python.
+\item{{\tt 3-box}}: one coupling exchange between an Box-parallel sender and a serial receiver; it shows also how to check if a coupling field declared in the code is activated in the configuration file {\it namcouple}.
+\item{{\tt 4-orange}}: one coupling exchange between an Orange-parallel sender and a serial receiver; not all processes of the sender participate in the coupling and this example shows how to use {\tt create\_couplcomm}.
+\item{{\tt 5-points}}: one coupling exchange between a Point-parallel sender and a serial receiver.
+\item{{\tt 6-apple\_and\_orange}}: one coupling exchange between an Apple-parallel sender and an Orange-parallel receiver; not all processes of the sender participate in the coupling and this example shows how to use {\tt set\_couplcomm}.
+\item{{\tt 7-multiple-puts}}: two coupling fields are both sent from a serial sender to two different serial receivers; this example also sets up an intra communicator between the sender and one receiver and an inter communicator between the sender and the other receiver.
+\item{{\tt 8-interoperability/fortran\_and\_C}}: implements a coupling of a bundle field, with two bundle elements, between a Fortran Apple-parallel sender and a C component. This C component is Orange-parallel for the reception of the bundle field; it also defines another partition of type Box onto which a second coupling field is defined and sent to a third Fortran serial receiver. The sum of the Box partitions in the C component does not cover the global grid, hence the fourth argument {\tt ig\_size} is used to specify the grid global size. The C component also illustrates how the order of the partition definition does not need to be the same for the different processes but that, in that case, a meaningful {\tt name} fifth argument must be used.
+\item{{\tt 8-interoperability/fortran\_and\_python}}: implements the same coupling exchanges than {{\tt 8-interoperability/fortran\_and\_C}} but with the C component replaced by a python component.
+\item{{\tt 9-python\_fortran\_C-multi\_intracomm}}: illustrates the set-up of an intracommunicator between a Fortran, a C and a python components using OASIS3-MCT; a bcast is then realised to share some data. In this example, an additional component is also launched at start but does not participate in the coupling and hence uses the {\tt coupled} third argument of {\tt oasis\_initi\_comp}.
+\item{{\tt 10-grid}}: a single Box-parallel component defines and writes two grids {\tt pyoa} and {\tt mono}, the first one with distributed calls from all the processes, the second one from the master process only.
+\item{{\tt 11-test-interpolation}}: one exchange of a coupling bundle field defined on real grids involving a first-order concervative regridding between an Apple-parallel sender and a serial receiver.  In the Fortran and C examples, the grids are fixed, while in the python example, the user chooses the source and target grids interactively, among the ones available in the files available in the {\tt common\_data} directory. This example produces graphical output of the received fields if the following packages are installed
+\begin{itemize}
+\item pip3 install matplotlib
+\item pip3 install scipy
+\item pip3 install cartopy
+\item pip3 uninstall shapely
+\item pip3 install shapely --no-binary shapely
+\end{itemize}
+\item{\tt 12-grid-functions}: Graphical version of {{\tt 10-grid}}, i.e. the {\tt pyoa} grid layout is displayed if the same graphical packages than for {{\tt 11-test-interpolation}} are installed.
+\end{itemize}
 
 \section{Debugging}
 \label{subsec_debug}
