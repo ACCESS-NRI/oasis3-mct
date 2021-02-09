@@ -38,7 +38,7 @@ SUBROUTINE read_dimgrid (nlon,nlat,data_filename,cl_grd,w_unit,FILE_Debug)
   !
   ! Check if file exists before open it
   inquire(file=trim(data_filename),exist=exists)
-  if (exists == .FALSE. ) then
+  if (exists .eqv. .FALSE. ) then
      write(w_unit,*) 'File ',trim(data_filename),' does not exists'
      call routine_model_abort(w_unit,__FILE__,__LINE__,subname)
   endif
@@ -127,7 +127,7 @@ END SUBROUTINE read_dimgrid
   !
   ! Check if file exists before open it
   inquire(file=trim(data_filename),exist=exists)
-  if (exists == .FALSE. ) then
+  if (exists .eqv. .FALSE. ) then
      write(w_unit,*) 'File ',trim(data_filename),' does not exists'
      call routine_model_abort(w_unit,__FILE__,__LINE__,subname)
   endif
@@ -195,7 +195,7 @@ LOGICAL FUNCTION inquire_mask (data_filename, cl_grd, w_unit, FILE_Debug)
    !
    ! Check if file exists before open it
    inquire(file=trim(data_filename),exist=exists)
-   if (exists == .FALSE. ) then
+   if (exists .eqv. .FALSE. ) then
       write(w_unit,*) 'File ',trim(data_filename),' does not exists'
       call routine_model_abort(w_unit,__FILE__,__LINE__,subname)
    endif
@@ -240,7 +240,7 @@ END FUNCTION inquire_mask
   !
   ! Check if file exists before open it
   inquire(file=trim(data_filename),exist=exists)
-  if (exists == .FALSE. ) then
+  if (exists .eqv. .FALSE. ) then
      write(w_unit,*) 'File ',trim(data_filename),' does not exists'
      call routine_model_abort(w_unit,__FILE__,__LINE__,subname)
   endif
@@ -302,7 +302,7 @@ END SUBROUTINE read_mask
   !
   ! Check if file exists before open it
   inquire(file=trim(data_filename),exist=exists)
-  if (exists == .FALSE. ) then
+  if (exists .eqv. .FALSE. ) then
      write(w_unit,*) 'File ',trim(data_filename),' does not exists'
      call routine_model_abort(w_unit,__FILE__,__LINE__,subname)
   endif
