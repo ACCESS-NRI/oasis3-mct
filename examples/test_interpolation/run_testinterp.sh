@@ -70,6 +70,8 @@ fi
 
 arch=kraken_intel_impi_openmp  # nemo_lenovo_intel_impi, nemo_lenovo_intel_impi_openmp or beaufix_intel_impi_openmp
                               # kraken_intel_impi, kraken_intel_impi_openmp, training_computer
+			      # linux_gfortran_openmpi_openmp, linux_gfortran_openmpi
+                              # linux_pgi_openmpi_openmp, linux_pgi_openmpi
 # For arch=beaufix_intel_impi_openmp you must put in your .bashrc 
 #module load intel
 #module load intelmpi
