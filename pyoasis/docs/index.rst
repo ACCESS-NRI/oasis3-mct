@@ -714,7 +714,7 @@ Utilities
 
 Installation
 ------------
-The sections between brackets are necessary only when Cartopy plots are required, for the examples 11 and 12.
+
 
 Under GNU/Linux
 +++++++++++++++
@@ -722,17 +722,25 @@ Under GNU/Linux
 Prerequisites
 .............
 
-- A Fortran and C compiler suite (tested with version 18 of the Intel compilers as well as versions 7.3, 8.3 and 9 of the GNU compilers).
-- An MPI library (tested with version 18 of the Intel MPI Library and versions 4.0.1 and 4.0.5 of OpenMPI)
+- A Fortran and C compiler suite
+- An MPI library
 - NetCDF 4
-- Python 3 with mpi4py and NumPy
-- Sphinx and Tex Live (for the documentation)
-- [Matplotlib]
-- [GEOS (Geometry Engine, Open Source): package libgeos-dev under Debian or Ubuntu]
-- [proj: package libproj-dev under Debian or Ubuntu] 
+- Python 3 with mpi4py, numpy and netCDF4
+- Extra optional packages for plotting (as in the examples 11 and 12)
+   - matplotlib
+   - GEOS (Geometry Engine, Open Source):
+     package libgeos-dev under Debian or Ubuntu, geos-devel under Fedora
+   - proj:
+     package libproj-dev under Debian or Ubuntu, proj-devel under Fedora
+- Optional packages for generating the documentation:
+   - sphinx
+   - Tex Live
+- Optional package for automated testing:
+   - pytest
 
-Installation
-............
+OASIS3-MCT Installation
+.......................
+
 - Obtain OASIS3-MCT (refer to OASIS3-MCT User Guide for details).
 - Change directory to ${OASIS_ROOT}/util/make_dir.
 - Create your own make.inc file based on make.intel_davinci, make.gfortran_openmpi_linux or make.bindings.
@@ -743,24 +751,36 @@ Installation
 
 - Append the lines displayed at the end of the compilation to your .bashrc file or, alternatively, before using pyOASIS, source the script mentioned there. 
 
-[Extra software]
+Virtual Python environment
 ................
 
-- Create a virtual environment: ::
+- Create a virtual environment (set ``VENVDIR`` as a directory of your choice containing the virtual environment): ::
 
-    export VENVDIR=~/INSTALL/PY_ENV/PyO   directory containing the virtual environment 
+    export VENVDIR=~/INSTALL/PY_ENV/PyO   
     python3 -m venv ${VENVDIR}
     source ${VENVDIR}/bin/activate
     
-- Install software: ::
-
+- Install packages: ::
+    
     pip install --upgrade pip
+    pip install mpi4py
+    pip install numpy 
+    pip install netcdf4
+
+Extra software 
+..............
+
+- For applications using Cartopy plots, as in the examples 11 and 12: ::
+    
+    pip install scipy
+    pip install matplotlib
     pip uninstall shapely   
     pip install shapely --no-binary shapely
     pip install cartopy
-    pip install pykdtree
 
-The uninstall steps are needed only if a previous version of the software was already there. The last package is not necessary. It is only used for optimisation. 
+- Optional package for performances optimisation: ::
+    
+    pip install pykdtree
 
 
 Under macOS
@@ -769,23 +789,28 @@ Under macOS
 Prerequisites
 .............
 
-::
+Refer to the GNU/Linux section.
+
+If using Brew (tested with gnu up to version 10.2.0): ::
    
    brew install gcc   
    brew install openblas
-   brew install openmpi 
-   [brew install geos]
-   [brew install proj]
+   brew install openmpi
 
-(This has been tested with gcc 10.2.0.)
+For the optional packages: ::
+  
+   brew install geos
+   brew install proj
+
    
-Installation
-............
+OASIS3-MCT Installation
+.......................
+
 Same as under GNU/Linux. See previous section.
 
 
 Virtual Python environment
-+++++++++++
+..........................
 
 - Create a virtual environment:
 
@@ -798,17 +823,23 @@ Virtual Python environment
     pip cache remove numpy
     OPENBLAS="$(brew --prefix openblas)" pip install --global-option=build-ext numpy
     pip install netcdf4
-    [pip uninstall scipy]
-    [pip cache remove scipy]
-    [pip install --global-option=build-ext scipy]
-    [pip uninstall shapely]
-    [pip install shapely --no-binary shapely]
-    [pip install matplotlib]
-    [pip install cartopy]
-    [pip install pykdtree]
 
-The uninstall steps are needed only if a previous version of the software was already there. The last package is not necessary. It is only used for optimisation. 
+Extra software 
+..............
 
+- For applications using Cartopy plots, as in the examples 11 and 12: ::
+    
+    pip uninstall scipy
+    pip cache remove scipy
+    pip install --global-option=build-ext scipy
+    pip uninstall shapely
+    pip install shapely --no-binary shapely
+    pip install matplotlib
+    pip install cartopy
+    
+- Optional package for performances optimisation: ::
+    
+    pip install pykdtree
 
 Set up the environment
 ......................
