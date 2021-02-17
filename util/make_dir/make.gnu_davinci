@@ -37,7 +37,7 @@ f90         = $(F90)
 f           = $(F90)
 CC          = mpicc
 # Linker (needed for shared libraries)
-LID          = $(F90)
+LD          = $(F90)
 # Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
