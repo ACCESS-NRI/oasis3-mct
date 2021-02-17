@@ -213,7 +213,8 @@ makemct-static:
 	@(cd $(LIBBUILD)/mctdir; \
          cp -f ./*/lib*.a   $(ARCHDIR)/lib/; \
          cp -f ./*/*.o    $(LIBBUILD)/mct/; \
-         cp -f ./*/*.mod  $(LIBBUILD)/mct/;)
+         cp -f ./*/*.mod  $(LIBBUILD)/mct/; \
+         cp -f ./*/*.mod  $(ARCHDIR)/include/;)
 
 makemct-shared:
 	@echo "=> Configuring shared libraries mpeu and mct"
@@ -234,7 +235,8 @@ makemct-shared:
 	@echo "=> Installing shared libraries mpeu and mct"
 	@(cd $(LIBBUILDSHARED)/mctdir ; \
          cp -f ./*/*.o    $(LIBBUILDSHARED)/mct/; \
-         cp -f ./*/*.mod  $(LIBBUILDSHARED)/mct/;)
+         cp -f ./*/*.mod  $(LIBBUILDSHARED)/mct/; \
+         cp -f ./*/*.mod  $(ARCHDIR)/include/;)
 
 ########################################################################################
 # Rules for compiling the libraries scrip
@@ -243,11 +245,17 @@ makescrip-static:
 	@echo "=> Compiling library scrip"
 	@(cd $(LIBBUILD)/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
          $(modifmakefile) ; $(MAKE) all 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+	@echo "=> Installing scrip modules"
+	@(cd $(LIBBUILD)/scrip ; \
+         cp -f *.mod  $(ARCHDIR)/include/;)
 
 makescrip-shared:
 	@echo "=> Compiling shared library scrip"
 	@(cd $(LIBBUILDSHARED)/scrip; cp -f $(LIBSRC)/scrip/src/Makefile .;\
          $(modifmakefile) ; $(MAKE) shared 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
+	@echo "=> Installing scrip modules"
+	@(cd $(LIBBUILDSHARED)/scrip ; \
+         cp -f *.mod  $(ARCHDIR)/include/;)
 
 ########################################################################################
 # Rules for compiling the libraries psmile
@@ -278,12 +286,18 @@ makecbindings-static:
 	@(cd $(LIBBUILD)/cbindings ; \
 	 cp -f -r -p $(LIBSRC)/cbindings/Makefile .; $(modifmakefile) ; \
          $(MAKE) libstatic 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+	@echo "=> Installing cbindings modules"
+	@(cd $(LIBBUILD)/cbindings ; \
+         cp -f *.mod  $(ARCHDIR)/include/;)
 
 makecbindings-shared:
 	@echo "=> Compiling the C bindings shared"
 	@(cd $(LIBBUILDSHARED)/cbindings ; \
 	 cp -f -r -p $(LIBSRC)/cbindings/Makefile .; $(modifmakefile) ; \
          $(MAKE) libshared 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
+	@echo "=> Installing cbindings modules"
+	@(cd $(LIBBUILDSHARED)/cbindings ; \
+         cp -f *.mod  $(ARCHDIR)/include/;)
 
 ########################################################################################
 # Rules for installing the PyOasis python modules
