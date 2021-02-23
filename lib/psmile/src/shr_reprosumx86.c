@@ -11,42 +11,6 @@
  * control word of a x86 FPU.
  */
 
-#define _NO_CHANGE      0
-#define _UPPER_CASE     1
-#define _ADD_UNDERSCORE 2
-#define _ADD_TWO_UNDERSCORES 3
-
-#ifdef FORTRANUNDERSCORE
-#define NAMING _ADD_UNDERSCORE
-#endif
-
-#ifdef FORTRANDOUBLEUNDERSCORE
-#define NAMING _ADD_TWO_UNDERSCORES
-#endif
-
-#ifdef FORTRANCAPS
-#define NAMING _UPPER_CASE
-#endif
-
-#ifndef NAMING
-#define NAMING _NO_CHANGE
-#endif
-
-#if (NAMING == _ADD_UNDERSCORE)
-#define shr_reprosumx86_fix_start shr_reprosumx86_fix_start_
-#define shr_reprosumx86_fix_end   shr_reprosumx86_fix_end_
-#endif
-
-#if (NAMING == _ADD_TWO_UNDERSCORES)
-#define shr_reprosumx86_fix_start shr_reprosumx86_fix_start__
-#define shr_reprosumx86_fix_end   shr_reprosumx86_fix_end__
-#endif
-
-#if (NAMING == _UPPER_CASE)
-#define shr_reprosumx86_fix_start SHR_REPROSUMX86_FIX_START
-#define shr_reprosumx86_fix_end   SHR_REPROSUMX86_FIX_END
-#endif
-
 #ifdef x86
 #ifndef _FPU_GETCW
 #define _FPU_GETCW(x) asm volatile ("fnstcw %0":"=m" (x));
