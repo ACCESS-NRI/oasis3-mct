@@ -10,7 +10,6 @@ MODULE mod_oasis_getput_interface
     use mod_oasis_advance
     use mod_oasis_var
     use mod_oasis_sys
-    use mct_mod
 
     implicit none
     private

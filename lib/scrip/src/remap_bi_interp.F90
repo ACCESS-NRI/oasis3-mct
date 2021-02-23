@@ -94,7 +94,7 @@
 
 !***********************************************************************
 
-      subroutine remap_bi (lextrapdone, &
+      subroutine remap_bi (lextrapdone, ll_nnei, &
                            mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
 
 !-----------------------------------------------------------------------
@@ -108,11 +108,11 @@
       !
       !-----------------------------------------------------------------------
 
-      integer (kind=int_kind) :: mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
+      integer (kind=int_kind), INTENT(IN) :: mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
 
 
-      LOGICAL :: lextrapdone   ! logical, true if EXTRAP done on field
-      LOGICAL :: ll_nnei        ! true (default) if extra search is done
+      LOGICAL, INTENT(IN) :: lextrapdone   ! logical, true if EXTRAP done on field
+      LOGICAL, INTENT(IN) :: ll_nnei       ! true (default) if extra search is done
 
 !-----------------------------------------------------------------------
 !
@@ -192,8 +192,6 @@
 
       ! num_neighbors = 4 for bilinear or bicubic interpolation
       num_neighbors = 4
-!
-      ll_nnei = .true.
       nmap = 1
 
       IF (restrict_TYPE == 'REDUCED') ll_gaussreduced_grid = .TRUE.

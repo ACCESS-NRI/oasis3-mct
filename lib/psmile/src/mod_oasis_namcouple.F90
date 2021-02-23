@@ -23,11 +23,10 @@ MODULE mod_oasis_namcouple
   private
 
   public oasis_namcouple_init
-
 ! NAMCOUPLE PUBLIC DATA
 
-  INTEGER (kind=ip_intwp_p),PARAMETER :: jpeighty = 5000 !< max number of characters to be read 
-                                                         !< in each line of the file namcouple 
+  INTEGER (kind=ip_intwp_p),PARAMETER :: jpeighty = 5000 !< max number of characters to be read
+                                                         !< in each line of the file namcouple
   CHARACTER(len=*),parameter :: rform = '(A5000)'        !< formatted line read format
 
   CHARACTER(len=*),parameter :: nmapdec_default = 'decomp_1d'        ! decomp_wghtfile or decomp_1d
@@ -38,7 +37,7 @@ MODULE mod_oasis_namcouple
 
   CHARACTER(len=*),parameter :: nwgtopt_default = 'abort_on_bad_index'         ! weights handling
 !  CHARACTER(len=*),parameter :: nwgtopt_default = 'ignore_bad_index'          ! weights handling
-!  CHARACTER(len=*),parameter :: nwgtopt_default = 'ignore_bad_index_silently' ! weights handling 
+!  CHARACTER(len=*),parameter :: nwgtopt_default = 'ignore_bad_index_silently' ! weights handling
 !  CHARACTER(len=*),parameter :: nwgtopt_default = 'use_bad_index'             ! weights handling
 
   INTEGER(kind=ip_i4_p)   ,public :: nnamcpl       !< number of namcouple inputs
@@ -51,7 +50,7 @@ MODULE mod_oasis_namcouple
   CHARACTER(len=ic_med)   ,public :: nammapdec     !< namcouple map decomp value
   CHARACTER(len=ic_med)   ,public :: nammatxrd     !< namcouple matrix read option
   CHARACTER(len=ic_med)   ,public :: namwgtopt     !< namcouple weights handling option
- 
+
   CHARACTER(len=jpeighty) ,public,pointer :: namsrcfld(:)  !< list of src fields
   CHARACTER(len=jpeighty) ,public,pointer :: namdstfld(:)  !< list of dst fields
   CHARACTER(len=ic_lvar)  ,public,pointer :: namsrcgrd(:)  !< src grid name
@@ -79,13 +78,15 @@ MODULE mod_oasis_namcouple
   REAL (kind=ip_realwp_p) ,public,pointer :: namflddmu(:)  !< dst multipler term
   REAL (kind=ip_realwp_p) ,public,pointer :: namflddad(:)  !< dst additive term
 
-  CHARACTER(len=ic_med)   ,public,pointer :: namscrmet(:)  !< scrip method (CONSERV, DISTWGT, BILINEAR, BICUBIC, GAUSWGT)
-  CHARACTER(len=ic_med)   ,public,pointer :: namscrnor(:)  !< scrip conserv normalization (FRACAREA, DESTAREA, FRACNNEI)
+  CHARACTER(len=ic_med)   ,public,pointer :: namscrmet(:)  !< scrip method (CONSERV, DISTWGT, DISTWGTNF, BILINEAR, BILINEARNF, BICUBIC, BICUBICNF, GAUSWGT, GAUSWGTNF, LOCCUNIF, LOCCDIST and LOCCGAUS)
+  character(len=ic_med)   ,public,pointer :: namscrnor(:)  !< scrip conserv normalization (FRACAREA, DESTAREA, FRACNNEI, DESTNNEI, FRACARTR, DESTARTR, FRACNNTR, DESTNNTR)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrtyp(:)  !< scrip mapping type (SCALAR, VECTOR)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrord(:)  !< scrip conserve order (FIRST, SECOND)
   CHARACTER(len=ic_med)   ,public,pointer :: namscrres(:)  !< scrip search restriction (LATLON, LATITUDE)
   REAL (kind=ip_realwp_p) ,public,pointer :: namscrvam(:)  !< scrip gauss weight distance weighting for GAUSWGT
-  INTEGER(kind=ip_i4_p)   ,public,pointer :: namscrnbr(:)  !< scrip number of neighbors for GAUSWGT and DISTWGT
+  INTEGER(kind=ip_i4_p)   ,public,pointer :: namscrnbr(:)  !< scrip number of neighbors for GAUSWGT, DISTWGT, LOCCUNIF, LOCCDIST and LOCCGAUS)
+  REAL (kind=ip_realwp_p) ,public,pointer :: namscrnth(:)  !< scrip conserv north threshold
+  REAL (kind=ip_realwp_p) ,public,pointer :: namscrsth(:)  !< scrip conserv south threshold
   INTEGER(kind=ip_i4_p)   ,public,pointer :: namscrbin(:)  !< script number of search bins
 
   !--- derived ---
@@ -105,17 +106,18 @@ MODULE mod_oasis_namcouple
   LOGICAL :: lncdfgrd
   LOGICAL :: lncdfrst
 ! --- mod_label
-  CHARACTER(len=5), PARAMETER :: cgrdnam = 'grids'  
-  CHARACTER(len=5), PARAMETER :: cmsknam = 'masks' 
-  CHARACTER(len=5), PARAMETER :: csurnam = 'areas' 
-  CHARACTER(len=5), PARAMETER :: crednam = 'maskr'
-  CHARACTER(len=4), PARAMETER :: cglonsuf = '.lon'
-  CHARACTER(len=4), PARAMETER :: cglatsuf = '.lat'
-  CHARACTER(len=4), PARAMETER :: crnlonsuf = '.clo'
-  CHARACTER(len=4), PARAMETER :: crnlatsuf = '.cla'
-  CHARACTER(len=4), PARAMETER :: cmsksuf = '.msk'
-  CHARACTER(len=4), PARAMETER :: csursuf = '.srf'
-  CHARACTER(len=4), PARAMETER :: cangsuf = '.ang'
+  CHARACTER(len=*), PARAMETER :: cgrdnam = 'grids'
+  CHARACTER(len=*), PARAMETER :: cmsknam = 'masks'
+  CHARACTER(len=*), PARAMETER :: csurnam = 'areas'
+  CHARACTER(len=*), PARAMETER :: crednam = 'maskr'
+  CHARACTER(len=*), PARAMETER :: cglonsuf = '.lon'
+  CHARACTER(len=*), PARAMETER :: cglatsuf = '.lat'
+  CHARACTER(len=*), PARAMETER :: crnlonsuf = '.clo'
+  CHARACTER(len=*), PARAMETER :: crnlatsuf = '.cla'
+  CHARACTER(len=*), PARAMETER :: cmsksuf = '.msk'
+  CHARACTER(len=*), PARAMETER :: csursuf = '.srf'
+  CHARACTER(len=*), PARAMETER :: cfrcsuf = '.frc'
+  CHARACTER(len=*), PARAMETER :: cangsuf = '.ang'
 ! --- mod_rainbow
   LOGICAL,DIMENSION(:),ALLOCATABLE :: lmapp
   LOGICAL,DIMENSION(:),ALLOCATABLE :: lsubg
@@ -163,7 +165,7 @@ MODULE mod_oasis_namcouple
   INTEGER (kind=ip_intwp_p),DIMENSION(:),ALLOCATABLE :: ig_total_nseqn
   INTEGER (kind=ip_intwp_p),DIMENSION(:),ALLOCATABLE :: ig_freq
   INTEGER (kind=ip_intwp_p),DIMENSION(:),ALLOCATABLE :: ig_lag
-  INTEGER (kind=ip_intwp_p),DIMENSION(:),ALLOCATABLE :: nlagn 
+  INTEGER (kind=ip_intwp_p),DIMENSION(:),ALLOCATABLE :: nlagn
   INTEGER (kind=ip_intwp_p),DIMENSION(:),ALLOCATABLE :: ig_invert
   INTEGER (kind=ip_intwp_p),DIMENSION(:),ALLOCATABLE :: ig_reverse
   INTEGER (kind=ip_intwp_p),DIMENSION(:),ALLOCATABLE :: ig_number_field
@@ -175,20 +177,20 @@ MODULE mod_oasis_namcouple
   INTEGER (kind=ip_intwp_p)                          :: ig_nbr_rstfile
   INTEGER (kind=ip_intwp_p)                          :: ig_total_frqmin
   LOGICAL                  ,DIMENSION(:),ALLOCATABLE :: lg_state
-  CHARACTER(len=jpeighty)   ,DIMENSION(:),ALLOCATABLE :: cnaminp
-  CHARACTER(len=jpeighty)   ,DIMENSION(:),ALLOCATABLE :: cnamout
-  CHARACTER(len=8)         ,DIMENSION(:,:),ALLOCATABLE :: canal
-  CHARACTER(len=8)                                   :: cg_c
+  CHARACTER(len=jpeighty)  ,DIMENSION(:),ALLOCATABLE :: cnaminp
+  CHARACTER(len=jpeighty)  ,DIMENSION(:),ALLOCATABLE :: cnamout
+  CHARACTER(len=32)        ,DIMENSION(:,:),ALLOCATABLE :: canal
+  CHARACTER(len=32)                                  :: cg_c
   CHARACTER(len=32)        ,DIMENSION(:),ALLOCATABLE :: cg_name_rstfile
   CHARACTER(len=32)        ,DIMENSION(:),ALLOCATABLE :: cg_restart_file
   CHARACTER(len=32)        ,DIMENSION(:),ALLOCATABLE :: cficinp
-  CHARACTER(len=8)         ,DIMENSION(:),ALLOCATABLE :: cficout
+  CHARACTER(len=32)        ,DIMENSION(:),ALLOCATABLE :: cficout
   CHARACTER(len=32)        ,DIMENSION(:),ALLOCATABLE :: cg_input_file
-  CHARACTER(len=jpeighty)   ,DIMENSION(:),ALLOCATABLE :: cg_input_field
-  CHARACTER(len=jpeighty)   ,DIMENSION(:),ALLOCATABLE :: cg_output_field
-  CHARACTER(len=8)         ,DIMENSION(:),ALLOCATABLE :: cficbf
-  CHARACTER(len=8)         ,DIMENSION(:),ALLOCATABLE :: cficaf
-  CHARACTER(len=8)         ,DIMENSION(:),ALLOCATABLE :: cstate
+  CHARACTER(len=jpeighty)  ,DIMENSION(:),ALLOCATABLE :: cg_input_field
+  CHARACTER(len=jpeighty)  ,DIMENSION(:),ALLOCATABLE :: cg_output_field
+  CHARACTER(len=32)        ,DIMENSION(:),ALLOCATABLE :: cficbf
+  CHARACTER(len=32)        ,DIMENSION(:),ALLOCATABLE :: cficaf
+  CHARACTER(len=32)        ,DIMENSION(:),ALLOCATABLE :: cstate
   CHARACTER(len=4)         ,DIMENSION(:),ALLOCATABLE :: cga_locatorbf
   CHARACTER(len=4)         ,DIMENSION(:),ALLOCATABLE :: cga_locatoraf
 ! --- mod_analysis
@@ -200,7 +202,7 @@ MODULE mod_oasis_namcouple
   INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: nbnfld
   INTEGER (kind=ip_intwp_p), DIMENSION(:,:), ALLOCATABLE :: nludat
   INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: nlufil
-  INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: nlumap 
+  INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: nlumap
   INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: nmapfl
   INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: nmapvoi
   INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: nlusub
@@ -221,41 +223,43 @@ MODULE mod_oasis_namcouple
   REAL (kind=ip_realwp_p), DIMENSION(:), ALLOCATABLE :: afldcoef
   REAL (kind=ip_realwp_p), DIMENSION(:), ALLOCATABLE :: afldcobo
   REAL (kind=ip_realwp_p), DIMENSION(:), ALLOCATABLE :: afldcobn
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cxordbf
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cyordbf
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cxordaf
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cyordaf
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cextmet
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cintmet
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cgrdtyp
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cfldtyp
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cfilfic
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cfilmet 
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cconmet
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cconopt
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cfldcoa
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cfldfin
-  CHARACTER(len=8), DIMENSION(:,:),ALLOCATABLE :: ccofld
-  CHARACTER(len=8), DIMENSION(:,:),ALLOCATABLE :: cbofld
-  CHARACTER(len=8), DIMENSION(:,:),ALLOCATABLE :: cbnfld
-  CHARACTER(len=8), DIMENSION(:,:),ALLOCATABLE :: ccofic
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cdqdt
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cgrdmap
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cmskrd
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cgrdsub
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: ctypsub
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cgrdext
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: csper
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: ctper
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cmap_method
+  REAL (kind=ip_realwp_p), DIMENSION(:),ALLOCATABLE :: anthresh
+  REAL (kind=ip_realwp_p), DIMENSION(:),ALLOCATABLE :: asthresh
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cxordbf
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cyordbf
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cxordaf
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cyordaf
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cextmet
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cintmet
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cgrdtyp
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cfldtyp
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cfilfic
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cfilmet
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cconmet
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cconopt
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cfldcoa
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cfldfin
+  CHARACTER(len=32), DIMENSION(:,:),ALLOCATABLE :: ccofld
+  CHARACTER(len=32), DIMENSION(:,:),ALLOCATABLE :: cbofld
+  CHARACTER(len=32), DIMENSION(:,:),ALLOCATABLE :: cbnfld
+  CHARACTER(len=32), DIMENSION(:,:),ALLOCATABLE :: ccofic
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cdqdt
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cgrdmap
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cmskrd
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cgrdsub
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: ctypsub
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cgrdext
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: csper
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: ctper
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cmap_method
   CHARACTER(len=ic_long), DIMENSION(:),ALLOCATABLE :: cmap_file
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cmaptyp
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cmapopt
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: corder
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cnorm_opt
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: cfldtype
-  CHARACTER(len=8), DIMENSION(:),ALLOCATABLE :: crsttype
-  CHARACTER(len=8) :: cfldcor
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cmaptyp
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cmapopt
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: corder
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cnorm_opt
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cfldtype
+  CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: crsttype
+  CHARACTER(len=32) :: cfldcor
   LOGICAL, DIMENSION(:),ALLOCATABLE :: lsurf
 ! --- mod_anais
   INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: naismfl
@@ -268,7 +272,7 @@ MODULE mod_oasis_namcouple
   LOGICAL, DIMENSION(:), ALLOCATABLE :: linit
 ! --- mod extrapol
   INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: niwtn
-  INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: nninnfl 
+  INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: nninnfl
   INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: niwtng
   INTEGER (kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: nninnflg
   LOGICAL, DIMENSION(:), ALLOCATABLE :: lextra
@@ -336,7 +340,7 @@ SUBROUTINE oasis_namcouple_init()
   !
   ! Close namcouple unit
   close(nulin)
-  
+
   CALL oasis_unitfree(nulin)
 
   IF (mpi_rank_global == 0) THEN
@@ -449,15 +453,21 @@ SUBROUTINE oasis_namcouple_init()
   allocate(namscrnbr(ig_final_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "namscrnbr" allocation of experiment module',il_err,1)
 
+  allocate(namscrnth(ig_final_nfield), stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "namscrnth" allocation of experiment module',il_err,1)
+
+  allocate(namscrsth(ig_final_nfield), stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "namscrsth" allocation of experiment module',il_err,1)
+
   allocate(namscrbin(ig_final_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "namscrbin" allocation of experiment module',il_err,1)
 
-  namsrcfld(:) = trim(cspval)
-  namdstfld(:) = trim(cspval)
-  namsrcgrd(:) = trim(cspval)
+  namsrcfld(:) = TRIM(cspval)
+  namdstfld(:) = TRIM(cspval)
+  namsrcgrd(:) = TRIM(cspval)
   namsrc_nx(:) = 0
   namsrc_ny(:) = 0
-  namdstgrd(:) = trim(cspval)
+  namdstgrd(:) = TRIM(cspval)
   namdst_nx(:) = 0
   namdst_ny(:) = 0
   namfldseq(:) = -1
@@ -470,8 +480,8 @@ SUBROUTINE oasis_namcouple_init()
   nammapfil(:) = "idmap"
   nammaploc(:) = "src"
   nammapopt(:) = "bfb"
-  namrstfil(:) = trim(cspval)
-  naminpfil(:) = trim(cspval)
+  namrstfil(:) = TRIM(cspval)
+  naminpfil(:) = TRIM(cspval)
   namchecki(:) = .false.
   namchecko(:) = .false.
   namfldsmu(:) = 1.0_ip_realwp_p
@@ -479,13 +489,15 @@ SUBROUTINE oasis_namcouple_init()
   namflddmu(:) = 1.0_ip_realwp_p
   namflddad(:) = 0.0_ip_realwp_p
 
-  namscrmet(:) = trim(cspval)
-  namscrnor(:) = trim(cspval)
-  namscrtyp(:) = trim(cspval)
-  namscrord(:) = trim(cspval)
-  namscrres(:) = trim(cspval)
+  namscrmet(:) = TRIM(cspval)
+  namscrnor(:) = TRIM(cspval)
+  namscrtyp(:) = TRIM(cspval)
+  namscrord(:) = TRIM(cspval)
+  namscrres(:) = TRIM(cspval)
   namscrvam(:) = 1.0_ip_realwp_p
   namscrnbr(:) = -1
+  namscrnth(:) =  2.0_ip_realwp_p  ! scrip default
+  namscrsth(:) = -2.0_ip_realwp_p  ! scrip default
   namscrbin(:) = -1
 
 !  maxunit = max(maxval(iga_unitmod),1024)
@@ -532,26 +544,28 @@ SUBROUTINE oasis_namcouple_init()
      namflddti(jf) = ig_freq(jf)
      namfldlag(jf) = ig_lag(jf)
      namfldtrn(jf) = ig_local_trans(jf)
-     namrstfil(jf) = trim(cg_restart_file(jf))
-     naminpfil(jf) = trim(cg_input_file(jf))
+     namrstfil(jf) = TRIM(cg_restart_file(jf))
+     naminpfil(jf) = TRIM(cg_input_file(jf))
      IF (ig_number_field(jf) > 0) THEN
-        namsrcgrd(jf) = trim(cficbf(ig_number_field(jf)))
+        namsrcgrd(jf) = TRIM(cficbf(ig_number_field(jf)))
         namsrc_nx(jf) = nlonbf(ig_number_field(jf))
         namsrc_ny(jf) = nlatbf(ig_number_field(jf))
-        namdstgrd(jf) = trim(cficaf(ig_number_field(jf)))
+        namdstgrd(jf) = TRIM(cficaf(ig_number_field(jf)))
         namdst_nx(jf) = nlonaf(ig_number_field(jf))
         namdst_ny(jf) = nlataf(ig_number_field(jf))
         DO ja = 1, ig_ntrans(ig_number_field(jf))
 
            IF (canal(ja,ig_number_field(jf)) .EQ. 'SCRIPR') THEN
-              namscrmet(jf) = trim(cmap_method(ig_number_field(jf)))
-              namscrnor(jf) = trim(cnorm_opt  (ig_number_field(jf)))
-              namscrtyp(jf) = trim(cfldtype   (ig_number_field(jf)))
-              namscrord(jf) = trim(corder     (ig_number_field(jf)))
-              namscrres(jf) = trim(crsttype   (ig_number_field(jf)))
+              namscrmet(jf) = TRIM(cmap_method(ig_number_field(jf)))
+              namscrnor(jf) = TRIM(cnorm_opt  (ig_number_field(jf)))
+              namscrtyp(jf) = TRIM(cfldtype   (ig_number_field(jf)))
+              namscrord(jf) = TRIM(corder     (ig_number_field(jf)))
+              namscrres(jf) = TRIM(crsttype   (ig_number_field(jf)))
               namscrvam(jf) =      varmul     (ig_number_field(jf))
               namscrnbr(jf) =      nscripvoi  (ig_number_field(jf))
               namscrbin(jf) =      nbins      (ig_number_field(jf))
+              namscrnth(jf) =      anthresh   (ig_number_field(jf))
+              namscrsth(jf) =      asthresh   (ig_number_field(jf))
               IF (TRIM(namscrtyp(jf)) /= 'SCALAR') THEN
                  WRITE(tmpstr1,*) subname,jf,'WARNING: SCRIPR weights generation &
                    & supported only for SCALAR mapping, not '//TRIM(namscrtyp(jf))
@@ -559,17 +573,19 @@ SUBROUTINE oasis_namcouple_init()
               ENDIF
 
            ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'MAPPING') THEN
-              nammapfil(jf) = trim(cmap_file(ig_number_field(jf)))
-              nammaploc(jf) = trim(cmaptyp(ig_number_field(jf)))
-              nammapopt(jf) = trim(cmapopt(ig_number_field(jf)))
+              nammapfil(jf) = TRIM(cmap_file(ig_number_field(jf)))
+              nammaploc(jf) = TRIM(cmaptyp(ig_number_field(jf)))
+              nammapopt(jf) = TRIM(cmapopt(ig_number_field(jf)))
 
            ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'CONSERV') THEN
               namfldcon(jf) = ip_cnone
-              namfldcoo(jf) = trim(cconopt(ig_number_field(jf)))
+              namfldcoo(jf) = TRIM(cconopt(ig_number_field(jf)))
               IF (cconmet(ig_number_field(jf)) .EQ. 'GLOBAL') namfldcon(jf) = ip_cglobal
               IF (cconmet(ig_number_field(jf)) .EQ. 'GLBPOS') namfldcon(jf) = ip_cglbpos
+              IF (cconmet(ig_number_field(jf)) .EQ. 'GSSPOS') namfldcon(jf) = ip_cgsspos
               IF (cconmet(ig_number_field(jf)) .EQ. 'BASBAL') namfldcon(jf) = ip_cbasbal
               IF (cconmet(ig_number_field(jf)) .EQ. 'BASPOS') namfldcon(jf) = ip_cbaspos
+              IF (cconmet(ig_number_field(jf)) .EQ. 'BSSPOS') namfldcon(jf) = ip_cbsspos
               IF (namfldcon(jf) .EQ. ip_cnone) THEN
                  WRITE(tmpstr1,*) subname,jf,'WARNING: CONSERV option not supported: '//&
                                   &TRIM(cconmet(ig_number_field(jf)))
@@ -585,7 +601,7 @@ SUBROUTINE oasis_namcouple_init()
            ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'BLASOLD') THEN
               namfldsmu(jf) = afldcobo(ig_number_field(jf))
               DO jc = 1, nbofld(ig_number_field(jf))
-                 IF (trim(cbofld(jc,ig_number_field(jf))) == 'CONSTANT') THEN
+                 IF (TRIM(cbofld(jc,ig_number_field(jf))) == 'CONSTANT') THEN
                     namfldsad(jf) = abocoef(jc,ig_number_field(jf))
                  ELSE
                     WRITE(tmpstr1,*) subname,jf,'ERROR: BLASOLD only supports CONSTANT: '//&
@@ -597,7 +613,7 @@ SUBROUTINE oasis_namcouple_init()
            ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'BLASNEW') THEN
               namflddmu(jf) = afldcobn(ig_number_field(jf))
               DO jc = 1, nbnfld(ig_number_field(jf))
-                 IF (trim(cbnfld(jc,ig_number_field(jf))) == 'CONSTANT') THEN
+                 IF (TRIM(cbnfld(jc,ig_number_field(jf))) == 'CONSTANT') THEN
                     namflddad(jf) = abncoef(jc,ig_number_field(jf))
                  ELSE
                     WRITE(tmpstr1,*) subname,jf,'ERROR: BLASNEW only supports CONSTANTS: '//&
@@ -616,9 +632,9 @@ SUBROUTINE oasis_namcouple_init()
      WRITE(nulprt1,*) subname,'namlogprt,t   ',namlogprt, namtlogprt
      WRITE(nulprt1,*) subname,'namuntmin,max ',namuntmin, namuntmax
      WRITE(nulprt1,*) subname,'namnorest     ',namnorest
-     WRITE(nulprt1,*) subname,'nammapdec     ',trim(nammapdec)
-     WRITE(nulprt1,*) subname,'nammatxrd     ',trim(nammatxrd)
-     WRITE(nulprt1,*) subname,'namwgtopt     ',trim(namwgtopt)
+     WRITE(nulprt1,*) subname,'nammapdec     ',TRIM(nammapdec)
+     WRITE(nulprt1,*) subname,'nammatxrd     ',TRIM(nammatxrd)
+     WRITE(nulprt1,*) subname,'namwgtopt     ',TRIM(namwgtopt)
      WRITE(nulprt1,*) ' '
      DO n = 1,nnamcpl
         WRITE(nulprt1,*) subname,n,'namsrcfld ',TRIM(namsrcfld(n))
@@ -656,6 +672,8 @@ SUBROUTINE oasis_namcouple_init()
         WRITE(nulprt1,*) subname,n,'namscrres ',TRIM(namscrres(n))
         WRITE(nulprt1,*) subname,n,'namscrvam ',namscrvam(n)
         WRITE(nulprt1,*) subname,n,'namscrnbr ',namscrnbr(n)
+        WRITE(nulprt1,*) subname,n,'namscrnth ',namscrnth(n)
+        WRITE(nulprt1,*) subname,n,'namscrsth ',namscrsth(n)
         WRITE(nulprt1,*) subname,n,'namscrbin ',namscrbin(n)
         WRITE(nulprt1,*) ' '
         CALL oasis_flush(nulprt1)
@@ -716,7 +734,7 @@ SUBROUTINE inipar_alloc()
 !               * -------------     ------- *
 !               *****************************
 
-!**** *inipar_alloc*  - Get main run parameters to allocate arrays 
+!**** *inipar_alloc*  - Get main run parameters to allocate arrays
 
 !     Purpose:
 !     -------
@@ -739,7 +757,7 @@ SUBROUTINE inipar_alloc()
   IMPLICIT NONE
 
   !* ---------------------------- Local declarations --------------------
-  
+
   CHARACTER*5000 clline, clline_aux, clvari
   CHARACTER*3 clind
   CHARACTER*2 cldeb
@@ -750,7 +768,7 @@ SUBROUTINE inipar_alloc()
 
   CHARACTER(len=32), DIMENSION(:), ALLOCATABLE :: cl_aux
   CHARACTER(len=32) :: keyword
-  INTEGER (kind=ip_intwp_p) il_varid, il_len, il_err, il_maxanal 
+  INTEGER (kind=ip_intwp_p) il_varid, il_len, il_err, il_maxanal
   INTEGER (kind=ip_intwp_p) nlonbf_notnc, nlatbf_notnc,  &
      nlonaf_notnc, nlataf_notnc
   INTEGER (kind=ip_intwp_p) iind, il_redu, ib, il_aux, il_auxbf, &
@@ -767,7 +785,7 @@ SUBROUTINE inipar_alloc()
 
   ! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  !*    1. Get basic info for the simulation 
+  !*    1. Get basic info for the simulation
   !        ---------------------------------
 
   IF (mpi_rank_global == 0) THEN
@@ -832,20 +850,20 @@ SUBROUTINE inipar_alloc()
   keyword = clmod
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
-     WRITE(nulprt1,*) ' ***WARNING*** '//trim(keyword)//' is obsolete in OASIS3-MCT'
+     WRITE(nulprt1,*) ' ***WARNING*** '//TRIM(keyword)//' is obsolete in OASIS3-MCT'
      CALL oasis_flush(nulprt1)
   ENDIF
 
   keyword = clchan
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
-     WRITE(nulprt1,*) ' ***WARNING*** '//trim(keyword)//' is obsolete in OASIS3-MCT'
+     WRITE(nulprt1,*) ' ***WARNING*** '//TRIM(keyword)//' is obsolete in OASIS3-MCT'
      CALL oasis_flush(nulprt1)
   ENDIF
 
   !*    2. Get field information
   !        --------------------
-  
+
   !* Read total number of fields exchanged by this OASIS process
 
   keyword = clfield
@@ -858,14 +876,14 @@ SUBROUTINE inipar_alloc()
         READ(clvari, FMT=2003) ig_total_nfield
      ELSE
         IF (mpi_rank_global == 0) THEN
-           WRITE(nulprt1,*) ' ***WARNING*** Nothing on input for '//trim(keyword)
+           WRITE(nulprt1,*) ' ***WARNING*** Nothing on input for '//TRIM(keyword)
            WRITE(nulprt1,*) '               Default value will be used '
            WRITE(nulprt1,*) ' '
            CALL oasis_flush(nulprt1)
         ENDIF
      ENDIF
   ELSE
-     WRITE(tmpstr1,*) trim(keyword)//' not found in namcouple'
+     WRITE(tmpstr1,*) TRIM(keyword)//' not found in namcouple'
      CALL namcouple_abort(subname,__LINE__,tmpstr1)
   ENDIF
 
@@ -873,62 +891,62 @@ SUBROUTINE inipar_alloc()
 
   CALL prtout('The maximum number of exchanged fields set in namcouple is nfield =',ig_total_nfield, 1)
 
-  !* Alloc field number array 
+  !* Alloc field number array
 
   ALLOCATE (ig_number_field(ig_total_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error: ig_number_field allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error: ig_number_field allocation of '//TRIM(subname),il_err,1)
   ig_number_field(:)=0
 
-  !* Alloc field status array (LOGICAL indicating if the field goes through 
+  !* Alloc field status array (LOGICAL indicating if the field goes through
   !* Oasis or not)
 
   ALLOCATE (lg_state(ig_total_nfield), stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error: lg_state allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error: lg_state allocation of '//TRIM(subname),il_err,1)
   lg_state(:)=.false.
 
   !* Alloc status of all the fields
 
   ALLOCATE (ig_total_state(ig_total_nfield), stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error: ig_total_state allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error: ig_total_state allocation of '//TRIM(subname),il_err,1)
   ig_total_state(:)=0
 
-  !* Alloc input field name array 
+  !* Alloc input field name array
 
   ALLOCATE (cg_output_field(ig_total_nfield), stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error: cg_output_field allocation of '//trim(subname),il_err,1)
-  cg_output_field(:)=' ' 
+  IF (il_err.NE.0) CALL prtout('Error: cg_output_field allocation of '//TRIM(subname),il_err,1)
+  cg_output_field(:)=' '
 
-  !* Alloc number of analyses array 
+  !* Alloc number of analyses array
 
   ALLOCATE (ig_total_ntrans(ig_total_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error: ig_total_ntrans"allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error: ig_total_ntrans"allocation of '//TRIM(subname),il_err,1)
   ig_total_ntrans (:) = 0
 
   !* Alloc array of restart file names, input and output file names
 
   ALLOCATE (cg_restart_file(ig_total_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error: cg_restart_FILE allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error: cg_restart_FILE allocation of '//TRIM(subname),il_err,1)
   cg_restart_file(:)=' '
   ALLOCATE (cg_input_file(ig_total_nfield), stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "cg_input_file"allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error in "cg_input_file"allocation of '//TRIM(subname),il_err,1)
   cg_input_file(:)=' '
 
   !* Alloc array of source and target locator prefix
 
   ALLOCATE (cga_locatorbf(ig_total_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error: cga_locatorbf allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error: cga_locatorbf allocation of '//TRIM(subname),il_err,1)
   cga_locatorbf(:)=' '
 
   ALLOCATE (cga_locatoraf(ig_total_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error: cga_locatoraf allocation of '//trim(subname),il_err,1)
-  cga_locatoraf(:)=' '  
+  IF (il_err.NE.0) CALL prtout('Error: cga_locatoraf allocation of '//TRIM(subname),il_err,1)
+  cga_locatoraf(:)=' '
 
   !* Get information for all fields
 
   keyword = clstring
   CALL findkeyword (keyword, clline, found)
   IF (.not.found) THEN
-     WRITE(tmpstr1,*) trim(keyword)//' not found in namcouple'
+     WRITE(tmpstr1,*) TRIM(keyword)//' not found in namcouple'
      CALL namcouple_abort(subname,__LINE__,tmpstr1)
   ENDIF
 
@@ -937,7 +955,7 @@ SUBROUTINE inipar_alloc()
   ig_final_nfield = 0
   endflag = .false.
   jf = 0
- 
+
   DO WHILE (.not. endflag .and. jf < ig_total_nfield)
      jf = jf + 1
 
@@ -950,7 +968,7 @@ SUBROUTINE inipar_alloc()
         ENDIF
      CALL skip(clline, jpeighty, ios=ios)
      CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
-     IF (trim(clvari) .eq. "$END") endflag = .true.
+     IF (TRIM(clvari) .eq. "$END") endflag = .true.
 
      IF (TRIM(clvari) .EQ. " ") THEN
         WRITE(tmpstr1,*) ' size clline smaller than the size of the names of the fields on the line'
@@ -968,7 +986,7 @@ SUBROUTINE inipar_alloc()
         CALL parse(clline, clvari, 5, jpeighty, ilen, __LINE__)
         IF (mpi_rank_global == 0) THEN
            WRITE(nulprt1,*) subname,'parsing 1 Read line, clvari in 5 position: ',TRIM(clline),TRIM(clvari)
-           CALL oasis_flush(nulprt1) 
+           CALL oasis_flush(nulprt1)
         ENDIF
         READ(clvari,FMT=2003) ig_total_ntrans(jf)
 
@@ -979,7 +997,7 @@ SUBROUTINE inipar_alloc()
            lg_state(jf) = .false.
            ig_total_state(jf) = ip_output
         ELSE
-           !* Get field status (direct or through oasis) and the number  
+           !* Get field status (direct or through oasis) and the number
            !* of direct and indirect fields if not PIPE nor NONE
            CALL parse(clline, clvari, 7, jpeighty, ilen, __LINE__)
            IF (clvari(1:8).eq.'EXPORTED') THEN
@@ -988,7 +1006,7 @@ SUBROUTINE inipar_alloc()
               ig_number_field(jf) = ig_nfield
               ig_total_state(jf) = ip_exported
               CALL parse(clline, clvari, 6, jpeighty, ilen, __LINE__)
-              !* Get restart file name               
+              !* Get restart file name
               cg_restart_file(jf) = clvari
               !* Get restart file name
            ELSEIF (clvari(1:6) .eq. 'OUTPUT' ) THEN
@@ -1010,16 +1028,16 @@ SUBROUTINE inipar_alloc()
               ig_number_field(jf) = ig_nfield
               ig_total_state(jf) = ip_expout
               CALL parse(clline, clvari, 6, jpeighty, ilen, __LINE__)
-              !* Get restart file name               
+              !* Get restart file name
               cg_restart_file(jf) = clvari
            ELSEIF (clvari(1:6) .eq. 'IGNOUT' ) THEN
               ig_direct_nfield = ig_direct_nfield + 1
               lg_state(jf) = .false.
               ig_total_state(jf) = ip_ignout
               CALL parse(clline, clvari, 6, jpeighty, ilen, __LINE__)
-              !* Get restart file name 
+              !* Get restart file name
               cg_restart_file(jf) = clvari
-           ELSEIF (clvari(1:9).eq. 'AUXILARY') THEN  
+           ELSEIF (clvari(1:9).eq. 'AUXILARY') THEN
               ig_nfield = ig_nfield + 1
               lg_state(jf) = .true.
               ig_number_field(jf) = ig_nfield
@@ -1130,7 +1148,7 @@ SUBROUTINE inipar_alloc()
        ENDIF
 
         ig_final_nfield = ig_final_nfield + 1
- 
+
     ENDIF ! endflag
 
   ENDDO  ! DO jf
@@ -1142,9 +1160,9 @@ SUBROUTINE inipar_alloc()
   DO WHILE (ios .eq. 0)
      READ(nulin, FMT=rform, END=241) clline
      CALL skip(clline, jpeighty,ios=ios)
-     IF (ios .EQ. 0) THEN 
+     IF (ios .EQ. 0) THEN
         CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
-        IF (trim(clvari) /= "$END") THEN
+        IF (TRIM(clvari) /= "$END") THEN
            WRITE(tmpstr1,*) ' NFIELDS too small, increase it in namcouple'
            WRITE(nulprt1,*) ' NFIELDS too small, increase it in namcouple'
            CALL oasis_flush(nulprt1)
@@ -1170,6 +1188,7 @@ SUBROUTINE inipar_alloc()
 
   !* Number of different restart files
 
+  il_aux = 0
   allocate (cl_aux(ig_final_nfield))
   cl_aux(:)=' '
   DO jf = 1,ig_final_nfield
@@ -1178,7 +1197,7 @@ SUBROUTINE inipar_alloc()
         il_aux = 1
      ELSEIF (jf.gt.1) THEN
         IF (ALL(cl_aux.ne.cg_restart_file(jf))) THEN
-           il_aux = il_aux + 1  
+           il_aux = il_aux + 1
            cl_aux(il_aux) = cg_restart_file(jf)
         ENDIF
      ENDIF
@@ -1191,15 +1210,15 @@ SUBROUTINE inipar_alloc()
      !*      Alloc array needed for INTERP and initialize them
 
      ALLOCATE (cintmet(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: cintmet allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: cintmet allocation of '//TRIM(subname),il_err,1)
      ALLOCATE (naismfl(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: naismfl allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: naismfl allocation of '//TRIM(subname),il_err,1)
      ALLOCATE (naismvoi(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: naismvoi allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: naismvoi allocation of '//TRIM(subname),il_err,1)
      ALLOCATE (naisgfl(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: naisgfl allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: naisgfl allocation of '//TRIM(subname),il_err,1)
      ALLOCATE (naisgvoi(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: naisgvoi allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: naisgvoi allocation of '//TRIM(subname),il_err,1)
      cintmet(:)=' '
      naismfl(:) = 1
      naismvoi(:) = 1
@@ -1209,105 +1228,105 @@ SUBROUTINE inipar_alloc()
      !*          Alloc arrays needed for EXTRAP and initialize them
 
      ALLOCATE (cextmet(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: cextmet allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: cextmet allocation of '//TRIM(subname),il_err,1)
      ALLOCATE (nninnfl(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nninnfl allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nninnfl allocation of '//TRIM(subname),il_err,1)
      ALLOCATE (nninnflg(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nninnflg allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nninnflg allocation of '//TRIM(subname),il_err,1)
      ALLOCATE (neighbor(ig_nfield), stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: neighbor allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: neighbor allocation of '//TRIM(subname),il_err,1)
      ALLOCATE (nextfl(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nextfl allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nextfl allocation of '//TRIM(subname),il_err,1)
      cextmet(:)=' '
      nninnfl(:) = 1
      nninnflg(:) = 1
      neighbor(:) = 1
      nextfl(:) = 1
 
-     !*          Alloc arrays needed for BLAS... analyses and initialize them 
+     !*          Alloc arrays needed for BLAS... analyses and initialize them
 
      ALLOCATE (nbofld(ig_nfield), stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nbofld allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nbofld allocation of '//TRIM(subname),il_err,1)
      ALLOCATE (nbnfld(ig_nfield), stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nbnfld allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nbnfld allocation of '//TRIM(subname),il_err,1)
      nbofld(:) = 1
      nbnfld(:) = 1
 
      !*          Alloc arrays needed for MOZAIC and initialize them
 
      ALLOCATE (nmapvoi(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nmapvoi allocation of  '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nmapvoi allocation of  '//TRIM(subname),il_err,1)
      ALLOCATE (nmapfl(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nmapfl allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nmapfl allocation of '//TRIM(subname),il_err,1)
      nmapvoi(:) = 1
      nmapfl(:) = 1
 
      !*          Alloc arrays needed for SUBGRID and initialize them
 
      ALLOCATE (nsubfl(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nsubfl allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nsubfl allocation of '//TRIM(subname),il_err,1)
      ALLOCATE (nsubvoi(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nsubvoi allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nsubvoi allocation of '//TRIM(subname),il_err,1)
      nsubfl(:) = 1
      nsubvoi(:) = 1
 
-     !*          Alloc arrays needed for GLORED and REDGLO and initialize them 
+     !*          Alloc arrays needed for GLORED and REDGLO and initialize them
 
      ALLOCATE (ntronca(ig_nfield), stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: ntronca allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: ntronca allocation of '//TRIM(subname),il_err,1)
      ntronca(:) = 0
 
-     !*          Alloc array needed for analyses parameters 
+     !*          Alloc array needed for analyses parameters
 
      ALLOCATE (cficbf(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: cficbf allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: cficbf allocation of '//TRIM(subname),il_err,1)
      cficbf(:)=' '
      ALLOCATE (cficaf(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: cficaf allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: cficaf allocation of '//TRIM(subname),il_err,1)
      cficaf(:)=' '
 
-      !*         Alloc arrays needed for grid dimensions of direct fields and 
+      !*         Alloc arrays needed for grid dimensions of direct fields and
       !*         indirect fields
 
      ALLOCATE (nlonbf(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nlonbf allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nlonbf allocation of '//TRIM(subname),il_err,1)
      nlonbf(:)=0
      ALLOCATE (nlatbf(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nlatbf allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nlatbf allocation of '//TRIM(subname),il_err,1)
      nlatbf(:)=0
      ALLOCATE (nlonaf(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nlonaf allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nlonaf allocation of '//TRIM(subname),il_err,1)
      nlonaf(:)=0
      ALLOCATE (nlataf(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: nlataf allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: nlataf allocation of '//TRIM(subname),il_err,1)
      nlataf(:)=0
 
      !*         Alloc arrays needed for grid number associated to each field
 
      ALLOCATE (ig_grid_nbrbf(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: ig_grid_nbrbf allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: ig_grid_nbrbf allocation of '//TRIM(subname),il_err,1)
      ig_grid_nbrbf(:)=0
      ALLOCATE (ig_grid_nbraf(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: ig_grid_nbraf allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: ig_grid_nbraf allocation of '//TRIM(subname),il_err,1)
      ig_grid_nbraf(:)=0
 
-     !*          Alloc number of analyses array 
+     !*          Alloc number of analyses array
 
      ALLOCATE (ig_ntrans(ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: ig_ntrans allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: ig_ntrans allocation of '//TRIM(subname),il_err,1)
      ig_ntrans(:)=0
      DO ib = 1, ig_final_nfield
         IF (lg_state(ib)) ig_ntrans(ig_number_field(ib))=ig_total_ntrans(ib)
      ENDDO
 
-     !*          Maximum number of analyses 
+     !*          Maximum number of analyses
 
      il_maxanal = maxval(ig_ntrans)
 
      !*          Alloc array of restart file names
 
      ALLOCATE (cficinp(ig_nfield), stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: cficinp allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: cficinp allocation of '//TRIM(subname),il_err,1)
      cficinp(:)=' '
      DO ib = 1, ig_final_nfield
         IF (lg_state(ib)) cficinp(ig_number_field(ib))=cg_restart_file(ib)
@@ -1332,16 +1351,16 @@ SUBROUTINE inipar_alloc()
      !*          Alloc array needed to get analysis names
 
      ALLOCATE (canal(il_maxanal,ig_nfield),stat=il_err)
-     IF (il_err.NE.0) CALL prtout('Error: canal allocation of '//trim(subname),il_err,1)
+     IF (il_err.NE.0) CALL prtout('Error: canal allocation of '//TRIM(subname),il_err,1)
      canal(:,:)=' '
   ENDIF
 
-  !*      Get analysis parameters 
+  !*      Get analysis parameters
 
   keyword = clstring
   CALL findkeyword (keyword, clline, found)
   IF (.not.found) THEN
-     WRITE(tmpstr1,*) trim(keyword)//' not found'
+     WRITE(tmpstr1,*) TRIM(keyword)//' not found'
      CALL namcouple_abort(subname,__LINE__,tmpstr1)
   ENDIF
 
@@ -1363,7 +1382,7 @@ SUBROUTINE inipar_alloc()
 
      !* Second line
 
-     !* In the indirect case, reading of second, third, fourth line and analyses 
+     !* In the indirect case, reading of second, third, fourth line and analyses
      !* lines
 
      IF (ig_total_state(jf) .NE. ip_input) THEN
@@ -1372,8 +1391,8 @@ SUBROUTINE inipar_alloc()
         CALL skip(clline, jpeighty, ios=ios)
         CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
         IF (ILEN .LT. 0) THEN
-           !*                IF only two words on the line, THEN they are the locator 
-           !*                prefixes and the grids file must be in NetCDF format       
+           !*                IF only two words on the line, THEN they are the locator
+           !*                prefixes and the grids file must be in NetCDF format
            CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
            IF (lg_state(jf)) cficbf(ig_number_field(jf)) = clvari
            cga_locatorbf(jf) = clvari(1:4)
@@ -1381,13 +1400,13 @@ SUBROUTINE inipar_alloc()
            IF (lg_state(jf)) cficaf(ig_number_field(jf)) = clvari
            cga_locatoraf(jf) = clvari(1:4)
            lncdfgrd = .true.
-        ELSE 
-           READ(clvari, FMT=2010) clind, clequa, iind
+        ELSE
+           READ(clvari, FMT=2011) clind, clequa, iind
            IF (clind .EQ. 'SEQ' .OR. clind .EQ. 'LAG' .AND. clequa .EQ. '=') THEN
-              !*                    If 3rd word is an index, THEN first two words are 
+              !*                    If 3rd word is an index, THEN first two words are
               !*                    locator prefixes and grids file must be NetCDF format
-              CALL parse(clline, clvari, 1, jpeighty, ILEN, __LINE__) 
-              IF (lg_state(jf)) cficbf(ig_number_field(jf)) = clvari 
+              CALL parse(clline, clvari, 1, jpeighty, ILEN, __LINE__)
+              IF (lg_state(jf)) cficbf(ig_number_field(jf)) = clvari
               cga_locatorbf(jf) = clvari(1:4)
               CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
               IF (lg_state(jf)) cficaf(ig_number_field(jf)) = clvari
@@ -1396,12 +1415,12 @@ SUBROUTINE inipar_alloc()
            ELSE
               !*              If not, the first 4 words are grid dimensions and next
               !*              2 words are locator prefixes, and grids file may be or
-              !*              not in NetCDF format 
+              !*              not in NetCDF format
               CALL parse(clline, clvari, 1, jpeighty, ILEN, __LINE__)
               !*                    Get number of longitudes for initial field
               IF (mpi_rank_global == 0) THEN
-                 WRITE(nulprt1,*)'CLVARI=',trim(clvari)
-                 CALL oasis_flush(nulprt1) 
+                 WRITE(nulprt1,*)'CLVARI=',TRIM(clvari)
+                 CALL oasis_flush(nulprt1)
               ENDIF
               READ(clvari, FMT=2004) nlonbf_notnc
               CALL parse(clline, clvari, 2, jpeighty, ilen, __LINE__)
@@ -1428,18 +1447,18 @@ SUBROUTINE inipar_alloc()
 
            ENDIF
         ENDIF
-          
+
         !*           Read the P 2 P 0 line for exported, expout or auxilary
-          
+
         IF (lg_state(jf)) THEN
            READ(nulin, FMT=rform) clline
            CALL skip(clline, jpeighty, ios=ios)
         ENDIF
- 
+
         !*            Read next line of strings
         !             --->>> Stuff related to field transformation
 
-        IF (ig_total_ntrans(jf) .GT. 0) THEN 
+        IF (ig_total_ntrans(jf) .GT. 0) THEN
            READ(nulin, FMT=rform) clline
            CALL skip(clline, jpeighty, ios=ios)
            DO ja = 1, ig_total_ntrans(jf)
@@ -1452,7 +1471,7 @@ SUBROUTINE inipar_alloc()
               IF (lg_state(jf)) THEN
                  cg_c=canal(ja,ig_number_field(jf))
                  IF (mpi_rank_global == 0) THEN
-                    WRITE(nulprt1,*)'LG_STATE cg_c=', trim(clline)
+                    WRITE(nulprt1,*)'LG_STATE cg_c=', TRIM(clline)
                     CALL oasis_flush(nulprt1)
                  ENDIF
                  IF (cg_c .EQ. 'NOINTERP' .OR. cg_c .EQ. 'REDGLO' .OR. cg_c .EQ. 'INVERT' .OR. &
@@ -1460,7 +1479,7 @@ SUBROUTINE inipar_alloc()
                      cg_c .EQ. 'REDGLO' .OR. cg_c .EQ. 'INTERP' .OR. cg_c .EQ. 'MOZAIC' .OR. &
                      cg_c .EQ. 'FILLING' .OR. cg_c .EQ. 'MASKP' .OR. cg_c .EQ. 'REVERSE' .OR. &
                      cg_c .EQ. 'GLORED') THEN
-                    WRITE(tmpstr1,*)' OBSOLETE OPERATION= ',trim(cg_c),' specified in namcouple'
+                    WRITE(tmpstr1,*)' OBSOLETE OPERATION= ',TRIM(cg_c),' specified in namcouple'
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
                  ENDIF
                  READ(nulin, FMT=rform) clline
@@ -1491,16 +1510,16 @@ SUBROUTINE inipar_alloc()
                  READ(nulin, FMT=rform) clline
                  CALL skip(clline, jpeighty, ios=ios)
                  IF (mpi_rank_global == 0) THEN
-                    WRITE(nulprt1,*)'OUTPUT clline=', trim(clline)
+                    WRITE(nulprt1,*)'OUTPUT clline=', TRIM(clline)
                     CALL oasis_flush(nulprt1)
                  ENDIF
               ENDIF
            ENDDO   ! DO ja
-        ENDIF   ! IF (ig_total_ntrans(jf) .GT. 0) THEN 
+        ENDIF   ! IF (ig_total_ntrans(jf) .GT. 0) THEN
      ENDIF   !IF (ig_total_state(jf) .NE. ip_input) THEN
   ENDDO   ! DO jf
 
-  IF (lg_oasis_field) THEN 
+  IF (lg_oasis_field) THEN
 
      !*       Search maximum number of fields to be combined in the BLASxxx analyses
 
@@ -1529,15 +1548,14 @@ SUBROUTINE inipar_alloc()
 
   !*    Formats
 
-2001    FORMAT(A9)
-2003    FORMAT(I4)
-2004    FORMAT(I8)
-2009    FORMAT(A8)
-2010    FORMAT(A3,A1,I2)
+2003 FORMAT(I4)
+2004 FORMAT(I8)
+2009 FORMAT(A8)
+2011 FORMAT(A3,A1,I8)
 
   !*    3. End of routine
   !        --------------
-    
+
   IF (mpi_rank_global == 0) THEN
      WRITE(nulprt1,*)' '
      WRITE(nulprt1,*) subname,'-- End of ROUTINE --'
@@ -1584,7 +1602,7 @@ SUBROUTINE inipar
   IMPLICIT NONE
 
 !* ---------------------------- Local declarations --------------------
-  
+
   CHARACTER*5000 clline, clvari
   CHARACTER*9 clword
   CHARACTER*8 cl_print_trans, cl_print_state
@@ -1596,7 +1614,7 @@ SUBROUTINE inipar
   INTEGER (kind=ip_intwp_p) il_file_unit, id_error
   INTEGER (kind=ip_intwp_p) il_max_entry_id, il_no_of_entries
   INTEGER (kind=ip_intwp_p) il_i, il_pos
-  LOGICAL llseq, lllag, ll_exist
+  LOGICAL llseq, lllag
   INTEGER lastplace
   INTEGER (kind=ip_intwp_p) :: ib,ilind1,ilind2,ilind
   INTEGER (kind=ip_intwp_p) :: ja,jf,jfn,jz,jm,ilen,idum
@@ -1613,12 +1631,12 @@ SUBROUTINE inipar
 
 ! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-!*    1. Get basic info for the simulation 
+!*    1. Get basic info for the simulation
 !        ---------------------------------
 
   IF (mpi_rank_global == 0) THEN
      WRITE(nulprt1,*)' '
-     WRITE(nulprt1,*) trim(subname)
+     WRITE(nulprt1,*) TRIM(subname)
      WRITE(nulprt1,*)'   ROUTINE inipar  -  Level 0'
      WRITE(nulprt1,*)'   **************     *******'
      WRITE(nulprt1,*)' '
@@ -1630,24 +1648,24 @@ SUBROUTINE inipar
 
 !* Initialize CHARACTER keywords to locate appropriate input
 
-  !* Initialize some variables 
-  ntime = 0 ; niter = 5 
+  !* Initialize some variables
+  ntime = 0 ; niter = 5
   nstep = 86400 ; nitfn=4
 
-  !* First get experiment name 
+  !* First get experiment name
 
   keyword = cljob
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
-     WRITE(nulprt1,*) ' ***WARNING*** '//trim(keyword)//' is obsolete in OASIS3-MCT'
+     WRITE(nulprt1,*) ' ***WARNING*** '//TRIM(keyword)//' is obsolete in OASIS3-MCT'
   ENDIF
-  
+
   !* Get number of models involved in this simulation
-  
+
   keyword = clmod
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
-     WRITE(nulprt1,*) ' ***WARNING*** '//trim(keyword)//' is obsolete in OASIS3-MCT'
+     WRITE(nulprt1,*) ' ***WARNING*** '//TRIM(keyword)//' is obsolete in OASIS3-MCT'
   ENDIF
 
   !* Get hardware info for this OASIS simulation
@@ -1655,7 +1673,7 @@ SUBROUTINE inipar
   keyword = clchan
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
-     WRITE(nulprt1,*) ' ***WARNING*** '//trim(keyword)//' is obsolete in OASIS3-MCT'
+     WRITE(nulprt1,*) ' ***WARNING*** '//TRIM(keyword)//' is obsolete in OASIS3-MCT'
   ENDIF
 
   !* Get total time for this simulation
@@ -1669,11 +1687,11 @@ SUBROUTINE inipar
      IF (ilen > 0) THEN
         READ(clvari, FMT=1004) ntime
      ELSE
-        WRITE(tmpstr1,*) ' ERROR with value associated with '//trim(keyword)
+        WRITE(tmpstr1,*) ' ERROR with value associated with '//TRIM(keyword)
         CALL namcouple_abort(subname,__LINE__,tmpstr1)
      ENDIF
   ELSE
-     WRITE(tmpstr1,*) trim(keyword)//' not found in namcouple'
+     WRITE(tmpstr1,*) TRIM(keyword)//' not found in namcouple'
      CALL namcouple_abort(subname,__LINE__,tmpstr1)
   ENDIF
 
@@ -1686,7 +1704,7 @@ SUBROUTINE inipar
   keyword = cldate
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
-     WRITE(nulprt1,*) ' ***WARNING*** '//trim(keyword)//' is obsolete in OASIS3-MCT'
+     WRITE(nulprt1,*) ' ***WARNING*** '//TRIM(keyword)//' is obsolete in OASIS3-MCT'
   ENDIF
 
    !* Get number of sequential models involved in this simulation
@@ -1694,7 +1712,7 @@ SUBROUTINE inipar
   keyword = clseq
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
-     WRITE(nulprt1,*) ' ***WARNING*** '//trim(keyword)//' is obsolete in OASIS3-MCT'
+     WRITE(nulprt1,*) ' ***WARNING*** '//TRIM(keyword)//' is obsolete in OASIS3-MCT'
   ENDIF
 
   !* Get the information mode for this simulation
@@ -1702,7 +1720,7 @@ SUBROUTINE inipar
   keyword = clhead
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
-     WRITE(nulprt1,*) ' ***WARNING*** '//trim(keyword)//' is obsolete in OASIS3-MCT'
+     WRITE(nulprt1,*) ' ***WARNING*** '//TRIM(keyword)//' is obsolete in OASIS3-MCT'
   ENDIF
 
   !* Get the printing level for this simulation
@@ -1718,7 +1736,7 @@ SUBROUTINE inipar
 
      IF (ilen .LE. 0) THEN
         IF (mpi_rank_global == 0) THEN
-           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//trim(keyword)
+           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//TRIM(keyword)
            WRITE(nulprt1,*) ' Default value 2 will be used '
            WRITE(nulprt1,*) ' '
            CALL oasis_flush(nulprt1)
@@ -1730,7 +1748,7 @@ SUBROUTINE inipar
            READ(clvari, FMT=1004) ntlogprt
         ELSE
            IF (mpi_rank_global == 0) THEN
-              WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for time statistic for '//trim(keyword)
+              WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for time statistic for '//TRIM(keyword)
               WRITE(nulprt1,*) ' Default value 0 will be used '
               WRITE(nulprt1,*) ' '
               CALL oasis_flush(nulprt1)
@@ -1749,7 +1767,7 @@ SUBROUTINE inipar
   keyword = clcal
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
-     WRITE(nulprt1,*) ' ***WARNING*** '//trim(keyword)//' is obsolete in OASIS3-MCT'
+     WRITE(nulprt1,*) ' ***WARNING*** '//TRIM(keyword)//' is obsolete in OASIS3-MCT'
   ENDIF
 
   !* Get the allow no restart flag value
@@ -1764,7 +1782,7 @@ SUBROUTINE inipar
      IF (ilen .LE. 0) THEN
         nnorest = .false.
         IF (mpi_rank_global == 0) THEN
-           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//trim(keyword)
+           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//TRIM(keyword)
            WRITE(nulprt1,*) ' Default value false will be used '
            WRITE(nulprt1,*) ' '
            CALL oasis_flush(nulprt1)
@@ -1775,7 +1793,7 @@ SUBROUTINE inipar
            nnorest = .true.
         ENDIF
         IF (mpi_rank_global == 0) THEN
-           WRITE(nulprt1,*) ' read '//trim(clvari)//' for '//trim(keyword)
+           WRITE(nulprt1,*) ' read '//TRIM(clvari)//' for '//TRIM(keyword)
            WRITE(nulprt1,*) ' set value to ',nnorest
            WRITE(nulprt1,*) ' '
            CALL oasis_flush(nulprt1)
@@ -1804,18 +1822,18 @@ SUBROUTINE inipar
      CALL parse (clline, clvari, 1, jpeighty, ilen, __LINE__)
      IF (ilen .LE. 0) THEN
         IF (mpi_rank_global == 0) THEN
-           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//trim(keyword)
+           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//TRIM(keyword)
            WRITE(nulprt1,*) ' Default value wght will be used '
            WRITE(nulprt1,*) ' '
            CALL oasis_flush(nulprt1)
         ENDIF
      ELSE
-        IF (trim(clvari) == 'decomp_1d'    .or. &
-            trim(clvari) == 'decomp_wghtfile') THEN
+        IF (TRIM(clvari) == 'decomp_1d'    .or. &
+            TRIM(clvari) == 'decomp_wghtfile') THEN
            nmapdec = clvari
         ELSE
-           CALL prtout('ERROR in namcouple '//trim(keyword)//' argument',jf,1)
-           WRITE(tmpstr1,*) 'ERROR in namcouple '//trim(keyword)//' argument '//TRIM(clvari)
+           CALL prtout('ERROR in namcouple '//TRIM(keyword)//' argument',jf,1)
+           WRITE(tmpstr1,*) 'ERROR in namcouple '//TRIM(keyword)//' argument '//TRIM(clvari)
            CALL namcouple_abort(subname,__LINE__,tmpstr1)
         ENDIF
      ENDIF
@@ -1824,7 +1842,7 @@ SUBROUTINE inipar
   !* Print out the mapdec value
 
   IF (mpi_rank_global == 0) THEN
-     write(nulprt1,*) ' The mapdec value is nmapdec = ',trim(nmapdec)
+     write(nulprt1,*) ' The mapdec value is nmapdec = ',TRIM(nmapdec)
   endif
 
   !* Get the unit matrix read value
@@ -1838,18 +1856,18 @@ SUBROUTINE inipar
      CALL parse (clline, clvari, 1, jpeighty, ilen, __LINE__)
      IF (ilen .LE. 0) THEN
         IF (mpi_rank_global == 0) THEN
-           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//trim(keyword)
+           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//TRIM(keyword)
            WRITE(nulprt1,*) ' Default value wght will be used '
            WRITE(nulprt1,*) ' '
            CALL oasis_flush(nulprt1)
         ENDIF
      ELSE
-        IF (trim(clvari) == 'orig'    .or. &
-            trim(clvari) == 'ceg') THEN
+        IF (TRIM(clvari) == 'orig'    .or. &
+            TRIM(clvari) == 'ceg') THEN
            nmatxrd = clvari
         ELSE
-           CALL prtout('ERROR in namcouple '//trim(keyword)//' argument',jf,1)
-           WRITE(tmpstr1,*) 'ERROR in namcouple '//trim(keyword)//' argument '//TRIM(clvari)
+           CALL prtout('ERROR in namcouple '//TRIM(keyword)//' argument',jf,1)
+           WRITE(tmpstr1,*) 'ERROR in namcouple '//TRIM(keyword)//' argument '//TRIM(clvari)
            CALL namcouple_abort(subname,__LINE__,tmpstr1)
         ENDIF
      ENDIF
@@ -1858,7 +1876,7 @@ SUBROUTINE inipar
   !* Print out the matxrd value
 
   IF (mpi_rank_global == 0) THEN
-     write(nulprt1,*) ' The matxrd value is nmatxrd = ',trim(nmatxrd)
+     write(nulprt1,*) ' The matxrd value is nmatxrd = ',TRIM(nmatxrd)
   endif
 
   !* Get the unit weights handling option
@@ -1872,20 +1890,20 @@ SUBROUTINE inipar
      CALL parse (clline, clvari, 1, jpeighty, ilen, __LINE__)
      IF (ilen .LE. 0) THEN
         IF (mpi_rank_global == 0) THEN
-           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//trim(keyword)
+           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//TRIM(keyword)
            WRITE(nulprt1,*) ' Default value wght will be used '
            WRITE(nulprt1,*) ' '
            CALL oasis_flush(nulprt1)
         ENDIF
      ELSE
-        IF (trim(clvari) == 'abort_on_bad_index' .or. &
-            trim(clvari) == 'ignore_bad_index' .or. &
-            trim(clvari) == 'ignore_bad_index_silently' .or. &
-            trim(clvari) == 'use_bad_index') THEN
+        IF (TRIM(clvari) == 'abort_on_bad_index' .or. &
+            TRIM(clvari) == 'ignore_bad_index' .or. &
+            TRIM(clvari) == 'ignore_bad_index_silently' .or. &
+            TRIM(clvari) == 'use_bad_index') THEN
            nwgtopt = clvari
         ELSE
-           CALL prtout('ERROR in namcouple '//trim(keyword)//' argument',jf,1)
-           WRITE(tmpstr1,*) 'ERROR in namcouple '//trim(keyword)//' argument '//TRIM(clvari)
+           CALL prtout('ERROR in namcouple '//TRIM(keyword)//' argument',jf,1)
+           WRITE(tmpstr1,*) 'ERROR in namcouple '//TRIM(keyword)//' argument '//TRIM(clvari)
            CALL namcouple_abort(subname,__LINE__,tmpstr1)
         ENDIF
      ENDIF
@@ -1894,7 +1912,7 @@ SUBROUTINE inipar
   !* Print out the wgtopt value
 
   IF (mpi_rank_global == 0) THEN
-     write(nulprt1,*) ' The wgtopt value is nwgtopt = ',trim(nwgtopt)
+     write(nulprt1,*) ' The wgtopt value is nwgtopt = ',TRIM(nwgtopt)
   endif
 
   !* Get the unit min/max values
@@ -1909,7 +1927,7 @@ SUBROUTINE inipar
      CALL parse (clline, clvari, 1, jpeighty, ilen, __LINE__)
      IF (ilen .LE. 0) THEN
         IF (mpi_rank_global == 0) THEN
-           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//trim(keyword)
+           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//TRIM(keyword)
            WRITE(nulprt1,*) ' Default values 1024 and 9999 will be used '
            WRITE(nulprt1,*) ' '
            CALL oasis_flush(nulprt1)
@@ -1921,7 +1939,7 @@ SUBROUTINE inipar
            READ(clvari, FMT=1004) nuntmax
         ELSE
            IF (mpi_rank_global == 0) THEN
-              WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//trim(keyword)//' max'
+              WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//TRIM(keyword)//' max'
               WRITE(nulprt1,*) ' Default value 9999 will be used '
               WRITE(nulprt1,*) ' '
               CALL oasis_flush(nulprt1)
@@ -1944,7 +1962,7 @@ SUBROUTINE inipar
   !*    2. Get field information
   !        ---------------------
 
-  !* Init. array needed for local transformation  
+  !* Init. array needed for local transformation
 
   ig_local_trans(:) = ip_instant
 
@@ -1969,7 +1987,7 @@ SUBROUTINE inipar
   keyword = clstring
   CALL findkeyword (keyword, clline, found)
   IF (.not.found) THEN
-     WRITE(tmpstr1,*) trim(keyword)//' not found in namcouple'
+     WRITE(tmpstr1,*) TRIM(keyword)//' not found in namcouple'
      CALL namcouple_abort(subname,__LINE__,tmpstr1)
   ENDIF
 
@@ -2000,7 +2018,7 @@ SUBROUTINE inipar
 !* Get field exchange frequency
      IF (clvari(1:4) .EQ. 'ONCE') THEN
 
-!* The case 'ONCE' means that the coupling period will be equal to the 
+!* The case 'ONCE' means that the coupling period will be equal to the
 !* time of the simulation
 
         ig_freq(jf) = ntime
@@ -2039,8 +2057,8 @@ SUBROUTINE inipar
               il_aux = il_aux + 1
               ig_no_rstfile(jf) = il_aux
               cg_name_rstfile (ig_no_rstfile(jf)) = cg_restart_file(jf)
-           ELSE 
-              DO ib = 1, jf - 1 
+           ELSE
+              DO ib = 1, jf - 1
                  IF (cg_name_rstfile(ig_no_rstfile(ib)).eq.cg_restart_file(jf)) THEN
                      ig_no_rstfile(jf) = ig_no_rstfile(ib)
                  ENDIF
@@ -2067,8 +2085,8 @@ SUBROUTINE inipar
         CALL skip(clline, jpeighty, ios=ios)
         CALL parse(clline, clvari, 3, jpeighty, ilen, __LINE__)
         IF (ilen .lt. 0) THEN
-!     *          IF only two words on the line, THEN they are the locator 
-!     *          prefixes and the grids file must be in NetCDF format       
+!     *          IF only two words on the line, THEN they are the locator
+!     *          prefixes and the grids file must be in NetCDF format
            ig_lag(jf)=0
            ig_total_nseqn(jf)=1
            IF (lg_state(jf)) THEN
@@ -2080,11 +2098,11 @@ SUBROUTINE inipar
            IF (mpi_rank_global == 0) THEN
               WRITE(nulprt1, FMT=3043) jf
            ENDIF
-        ELSE 
+        ELSE
            READ(clvari, FMT=2011) clind, clequa, iind
            IF (clind .EQ. 'SEQ' .or. clind .EQ. 'LAG' .and. &
                clequa .EQ. '=') THEN
-!     *              If 3rd word is an index, THEN first two words are 
+!     *              If 3rd word is an index, THEN first two words are
 !     *              locator prefixes and grids file must be NetCDF format
               ilind1=3
               ilind2=6
@@ -2109,7 +2127,7 @@ SUBROUTINE inipar
               CALL parse(clline, clvari, ilind, jpeighty, ilen, __LINE__)
               IF (ilen .eq. -1) THEN
                  IF (mpi_rank_global == 0) THEN
-                    IF (nlogprt .GE. 0) THEN 
+                    IF (nlogprt .GE. 0) THEN
                        IF (.NOT. lllag) WRITE(nulprt1, FMT=3043) jf
                     ENDIF
                  ENDIF
@@ -2127,7 +2145,7 @@ SUBROUTINE inipar
                     IF (mpi_rank_global == 0) THEN
                        WRITE(nulprt1, FMT=3044)jf,ig_lag(jf)
                     ENDIF
-                 ENDIF              
+                 ENDIF
               ENDIF
            ENDDO  ! DO ilind
         ENDIF
@@ -2174,7 +2192,7 @@ SUBROUTINE inipar
         CALL parse(clline, clvari, 4, jpeighty, ilen, __LINE__)
 !     * Get nbr of overlapped longitudes for the Periodic type target grid
         READ(clvari, FMT=2005) notper(ig_number_field(jf))
-!     
+!
      ENDIF
 
      !* Get the local transformation
@@ -2185,10 +2203,10 @@ SUBROUTINE inipar
            READ(nulin, FMT=rform) clline
            CALL skip(clline, jpeighty, ios=ios)
            DO ja=1,ig_total_ntrans(jf)
-              READ(nulin, FMT=rform) clline 
+              READ(nulin, FMT=rform) clline
               CALL skip(clline, jpeighty, ios=ios)
               CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
-              IF (clvari(1:7) .eq. 'INSTANT') THEN 
+              IF (clvari(1:7) .eq. 'INSTANT') THEN
                  ig_local_trans(jf) = ip_instant
               ELSEIF (clvari(1:7) .eq. 'AVERAGE') THEN
                  ig_local_trans(jf) = ip_average
@@ -2197,7 +2215,7 @@ SUBROUTINE inipar
               ELSEIF (clvari(1:5) .eq. 'T_MIN') THEN
                  ig_local_trans(jf) = ip_min
               ELSEIF (clvari(1:5) .eq. 'T_MAX') THEN
-                 ig_local_trans(jf) = ip_max   
+                 ig_local_trans(jf) = ip_max
               ELSE
                  CALL prtout('ERROR in namcouple for local transformations of field', jf, 1)
                  WRITE(tmpstr1,*) '==> Must be INSTANT, AVERAGE, ACCUMUL, T_MIN or T_MAX'
@@ -2212,7 +2230,7 @@ SUBROUTINE inipar
         CALL skip(clline, jpeighty, ios=ios)
 
 !     * Now read specifics for each transformation
- 
+
         DO ja = 1, ig_ntrans(ig_number_field(jf))
 
 !     * Read next line unless if analysis is NOINTERP (no input)
@@ -2221,7 +2239,7 @@ SUBROUTINE inipar
            CALL skip(clline, jpeighty, ios=ios)
            IF (canal(ja,ig_number_field(jf)) .EQ. 'LOCTRANS') THEN
               CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
-              IF (clvari(1:7) .eq. 'INSTANT') THEN 
+              IF (clvari(1:7) .eq. 'INSTANT') THEN
                  ig_local_trans(jf) = ip_instant
               ELSEIF (clvari(1:7) .eq. 'AVERAGE') THEN
                  ig_local_trans(jf) = ip_average
@@ -2230,7 +2248,7 @@ SUBROUTINE inipar
               ELSEIF (clvari(1:5) .eq. 'T_MIN') THEN
                  ig_local_trans(jf) = ip_min
               ELSEIF (clvari(1:5) .eq. 'T_MAX') THEN
-                 ig_local_trans(jf) = ip_max   
+                 ig_local_trans(jf) = ip_max
               ELSE
                  CALL prtout('ERROR in namcouple for local transformations of field', jf, 1)
                  WRITE(tmpstr1,*) '==> Must be INSTANT, AVERAGE, ACCUMUL, T_MIN or T_MAX'
@@ -2243,18 +2261,18 @@ SUBROUTINE inipar
            ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'MAPPING') THEN
 !* Get mapping filename
               CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
-              cmap_file(ig_number_field(jf)) = trim(clvari)
+              cmap_file(ig_number_field(jf)) = TRIM(clvari)
 !* Get mapping location and/or mapping optimization; src (default), dst; bfb (default), sum, opt
               cmaptyp(ig_number_field(jf)) = 'src'
               cmapopt(ig_number_field(jf)) = 'bfb'
               DO idum = 2,3
                  CALL parse(clline, clvari, idum, jpeighty, ilen, __LINE__)
                  IF (ilen > 0) THEN
-                    IF (trim(clvari) == 'src' .or. trim(clvari) == 'dst') THEN
-                       cmaptyp(ig_number_field(jf)) = trim(clvari)
-                    ELSEIF (trim(clvari) == 'opt' .or. trim(clvari) == 'bfb' .or. &
-                            trim(clvari) == 'sum') THEN
-                       cmapopt(ig_number_field(jf)) = trim(clvari)
+                    IF (TRIM(clvari) == 'src' .or. TRIM(clvari) == 'dst') THEN
+                       cmaptyp(ig_number_field(jf)) = TRIM(clvari)
+                    ELSEIF (TRIM(clvari) == 'opt' .or. TRIM(clvari) == 'bfb' .or. &
+                            TRIM(clvari) == 'sum') THEN
+                       cmapopt(ig_number_field(jf)) = TRIM(clvari)
                     ELSE
                        CALL prtout('ERROR in namcouple mapping argument',jf,1)
                        WRITE(tmpstr1,*) 'ERROR in namcouple mapping argument ',TRIM(clvari),' cmaptyp or loc'
@@ -2266,10 +2284,31 @@ SUBROUTINE inipar
 !* Get Scrip remapping method
               CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
               READ(clvari, FMT=2009) cmap_method(ig_number_field(jf))
+              IF (cmap_method(ig_number_field(jf)) .NE. 'CONSERV' .and. &
+                  cmap_method(ig_number_field(jf)) .NE. 'BILINEAR' .AND.  &
+                  cmap_method(ig_number_field(jf)) .NE. 'BILINEARNF' .AND.  &
+                  cmap_method(ig_number_field(jf)) .NE. 'BICUBIC' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'BICUBICNF' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'DISTWGT' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'DISTWGTNF' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'GAUSWGT' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'GAUSWGTNF' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'LOCCUNIF' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'LOCCDIST' .AND. &
+                  cmap_method(ig_number_field(jf)) .NE. 'LOCCGAUS' ) THEN
+                 IF (mpi_rank_global == 0) THEN
+                    WRITE(nulprt1,*) '    '
+                 ENDIF
+                 CALL prtout('ERROR in namcouple for map method of field',jf,1)
+                 write(tmpstr1, *) TRIM(cmap_method(ig_number_field(jf)))// &
+                    '==> must be [CONSERV,BILINEAR,BICUBIC,DISTWGT,GAUSWGT,LOCCUNIF,LOCCDIST,LOCCGAUS] + [ ,NF]'
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1)
+              ENDIF
 !* Get source grid type
               CALL parse(clline, clvari, 2, jpeighty, ilen, __LINE__)
               READ(clvari, FMT=2009) cgrdtyp(ig_number_field(jf))
-              IF (cmap_method(ig_number_field(jf)) .eq. 'BICUBIC'  &
+              IF ((cmap_method(ig_number_field(jf)) .eq. 'BICUBIC' .or. &
+                   cmap_method(ig_number_field(jf)) .eq. 'BICUBICNF') &
                   .and. cgrdtyp(ig_number_field(jf)) .ne. 'LR' &
                   .and. cgrdtyp(ig_number_field(jf)) .ne. 'D') THEN
                  IF (mpi_rank_global == 0) THEN
@@ -2279,7 +2318,8 @@ SUBROUTINE inipar
                  WRITE(tmpstr1,*) 'BICUBIC interpolation cannot be used if grid is not LR or D'
                  CALL namcouple_abort(subname,__LINE__,tmpstr1)
               ENDIF
-              IF (cmap_method(ig_number_field(jf)) .eq. 'BILINEAR'  &
+              IF ((cmap_method(ig_number_field(jf)) .eq. 'BILINEAR' .or. &
+                   cmap_method(ig_number_field(jf)) .eq. 'BILINEARNF') &
                   .and. cgrdtyp(ig_number_field(jf)) .ne. 'LR' &
                   .and. cgrdtyp(ig_number_field(jf)) .ne. 'D') THEN
                  IF (mpi_rank_global == 0) THEN
@@ -2305,8 +2345,10 @@ SUBROUTINE inipar
               CALL parse(clline, clvari, 4, jpeighty, ilen, __LINE__)
               READ(clvari, FMT=2009) crsttype(ig_number_field(jf))
               IF (cgrdtyp(ig_number_field(jf)) .EQ. 'D') THEN
-                 IF (cmap_method(ig_number_field(jf)) .EQ. 'BILINEAR' .or. &
-                     cmap_method(ig_number_field(jf)) .EQ. 'BICUBIC') THEN
+                 IF (cmap_method(ig_number_field(jf)) .EQ. 'BILINEAR'   .or. &
+                     cmap_method(ig_number_field(jf)) .EQ. 'BICUBIC'    .or. &
+                     cmap_method(ig_number_field(jf)) .EQ. 'BILINEARNF' .or. &
+                     cmap_method(ig_number_field(jf)) .EQ. 'BICUBICNF') THEN
                     IF (crsttype(ig_number_field(jf)) .NE. 'LATITUDE') THEN
                        IF (mpi_rank_global == 0) THEN
                           WRITE(nulprt1,*) '    '
@@ -2314,7 +2356,7 @@ SUBROUTINE inipar
                        CALL prtout('ERROR in namcouple for restriction of field',jf,1)
                        WRITE(tmpstr1,*) '==> LATITUDE must be chosen for reduced grids (D)'
                        CALL namcouple_abort(subname,__LINE__,tmpstr1)
-                    ELSE  
+                    ELSE
                        crsttype(ig_number_field(jf)) = 'REDUCED'
                     ENDIF
                  ENDIF
@@ -2338,14 +2380,20 @@ SUBROUTINE inipar
               IF (cmap_method(ig_number_field(jf)) .EQ. 'CONSERV') THEN
                  CALL parse(clline, clvari, 6, jpeighty, ilen, __LINE__)
                  READ(clvari, FMT=2009)cnorm_opt(ig_number_field(jf))
-                 IF (cnorm_opt(ig_number_field(jf)) .NE. 'FRACAREA' .AND. &
+                 IF (cnorm_opt(ig_number_field(jf)) .NE. 'FRACAREA' .and. &
                      cnorm_opt(ig_number_field(jf)) .NE. 'DESTAREA' .AND.  &
-                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACNNEI') THEN
+                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACNNEI' .AND. &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'DESTNNEI' .AND. &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACARTR' .AND. &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'DESTARTR' .AND.  &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'FRACNNTR' .AND.  &
+                     cnorm_opt(ig_number_field(jf)) .NE. 'DESTNNTR') THEN
                     IF (mpi_rank_global == 0) THEN
                        WRITE(nulprt1,*) '    '
                     ENDIF
                     CALL prtout('ERROR in namcouple for normalize option of field',jf,1)
-                    WRITE(tmpstr1, *) '==> must be FRACAREA, DESTAREA, or FRACNNEI'
+                    write(tmpstr1, *) TRIM(cnorm_opt(ig_number_field(jf)))// &
+                       '==> must be [FRAC,DEST] + [AREA,NNEI,ARTR,NNTR]'
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
                  ENDIF
 !* Get order of remapping for CONSERV
@@ -2355,16 +2403,37 @@ SUBROUTINE inipar
                        WRITE(nulprt1,*) '    '
                     ENDIF
                     CALL prtout('ERROR in namcouple for CONSERV for field',jf,1)
-                    WRITE(tmpstr1,*) '==> FIRST must be indicated at end of line'
+                    WRITE(tmpstr1,*) '==> ORDER must be indicated as 7th argument of line'
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
                  ENDIF
-                 READ(clvari, FMT=2009) corder(ig_number_field(jf))                   
+                 READ(clvari, FMT=2009) corder(ig_number_field(jf))
+!* Get north_threshold and south_threshold of remapping for CONSERV
+                 CALL parse(clline, clvari, 8, jpeighty, ilen, __LINE__)
+                 IF (ilen .gt. 0) THEN
+                    READ(clvari, FMT=2006) anthresh(ig_number_field(jf))
+                    CALL parse(clline, clvari, 9, jpeighty, ilen, __LINE__)
+                    IF (ilen .gt. 0) THEN
+                       READ(clvari, FMT=2006) asthresh(ig_number_field(jf))
+                    ELSE
+                       IF (mpi_rank_global == 0) THEN
+                          WRITE(nulprt1,*) '    '
+                       ENDIF
+                       CALL prtout('ERROR in namcouple for CONSERV for field',jf,1)
+                       WRITE(tmpstr1,*) '==> NTHRESH and STHRESH must both appear if one does'
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1)
+                    ENDIF
+                 ENDIF
               ELSE
                  cnorm_opt(ig_number_field(jf))='NONORM'
               ENDIF
-!* Get number of neighbours for DISTWGT and GAUSWGT
+!* Get number of neighbours for DISTWGT, GAUSWGT, LOCCUNIF, LOCCDIST and LOCCGAUS
               IF (cmap_method(ig_number_field(jf)) .EQ. 'DISTWGT' .or. &
-                  cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGT') THEN
+                  cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGT' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'DISTWGTNF' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGTNF' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'LOCCUNIF' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'LOCCDIST' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'LOCCGAUS' ) THEN
                  CALL parse(clline, clvari, 6, jpeighty, ilen, __LINE__)
                  IF (ilen .LE. 0) THEN
                     IF (mpi_rank_global == 0) THEN
@@ -2375,16 +2444,18 @@ SUBROUTINE inipar
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
                  ELSE
                     READ(clvari, FMT=2003)nscripvoi(ig_number_field(jf))
-                 ENDIF 
+                 ENDIF
               ENDIF
-!* Get gaussian variance for GAUSWGT
-              IF (cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGT') THEN
+!* Get gaussian variance for GAUSWGT and LOCCGAUS
+              IF (cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGT' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'GAUSWGTNF' .or. &
+                  cmap_method(ig_number_field(jf)) .EQ. 'LOCCGAUS') THEN
                  CALL parse(clline, clvari, 7, jpeighty, ilen, __LINE__)
                  IF (ilen .LE. 0) THEN
                     IF (mpi_rank_global == 0) THEN
                        WRITE(nulprt1,*) '    '
                     ENDIF
-                    CALL prtout('ERROR in namcouple for GAUSWGT for field',jf,1)
+                    CALL prtout('ERROR in namcouple for GAUSWGT or LOCCGAUS for field',jf,1)
                     WRITE(tmpstr1,*) '==> Variance must be indicated at end of line'
                     CALL namcouple_abort(subname,__LINE__,tmpstr1)
                  ELSE
@@ -2396,7 +2467,7 @@ SUBROUTINE inipar
                        varmul(ig_number_field(jf)) = REAL(ivarmul)
                     ELSE
                        READ(cvarmul,FMT=2006) varmul(ig_number_field(jf))
-                    ENDIF                    
+                    ENDIF
                  ENDIF
               ENDIF
 
@@ -2417,14 +2488,14 @@ SUBROUTINE inipar
                  READ(clvari, FMT=2005) nfcoast
                  IF (cfilmet(ig_number_field(jf))(1:3) .EQ. 'SMO') THEN
                     CALL parse(clline, clvari, 5, jpeighty, ilen, __LINE__)
-!     * Get field name for flux corrective term 
+!     * Get field name for flux corrective term
                     cfldcor = clvari
                     CALL parse(clline, clvari, 6, jpeighty, ilen, __LINE__)
 !     * Get logical unit used to write flux corrective term
                     READ(clvari, FMT=2005) nlucor
                  ENDIF
-              ENDIF 
-           ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'CONSERV') THEN            
+              ENDIF
+           ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'CONSERV') THEN
               CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
 !     * Get conservation method
               cconmet(ig_number_field(jf)) = clvari
@@ -2432,10 +2503,10 @@ SUBROUTINE inipar
               CALL parse(clline, clvari, 2, jpeighty, ilen, __LINE__)
               cconopt(ig_number_field(jf)) = 'bfb'
               IF (ilen > 0) THEN
-                 IF (trim(clvari) == 'bfb'    .or. trim(clvari) == 'opt'    .or. &
-                     trim(clvari) == 'lsum8'  .or. trim(clvari) == 'lsum16' .or. &
-                     trim(clvari) == 'gather' .or. trim(clvari) == 'ddpdd'  .or. &
-                     trim(clvari) == 'reprosum') THEN
+                 IF (TRIM(clvari) == 'bfb'    .or. TRIM(clvari) == 'opt'    .or. &
+                     TRIM(clvari) == 'lsum8'  .or. TRIM(clvari) == 'lsum16' .or. &
+                     TRIM(clvari) == 'gather' .or. TRIM(clvari) == 'ddpdd'  .or. &
+                     TRIM(clvari) == 'reprosum') THEN
                     cconopt(ig_number_field(jf)) = clvari
                  ELSE
                     CALL prtout('ERROR in namcouple conserv argument',jf,1)
@@ -2456,7 +2527,7 @@ SUBROUTINE inipar
                   READ(cafldcobo,FMT=2006) afldcobo(ig_number_field(jf))
                ENDIF
               DO jc = 1, nbofld(ig_number_field(jf))
-                 READ(nulin, FMT=rform) clline   
+                 READ(nulin, FMT=rform) clline
                  CALL skip(clline, jpeighty)
                  CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
 !     * Get symbolic names for additional fields
@@ -2482,9 +2553,9 @@ SUBROUTINE inipar
                   afldcobn(ig_number_field(jf)) = REAL(iafldcobn)
                ELSE
                   READ(cafldcobn,FMT=2006) afldcobn(ig_number_field(jf))
-               ENDIF              
+               ENDIF
               DO jc = 1, nbnfld(ig_number_field(jf))
-                 READ(nulin, FMT=rform) clline   
+                 READ(nulin, FMT=rform) clline
                  CALL skip(clline, jpeighty)
                  CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
 !     * Get symbolic names for additional fields
@@ -2499,7 +2570,7 @@ SUBROUTINE inipar
                   READ(cabncoef,FMT=2006) abncoef(jc,ig_number_field(jf))
                ENDIF
               ENDDO  ! DO jc
-           ELSE 
+           ELSE
               WRITE(tmpstr1,*) ' Type of analysis not implemented yet '
               WRITE(tmpstr2,*) ' The analysis required in OASIS is :'
               WRITE(tmpstr3,*) ' canal = ', canal(ja,ig_number_field(jf))
@@ -2512,7 +2583,7 @@ SUBROUTINE inipar
      ENDIF
 
 !* End of loop on NoF
- 
+
   ENDDO  ! DO jf
 
 !* Minimum coupling period
@@ -2521,14 +2592,12 @@ SUBROUTINE inipar
 
 !* Formats
 
-2001 FORMAT(A9)
 2003 FORMAT(I4)
 2004 FORMAT(I8)
 2005 FORMAT(I2)
 2006 FORMAT(E15.6)
 2008 FORMAT(A2,I4)
-2009 FORMAT(A8)
-2010 FORMAT(A3,A1,I2)
+2009 FORMAT(A)
 2011 FORMAT(A3,A1,I8)
 2012 FORMAT(A15)
 2013 FORMAT(I10)
@@ -2536,7 +2605,7 @@ SUBROUTINE inipar
 !*    3. Printing
 !        --------
   IF (mpi_rank_global == 0) THEN
-     IF (nlogprt .GE. 0) THEN 
+     IF (nlogprt .GE. 0) THEN
         DO jf = 1, ig_final_nfield
            IF (ig_total_state(jf) .eq. ip_exported ) THEN
               cl_print_state = 'EXPORTED'
@@ -2544,13 +2613,13 @@ SUBROUTINE inipar
               cl_print_state = 'IGNORED'
            ELSEIF (ig_total_state(jf) .eq. ip_ignout ) THEN
               cl_print_state = 'IGNOUT'
-           ELSEIF (ig_total_state(jf) .eq. ip_expout ) THEN 
+           ELSEIF (ig_total_state(jf) .eq. ip_expout ) THEN
               cl_print_state = 'EXPOUT'
-           ELSEIF (ig_total_state(jf) .eq. ip_input ) THEN 
+           ELSEIF (ig_total_state(jf) .eq. ip_input ) THEN
               cl_print_state = 'INPUT'
-           ELSEIF (ig_total_state(jf) .eq. ip_output ) THEN 
+           ELSEIF (ig_total_state(jf) .eq. ip_output ) THEN
               cl_print_state = 'OUTPUT'
-           ELSEIF (ig_total_state(jf) .eq. ip_auxilary ) THEN 
+           ELSEIF (ig_total_state(jf) .eq. ip_auxilary ) THEN
               cl_print_state = 'AUXILARY'
            ENDIF
 
@@ -2563,7 +2632,7 @@ SUBROUTINE inipar
            ELSEIF (ig_local_trans(jf) .eq. ip_min) THEN
               cl_print_trans = 'T_MIN'
            ELSEIF (ig_local_trans(jf) .eq. ip_max) THEN
-              cl_print_trans = 'T_MAX'   
+              cl_print_trans = 'T_MAX'
            ENDIF
 
 !* Local indexes
@@ -2576,99 +2645,103 @@ SUBROUTINE inipar
               IF (ig_total_state(jf) .eq. ip_input .or.  &
                   ig_total_state(jf) .eq. ip_output) THEN
                  WRITE(nulprt1, FMT=3121) &
-                    cg_input_field(jf), cg_output_field(jf),  &
-                    ig_freq(jf), cl_print_trans, &
-                    cl_print_state, ig_total_ntrans(jf)
-              ELSE  
+                    TRIM(cg_input_field(jf)), TRIM(cg_output_field(jf)),  &
+                    ig_freq(jf), TRIM(cl_print_trans), &
+                    TRIM(cl_print_state), ig_total_ntrans(jf)
+              ELSE
                  WRITE(nulprt1, FMT=3116) &
-                    cg_input_field(jf), cg_output_field(jf),  &
-                    ig_freq(jf), cl_print_trans, ig_total_nseqn(jf),  &
-                    ig_lag(jf), cl_print_state, ig_total_ntrans(jf)
+                    TRIM(cg_input_field(jf)), TRIM(cg_output_field(jf)),  &
+                    ig_freq(jf), TRIM(cl_print_trans), ig_total_nseqn(jf),  &
+                    ig_lag(jf), TRIM(cl_print_state), ig_total_ntrans(jf)
               ENDIF
            ELSE
               ilab = numlab(ig_number_field(jf))
-              ifcb = len_trim(cficbf(ig_number_field(jf)))
-              ifca = len_trim(cficaf(ig_number_field(jf)))
+              ifcb = len_TRIM(cficbf(ig_number_field(jf)))
+              ifca = len_TRIM(cficaf(ig_number_field(jf)))
               WRITE(nulprt1, FMT=3001) jf
               WRITE(nulprt1, FMT=3002)
               WRITE(nulprt1, FMT=3003)
-              WRITE(nulprt1, FMT=3004) 
+              WRITE(nulprt1, FMT=3004)
               WRITE(nulprt1, FMT=3005) &
                  TRIM(cnaminp(ig_number_field(jf))),  &
                  TRIM(cnamout(ig_number_field(jf))), &
                  nfexch(ig_number_field(jf)), &
                  nseqn(ig_number_field(jf)), &
                  ig_lag(jf), &
-                 cl_print_state, &
+                 TRIM(cl_print_state), &
                  ig_ntrans(ig_number_field(jf))
            ENDIF
 
            IF (.not. lg_state(jf)) THEN
               IF (ig_total_state(jf) .eq. ip_ignored .or.  &
                   ig_total_state(jf) .eq. ip_ignout ) THEN
-                 WRITE(nulprt1, FMT=3117) cg_restart_file(jf)
+                 WRITE(nulprt1, FMT=3117) TRIM(cg_restart_file(jf))
               ELSEIF (ig_total_state(jf) .eq. ip_input) THEN
-                 WRITE(nulprt1, FMT=3118) cg_input_file(jf)
+                 WRITE(nulprt1, FMT=3118) TRIM(cg_input_file(jf))
               ENDIF
            ELSE
               IF (ig_total_state(jf) .eq. ip_exported .or.  &
                   ig_total_state(jf) .eq. ip_expout .or.  &
                   ig_total_state(jf) .eq. ip_auxilary ) &
-                 WRITE(nulprt1, FMT=3117) cg_restart_file(jf)
+                 WRITE(nulprt1, FMT=3117) TRIM(cg_restart_file(jf))
 
               WRITE(nulprt1, FMT=3007) &
-                 csper(ig_number_field(jf)), nosper(ig_number_field(jf)),  &
-                 ctper(ig_number_field(jf)), notper(ig_number_field(jf))
+                 TRIM(csper(ig_number_field(jf))), nosper(ig_number_field(jf)),  &
+                 TRIM(ctper(ig_number_field(jf))), notper(ig_number_field(jf))
               WRITE(nulprt1, FMT=3008) &
-                 cficbf(ig_number_field(jf))(1:ifcb)//cglonsuf,  &
-                 cficbf(ig_number_field(jf))(1:ifcb)//cglatsuf, &
-                 cficbf(ig_number_field(jf))(1:ifcb)//cmsksuf,  &
-                 cficbf(ig_number_field(jf))(1:ifcb)//csursuf, &
-                 cficaf(ig_number_field(jf))(1:ifca)//cglonsuf,  &
-                 cficaf(ig_number_field(jf))(1:ifca)//cglatsuf, &
-                 cficaf(ig_number_field(jf))(1:ifca)//cmsksuf,  &
-                 cficaf(ig_number_field(jf))(1:ifca)//csursuf
-              WRITE(nulprt1, FMT=3009) 
+                 TRIM(cficbf(ig_number_field(jf))(1:ifcb))//TRIM(cglonsuf),  &
+                 TRIM(cficbf(ig_number_field(jf))(1:ifcb))//TRIM(cglatsuf), &
+                 TRIM(cficbf(ig_number_field(jf))(1:ifcb))//TRIM(cmsksuf),  &
+                 TRIM(cficbf(ig_number_field(jf))(1:ifcb))//TRIM(csursuf), &
+                 TRIM(cficbf(ig_number_field(jf))(1:ifcb))//TRIM(cfrcsuf),  &
+                 TRIM(cficaf(ig_number_field(jf))(1:ifca))//TRIM(cglonsuf),  &
+                 TRIM(cficaf(ig_number_field(jf))(1:ifca))//TRIM(cglatsuf), &
+                 TRIM(cficaf(ig_number_field(jf))(1:ifca))//TRIM(cmsksuf),  &
+                 TRIM(cficaf(ig_number_field(jf))(1:ifca))//TRIM(csursuf),  &
+                 TRIM(cficaf(ig_number_field(jf))(1:ifca))//TRIM(cfrcsuf)
+              WRITE(nulprt1, FMT=3009)
               WRITE(nulprt1, FMT=3010)
               DO ja = 1, ig_ntrans(ig_number_field(jf))
-                 WRITE(nulprt1, FMT=3011) ja, canal(ja,ig_number_field(jf))
+                 WRITE(nulprt1, FMT=3011) ja, TRIM(canal(ja,ig_number_field(jf)))
                  IF (canal(ja,ig_number_field(jf)) .EQ. 'MAPPING') THEN
                     write(nulprt1, FMT=3048) &
-                       trim(cmap_file(ig_number_field(jf))), &
-                       trim(cmaptyp(ig_number_field(jf))), &
-                       trim(cmapopt(ig_number_field(jf)))
+                       TRIM(cmap_file(ig_number_field(jf))), &
+                       TRIM(cmaptyp(ig_number_field(jf))), &
+                       TRIM(cmapopt(ig_number_field(jf)))
                  ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'SCRIPR') THEN
                     WRITE(nulprt1, FMT=3045)  &
-                       cmap_method(ig_number_field(jf)),  &
-                       cfldtype(ig_number_field(jf)),  &
-                       cnorm_opt(ig_number_field(jf)), &
-                       crsttype(ig_number_field(jf)),  &
+                       TRIM(cmap_method(ig_number_field(jf))),  &
+                       TRIM(cfldtype(ig_number_field(jf))),  &
+                       TRIM(cnorm_opt(ig_number_field(jf))), &
+                       TRIM(crsttype(ig_number_field(jf))),  &
                        nbins(ig_number_field(jf))
-                    IF (cmap_method(ig_number_field(jf)) .EQ. 'CONSERV') THEN 
-                       WRITE(nulprt1, FMT=3046) corder(ig_number_field(jf))
-                    ENDIF  
-                 ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'CONSERV') THEN            
+                    IF (cmap_method(ig_number_field(jf)) .EQ. 'CONSERV') THEN
+                       WRITE(nulprt1, FMT=3046) TRIM(corder(ig_number_field(jf)))
+                       WRITE(nulprt1, FMT=3049) anthresh(ig_number_field(jf))
+                       WRITE(nulprt1, FMT=3050) asthresh(ig_number_field(jf))
+                    ENDIF
+                 ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'CONSERV') THEN
                     WRITE(nulprt1, FMT=3025)  &
-                       cconmet(ig_number_field(jf)),  &
-                       cconopt(ig_number_field(jf))
+                       TRIM(cconmet(ig_number_field(jf))),  &
+                       TRIM(cconopt(ig_number_field(jf)))
                  ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'BLASOLD') THEN
                     WRITE(nulprt1, FMT=3027)  &
-                       trim(cnaminp(ig_number_field(jf))),  &
+                       TRIM(cnaminp(ig_number_field(jf))),  &
                        afldcobo(ig_number_field(jf))
                     WRITE(nulprt1, FMT=3028) nbofld(ig_number_field(jf))
                     DO jc = 1, nbofld(ig_number_field(jf))
                        WRITE(nulprt1, FMT=3030)  &
-                          cbofld(jc,ig_number_field(jf)),  &
+                          TRIM(cbofld(jc,ig_number_field(jf))),  &
                           abocoef (jc,ig_number_field(jf))
                     ENDDO
                  ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'BLASNEW') THEN
                     WRITE(nulprt1, FMT=3027)  &
-                       trim(cnamout(ig_number_field(jf))),  &
+                       TRIM(cnamout(ig_number_field(jf))),  &
                        afldcobn(ig_number_field(jf))
                     WRITE(nulprt1, FMT=3028) nbnfld(ig_number_field(jf))
                     DO jc = 1, nbnfld(ig_number_field(jf))
                        WRITE(nulprt1, FMT=3030)  &
-                          cbnfld(jc,ig_number_field(jf)),  &
+                          TRIM(cbnfld(jc,ig_number_field(jf))),  &
                           abncoef (jc,ig_number_field(jf))
                     ENDDO
                  ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'CHECKIN') THEN
@@ -2676,8 +2749,8 @@ SUBROUTINE inipar
                  ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'CHECKOUT') THEN
                     WRITE(nulprt1,*) '   '
                  ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'LOCTRANS') THEN
-                    WRITE(nulprt1, FMT=3047) cl_print_trans
-                 ELSE 
+                    WRITE(nulprt1, FMT=3047) TRIM(cl_print_trans)
+                 ELSE
                     WRITE(tmpstr1,*) ' Type of analysis not implemented yet '
                     WRITE(tmpstr2,*) ' The analysis required in OASIS is :'
                     WRITE(tmpstr3,*) ' canal = ',canal(ja,ig_number_field(jf))
@@ -2714,64 +2787,68 @@ SUBROUTINE inipar
              /,10X,'  Field exchange frequency        = ',I8, &
              /,10X,'  Model sequential index          = ',I2, &
              /,10X,'  Field Lag                       = ',I8, &
-             /,10X,'  Field I/O status                = ',A8, &
+             /,10X,'  Field I/O status                = ',A, &
              /,10X,'  Number of basic operations      = ',I4, /)
- 3116 FORMAT(/,10X,'  Input field symbolic name       = ',A8, &
-             /,10X,'  Output field symbolic name      = ',A8, &
+ 3116 FORMAT(/,10X,'  Input field symbolic name       = ',A, &
+             /,10X,'  Output field symbolic name      = ',A, &
              /,10X,'  Field exchange frequency        = ',I8, &
-             /,10X,'  Local transformation            = ',A8, &
+             /,10X,'  Local transformation            = ',A, &
              /,10X,'  Model sequential index          = ',I2, &
              /,10X,'  Field Lag                       = ',I8,  &
-             /,10X,'  Field I/O status                = ',A8, &
+             /,10X,'  Field I/O status                = ',A, &
              /,10X,'  Number of basic operations      = ',I4,/)
- 3117 FORMAT(/,10X,'  Restart file name               = ',A32,/)
- 3118 FORMAT(/,10X,'  Input file name                 = ',A32,/)
- 3121 FORMAT(/,10X,'  Input field symbolic name       = ',A8, &
-             /,10X,'  Output field symbolic name      = ',A8, &
+ 3117 FORMAT(/,10X,'  Restart file name               = ',A,/)
+ 3118 FORMAT(/,10X,'  Input file name                 = ',A,/)
+ 3121 FORMAT(/,10X,'  Input field symbolic name       = ',A, &
+             /,10X,'  Output field symbolic name      = ',A, &
              /,10X,'  Field exchange frequency        = ',I8, &
-             /,10X,'  Local transformation            = ',A8, &
-             /,10X,'  Field I/O status                = ',A8, &
+             /,10X,'  Local transformation            = ',A, &
+             /,10X,'  Field I/O status                = ',A, &
              /,10X,'  Number of basic operations      = ',I4,/)
  3007 FORMAT( &
-             /,10X,'  Source grid periodicity type is      = ',A8, &
+             /,10X,'  Source grid periodicity type is      = ',A, &
              /,10X,'  Number of overlapped grid points is  = ',I2, &
-             /,10X,'  Target grid periodicity type is      = ',A8, &
+             /,10X,'  Target grid periodicity type is      = ',A, &
              /,10X,'  Number of overlapped grid points is  = ',I2,/)
- 3008 FORMAT(/,10X,'  Source longitude file string    = ',A8, &
-             /,10X,'  Source latitude file string     = ',A8, &
-             /,10X,'  Source mask file string         = ',A8, &
-             /,10X,'  Source surface file string      = ',A8, &
-             /,10X,'  Target longitude file string    = ',A8, &
-             /,10X,'  Target latitude file string     = ',A8, &
-             /,10X,'  Target mask file string         = ',A8, &
-             /,10X,'  Target surface file string      = ',A8,/)
+ 3008 FORMAT(/,10X,'  Source longitude file string    = ',A, &
+             /,10X,'  Source latitude file string     = ',A, &
+             /,10X,'  Source mask file string         = ',A, &
+             /,10X,'  Source surface file string      = ',A, &
+             /,10X,'  Source surf frac.s file string  = ',A, &
+             /,10X,'  Target longitude file string    = ',A, &
+             /,10X,'  Target latitude file string     = ',A, &
+             /,10X,'  Target mask file string         = ',A, &
+             /,10X,'  Target surface file string      = ',A, &
+             /,10X,'  Target surf frac.s file string  = ',A,/)
  3009 FORMAT(/,10X,'  ANALYSIS PARAMETERS ')
  3010 FORMAT(10X,'  ******************* ',/)
- 3011 FORMAT(/,5X,'  ANALYSIS number ',I2,' is ',A8, &
+ 3011 FORMAT(/,5X,'  ANALYSIS number ',I2,' is ',A, &
              /,5X,'  ***************  ',/)
- 3025 FORMAT(5X,' Conservation method for field is  = ',A8, &
-           /,5X,' Conservation option is            = ',A8)
+ 3025 FORMAT(5X,' Conservation method for field is  = ',A, &
+           /,5X,' Conservation option is            = ',A)
  3027 FORMAT(5X,' Field ',A,' is multiplied by Cst = ',E15.6)
  3028 FORMAT(5X,' It is combined with N fields    N = ',I2)
- 3030 FORMAT(5X,'   With field ',A8,'   coefficient = ',E15.6)
+ 3030 FORMAT(5X,'   With field ',A,'   coefficient = ',E15.6)
  3043 FORMAT(/,5X,'No lag in namcouple for the field', I3, &
           /,5X,' Default value LAG=0 will be used ')
  3044 FORMAT(/,5X,'The lag for the field ',I3,3X,'is : ',I8)
- 3045 FORMAT(5X,' Remapping method is               = ',A8, &
-           /,5X,' Field type is                     = ',A8, &
-           /,5X,' Normalization option is           = ',A8, &
-           /,5X,' Seach restriction type is         = ',A8, &
+ 3045 FORMAT(5X,' Remapping method is               = ',A, &
+           /,5X,' Field type is                     = ',A, &
+           /,5X,' Normalization option is           = ',A, &
+           /,5X,' Seach restriction type is         = ',A, &
            /,5X,' Number of search bins is          = ',I4)
- 3046 FORMAT(5X,' Order of remapping is             = ',A8)
- 3047 FORMAT(5X,' Local transformation  = ',A8) 
+ 3046 FORMAT(5X,' Order of remapping is             = ',A)
+ 3047 FORMAT(5X,' Local transformation  = ',A)
  3048 FORMAT(5X,' Remapping filename is             = ',A, &
-           /,5X,' Mapping location is               = ',A8, &
-           /,5X,' Mapping optimization is           = ',A8)
+           /,5X,' Mapping location is               = ',A, &
+           /,5X,' Mapping optimization is           = ',A)
+ 3049 FORMAT(5X,' North threshold is                = ',E15.6)
+ 3050 FORMAT(5X,' South threshold is                = ',E15.6)
 
 END SUBROUTINE inipar
 
 !===============================================================================
- 
+
 !> Allocates temporary arrays for namcouple input
 
 SUBROUTINE alloc()
@@ -2926,36 +3003,42 @@ SUBROUTINE alloc()
   ALLOCATE (nscripvoi(ig_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in nscripvoi allocation of analysis module',il_err,1)
   nscripvoi(:)=0
-! 
-!* Alloc array needed for SCRIP 
+!
+!* Alloc array needed for SCRIP
 !
   ALLOCATE (cmap_method(ig_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "cmap_method" allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error in "cmap_method" allocation of '//TRIM(subname),il_err,1)
   cmap_method(:)=' '
   ALLOCATE (cmap_file(ig_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "cmap_file" allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error in "cmap_file" allocation of '//TRIM(subname),il_err,1)
   cmap_file(:)=' '
   ALLOCATE (cmaptyp(ig_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "cmaptyp" allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error in "cmaptyp" allocation of '//TRIM(subname),il_err,1)
   cmaptyp(:)=' '
   ALLOCATE (cmapopt(ig_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "cmapopt" allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error in "cmapopt" allocation of '//TRIM(subname),il_err,1)
   cmapopt(:)=' '
   ALLOCATE (cfldtype(ig_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "cfldtype"allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error in "cfldtype"allocation of '//TRIM(subname),il_err,1)
   cfldtype(:)=' '
   ALLOCATE (crsttype(ig_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "crsttype"allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error in "crsttype"allocation of '//TRIM(subname),il_err,1)
   crsttype(:)=' '
   ALLOCATE (nbins(ig_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "nbins"allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error in "nbins"allocation of '//TRIM(subname),il_err,1)
   nbins(:)=0
   ALLOCATE (cnorm_opt(ig_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "cnorm_opt"allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error in "cnorm_opt"allocation of '//TRIM(subname),il_err,1)
   cnorm_opt(:)=' '
   ALLOCATE (corder(ig_nfield),stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "corder"allocation of '//trim(subname),il_err,1)
+  IF (il_err.NE.0) CALL prtout('Error in "corder"allocation of '//TRIM(subname),il_err,1)
   corder(:)=' '
+  ALLOCATE (anthresh(ig_nfield),stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "anthresh"allocation of '//TRIM(subname),il_err,1)
+  anthresh(:)= 2.0_ip_realwp_p
+  ALLOCATE (asthresh(ig_nfield),stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "asthresh"allocation of '//TRIM(subname),il_err,1)
+  asthresh(:)= -2.0_ip_realwp_p
 !
   !--- alloc_extrapol1
   ALLOCATE (niwtn(ig_nfield), stat=il_err)
@@ -2984,7 +3067,7 @@ SUBROUTINE alloc()
   IF (il_err.NE.0) CALL prtout('Error in "cg_name_rstfile"allocation of string module',il_err,1)
   cg_name_rstfile(:)=' '
   ALLOCATE (ig_lag(ig_total_nfield), stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "ig_lag"allocation of string module',il_err,1) 
+  IF (il_err.NE.0) CALL prtout('Error in "ig_lag"allocation of string module',il_err,1)
   ig_lag(:)=0
   ALLOCATE (ig_no_rstfile(ig_total_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "ig_no_rstfile"allocation of string module',il_err,1)
@@ -3005,10 +3088,10 @@ SUBROUTINE alloc()
   IF (il_err.NE.0) CALL prtout('Error in "ig_local_trans"allocation of string module',il_err,1)
   ig_local_trans(:)=0
   ALLOCATE (ig_invert(ig_total_nfield), stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "ig_invert" allocation of string module',il_err,1) 
+  IF (il_err.NE.0) CALL prtout('Error in "ig_invert" allocation of string module',il_err,1)
   ig_invert(:)=0
   ALLOCATE (ig_reverse(ig_total_nfield), stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "ig_reverse" allocation of string module',il_err,1) 
+  IF (il_err.NE.0) CALL prtout('Error in "ig_reverse" allocation of string module',il_err,1)
   ig_reverse(:)=0
 !
 !** + Allocate following arrays only if one field (at least) goes
@@ -3152,8 +3235,8 @@ SUBROUTINE dealloc()
   IF (il_err.NE.0) CALL prtout('Error in "lsurf"deallocation of analysis module',il_err,1)
   DEALLOCATE (nscripvoi, stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in nscripvoi deallocation of analysis module',il_err,1)
-! 
-!* Alloc array needed for SCRIP 
+!
+!* Alloc array needed for SCRIP
 !
   DEALLOCATE (cmap_method,stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "cmap_method" deallocation of scrip module',il_err,1)
@@ -3173,6 +3256,10 @@ SUBROUTINE dealloc()
   IF (il_err.NE.0) CALL prtout('Error in "cnorm_opt"deallocation of scrip module',il_err,1)
   DEALLOCATE (corder,stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "corder"deallocation of scrip module',il_err,1)
+  DEALLOCATE (anthresh,stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "anthresh"deallocation of scrip module',il_err,1)
+  DEALLOCATE (asthresh,stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "asthresh"deallocation of scrip module',il_err,1)
   !
   !--- alloc_extrapol1
   DEALLOCATE (niwtn, stat=il_err)
@@ -3194,7 +3281,7 @@ SUBROUTINE dealloc()
   DEALLOCATE (cg_name_rstfile, stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "cg_name_rstfile"deallocation of string module',il_err,1)
   DEALLOCATE (ig_lag, stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "ig_lag"deallocation of string module',il_err,1) 
+  IF (il_err.NE.0) CALL prtout('Error in "ig_lag"deallocation of string module',il_err,1)
   DEALLOCATE (ig_no_rstfile, stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "ig_no_rstfile"deallocation of string module',il_err,1)
   DEALLOCATE (cg_input_field, stat=il_err)
@@ -3208,9 +3295,9 @@ SUBROUTINE dealloc()
   DEALLOCATE (ig_local_trans, stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "ig_local_trans"deallocation of string module',il_err,1)
   DEALLOCATE (ig_invert, stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "ig_invert" deallocation of string module',il_err,1) 
+  IF (il_err.NE.0) CALL prtout('Error in "ig_invert" deallocation of string module',il_err,1)
   DEALLOCATE (ig_reverse, stat=il_err)
-  IF (il_err.NE.0) CALL prtout('Error in "ig_reverse" deallocation of string module',il_err,1) 
+  IF (il_err.NE.0) CALL prtout('Error in "ig_reverse" deallocation of string module',il_err,1)
 !
 !** + Deallocate following arrays only if one field (at least) goes
 !     through Oasis
@@ -3279,12 +3366,12 @@ SUBROUTINE prtout(cdtext, kvalue, kstyle)
 !
 !     Reference:
 !     ---------
-!     See OASIS manual (1995) 
+!     See OASIS manual (1995)
 !
 !     History:
 !     -------
 !       Version   Programmer     Date      Description
-!       -------   ----------     ----      -----------  
+!       -------   ----------     ----      -----------
 !       2.0       L. Terray      95/10/01  created
 !       2.3       L. Terray      99/02/24  modified: X format for NEC
 !
@@ -3326,7 +3413,7 @@ SUBROUTINE prtout(cdtext, kvalue, kstyle)
         DO jl = 1, ILEN
            cline(jl:jl) = cbase
         ENDDO
-          
+
         IF ( kstyle .EQ. 2 ) THEN
            WRITE(nulprt1, FMT='(/,A,1X,A)') cdots, cline
         ENDIF
@@ -3380,7 +3467,7 @@ SUBROUTINE findkeyword (keyword, line, found)
 !     History:
 !     -------
 !       Version   Programmer     Date      Description
-!       -------   ----------     ----      -----------  
+!       -------   ----------     ----      -----------
 !       3.3       T. Craig     2016/08/02  created
 !
 ! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3410,17 +3497,17 @@ SUBROUTINE findkeyword (keyword, line, found)
 !  CALL oasis_debug_enter(subname)
 
   found = .FALSE.
-  ios2 = 0 
+  ios2 = 0
 
   REWIND nulin
   DO WHILE (.not.found)
      READ(nulin, FMT=rform, END=110, IOSTAT=ios2) clline
      if (ios2 == 0) then
        CALL skip(clline,jpeighty, ios=ios)
-!      write(nulprt1,*) trim(subname),'tcx1: ',trim(clline)
+!      write(nulprt1,*) TRIM(subname),'tcx1: ',TRIM(clline)
        IF (ios == 0) THEN
          CALL parse(clline, clvari, 1, jpeighty, ILEN, __LINE__)
-!        write(nulprt1,*) trim(subname),'tcx2: ',trim(clvari),trim(keyword)
+!        write(nulprt1,*) TRIM(subname),'tcx2: ',TRIM(clvari),TRIM(keyword)
          IF (clvari == ADJUSTL(keyword)) THEN
              line = clline
              found = .TRUE.
@@ -3471,7 +3558,7 @@ LOGICAL FUNCTION checkcomment (line)
 !     History:
 !     -------
 !       Version   Programmer     Date      Description
-!       -------   ----------     ----      -----------  
+!       -------   ----------     ----      -----------
 !       3.3       T. Craig     2016/08/02  created
 !
 ! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3500,7 +3587,7 @@ LOGICAL FUNCTION checkcomment (line)
   checkcomment = .false.
 
   clline = adjustl(line)
-  IF (clline(1:1) == clcmt .or. len_trim(clline) == 0) THEN
+  IF (clline(1:1) == clcmt .or. len_TRIM(clline) == 0) THEN
      checkcomment = .true.
   ENDIF
 
@@ -3558,9 +3645,9 @@ SUBROUTINE parse (cdone, cdtwo, knumb, klen, kleng, line)
 !     History:
 !     -------
 !       Version   Programmer     Date      Description
-!       -------   ----------     ----      -----------  
+!       -------   ----------     ----      -----------
 !       2.0       L. Terray      95/09/01  created
-!                 O. Marti     2000/11/08  simplify by using F90 
+!                 O. Marti     2000/11/08  simplify by using F90
 !                                          CHARACTER functions
 !       3.3       T. Craig     2016/08/02  updated
 !
@@ -3597,7 +3684,7 @@ SUBROUTINE parse (cdone, cdtwo, knumb, klen, kleng, line)
 !* - Abort if line is a comment
 
   IF (checkcomment(cdone)) THEN
-     write(tmpstr1,*) subname,' ERROR comment line found:', trim(cdone)
+     write(tmpstr1,*) subname,' ERROR comment line found:', TRIM(cdone)
      write(tmpstr1,*) subname,' ERROR called from :',line
      CALL namcouple_abort(subname,__LINE__,tmpstr1)
   ENDIF
@@ -3663,11 +3750,11 @@ SUBROUTINE skip (cd_one, id_len, endflag, ios)
 !     Purpose:
 !       Find next non-comment line
 !
-!     Interface: 
+!     Interface:
 !       CALL skip (cd_one, id_len, endflag)
 !
 !     Method:
-!       Read the first CHARACTER of the line and skip line if 
+!       Read the first CHARACTER of the line and skip line if
 !       it is a comment
 !
 !     External:
@@ -3675,7 +3762,7 @@ SUBROUTINE skip (cd_one, id_len, endflag, ios)
 !
 !     Files:
 !       none
-!   
+!
 !     References:
 !
 !     History:
@@ -3765,11 +3852,11 @@ SUBROUTINE namcouple_abort(isubname,lineno,string1,string2,string3,string4)
   IF (mpi_rank_global == 0) THEN
      WRITE(nulprt1,*) ' '
      WRITE(nulprt1,*) subname,' calling ABORT'
-     WRITE(nulprt1,*) ' **** ABORT from ',trim(isubname),' line number ',lineno
-     IF (present(string1)) WRITE(nulprt1,*) ' **** ',trim(isubname),' : ',trim(string1)
-     IF (present(string2)) WRITE(nulprt1,*) ' **** ',trim(isubname),' : ',trim(string2)
-     IF (present(string3)) WRITE(nulprt1,*) ' **** ',trim(isubname),' : ',trim(string3)
-     IF (present(string4)) WRITE(nulprt1,*) ' **** ',trim(isubname),' : ',trim(string4)
+     WRITE(nulprt1,*) ' **** ABORT from ',TRIM(isubname),' line number ',lineno
+     IF (present(string1)) WRITE(nulprt1,*) ' **** ',TRIM(isubname),' : ',TRIM(string1)
+     IF (present(string2)) WRITE(nulprt1,*) ' **** ',TRIM(isubname),' : ',TRIM(string2)
+     IF (present(string3)) WRITE(nulprt1,*) ' **** ',TRIM(isubname),' : ',TRIM(string3)
+     IF (present(string4)) WRITE(nulprt1,*) ' **** ',TRIM(isubname),' : ',TRIM(string4)
      WRITE(nulprt1,*) ' '
      CALL oasis_flush(nulprt1)
   ENDIF
@@ -3785,5 +3872,3 @@ END SUBROUTINE namcouple_abort
 !===============================================================================
 
 END MODULE mod_oasis_namcouple
-
-

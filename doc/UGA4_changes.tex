@@ -13,6 +13,37 @@ have your e-mail added to the list of addresses to which the log files
 of the SVN checkins are automatically sent; contact
 oasishelp@cerfacs.fr if you wish to be added to that list.
 
+\section{Changes between current master OASIS3-MCT version and OASIS3-MCT\_4.0}
+
+\begin{itemize}
+
+\item The {\tt oasis\_def\_var} interface was overloaded to support excluding the argument, {\tt id\_var\_shape}, from the argument list.  This argument is no longer used.  For backwards compatibility, it can still be passed.
+
+\item  {\tt DESTARTR}, {\tt FRACARTR} or {\tt FRACNNTR} options : the ``True Area'' (TR) correction
+
+New options for {\tt SCRIPR CONSERV} to have an exact conservation of the field surface-integrated values, based on the "TRue" (TR) area of the cells. Details can be found in section \ref{subsec_interp} and in \cite{valcke19}. Note that to activate these TR options, the true area of the cell must be provided in the auxiliary file {\it areas.nc} in {\bf square radians}.
+
+\item New {\tt GSSPOS} and {\tt BSSPOS} for global CONSERV
+
+These new options operate as {\tt GLBPOS} and {\tt BASPOS} except that the multiplicative term is computed separately for positive
+      and negative values of the field. More details can be found in section \ref{subsec_cooking} and in \cite{craig19}.
+
+\item Bugfixes
+
+\begin{enumerate}
+
+\item Argument {\tt id\_var\_nodim} defined as IN in {\tt mod\_oasis\_var.F90} to compile again with NEMO\_4.0 and NEMO trunk (git commit 28f4fe59)
+
+\item Fix the treatment of the periodicity of the grids (git commits 20127fd9, 68021b13, facc08c1)
+
+\item GAUSWGT remapping: exact calculation of average distance (commit 1df003a1) ; see details in https://cerfacs.fr/wp-content/uploads/2019/08/GlobC-TR-maisonnave-gaussian\_interpolation-2\_2019.pdf
+
+ \item Bugfix ``lcoinc''  : ensures that a condition on coincidence of segments is reinitialised to .false. for each cell. A detailed analysis of the bug that lead to this bugfix condition can be found at the end of the page https://inle.cerfacs.fr/projects/oasis3-mct/wiki/Discussion\_about\_specific\_treatments\_of\_polar\_cells\_in\_scrip\_CONSERV\_interpolation.
+
+ \end{enumerate}
+
+\end{itemize}
+
 \section{Changes between OASIS3-MCT\_4.0 and OASIS3-MCT\_3.0}
 
 Different developments were realised to improve the parallel performance of OASIS3-MCT\_4.0. These developments are detailed in \cite{valcke11} .
@@ -59,19 +90,19 @@ The namcouple reading routine was cleaned up including a refactoring of the goto
 	\begin{itemize}
 
 	\item {\tt \$NUNITNO}: specifies the minimum and maximum unit numbers to be used for input and output files in the coupling layer.
-	
+
 	\item {\tt \$NMATXRD}: indicates the method used to read mapping weights, either {\tt orig} or {\tt ceg}. In both methods, the weights are read in chunks by the model master task. With the {\tt orig} option, the weights are then broadcast to all other tasks and each task then saves the weights that will be applied to its grid points. With the {\tt ceg} option, the master task reads the weights and then identifies to which other task each weight should be sent.  A series of exchanges are then done with each other task involving just the weights needed by that other task. The {\tt orig} method sends much more data but is more parallel, while the {\tt ceg} method does most of the work on the master task but less data is communicated.
-	
-	\item {\tt \$NWGTOPT}: indicates how to handle bad interpolation weights. 
-	
-	\item {\tt \$NNOREST} : if true, OASIS3-MCT will initialise any variable that normally requires a coupling restart file with zeros if that file does not exist. 
+
+	\item {\tt \$NWGTOPT}: indicates how to handle bad interpolation weights.
+
+	\item {\tt \$NNOREST} : if true, OASIS3-MCT will initialise any variable that normally requires a coupling restart file with zeros if that file does not exist.
 
 	\end{itemize}
 \end{itemize}
 
 \section{Changes between OASIS3-MCT\_3.0 and OASIS3-MCT\_2.0}
 \label{sec_oa2_oa3}
-  
+
 The main evolution of OASIS3-MCT\_3.0 with respect to OASIS3-MCT\_2.0 is the support of coupling exchanges between parallel components deployed in much more diverse configurations than before, for example, within one same executable between components running concurrently on separate sets of tasks or between components running sequentially on overlapping sets of tasks. All details are provided in section \ref{sec_deploy}.
 
 This new version also includes:
@@ -95,11 +126,11 @@ following:
 
 \item Support of {\tt BICUBIC} interpolation, see paragraph {\tt
     BICUBIC} in section \ref{subsec_interp}. If the source grid
-    is not a gaussian reduced grid (D), the gradient in the first dimension, 
-    the gradient in the second dimension, and the cross-gradient 
-    of the coupling field must be calculated by the model and 
+    is not a gaussian reduced grid (D), the gradient in the first dimension,
+    the gradient in the second dimension, and the cross-gradient
+    of the coupling field must be calculated by the model and
     given as arguments to {\tt oasis\_put}, as explained in section \ref{prismput}.
-    If the source grid is a gaussian reduced grid (D), OASIS3-MCT\_2.0 
+    If the source grid is a gaussian reduced grid (D), OASIS3-MCT\_2.0
     can calculate the interpolated field using only the values of the source
     field points.
 
@@ -141,10 +172,10 @@ following:
   with a {\tt oasis\_def\_var} but not defined in the configuration
   file {\it namcouple}; this will now lead to an abort. In this case,
   the field ID returned by the {\tt oasis\_def\_var} is equal to -1
-  and the corresponding {\tt oasis\_put} should not be called. 
+  and the corresponding {\tt oasis\_put} should not be called.
   Conversely, all coupling fields appearing in the {\it namcouple}
-  must be defined with a call to {\tt oasis\_def\_var}; this constraint 
-is imposed to avoid that a typo in the namcouple would lead to 
+  must be defined with a call to {\tt oasis\_def\_var}; this constraint
+is imposed to avoid that a typo in the namcouple would lead to
 coupling exchanges not corresponding to what the user intends to activate.
 
 \item OASIS3-MCT developments are now continuously tested and
@@ -175,7 +206,7 @@ is no central coupler executable anymore\footnote{As with OASIS3.3,
 blocking. As before, the user has to take care of implementing a coupling
 algorithm that will result in matching ``put'' and ``get'' calls to
 avoid deadlocks (see section \ref{subsubsec_sendingreceiving}). The lag (LAG) index works as
-before in OASIS3.3 (see section \ref{subsubsec_Algoritms})}. 
+before in OASIS3.3 (see section \ref{subsec_lag})}.
 
 \item {\tt MAPPING} transformation to use a pre-defined mapping file
 
@@ -192,10 +223,10 @@ also generate the mapping file using the SCRIP library
 \citep{Jones99}. When this is the case, the mapping file generation is
 done on one process of the model components; all previous {\tt SCRIPR} remapping
 schemes available in OASIS3.3 are still supported besides {\tt
-  BICUBIC} and {\tt CONSERV/SECOND}. (Note: these remapping schemes, not available in OASIS3-MCT\_1.0 
+  BICUBIC} and {\tt CONSERV/SECOND}. (Note: these remapping schemes, not available in OASIS3-MCT\_1.0
   were reactivated in OASIS3-MCT\_2.0, see \ref{sec_oa1_oa2}.)
 
-\item MPI2 job launching is NOT supported. 
+\item MPI2 job launching is NOT supported.
 
   Only MPI1 start mode is allowed. As before with the MPI1 mode, all
   component models must be started by the user in the job script in a
@@ -268,7 +299,7 @@ As in OASIS3.3, the SCRIP library can be used to generate the
 schemes available in OASIS3.3 are still supported in OASIS3-MCT\_1.0 besides {\tt
   BICUBIC} and {\tt CONSERV/SECOND} because these remapping involve
 at each source grid point the value of the field but also the value of the
-gradients of the field (which are not known or calculated). (Note: these remapping schemes, 
+gradients of the field (which are not known or calculated). (Note: these remapping schemes,
 not available in OASIS3-MCT\_1.0 were reactivated in OASIS3-MCT\_2.0, see \ref{sec_oa1_oa2}.)
 
 \item Vector field remapping
@@ -279,7 +310,7 @@ Vector field remapping is not and will not be supported (see ``Support
 \item Automatic calculation of grid mesh corners in {\tt SCRIPR/CONSERV}
 
 For {\tt SCRIPR/CONSERV} remapping, grid mesh corners will not
-  be compute automatically if they are needed but not provided.  
+  be compute automatically if they are needed but not provided.
 
 \item Other transformations not supported
 
@@ -312,10 +343,10 @@ normalization option is chosen (see section \ref{subsec_interp}).
 
 \item{\tt NOINTERP} does not need to be specified anymore if no
   interpolation is required.
- 
+
 \item Field combination with {\tt BLASOLD} and {\tt BLASNEW}; these
   transformations only support multiplication and addition terms to
-the fields (see section \ref{subsec_preproc}). 
+the fields (see section \ref{subsec_preproc}).
 
 \end{itemize}
 
@@ -354,7 +385,7 @@ In OASIS3.3, components for which only a subset of processes
   processes and does not have to be pre-defined in the {\it
     namcouple}. New routines {\tt oasis\_create\_couplcomm} and {\tt
   oasis\_set\_couplcomm} are now available to create or set a coupling
-  communicator gathering only these processes (see section \ref{subsec_subset}). (Note: this wass further improved in OASIS3-MCT\_3.0.)
+  communicator gathering only these processes (see section \ref{subsec_MPI1}). (Note: this was further improved in OASIS3-MCT\_3.0.)
 
 \item Exact restart for {\tt LOCTRANS} transformations
 
@@ -366,13 +397,13 @@ If needed, LOCTRANS transformations write partially
     namcouple} entries that use LOCTRANS (with non INSTANT
   values). This is the reason an optional restart file is now provided
   on the OUTPUT {\it namcouple} input line. If the coupling periods of
-  two (or more) coupling fields are different, it is necessary to define 
+  two (or more) coupling fields are different, it is necessary to define
   two (or more) restart files, one for each field.
 
 \item Support to couple multiple fields via a single communication.
 
  This is supported through colon
-delimited field lists in the {\it namcouple}, for example 
+delimited field lists in the {\it namcouple}, for example
 
 {\tt ATMTAUX:ATMTAUY:ATMHFLUX  TAUX:TAUY:HEATFLUX 1 3600 3 rstrt.nc EXPORTED}
 
@@ -382,11 +413,12 @@ these fields are still sent (``put'') or received (``get'') one at a
 time. Inside OASIS3-MCT, the fields are stored and a single mapping
 and send or receive instruction is executed for all fields. This is
 useful in cases where multiple fields have the same coupling
-transformations and to reduce communication costs by aggregating multiple 
+transformations and to reduce communication costs by aggregating multiple
 fields into a single communication. If a LOCTRAN transformation is needed
-for these multiple fields, it is necessary to define a restart file for 
-these multiple fields. {\bf The coupling fields must be sent and received in the same order 
-as they are defined in the corresponding single entry of the namcouple}.
+for these multiple fields, it is necessary to define a restart file for
+these multiple fields. The coupling fields must be sent and received in the same order
+as they are defined in the corresponding single entry of the namcouple
+(not relevant in further versions of OASIS3-MCT).
 
 \item Matching one source filed with multiple targets
 
@@ -425,7 +457,7 @@ each model process is defined by the \$NLOGPRT value in the {\it
 
 \item The {\it namcouple} configuration file of OASIS3-MCT is fully backward
 compatible with OASIS3.3. However, several {\it namcouple} keywords
-have been deprecated even if they are still 
+have been deprecated even if they are still
 allowed.  These keywords are noted ``UNUSED'' in sections
 \ref{subsec_namcouplefirst} and \ref{subsec_namcouplesecond} and are
 not fully described. Information below these keywords will not be read
@@ -436,7 +468,7 @@ and will not be used: \$SEQMODE , \$CHANNEL, \$JOBNAME, \$INIDATE,
 anymore as the related functionality are not supported anymore in
 OASIS3-MCT (see above): field status AUXILARY, time transformation
 ONCE, REDGLO, INVERT, MASK, EXTRAP, CORRECT, INTERP, MOZAIC, FILLING,
-SUBGRID, MASKP, REVERSE, GLORED. 
+SUBGRID, MASKP, REVERSE, GLORED.
 
 \item To get 2D fields in the debug output NetCDF files, the 2D dimensions of the
   grids must be provided in the {\it namcouple} (except if the field
@@ -464,7 +496,3 @@ SUBGRID, MASKP, REVERSE, GLORED.
 
 
 \end{itemize}
-
-
-
-

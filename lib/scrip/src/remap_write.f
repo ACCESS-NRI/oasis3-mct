@@ -165,11 +165,15 @@ C***********************************************************************
       ENDIF
       select case(norm_opt)
       case (norm_opt_none)
-        normalize_opt = 'none'
+        normalize_opt = 'nonenone'
       case (norm_opt_frcarea)
         normalize_opt = 'fracarea'
       case (norm_opt_dstarea)
         normalize_opt = 'destarea'
+      case (norm_opt_frcartr)
+        normalize_opt = 'fracartr'
+      case (norm_opt_dstartr)
+        normalize_opt = 'destartr'
       case (norm_opt_nonorm)
         normalize_opt = 'no norm'
       end select
@@ -184,6 +188,8 @@ C***********************************************************************
         map_method = 'Gaussian weighted avg of nearest neighbors'
       case(map_type_bicubic)
         map_method = 'Bicubic remapping'
+      case(map_type_loccwgt)
+        map_method = 'Locally conservative of target nearest neighbors'
       case default
         stop 'Invalid Map Type'
       end select

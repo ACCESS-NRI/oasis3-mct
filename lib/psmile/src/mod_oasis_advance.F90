@@ -1,4 +1,3 @@
-
 !> Advances the OASIS coupling
 
 MODULE mod_oasis_advance
@@ -15,6 +14,7 @@ MODULE mod_oasis_advance
     USE mod_oasis_io
     USE mod_oasis_mpi
     USE mod_oasis_reprosum
+    USE mod_oasis_load_balancing
     USE mct_mod
 
     IMPLICIT NONE
@@ -665,7 +665,7 @@ contains
 
        if (msec >= maxtime) then
           write(nulprt,*) subname,estr,'at ',msec,mseclag,' for var = ',trim(vname)
-          write(nulprt,*) subname,estr,'model time beyond namcouple maxtime = ',msec,maxtime
+          write(nulprt,*) subname,estr,'model time must be strictly smaller than namcouple $RUNTIME = ',msec,maxtime
           call oasis_abort(file=__FILE__,line=__LINE__)
        endif
 
@@ -1156,6 +1156,8 @@ contains
 
              write(tstring,'(A,I3.3)') 'wrst_',cplid
              if (local_timers_on) call oasis_timer_start(tstring)
+             if (ABS(LUCIA_debug) > 0 ) &
+                CALL oasis_lb_measure(cplid,LB_RST)
              call oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny)
              if (pcpointer%aVon(2)) &
@@ -1170,6 +1172,8 @@ contains
              if (pcpointer%aVon(5)) &
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre='av5_')
+             if (ABS(LUCIA_debug) > 0 ) &
+                CALL oasis_lb_measure(cplid,LB_RST)
              if (local_timers_on) call oasis_timer_stop(tstring)
              if (OASIS_debug >= 2) then
                 lstring = mct_avect_exportRList2c(pcpointer%avect1)
@@ -1248,9 +1252,11 @@ contains
                    if (local_timers_on) call oasis_timer_stop(trim(tstring)//'_prebarrier')
                 endif
                 if (local_timers_on) call oasis_timer_start(tstring)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before interpo ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_MAP)
                 call mct_avect_zero(pcpointer%avect1m)
                 if (detailed_map_timing) then
                    call oasis_advance_map(pcpointer%avect1, &
@@ -1265,9 +1271,11 @@ contains
                         pcpointer%avect3,pcpointer%avect4, &
                         pcpointer%avect5)
                 endif
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  interpo ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_MAP)
                 if (local_timers_on) call oasis_timer_stop(tstring)
                 write(tstring,'(A,I3.3)') 'psnd_',cplid
                 call oasis_debug_note(subname//' put send')
@@ -1277,14 +1285,18 @@ contains
                                    maxval(pcpointer%avect1m%rAttr)
                 endif
                 if (local_timers_on) call oasis_timer_start(tstring)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before MPI put ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_PUT)
                 call mct_waitsend(prism_router(rouid)%router)
                 call mct_isend(pcpointer%avect1m,prism_router(rouid)%router,tag)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  MPI put ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_PUT)
                 if (local_timers_on) call oasis_timer_stop(tstring)
              ELSE
                 write(tstring,'(A,I3.3)') 'psnd_',cplid
@@ -1295,14 +1307,18 @@ contains
                                    maxval(pcpointer%avect1%rAttr)
                 endif
                 if (local_timers_on) call oasis_timer_start(tstring)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before MPI put ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_PUT)
                 call mct_waitsend(prism_router(rouid)%router)
                 call mct_isend(pcpointer%avect1,prism_router(rouid)%router,tag)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  MPI put ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_PUT)
                 if (local_timers_on) call oasis_timer_stop(tstring)
              ENDIF
           elseif (getput == OASIS3_GET) then
@@ -1324,13 +1340,17 @@ contains
                 write(tstring,'(A,I3.3)') 'grcv_',cplid
                 if (local_timers_on) call oasis_timer_start(tstring)
                 call mct_avect_zero(pcpointer%avect1m)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before MPI get ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_GET)
                 call mct_recv(pcpointer%avect1m,prism_router(rouid)%router,tag)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  MPI get ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_GET)
                 if (local_timers_on) call oasis_timer_stop(tstring)
                 if (OASIS_debug >= 20) then
                    write(nulprt,*) subname,' DEBUG get af recv = ',cplid,&
@@ -1345,9 +1365,11 @@ contains
                    if (local_timers_on) call oasis_timer_stop(trim(tstring)//'_prebarrier')
                 endif
                 if (local_timers_on) call oasis_timer_start(tstring)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before interpo ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_MAP)
                 call mct_avect_zero(pcpointer%avect1)
                 if (detailed_map_timing) then
                    call oasis_advance_map(pcpointer%avect1m, &
@@ -1356,9 +1378,11 @@ contains
                    call oasis_advance_map(pcpointer%avect1m, &
                         pcpointer%avect1,prism_mapper(mapid),conserv,consopt)
                 endif
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  interpo ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_MAP)
                 if (local_timers_on) call oasis_timer_stop(tstring)
                 if (OASIS_debug >= 20) then
                    write(nulprt,*) subname,' DEBUG get af map = ',cplid,&
@@ -1370,13 +1394,17 @@ contains
                 call oasis_debug_note(subname//' get recv')
                 call mct_avect_zero(pcpointer%avect1)
                 if (local_timers_on) call oasis_timer_start(tstring)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' Before MPI get ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_GET)
                 call mct_recv(pcpointer%avect1,prism_router(rouid)%router,tag)
-                if (LUCIA_debug > 0) &
+                if (LUCIA_debug == 1) &
                    WRITE(nullucia, FMT='(A,I3.3,A,F16.5)') &
                               'Balance: ',pcpointer%namID,' After  MPI get ', MPI_Wtime()
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_GET)
                 if (local_timers_on) call oasis_timer_stop(tstring)
                 if (OASIS_debug >= 20) then
                    write(nulprt,*) subname,' DEBUG get af recv = ',cplid,&
@@ -1427,8 +1455,12 @@ contains
                 call oasis_flush(nulprt)
              endif
              write(fstring,'(A,I2.2)') '_'//trim(compnm)//'_',cplid
+             if (ABS(LUCIA_debug) > 0 ) &
+                CALL oasis_lb_measure(cplid,LB_OUT)
              call oasis_io_write_avfbf(pcpointer%avect1,prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
                 nx,ny,msec,fstring)
+             if (ABS(LUCIA_debug) > 0 ) &
+                CALL oasis_lb_measure(cplid,LB_OUT)
              if (local_timers_on) call oasis_timer_stop(tstring)
 
              if (OASIS_debug >= 30) then
@@ -1517,6 +1549,8 @@ contains
           call oasis_debug_note(subname//' loctrans restart write')
           write(tstring,'(A,I3.3)') 'wtrn_',cplid
           if (local_timers_on) call oasis_timer_start(tstring)
+          if (ABS(LUCIA_debug) > 0 ) &
+             CALL oasis_lb_measure(cplid,LB_TRN)
           WRITE(vstring,'(a,i6.6,a)') 'loc',pcpointer%namID,'_cnt'
           CALL oasis_io_write_array(rstfile2,prism_part(partid)%mpicom,iarray=pcpointer%avcnt,&
                                     ivarname=TRIM(vstring))
@@ -1543,6 +1577,8 @@ contains
              CALL oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
           endif
+          if (ABS(LUCIA_debug) > 0 ) &
+             CALL oasis_lb_measure(cplid,LB_TRN)
           if (local_timers_on) call oasis_timer_stop(tstring)
           if (OASIS_debug >= 2) then
              lstring = mct_avect_exportRList2c(pcpointer%avect1)
@@ -1595,6 +1631,8 @@ contains
                 endif
                 write(tstring,'(A,I3.3)') 'grin_',cplid
                 if (local_timers_on) call oasis_timer_start(tstring)
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_READ)
                 if (trim(inpfile) /= trim(cspval)) then
                    call oasis_io_read_avfbf(pcpointer%avect1,prism_part(partid)%pgsmap,prism_part(partid)%mpicom,&
                                             msec,filename=trim(inpfile))
@@ -1603,6 +1641,8 @@ contains
                    call oasis_io_read_avfbf(pcpointer%avect1,prism_part(partid)%pgsmap,prism_part(partid)%mpicom,&
                                             msec,f_string=fstring)
                 endif
+                if (ABS(LUCIA_debug) > 0 ) &
+                   CALL oasis_lb_measure(cplid,LB_READ)
                 if (local_timers_on) call oasis_timer_stop(tstring)
              endif
              if (OASIS_debug >= 2) then
@@ -1663,15 +1703,18 @@ contains
     type(mct_aVect)        ,intent(in),optional :: av5  !< source av5 hot
     character(len=*)       ,intent(in),optional :: tstrinp  !< timer label string
 
-    integer(kind=ip_i4_p)  :: fsize,lsizes,lsized,nf,ni,n,m,ierr
+    integer(kind=ip_i4_p)  :: fsize,lsizes,lsized,nf,ni,n,m,k,ierr
     real(kind=ip_r8_p)     :: sumtmp, wts_sums, wts_sumd, zradi, zlagr
     real(kind=ip_r8_p)     :: wts_sums1(1), wts_sumd1(1)
     integer(kind=ip_i4_p),allocatable :: imasks(:),imaskd(:)
     real(kind=ip_r8_p),allocatable :: areas(:),aread(:)
     real(kind=ip_r8_p),allocatable  :: av_sums(:),av_sumd(:)  ! local sums
+    real(kind=ip_r8_p),allocatable  :: wts_sumsx(:),wts_sumdx(:)  ! local sums for signed conserve
     type(mct_aVect)       :: avdtmp    ! for summing multiple mapping weights
     type(mct_aVect)       :: av2g      ! for bfb sums
     type(mct_aVect)       :: avone     ! for conserve
+    type(mct_aVect)       :: av1x,avdx ! for signed conserve 
+    type(mct_aVect)       :: av1xm,avdxm ! for signed conserve masked
     character(len=ic_med) :: lconsopt  ! conserve algorithm option
     character(len=ic_med) :: tstring   ! timer string
     integer(kind=ip_i4_p),parameter :: avsmax = prism_coupler_avsmax
@@ -1848,6 +1891,8 @@ contains
        imasks(:) = mapper%av_ms%iAttr(nf,:)
        nf = mct_aVect_indexRA(mapper%av_ms,'area')
        areas(:) = mapper%av_ms%rAttr(nf,:)*zradi
+       nf = mct_aVect_indexRA(mapper%av_ms,'frac')
+       areas(:) = areas(:)*mapper%av_ms%rAttr(nf,:)
 
        if (map_barrier .and. present(tstrinp)) then
           call oasis_timer_start(trim(tstrinp)//'_cons_prebarrier')
@@ -1873,6 +1918,8 @@ contains
        imaskd(:) = mapper%av_md%iAttr(nf,:)
        nf = mct_aVect_indexRA(mapper%av_md,'area')
        aread(:) = mapper%av_md%rAttr(nf,:)*zradi
+       nf = mct_aVect_indexRA(mapper%av_md,'frac')
+       aread(:) = aread(:)*mapper%av_md%rAttr(nf,:)
 
        if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cons2')
        call mct_avect_init(avone,rList='one',lsize=lsized)
@@ -1914,57 +1961,233 @@ contains
        if (conserv == ip_cglobal) then
           if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cglobal')
           if (wts_sumd == 0.0_ip_r8_p) then
-              WRITE(nulprt,*) subname,estr,'global conserve sums to zero '
-              call oasis_abort(file=__FILE__,line=__LINE__)
+             WRITE(nulprt,*) subname,estr,'global masked area sums to zero '
+             call oasis_abort(file=__FILE__,line=__LINE__)
           endif
           do m = 1,fsize
              zlagr = (av_sumd(m) - av_sums(m)) / wts_sumd
+             if (OASIS_debug >= 20) then
+                write(nulprt,'(2a,g16.9,i5)') subname,' DEBUG conserve global +zlagr ',-zlagr,m
+             endif
              do n = 1,lsized
                 if (imaskd(n) == 0) avd%rAttr(m,n) = avd%rAttr(m,n) - zlagr
              enddo
           enddo
           if (present(tstrinp)) call oasis_timer_stop(trim(tstrinp)//'_cglobal')
+
        elseif (conserv == ip_cglbpos) then
           if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cglbpos')
           do m = 1,fsize
              if (av_sumd(m) == 0.0_ip_r8_p .and. av_sums(m) /= 0.0_ip_r8_p) then
-                 WRITE(nulprt,*) subname,estr,'cglpos conserve one of the sums is zero'
-                 call oasis_abort(file=__FILE__,line=__LINE__)
-             elseif (av_sumd(m) /= 0.0_ip_r8_p) then
-                zlagr = av_sums(m) / av_sumd(m)
+                WRITE(nulprt,*) subname,estr,'glbpos sumdst is zero but sumsrc is not'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             else
+                if (av_sumd(m) /= 0.0_ip_r8_p) then
+                   zlagr = av_sums(m) / av_sumd(m)
+                else
+                   zlagr = 1.0_ip_r8_p
+                   if (OASIS_debug >= 20) then
+                      write(nulprt,'(2a)') subname,' DEBUG conserve glbpos sumdst is zero, set zlagr to 1'
+                   endif
+                endif
+                if (OASIS_debug >= 20) then
+                   write(nulprt,'(2a,g16.9,i5)') subname,' DEBUG conserve glbpos *zlagr ',zlagr,m
+                endif
                 do n = 1,lsized
                    if (imaskd(n) == 0) avd%rAttr(m,n) = avd%rAttr(m,n) * zlagr
                 enddo
              endif
           enddo
           if (present(tstrinp)) call oasis_timer_stop(trim(tstrinp)//'_cglbpos')
+
+       elseif (conserv == ip_cgsspos) then
+          if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cgsspos')
+          ! temporary AVs
+          call mct_avect_init(av1x,av1,lsize=lsizes)
+          call mct_avect_init(avdx,avd,lsize=lsized)
+
+          ! loop twice over positive and negative values
+          do k = 1,2
+             av1x%rAttr = 0.0_ip_r8_p
+             avdx%rAttr = 0.0_ip_r8_p
+
+             ! fill postive or negative values on src and dst side
+             do m = 1,fsize
+                do n = 1,lsizes
+                   if (k == 1 .and. av1%rAttr(m,n) > 0.0_ip_r8_p) av1x%rAttr(m,n) = av1%rAttr(m,n)
+                   if (k == 2 .and. av1%rAttr(m,n) < 0.0_ip_r8_p) av1x%rAttr(m,n) = av1%rAttr(m,n)
+                enddo
+                do n = 1,lsized
+                   if (k == 1 .and. avd%rAttr(m,n) > 0.0_ip_r8_p) avdx%rAttr(m,n) = avd%rAttr(m,n)
+                   if (k == 2 .and. avd%rAttr(m,n) < 0.0_ip_r8_p) avdx%rAttr(m,n) = avd%rAttr(m,n)
+                enddo
+             enddo
+
+             ! compute sums
+             call oasis_advance_avsum(av1x,av_sums,prism_part(mapper%spart)%pgsmap,prism_part(mapper%spart)%mpicom, &
+                                mask=imasks,wts=areas,consopt=lconsopt)
+             call oasis_advance_avsum(avdx,av_sumd,prism_part(mapper%dpart)%pgsmap,prism_part(mapper%dpart)%mpicom, &
+                                mask=imaskd,wts=aread,consopt=lconsopt)
+
+             ! compute correction and apply
+             do m = 1,fsize
+                if (av_sumd(m) == 0.0_ip_r8_p .and. av_sums(m) /= 0.0_ip_r8_p) then
+                   WRITE(nulprt,*) subname,estr,'gsspos sumdst is zero but sumsrc is not'
+                   call oasis_abort(file=__FILE__,line=__LINE__)
+                else
+                   if (av_sumd(m) /= 0.0_ip_r8_p) then
+                      zlagr = av_sums(m) / av_sumd(m)
+                   else
+                      zlagr = 1.0_ip_r8_p
+                      if (OASIS_debug >= 20) then
+                         write(nulprt,'(2a)') subname,' DEBUG conserve gsspos sumdst is zero, set zlagr to 1'
+                      endif
+                   endif
+                   if (OASIS_debug >= 20) then
+                      write(nulprt,'(2a,g16.9,i5,i2)') subname,' DEBUG conserve gsspos *zlagr ',zlagr,m,k
+                   endif
+                   do n = 1,lsized
+                      if (imaskd(n) == 0 .and. &
+                         ((k == 1 .and. avd%rAttr(m,n) > 0.0_ip_r8_p) .or. &
+                          (k == 2 .and. avd%rAttr(m,n) < 0.0_ip_r8_p))) then
+                         avd%rAttr(m,n) = avd%rAttr(m,n) * zlagr
+                      endif
+                   enddo
+                endif
+             enddo
+          enddo  ! k
+          call mct_avect_clean(av1x)
+          call mct_avect_clean(avdx)
+          if (present(tstrinp)) call oasis_timer_stop(trim(tstrinp)//'_cgsspos')
+
        elseif (conserv == ip_cbasbal) then
           if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cbasbal')
           if (wts_sumd == 0.0_ip_r8_p .or. wts_sums == 0.0_ip_r8_p) then
-              WRITE(nulprt,*) subname,estr,'cbasbal conserve both sums are zero'
-              call oasis_abort(file=__FILE__,line=__LINE__)
+             WRITE(nulprt,*) subname,estr,'basbal sum or dst area are zero'
+             call oasis_abort(file=__FILE__,line=__LINE__)
           endif
           do m = 1,fsize
              zlagr = (av_sumd(m) - (av_sums(m)*(wts_sumd/wts_sums))) / wts_sumd
+             if (OASIS_debug >= 20) then
+                write(nulprt,'(2a,g16.9,i5)') subname,' DEBUG conserve basbal +zlagr ',-zlagr,m
+             endif
              do n = 1,lsized
                 if (imaskd(n) == 0) avd%rAttr(m,n) = avd%rAttr(m,n) - zlagr
              enddo
           enddo
           if (present(tstrinp)) call oasis_timer_stop(trim(tstrinp)//'_cbasbal')
+
        elseif (conserv == ip_cbaspos) then
           if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cbaspos')
           do m = 1,fsize
              if (av_sumd(m) == 0.0_ip_r8_p .and. av_sums(m) /= 0.0_ip_r8_p) then
-                 WRITE(nulprt,*) subname,estr,'cbaspos conserve one of the sums is zero'
-                 call oasis_abort(file=__FILE__,line=__LINE__)
-             elseif (av_sumd(m) /= 0.0_ip_r8_p) then
-                zlagr = (av_sums(m)/av_sumd(m)) * (wts_sumd/wts_sums)
+                WRITE(nulprt,*) subname,estr,'baspos sumdst is zero but sumsrc is not'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             elseif (wts_sumd == 0.0_ip_r8_p .or. wts_sums == 0.0_ip_r8_p) then
+                WRITE(nulprt,*) subname,estr,'baspos sum or dst area are zero'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             else
+                if (av_sumd(m) /= 0.0_ip_r8_p) then
+                   zlagr = (av_sums(m)/av_sumd(m)) * (wts_sumd/wts_sums)
+                else
+                   zlagr = 1.0_ip_r8_p
+                   if (OASIS_debug >= 20) then
+                      write(nulprt,'(2a)') subname,' DEBUG conserve baspos sumdst is zero, set zlagr to 1'
+                   endif
+                endif
+                if (OASIS_debug >= 20) then
+                   write(nulprt,'(2a,g16.9,i5)') subname,' DEBUG conserve baspos *zlagr ',zlagr,m
+                endif
                 do n = 1,lsized
                    if (imaskd(n) == 0) avd%rAttr(m,n) = avd%rAttr(m,n) * zlagr
                 enddo
              endif
           enddo
           if (present(tstrinp)) call oasis_timer_stop(trim(tstrinp)//'_cbaspos')
+
+       elseif (conserv == ip_cbsspos) then
+          if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cbsspos')
+          ! temporary AVs
+          call mct_avect_init(av1x,av1,lsize=lsizes)
+          call mct_avect_init(avdx,avd,lsize=lsized)
+          call mct_avect_init(av1xm,av1,lsize=lsizes)
+          call mct_avect_init(avdxm,avd,lsize=lsized)
+          allocate(wts_sumsx(fsize),wts_sumdx(fsize))
+
+          ! loop twice over positive and negative values
+          do k = 1,2
+             av1x%rAttr  = 0.0_ip_r8_p
+             avdx%rAttr  = 0.0_ip_r8_p
+             av1xm%rAttr = 0.0_ip_r8_p
+             avdxm%rAttr = 0.0_ip_r8_p
+
+             ! fill postive or negative values on src and dst side
+             do m = 1,fsize
+                do n = 1,lsizes
+                   if (k == 1 .and. av1%rAttr(m,n) > 0.0_ip_r8_p) av1x%rAttr(m,n)  = av1%rAttr(m,n)
+                   if (k == 1 .and. av1%rAttr(m,n) > 0.0_ip_r8_p) av1xm%rAttr(m,n) = 1.0_ip_r8_p
+                   if (k == 2 .and. av1%rAttr(m,n) < 0.0_ip_r8_p) av1x%rAttr(m,n)  = av1%rAttr(m,n)
+                   if (k == 2 .and. av1%rAttr(m,n) < 0.0_ip_r8_p) av1xm%rAttr(m,n) = 1.0_ip_r8_p
+                enddo
+                do n = 1,lsized
+                   if (k == 1 .and. avd%rAttr(m,n) > 0.0_ip_r8_p) avdx%rAttr(m,n)  = avd%rAttr(m,n)
+                   if (k == 1 .and. avd%rAttr(m,n) > 0.0_ip_r8_p) avdxm%rAttr(m,n) = 1.0_ip_r8_p
+                   if (k == 2 .and. avd%rAttr(m,n) < 0.0_ip_r8_p) avdx%rAttr(m,n)  = avd%rAttr(m,n)
+                   if (k == 2 .and. avd%rAttr(m,n) < 0.0_ip_r8_p) avdxm%rAttr(m,n) = 1.0_ip_r8_p
+                enddo
+             enddo
+
+             ! compute sums
+             call oasis_advance_avsum(av1x,av_sums,prism_part(mapper%spart)%pgsmap,prism_part(mapper%spart)%mpicom, &
+                                mask=imasks,wts=areas,consopt=lconsopt)
+             call oasis_advance_avsum(avdx,av_sumd,prism_part(mapper%dpart)%pgsmap,prism_part(mapper%dpart)%mpicom, &
+                                mask=imaskd,wts=aread,consopt=lconsopt)
+             call oasis_advance_avsum(av1xm,wts_sumsx,prism_part(mapper%spart)%pgsmap,prism_part(mapper%spart)%mpicom, &
+                                mask=imasks,wts=areas,consopt=lconsopt)
+             call oasis_advance_avsum(avdxm,wts_sumdx,prism_part(mapper%dpart)%pgsmap,prism_part(mapper%dpart)%mpicom, &
+                                mask=imaskd,wts=aread,consopt=lconsopt)
+
+             ! compute correction and apply
+             do m = 1,fsize
+                if (av_sumd(m) == 0.0_ip_r8_p .and. av_sums(m) /= 0.0_ip_r8_p) then
+                   WRITE(nulprt,*) subname,estr,'bsspos sumdst is zero but sumsrc is not'
+                   call oasis_abort(file=__FILE__,line=__LINE__)
+                elseif (wts_sumdx(m) == 0.0_ip_r8_p .and. wts_sumsx(m) == 0.0_ip_r8_p) then
+                   if (OASIS_debug >= 20) then
+                      write(nulprt,'(2a)') subname,' DEBUG conserve bsspos sumsrc and sumdst both zero, skipping'
+                   endif
+                elseif (wts_sumdx(m) == 0.0_ip_r8_p .or. wts_sumsx(m) == 0.0_ip_r8_p) then
+                   WRITE(nulprt,*) subname,estr,'bsspos sum or dst area are zero'
+                   call oasis_abort(file=__FILE__,line=__LINE__)
+                else
+                   if (av_sumd(m) /= 0.0_ip_r8_p) then
+                      zlagr = (av_sums(m)/av_sumd(m)) * (wts_sumdx(m)/wts_sumsx(m))
+                   else
+                      zlagr = 1.0_ip_r8_p
+                      if (OASIS_debug >= 20) then
+                         write(nulprt,'(2a)') subname,' DEBUG conserve bsspos sumdst is zero, set zlagr to 1'
+                      endif
+                   endif
+                   if (OASIS_debug >= 20) then
+                      write(nulprt,'(2a,g16.9,i5,i2)') subname,' DEBUG conserve bsspos *zlagr ',zlagr,m,k
+                   endif
+                   do n = 1,lsized
+                      if (imaskd(n) == 0 .and. &
+                         ((k == 1 .and. avd%rAttr(m,n) > 0.0_ip_r8_p) .or. &
+                          (k == 2 .and. avd%rAttr(m,n) < 0.0_ip_r8_p))) then
+                         avd%rAttr(m,n) = avd%rAttr(m,n) * zlagr
+                      endif
+                   enddo
+                endif
+             enddo
+          enddo  ! k
+          call mct_avect_clean(av1x)
+          call mct_avect_clean(avdx)
+          call mct_avect_clean(av1xm)
+          call mct_avect_clean(avdxm)
+          deallocate(wts_sumsx,wts_sumdx)
+          if (present(tstrinp)) call oasis_timer_stop(trim(tstrinp)//'_cbsspos')
+
        else
            WRITE(nulprt,*) subname,estr,'conserv option unknown = ',conserv
            call oasis_abort(file=__FILE__,line=__LINE__)

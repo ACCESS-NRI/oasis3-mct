@@ -68,20 +68,17 @@ if [ ${SRC_GRID} == "icos" ]; then
 	fi
 fi
 
-arch=linux_gfortran_openmpi  # nemo_lenovo_intel_impi, nemo_lenovo_intel_impi_openmp or beaufix_intel_impi_openmp
-                               # kraken_intel_impi, kraken_intel_impi_openmp, training_computer
-			       # linux_gfortran_openmpi linux_gfortran_openmpi_openmp
+arch=kraken_intel_impi_openmp  # nemo_lenovo_intel_impi, nemo_lenovo_intel_impi_openmp or beaufix_intel_impi_openmp
+                              # kraken_intel_impi, kraken_intel_impi_openmp, training_computer
+			      # linux_gfortran_openmpi_openmp, linux_gfortran_openmpi
+                              # linux_pgi_openmpi_openmp, linux_pgi_openmpi
 # For arch=beaufix_intel_impi_openmp you must put in your .bashrc 
 #module load intel
 #module load intelmpi
 #module load netcdf
 #module load hdf5/1.8.16_par_thrsaf
 
-if [ ${arch} == linux_gfortran_openmpi ] || [ ${arch} == linux_gfortran_openmpi_openmp ]; then
-   rundir=/space/${user}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}/rundir_${nnode}_${mpiprocs}_${threads}
-else
-   rundir=$srcdir/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}/rundir_${nnode}_${mpiprocs}_${threads}
-fi
+rundir=$srcdir/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}/rundir_${nnode}_${mpiprocs}_${threads}
 
 ## - End of user's section
 ######################################################################
@@ -387,9 +384,19 @@ if [ ${arch} == training_computer ]; then
     MPIRUN=/usr/local/intel/impi/2018.1.163/bin64/mpirun
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
-elif [ ${arch} == linux_gfortran_openmpi ] || [ ${arch} == linux_gfortran_openmpi_openmp ]; then
+elif [ ${arch} == davinci_intel_impi_openmp ]; then
     export OASIS_OMP_NUM_THREADS=$threads
+    MPIRUN=/opt/intel/impi/2018.1.163/bin64/mpirun
+    echo 'Executing the model using '$MPIRUN
+    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+elif [ ${arch} == linux_gfortran_openmpi ] || [ ${arch} == linux_gfortran_openmpi_openmp ]; then
+    export OASIS_OMP_NUM_THREADS=1
     MPIRUN=/usr/lib64/openmpi/bin/mpirun
+    echo 'Executing the model using '$MPIRUN
+    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+elif [ ${arch} == linux_pgi_openmpi ] || [ ${arch} == linux_pgi_openmpi_openmp ]; then
+    export OASIS_OMP_NUM_THREADS=1
+    MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun 
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
 elif [ $arch == beaufix_intel_impi_openmp ]; then

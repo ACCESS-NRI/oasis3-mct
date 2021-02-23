@@ -16,6 +16,7 @@ MODULE mod_oasis_coupler
   USE mod_oasis_string
   USE mod_oasis_io
   USE mod_oasis_timer
+  USE mod_oasis_load_balancing
   USE mct_mod
   USE grids    ! scrip
   USE netcdf
@@ -125,7 +126,7 @@ CONTAINS
 
   IMPLICIT none
 
-  integer(kind=ip_i4_p) :: n,n1,n2,nn,nv,nm,nv1,nv1a,nns,lnn,nc,nf,nvf,npc,r1,ierr
+  integer(kind=ip_i4_p) :: l,n,n1,n2,nn,nv,nm,nv1,nv1a,nns,lnn,nc,nf,nvf,npc,r1,ierr
   integer(kind=ip_i4_p) :: pe,nflds1,nflds2,ncnt
   integer(kind=ip_i4_p) :: part1, part2
   integer(kind=ip_i4_p) :: spart,dpart ! src, dst partitions for mapping
@@ -149,12 +150,14 @@ CONTAINS
   character(len=ic_xxl) :: otfldlist  ! field list for other model
   integer(kind=ip_i4_p) :: nx,ny
   character(len=ic_lvar):: gridname
-  character(len=ic_long):: tmp_mapfile
+  character(len=ic_long):: tmp_mapfile, tmp_mapfile2
   integer(kind=ip_i4_p) :: flag
-  logical               :: found, exists, found2
+  integer(kind=ip_i4_p) :: kmask,kfrac,karea
+  logical               :: found, exists, found2, rmask, rfrac
   integer(kind=ip_i4_p) :: mynvar
   integer(kind=ip_i4_p) :: nwgts, arrlen
   character(len=ic_lvar):: tmpfld
+  character(len=ic_lvar):: tmpstr
   type(prism_coupler_type),pointer :: pcpointer
   type(prism_coupler_type),pointer :: pcpntpair
   integer(kind=ip_i4_p) :: ifind,nfind
@@ -188,6 +191,8 @@ CONTAINS
   character(len=ic_med) :: part2decomp   ! decomp_1d or decomp_wghtfile
   character(len=ic_med) :: smatread_method ! orig or ceg
   integer, parameter :: local_timers_on = 0   ! 0=min, 1=few, 2=med, 3=max
+  integer(kind=ip_i4_p) :: nb_field, nb_cpl_ts, imain_kind_lb
+  logical :: lmap,  lout, lrst, ltrn
 
   character(len=*),parameter :: subname = '(oasis_coupler_setup)'
 
@@ -227,6 +232,7 @@ CONTAINS
   prism_nmapper = 0
   prism_mapper(:)%nwgts = 0
   prism_mapper(:)%file  = ""
+  prism_mapper(:)%file2 = ""
   prism_mapper(:)%loc   = ""
   prism_mapper(:)%opt   = ""
   prism_mapper(:)%optval= ""
@@ -1059,14 +1065,21 @@ CONTAINS
                  ENDIF
 
                  tmp_mapfile = nammapfil(nn)
+                 tmp_mapfile2 = ''
 
-                 if (trim(tmp_mapfile) == 'idmap' .and. trim(namscrmet(nn)) /= trim(cspval)) then
+                 if (TRIM(tmp_mapfile) == 'idmap' .and. TRIM(namscrmet(nn)) /= TRIM(cspval)) then
                     if (trim(namscrmet(nn)) == 'CONSERV') then
                        tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
-                                     &'_'//trim(namscrmet(nn))//'_'//trim(namscrnor(nn))//'.nc'
+                          &'_'//TRIM(namscrmet(nn))//'_'//TRIM(namscrnor(nn))//'.nc'
+                    elseif (namscrnbr(nn) > 0) then
+                       write(tmpstr,'(i0)') namscrnbr(nn)
+                       tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
+                          &'_'//TRIM(namscrmet(nn))//'_'//TRIM(tmpstr)//'.nc'
+                       tmp_mapfile2 = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
+                          &'_'//TRIM(namscrmet(nn))//'.nc'
                     else
                        tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
-                                     &'_'//trim(namscrmet(nn))//'.nc'
+                          &'_'//trim(namscrmet(nn))//'.nc'
                     endif
                  endif
 
@@ -1087,6 +1100,17 @@ CONTAINS
                              if (flag == OASIS_Out .and. prism_mapper(n)%spart == part1) mapID = n
                           endif
                        enddo
+                       ! check if tmp_mapfile2 matches if tmp_mapfile does not
+                       if (mapID < 1 .and. tmp_mapfile2 /= '') then
+                       do n = 1,prism_nmapper
+                          if (trim(prism_mapper(n)%file)== trim(tmp_mapfile2) .and. &
+                              trim(prism_mapper(n)%loc ) == trim(nammaploc(nn)) .and. &
+                              trim(prism_mapper(n)%opt ) == trim(nammapopt(nn))) then
+                             if (flag == OASIS_In  .and. prism_mapper(n)%dpart == part1) mapID = n
+                             if (flag == OASIS_Out .and. prism_mapper(n)%spart == part1) mapID = n
+                          endif
+                       enddo
+                       endif
                        !--------------------------------
                        !>       * Or get ready to initialize a new mapper
                        !--------------------------------
@@ -1099,6 +1123,7 @@ CONTAINS
                           endif
                           mapID = prism_nmapper
                           prism_mapper(mapID)%file = trim(tmp_mapfile)
+                          prism_mapper(mapID)%file2= trim(tmp_mapfile2)
                           prism_mapper(mapID)%loc  = trim(nammaploc(nn))
                           prism_mapper(mapID)%opt  = trim(nammapopt(nn))
                           prism_mapper(mapID)%srcgrid = trim(namsrcgrd(nn))
@@ -1365,6 +1390,15 @@ CONTAINS
               if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4da')
               if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4da1')
               inquire(file=trim(prism_mapper(mapID)%file),exist=exists)
+              if (.not. exists .and. prism_mapper(mapid)%file2 /= '') then
+                 ! if file2 exists, but not file, set file = file2
+                 inquire(file=trim(prism_mapper(mapID)%file2),exist=exists)
+                 if (exists) then
+                    write(nulprt,*) subname,' found old mapname, using ', &
+                       trim(prism_mapper(mapID)%file2),' instead of ', trim(prism_mapper(mapID)%file)
+                    prism_mapper(mapID)%file = prism_mapper(mapID)%file2
+                 endif
+              endif
               if (local_timers_on >= 3) call oasis_timer_stop('cpl_setup_n4da1')
               if (OASIS_debug >= 15) then
                  write(nulprt,*) subname,' DEBUG ci: inquire mapfile ',&
@@ -1397,19 +1431,57 @@ CONTAINS
               !--------------------------------
               if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4da3')
               status = nf90_open(trim(prism_mapper(mapID)%file),nf90_nowrite,ncid)
+              if (status /= NF90_NOERR) then
+                 write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                 write(nulprt,*) subname,estr,'file not found = ',trim(prism_mapper(mapID)%file)
+                 call oasis_abort(file=__FILE__,line=__LINE__)
+              endif
               if (OASIS_debug >= 15) then
                  status = nf90_inq_dimid(ncid,'dst_grid_size',dimid)
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    write(nulprt,*) subname,estr,'dim not found = ','dst_grid_size'
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
                  status = nf90_inquire_dimension(ncid,dimid,len=gsize)
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
                  write(nulprt,*) subname," DEBUG dst_grid_size ",gsize
                  status = nf90_inq_dimid(ncid,'src_grid_size',dimid)
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    write(nulprt,*) subname,estr,'dim not found = ','src_grid_size'
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
                  status = nf90_inquire_dimension(ncid,dimid,len=gsize)
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
                  write(nulprt,*) subname," DEBUG src_grid_size ",gsize
               endif
-              if (pcpointer%getput == OASIS3_PUT) &
+              if (pcpointer%getput == OASIS3_PUT) then
                  status = nf90_inq_dimid(ncid,'dst_grid_size',dimid)
-              if (pcpointer%getput == OASIS3_GET) &
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    write(nulprt,*) subname,estr,'dim not found = ','dst_grid_size'
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
+              elseif (pcpointer%getput == OASIS3_GET) then
                  status = nf90_inq_dimid(ncid,'src_grid_size',dimid)
+                 if (status /= NF90_NOERR) then
+                    write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                    write(nulprt,*) subname,estr,'dim not found = ','src_grid_size'
+                    call oasis_abort(file=__FILE__,line=__LINE__)
+                 endif
+              endif
               status = nf90_inquire_dimension(ncid,dimid,len=gsize)
+              if (status /= NF90_NOERR) then
+                 write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
+                 call oasis_abort(file=__FILE__,line=__LINE__)
+              endif
               if (local_timers_on >= 3) call oasis_timer_stop('cpl_setup_n4da3')
               if (local_timers_on >= 3) call oasis_timer_stop('cpl_setup_n4da')
            endif  ! rank = 0
@@ -1650,41 +1722,169 @@ CONTAINS
            spart = prism_mapper(mapID)%spart
            dpart = prism_mapper(mapID)%dpart
 
+           !!! REMINDER !!! mask=0 in oasis is an active point mask/=0 is inactive point
+
+           !--- src ---
+
            lsize = mct_gsmap_lsize(prism_part(spart)%gsmap,mpi_comm_local)
-           call mct_avect_init(prism_mapper(mapID)%av_ms,iList='mask',rList='area',lsize=lsize)
+           call mct_avect_init(prism_mapper(mapID)%av_ms,iList='mask',rList='area:frac',lsize=lsize)
            call mct_avect_zero(prism_mapper(mapID)%av_ms)
+           kmask = mct_aVect_indexIA(prism_mapper(mapID)%av_ms,'mask')
+           karea = mct_aVect_indexRA(prism_mapper(mapID)%av_ms,'area')
+           kfrac = mct_aVect_indexRA(prism_mapper(mapID)%av_ms,'frac')
 !           gridname = prism_part(spart)%gridname
-           gridname=prism_mapper(mapID)%srcgrid
-           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
-              prism_part(spart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
-           call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_ms, &
-              prism_part(spart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           gridname=trim(prism_mapper(mapID)%srcgrid)
+           if (oasis_io_varexists('areas.nc',trim(gridname)//'.srf')) then
+              call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_ms, &
+                 prism_part(spart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           else
+              WRITE(nulprt,*) subname,estr,' Missing field '//trim(gridname)//'.srf in areas.nc needed for post-processing CONSERV'
+              CALL oasis_abort(file=__FILE__,line=__LINE__)
+           endif
+           rmask = .false.
+           rfrac = .false.
+           if (oasis_io_varexists('masks.nc',trim(gridname)//'.frc')) then
+              rfrac = .true.
+              call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
+                 prism_part(spart)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real')
+           endif
+           if (oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) then
+              rmask = .true.
+              call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_ms, &
+                 prism_part(spart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
+           endif
+
+           if (OASIS_debug > 15) then
+              write(nulprt,*) subname,' src rmask, rfrac = ',rmask,rfrac
+           endif
+
+           if (rmask) then
+              if (rfrac) then
+                 ! mask and frac read, continue
+              else
+                 ! mask only, set frac = mask
+                 prism_mapper(mapID)%av_ms%rAttr(kfrac,:) = 0.0_ip_double_p
+                 do l = 1,lsize
+                    if (prism_mapper(mapID)%av_ms%iAttr(kmask,l) == 0) prism_mapper(mapID)%av_ms%rAttr(kfrac,l) = 1.0_ip_double_p
+                 enddo
+              endif
+           else
+              if (rfrac) then
+                 ! frac only, set mask = frac
+                 prism_mapper(mapID)%av_ms%iAttr(kmask,:) = 1
+                 do l = 1,lsize
+                    if (prism_mapper(mapID)%av_ms%rAttr(kfrac,l) /= 0._ip_double_p) prism_mapper(mapID)%av_ms%iAttr(kmask,l) = 0
+                 enddo
+              else
+                 ! no mask, no frac, abort
+                 WRITE(nulprt,*) subname,estr,' Expecting mask or frac or both for grid '//trim(gridname)
+                 CALL oasis_abort(file=__FILE__,line=__LINE__)
+              endif
+           endif
+
+           ! verify consistency between frac and mask, mask=0 frac/=0
+           do l = 1,lsize
+              if ((prism_mapper(mapID)%av_ms%rAttr(kfrac,l) /= 0._ip_double_p .and. prism_mapper(mapID)%av_ms%iAttr(kmask,l) /= 0) .or. &
+                  (prism_mapper(mapID)%av_ms%rAttr(kfrac,l) == 0._ip_double_p .and. prism_mapper(mapID)%av_ms%iAttr(kmask,l) == 0)) then
+                 WRITE(nulprt,*) subname,estr,' Mismatch in mask and frac fields for grid '//trim(gridname)
+                 CALL oasis_abort(file=__FILE__,line=__LINE__)
+              endif
+           enddo
+
+           !--- dst ---
 
            lsize = mct_gsmap_lsize(prism_part(dpart)%gsmap,mpi_comm_local)
-           call mct_avect_init(prism_mapper(mapID)%av_md,iList='mask',rList='area',lsize=lsize)
+           call mct_avect_init(prism_mapper(mapID)%av_md,iList='mask',rList='area:frac',lsize=lsize)
            call mct_avect_zero(prism_mapper(mapID)%av_md)
+           kmask = mct_aVect_indexIA(prism_mapper(mapID)%av_md,'mask')
+           karea = mct_aVect_indexRA(prism_mapper(mapID)%av_md,'area')
+           kfrac = mct_aVect_indexRA(prism_mapper(mapID)%av_md,'frac')
 !           gridname = prism_part(dpart)%gridname
-           gridname=prism_mapper(mapID)%dstgrid
-           call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
-              prism_part(dpart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
-           call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_md, &
-              prism_part(dpart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           gridname=trim(prism_mapper(mapID)%dstgrid)
+           if (oasis_io_varexists('areas.nc',trim(gridname)//'.srf')) then
+              call oasis_io_read_avfld('areas.nc',prism_mapper(mapID)%av_md, &
+                 prism_part(dpart)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+           else
+              WRITE(nulprt,*) subname,estr,' Missing field '//trim(gridname)//'.srf in areas.nc needed for post-processing CONSERV'
+              CALL oasis_abort(file=__FILE__,line=__LINE__)
+           endif
+           rmask = .false.
+           rfrac = .false.
+           if (oasis_io_varexists('masks.nc',trim(gridname)//'.frc')) then
+              rfrac = .true.
+              call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
+                 prism_part(dpart)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real')
+           endif
+           if (oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) then
+              rmask = .true.
+              call oasis_io_read_avfld('masks.nc',prism_mapper(mapID)%av_md, &
+                 prism_part(dpart)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
+           endif
+
+           if (OASIS_debug > 15) then
+              write(nulprt,*) subname,' dst rmask, rfrac = ',rmask,rfrac
+           endif
+
+           if (rmask) then
+              if (rfrac) then
+                 ! mask and frac read, continue
+              else
+                 ! mask only, set frac = mask
+                 prism_mapper(mapID)%av_md%rAttr(kfrac,:) = 0.0_ip_double_p
+                 do l = 1,lsize
+                    if (prism_mapper(mapID)%av_md%iAttr(kmask,l) == 0) prism_mapper(mapID)%av_md%rAttr(kfrac,l) = 1.0_ip_double_p
+                 enddo
+              endif
+           else
+              if (rfrac) then
+                 ! frac only, set mask = frac
+                 prism_mapper(mapID)%av_md%iAttr(kmask,:) = 1
+                 do l = 1,lsize
+                    if (prism_mapper(mapID)%av_md%rAttr(kfrac,l) /= 0._ip_double_p) prism_mapper(mapID)%av_md%iAttr(kmask,l) = 0
+                 enddo
+              else
+                 ! no mask, no frac, abort
+                 WRITE(nulprt,*) subname,estr,' Expecting mask or frac or both for grid '//trim(gridname)
+                 CALL oasis_abort(file=__FILE__,line=__LINE__)
+              endif
+           endif
+
+           ! verify consistency between frac and mask, mask=0 frac/=0
+           do l = 1,lsize
+              if ((prism_mapper(mapID)%av_md%rAttr(kfrac,l) /= 0._ip_double_p .and. prism_mapper(mapID)%av_md%iAttr(kmask,l) /= 0) .or. &
+                  (prism_mapper(mapID)%av_md%rAttr(kfrac,l) == 0._ip_double_p .and. prism_mapper(mapID)%av_md%iAttr(kmask,l) == 0)) then
+                 WRITE(nulprt,*) subname,estr,' Mismatch in mask and frac fields for grid '//trim(gridname)
+                 CALL oasis_abort(file=__FILE__,line=__LINE__)
+              endif
+           enddo
 
            prism_mapper(mapID)%AVred = .true.
 
            if (OASIS_debug >= 30) then
-              write(nulprt,*) subname,' DEBUG msi ',minval(prism_mapper(mapID)%av_ms%iAttr(:,:)),&
-                              maxval(prism_mapper(mapID)%av_ms%iAttr(:,:)),&
-                              sum(prism_mapper(mapID)%av_ms%iAttr(:,:))
-              write(nulprt,*) subname,' DEBIG msr ',minval(prism_mapper(mapID)%av_ms%rAttr(:,:)),&
-                              maxval(prism_mapper(mapID)%av_ms%rAttr(:,:)),&
-                              sum(prism_mapper(mapID)%av_ms%rAttr(:,:))
-              write(nulprt,*) subname,' DEBUG mdi ',minval(prism_mapper(mapID)%av_md%iAttr(:,:)),&
-                              maxval(prism_mapper(mapID)%av_md%iAttr(:,:)),&
-                              sum(prism_mapper(mapID)%av_md%iAttr(:,:))
-              write(nulprt,*) subname,' DEBUG mdr ',minval(prism_mapper(mapID)%av_md%rAttr(:,:)),&
-                              maxval(prism_mapper(mapID)%av_md%rAttr(:,:)),&
-                              sum(prism_mapper(mapID)%av_md%rAttr(:,:))
+              kmask = mct_aVect_indexIA(prism_mapper(mapID)%av_ms,'mask')
+              karea = mct_aVect_indexRA(prism_mapper(mapID)%av_ms,'area')
+              kfrac = mct_aVect_indexRA(prism_mapper(mapID)%av_ms,'frac')
+              write(nulprt,*) subname,' DEBUG ms mask ',minval(prism_mapper(mapID)%av_ms%iAttr(kmask,:)),&
+                              maxval(prism_mapper(mapID)%av_ms%iAttr(kmask,:)),&
+                              sum(prism_mapper(mapID)%av_ms%iAttr(kmask,:))
+              write(nulprt,*) subname,' DEBIG ms area ',minval(prism_mapper(mapID)%av_ms%rAttr(karea,:)),&
+                              maxval(prism_mapper(mapID)%av_ms%rAttr(karea,:)),&
+                              sum(prism_mapper(mapID)%av_ms%rAttr(karea,:))
+              write(nulprt,*) subname,' DEBIG ms frac ',minval(prism_mapper(mapID)%av_ms%rAttr(kfrac,:)),&
+                              maxval(prism_mapper(mapID)%av_ms%rAttr(kfrac,:)),&
+                              sum(prism_mapper(mapID)%av_ms%rAttr(kfrac,:))
+              kmask = mct_aVect_indexIA(prism_mapper(mapID)%av_md,'mask')
+              karea = mct_aVect_indexRA(prism_mapper(mapID)%av_md,'area')
+              kfrac = mct_aVect_indexRA(prism_mapper(mapID)%av_md,'frac')
+              write(nulprt,*) subname,' DEBUG md mask ',minval(prism_mapper(mapID)%av_md%iAttr(kmask,:)),&
+                              maxval(prism_mapper(mapID)%av_md%iAttr(kmask,:)),&
+                              sum(prism_mapper(mapID)%av_md%iAttr(kmask,:))
+              write(nulprt,*) subname,' DEBUG md area ',minval(prism_mapper(mapID)%av_md%rAttr(karea,:)),&
+                              maxval(prism_mapper(mapID)%av_md%rAttr(karea,:)),&
+                              sum(prism_mapper(mapID)%av_md%rAttr(karea,:))
+              write(nulprt,*) subname,' DEBUG md frac ',minval(prism_mapper(mapID)%av_md%rAttr(kfrac,:)),&
+                              maxval(prism_mapper(mapID)%av_md%rAttr(kfrac,:)),&
+                              sum(prism_mapper(mapID)%av_md%rAttr(kfrac,:))
               CALL oasis_flush(nulprt)
            endif
         endif
@@ -1879,13 +2079,81 @@ CONTAINS
      CALL oasis_flush(nulprt)
   endif
 
-  IF (LUCIA_debug > 0) THEN
+  IF ( LUCIA_debug == 1) THEN
      DO nc = 1, prism_mcoupler
         IF (prism_coupler_put(nc)%valid) &
            WRITE(nullucia, '(A12,I4.4,1X,A)') 'Balance: SN ', prism_coupler_put(nc)%namID, TRIM(prism_coupler_put(nc)%fldlist)
         IF (prism_coupler_get(nc)%valid) &
            WRITE(nullucia, '(A12,I4.4,1X,A)') 'Balance: RC ', prism_coupler_get(nc)%namID, TRIM(prism_coupler_get(nc)%fldlist)
      ENDDO
+  ENDIF
+
+!EM modif to add new LB analysis
+  IF ( ABS(LUCIA_debug) > 0 ) THEN
+
+     ! How much event to measure should we expect
+     ! number of get/put
+     nb_field = COUNT(prism_coupler_put(1:prism_mcoupler)%valid) + &
+                COUNT(prism_coupler_get(1:prism_mcoupler)%valid)
+
+     CALL oasis_lb_allocate(nb_field)
+
+     DO nc = 1, prism_mcoupler
+        IF (prism_coupler_put(nc)%valid) THEN
+           !
+           IF ( prism_coupler_put(nc)%comp == compid .AND. &
+                prism_part((prism_coupler_put(nc)%partid))%lsize == 0 .AND. &
+                mpi_rank_local == 0 ) THEN
+              WRITE(nulprt,*) subname, ' WARNING: component self exchange, not involving master process. Load balancing analysis impossible '
+              CALL oasis_lb_stop
+           ENDIF
+           !
+           nb_cpl_ts = prism_coupler_put(nc)%maxtime/prism_coupler_put(nc)%dt
+           IF (OASIS_debug >= 2) &
+              WRITE(nulprt,'(A11,I2,A16)') ' LB: Define ', nb_cpl_ts, ' coupling events'
+
+           imain_kind_lb = LB_PUT
+           IF ( .NOT. prism_coupler_put(nc)%sndrcv ) imain_kind_lb = LB_OUT
+
+           lmap = .FALSE.; lout = .FALSE.; lrst = .FALSE. ; ltrn = .FALSE.
+           IF ( prism_coupler_put(nc)%mapperID > 0 ) lmap = .TRUE.
+           IF ( prism_coupler_put(nc)%output ) lout = .TRUE.
+           IF ( prism_coupler_put(nc)%writrest .OR. prism_coupler_put(nc)%lag > 0 ) &
+              lrst = .TRUE.
+           IF ( prism_coupler_put(nc)%writrest .OR. prism_coupler_put(nc)%trans /= ip_instant ) &
+              ltrn = .TRUE.
+
+           CALL oasis_lb_define(nc, imain_kind_lb, prism_coupler_put(nc)%namID, &
+                                prism_coupler_put(nc)%comp, nb_cpl_ts, &
+                                lmap = lmap, lout = lout, lrst = lrst, ltrn = ltrn )
+        ENDIF
+        IF (prism_coupler_get(nc)%valid) THEN
+           !
+           IF ( prism_coupler_get(nc)%comp == compid .AND. &
+                prism_part((prism_coupler_get(nc)%partid))%lsize == 0 .AND. &
+                mpi_rank_local == 0 ) THEN
+              WRITE(nulprt,*) subname, ' WARNING: component self exchange, not involving master process. Load balancing analysis impossible '
+              CALL oasis_lb_stop
+           ENDIF
+           !
+           nb_cpl_ts = prism_coupler_get(nc)%maxtime/prism_coupler_get(nc)%dt
+           IF (OASIS_debug >= 2) &
+              WRITE(nulprt,'(A11,I2,A16)') ' LB: Define ', nb_cpl_ts, ' coupling events'
+
+           imain_kind_lb = LB_GET
+           IF ( .NOT. prism_coupler_get(nc)%sndrcv ) imain_kind_lb = LB_READ
+
+           lmap = .FALSE.; lout = .FALSE.
+           IF ( prism_coupler_get(nc)%mapperID > 0 ) lmap = .TRUE.
+           IF ( prism_coupler_get(nc)%output ) lout = .TRUE.
+
+           CALL oasis_lb_define(nc, imain_kind_lb, prism_coupler_get(nc)%namID, &
+                                prism_coupler_get(nc)%comp, nb_cpl_ts, &
+                                lmap = lmap, lout = lout )
+
+        ENDIF
+     ENDDO
+
   ENDIF
 
   if (local_timers_on >= 3) call oasis_timer_stop ('cpl_setup_n4g')
@@ -2123,7 +2391,7 @@ subroutine cplfind(num, fldlist, fld, ifind, nfind)
 
    !--- local ---
    integer(IN)    :: is,ie,im
-   logical        :: found
+   logical        :: found,check
 
    !--- formats ---
    character(*),parameter :: subName = '(cplfind) '
@@ -2176,13 +2444,31 @@ subroutine cplfind(num, fldlist, fld, ifind, nfind)
        is = im
        ie = im
        if (is > 1) then
-          do while (fld == fldlist(is-1) .and. is > 1)
-             is = is - 1
+          check = .true.
+          do while (check)
+             if (is > 1) then
+                if (fld /= fldlist(is-1)) then
+                   check = .false.
+                else
+                   is = is - 1
+                endif
+             else
+                check = .false.
+             endif
           enddo
        endif
        if (ie < num) then
-          do while (fld == fldlist(ie+1) .and. ie < num)
-             ie = ie + 1
+          check = .true.
+          do while (check)
+             if (ie < num) then
+                if (fld /= fldlist(ie+1)) then
+                   check = .false.
+                else
+                   ie = ie + 1
+                endif
+             else
+                check = .false.
+             endif
           enddo
        endif
        ifind = is

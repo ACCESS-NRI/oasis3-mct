@@ -77,8 +77,8 @@ module remap_conservative
    !
    !-----------------------------------------------------------------------
 
-   real (kind=dbl_kind), parameter :: north_thresh = 2.00_dbl_kind, & ! threshold for coord transf.
-      south_thresh =-2.00_dbl_kind  ! threshold for coord transf.
+   real (kind=dbl_kind) :: north_thresh = 2.00_dbl_kind, & ! threshold for coord transf.
+                           south_thresh =-2.00_dbl_kind    ! threshold for coord transf.
 
    integer (kind=int_kind) :: il_nbthreads = 1
 
@@ -141,6 +141,7 @@ contains
          intrsct_lat, intrsct_lon,       & ! lat/lon of next intersect
          beglat, endlat, beglon, endlon, & ! endpoints of current seg.
          norm_factor,                    & ! factor for normalizing wts
+         norm_correc,                    & ! true area correction for norm wts
          delta,                          & ! precision
          r2d
 
@@ -175,6 +176,7 @@ contains
       integer (kind=int_kind), dimension(:,:,:), allocatable :: ila_sta_mpi
       character (LEN=14) :: cl_envvar
       integer (kind=int_kind) :: il_envthreads, il_err, est_num_neighbors
+      integer (kind=int_kind) :: grid1_np, grid1_sp, grid2_np, grid2_sp
 
 #ifdef TREAT_OVERLAY
       integer (kind=int_kind) :: cell
@@ -297,7 +299,7 @@ contains
 
       if (ll_timing) call timer_stop(2)
 
-#endif TREAT_OVERLAY
+#endif
 
       allocate(ila_mpi_mn(mpi_size_map), ila_mpi_mx(mpi_size_map) )
 
@@ -660,9 +662,9 @@ contains
                         write(nulou,*) '   '
                         call OASIS_FLUSH_SCRIP(nulou)
                      endif
-1117                 format('   après intersection;  beglon, beglat =           ', 2X, F12.4, 2X, F12.4)
-1118                 format ('   après intersection;  endlon, endlat =          ', 2X, F12.4, 2X, F12.4)
-1119                 format ('   après intersection; intrsct_lon, intrsct_lat = ', 2X, F12.4, 2X, F12.4)
+1117                 format('   after intersection;  beglon, beglat =           ', 2X, F12.4, 2X, F12.4, 2X, F12.4, 2X, F12.4)
+1118                 format ('   after intersection;  endlon, endlat =          ', 2X, F12.4, 2X, F12.4, 2X, F12.4, 2X, F12.4)
+1119                 format ('   after intersection; intrsct_lon, intrsct_lat = ', 2X, F12.4, 2X, F12.4, 2X, F12.4, 2X, F12.4)
 
                      lbegin = .false.
 
@@ -1573,38 +1575,38 @@ contains
       weights(5) =  pi*pi
       weights(6) =  zero
 
-      grid1_add = 0
+      grid1_np = -1
       pole_loop1: do n=1,grid1_size
          if (grid1_area(n) < -three*pih .and. grid1_center_lat(n) > zero) then
-            grid1_add = n
+            grid1_np = n
             exit pole_loop1
          endif
       end do pole_loop1
 
-      grid2_add = 0
+      grid2_np = -1
       pole_loop2: do n=1,grid2_size
          if (grid2_area(n) < -three*pih .and. grid2_center_lat(n) > zero) then
-            grid2_add = n
+            grid2_np = n
             exit pole_loop2
          endif
       end do pole_loop2
 
-      if (grid1_add /=0) then
-         grid1_area(grid1_add) = grid1_area(grid1_add) + weights(1)
-         grid1_centroid_lat(grid1_add) = grid1_centroid_lat(grid1_add) + weights(2)
-         grid1_centroid_lon(grid1_add) = grid1_centroid_lon(grid1_add) + weights(3)
+      if (grid1_np > 0) then
+         grid1_area(grid1_np) = grid1_area(grid1_np) + weights(1)
+         grid1_centroid_lat(grid1_np) = grid1_centroid_lat(grid1_np) + weights(2)
+         grid1_centroid_lon(grid1_np) = grid1_centroid_lon(grid1_np) + weights(3)
       endif
 
-      if (grid2_add /=0) then
-         grid2_area(grid2_add) = grid2_area(grid2_add) + weights(num_wts+1)
-         grid2_centroid_lat(grid2_add) = grid2_centroid_lat(grid2_add) + weights(num_wts+2)
-         grid2_centroid_lon(grid2_add) = grid2_centroid_lon(grid2_add) + weights(num_wts+3)
+      if (grid2_np > 0) then
+         grid2_area(grid2_np) = grid2_area(grid2_np) + weights(num_wts+1)
+         grid2_centroid_lat(grid2_np) = grid2_centroid_lat(grid2_np) + weights(num_wts+2)
+         grid2_centroid_lon(grid2_np) = grid2_centroid_lon(grid2_np) + weights(num_wts+3)
       endif
 
-      if (grid1_add /= 0 .and. grid2_add /=0) then
-         call store_link_cnsrv(grid1_add, grid2_add, weights, 1)
-!EM         grid1_frac(grid1_add) = grid1_frac(grid1_add) + weights(1)
-         grid2_frac(grid2_add) = grid2_frac(grid2_add) + weights(num_wts+1)
+      if (grid1_np > 0 .and. grid2_np > 0) then
+         call store_link_cnsrv(grid1_np, grid2_np, weights, 1)
+!EM         grid1_frac(grid1_np) = grid1_frac(grid1_np) + weights(1)
+         grid2_frac(grid2_np) = grid2_frac(grid2_np) + weights(num_wts+1)
       endif
 
       !*** South Pole
@@ -1615,39 +1617,39 @@ contains
       weights(5) = -pi*pi
       weights(6) =  zero
 
-      grid1_add = 0
+      grid1_sp = -1
       pole_loop3: do n=1,grid1_size
          if (grid1_area(n) < -three*pih .and. grid1_center_lat(n) < zero) then
-            grid1_add = n
+            grid1_sp = n
             exit pole_loop3
          endif
       end do pole_loop3
 
-      grid2_add = 0
+      grid2_sp = -1
       pole_loop4: do n=1,grid2_size
          if (grid2_area(n) < -three*pih .and. grid2_center_lat(n) < zero) then
-            grid2_add = n
+            grid2_sp = n
             exit pole_loop4
          endif
       end do pole_loop4
 
-      if (grid1_add /=0) then
-         grid1_area(grid1_add) = grid1_area(grid1_add) + weights(1)
-         grid1_centroid_lat(grid1_add) = grid1_centroid_lat(grid1_add) + weights(2)
-         grid1_centroid_lon(grid1_add) = grid1_centroid_lon(grid1_add) + weights(3)
+      if (grid1_sp > 0) then
+         grid1_area(grid1_sp) = grid1_area(grid1_sp) + weights(1)
+         grid1_centroid_lat(grid1_sp) = grid1_centroid_lat(grid1_sp) + weights(2)
+         grid1_centroid_lon(grid1_sp) = grid1_centroid_lon(grid1_sp) + weights(3)
       endif
 
-      if (grid2_add /=0) then
-         grid2_area(grid2_add) = grid2_area(grid2_add) + weights(num_wts+1)
-         grid2_centroid_lat(grid2_add) = grid2_centroid_lat(grid2_add) + weights(num_wts+2)
-         grid2_centroid_lon(grid2_add) = grid2_centroid_lon(grid2_add) + weights(num_wts+3)
+      if (grid2_sp > 0) then
+         grid2_area(grid2_sp) = grid2_area(grid2_sp) + weights(num_wts+1)
+         grid2_centroid_lat(grid2_sp) = grid2_centroid_lat(grid2_sp) + weights(num_wts+2)
+         grid2_centroid_lon(grid2_sp) = grid2_centroid_lon(grid2_sp) + weights(num_wts+3)
       endif
 
-      if (grid1_add /= 0 .and. grid2_add /=0) then
-         call store_link_cnsrv(grid1_add, grid2_add, weights, 1)
+      if (grid1_sp > 0 .and. grid2_sp > 0) then
+         call store_link_cnsrv(grid1_sp, grid2_sp, weights, 1)
 
-!EM         grid1_frac(grid1_add) = grid1_frac(grid1_add) + weights(1)
-         grid2_frac(grid2_add) = grid2_frac(grid2_add) + weights(num_wts+1)
+!EM         grid1_frac(grid1_sp) = grid1_frac(grid1_sp) + weights(1)
+         grid2_frac(grid2_sp) = grid2_frac(grid2_sp) + weights(num_wts+1)
       endif
 
       !-----------------------------------------------------------------------
@@ -1689,6 +1691,11 @@ contains
          case (norm_opt_dstarea)
             if (grid2_area(grid2_add) /= zero) then
                if (luse_grid2_area) then
+                  if (.not. lstore_grid2_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_dstarea failed with missing grid2_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
                   norm_factor = one/grid2_area_in(grid2_add)
                else
                   norm_factor = one/grid2_area(grid2_add)
@@ -1699,11 +1706,70 @@ contains
          case (norm_opt_frcarea)
             if (grid2_frac(grid2_add) /= zero) then
                if (luse_grid2_area) then
+                  if (.not. lstore_grid2_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_frcarea failed with missing grid2_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
                   norm_factor = grid2_area(grid2_add)/ &
                      (grid2_frac(grid2_add)*grid2_area_in(grid2_add))
                else
                   norm_factor = one/grid2_frac(grid2_add)
                endif
+            else
+               norm_factor = zero
+            endif
+         case (norm_opt_dstartr)
+            if (grid2_area(grid2_add) /= zero) then
+               norm_factor = one/grid2_area(grid2_add)
+               if (grid1_add .ne. grid1_np .and. grid1_add .ne. grid1_sp  &
+                   .and. grid1_area(grid1_add) /= zero) then
+                  if (.not. lstore_grid1_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_dstartr failed with missing grid1_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
+                  norm_correc = grid1_area_in(grid1_add)/grid1_area(grid1_add)
+                  if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
+                      norm_factor = norm_factor * norm_correc
+               end if
+               if (grid2_add .ne. grid2_np .and. grid2_add .ne. grid2_sp) then
+                  if (.not. lstore_grid2_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_dstartr failed with missing grid2_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
+                  norm_correc = grid2_area(grid2_add)/grid2_area_in(grid2_add)
+                  if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
+                      norm_factor = norm_factor * norm_correc
+               end if
+            else
+               norm_factor = zero
+            endif
+         case (norm_opt_frcartr)
+            if (grid2_frac(grid2_add) /= zero) then
+               norm_factor = one/grid2_frac(grid2_add)
+               if (grid1_add .ne. grid1_np .and. grid1_add .ne. grid1_sp  &
+                   .and. grid1_area(grid1_add) /= zero) then
+                  if (.not. lstore_grid1_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_frcartr failed with missing grid1_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
+                  norm_correc = grid1_area_in(grid1_add)/grid1_area(grid1_add)
+                  if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
+                      norm_factor = norm_factor * norm_correc
+               end if
+               if (grid2_add .ne. grid2_np .and. grid2_add .ne. grid2_sp) then
+                  if (.not. lstore_grid2_area) then
+                     write(nulou,*) 'ERROR: remap_conserv norm_opt_frcartr failed with missing grid2_area_in'
+                     call OASIS_FLUSH_SCRIP(nulou)
+                     stop
+                  endif
+                  norm_correc = grid2_area(grid2_add)/grid2_area_in(grid2_add)
+                  if (norm_correc.gt.0.8.and.norm_correc.lt.1.2) &
+                      norm_factor = norm_factor * norm_correc
+               end if
             else
                norm_factor = zero
             endif
@@ -1831,8 +1897,17 @@ contains
             norm_factor = grid2_frac(n)
          case (norm_opt_frcarea)
             norm_factor = one
+         case (norm_opt_dstartr)
+            norm_factor = grid2_frac(n)
+         case (norm_opt_frcartr)
+            norm_factor = one
          case (norm_opt_none)
             if (luse_grid2_area) then
+               if (.not. lstore_grid2_area) then
+                  write(nulou,*) 'ERROR: remap_conserv norm_opt_none failed with missing grid2_area_in'
+                  call OASIS_FLUSH_SCRIP(nulou)
+                  stop
+               endif
                norm_factor = grid2_area_in(n)
             else
                norm_factor = grid2_area(n)
@@ -2169,6 +2244,7 @@ contains
 
          cell_loop: do cell=1,num_srch_cells
             gcell = srch_add(cell)
+            lcoinc = .false.
             corner_loop: do n=1,srch_corners
                next_n = mod(n,srch_corners) + 1
 
@@ -2699,6 +2775,7 @@ contains
 
          cell_loop: do cell=1,num_srch_cells
             gcell = srch_add(cell)
+            lcoinc = .false.
             srch_corner_x(:) = rns*two*sin(pi4 - half*grid_corner_lat(:,gcell)) * cos(grid_corner_lon(:,gcell))
             srch_corner_y(:) =     two*sin(pi4 - half*grid_corner_lat(:,gcell)) * sin(grid_corner_lon(:,gcell))
             corner_loop: do n=1,srch_corners

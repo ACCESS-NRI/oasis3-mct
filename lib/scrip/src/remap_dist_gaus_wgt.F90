@@ -76,7 +76,7 @@ module remap_distance_gaussian_weight
       coslon, sinlon,  & ! cosine, sine of grid lons (for distance) 
       wgtstmp            ! an array to hold the link weight
 
-   logical, parameter :: ll_nnei=.true.
+   logical :: ll_nnei_dgw=.true.
 
    integer (kind=int_kind) :: il_nbthreads = 1
 
@@ -86,7 +86,7 @@ contains
 
    !***********************************************************************
 
-   subroutine remap_dist_gaus_wgt (lextrapdone, num_neighbors, &
+   subroutine remap_dist_gaus_wgt (lextrapdone, ll_nnei_in, num_neighbors, &
                                    mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map, &
                                    r_varmul )
 
@@ -102,13 +102,15 @@ contains
       !
       !-----------------------------------------------------------------------
 
-      logical :: lextrapdone   ! logical, true if EXTRAP done on field
+      logical, INTENT(in) :: lextrapdone   ! logical, true if EXTRAP done on field
 
-      real (kind=dbl_kind),optional :: r_varmul          ! Gaussian variance
+      logical, INTENT(in) :: ll_nnei_in    ! logical if nearest neighbor fill to be done
 
-      integer (kind=int_kind) :: num_neighbors     ! number of neighbours
+      real (kind=dbl_kind), INTENT(in), optional :: r_varmul   ! Gaussian variance
 
-      integer (kind=int_kind) :: mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
+      integer (kind=int_kind), INTENT(in) :: num_neighbors     ! number of neighbours
+
+      integer (kind=int_kind), INTENT(in) :: mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
 
       !-----------------------------------------------------------------------
       !
@@ -178,6 +180,10 @@ contains
          write (UNIT = nulou,FMT = *)'Entering routine remap_dist_gaus_wgt'
          call OASIS_FLUSH_SCRIP(nulou)
       endif
+
+! copy to module data
+      ll_nnei_dgw = ll_nnei_in
+
       !
       !-----------------------------------------------------------------------
       !
@@ -293,7 +299,7 @@ contains
 
 !$OMP PARALLEL NUM_THREADS(il_envthreads) DEFAULT(NONE) &
 !$OMP SHARED(il_envthreads) &
-!$OMP SHARED(lextrapdone,num_neighbors) &
+!$OMP SHARED(lextrapdone,ll_nnei_dgw,num_neighbors) &
 !$OMP SHARED(grid2_mask,grid2_frac) &
 !$OMP SHARED(grid2_center_lat,grid2_center_lon) &
 !$OMP SHARED(grid1_mask) &
@@ -476,7 +482,7 @@ contains
                rl_local_variance = 0.
                il_nb_pairs = 0
                do i_n = 1, num_neighbors-1
-                  do ib_nb = 2, num_neighbors
+                  do ib_nb = i_n+1, num_neighbors
                      il_n1_add = nbr_add(i_n)
                      il_n2_add = nbr_add(ib_nb)
                      if ( grid1_mask(il_n1_add) .and. grid1_mask(il_n2_add) ) then
@@ -484,8 +490,9 @@ contains
                                          coslat(il_n2_add)*coslat(il_n1_add)*    &
                                          ( coslon(il_n2_add)*coslon(il_n1_add) + &
                                            sinlon(il_n2_add)*sinlon(il_n1_add) )
-                        rl_nb_distance = MAX ( MIN ( rl_nb_distance, 1.), -1. )
-                        rl_local_variance = rl_local_variance + acos ( rl_nb_distance )
+                        rl_nb_distance = MAX ( MIN ( rl_nb_distance, 1.d0), -1.d0)
+                        rl_nb_distance = acos ( rl_nb_distance )
+                        rl_local_variance = rl_local_variance + rl_nb_distance
                         il_nb_pairs = il_nb_pairs + 1
                      end if
                   enddo
@@ -557,7 +564,7 @@ contains
                   icount = icount + 1
                endif
             end do
-            if (ll_nnei) then
+            if (ll_nnei_dgw) then
                if (icount == 0) then
                   if (nlogprt .ge. 2) then
                      write(nulou,*) '    '
@@ -803,6 +810,8 @@ contains
       !
       !     this routine finds the closest num_neighbor points to a search 
       !     point and computes a distance to each of the neighbors.
+      !     it excludes redundant points as specified by the tolerance
+      !     defined by dist_chk.
       !
       !-----------------------------------------------------------------------
 
@@ -851,10 +860,18 @@ contains
       integer (kind=int_kind) :: n, nmax, nadd, nchk, & ! dummy indices
                                  nm1, np1, i, j, ip1, im1, jp1, jm1, &
                                  min_add, max_add,                   &
-                                 il_debug_add
+                                 il_debug_add, nbr_count
 
-      real (kind=dbl_kind) :: distance, rl_dist, src_latsnn      ! angular distance
+      real (kind=dbl_kind) :: distance, rl_dist, src_latsnn, &   ! angular distance
+                              dist1, dist2                       ! temporary dist calcs
 
+      real (kind=dbl_kind), dimension(num_neighbors) :: &
+           nbr_coslat, nbr_sinlat, nbr_coslon, nbr_sinlon        ! stored nbr lon/lat
+
+      real (kind=dbl_kind), parameter :: dist_chk = 1.0e-7       ! delta distance limit radians
+
+      logical (kind=log_kind) :: nchkflag                        ! flag for nchk
+ 
       !-----------------------------------------------------------------------
       !
       !     loop over source grid and find nearest neighbors
@@ -920,8 +937,13 @@ contains
       !*** initialize distance and address arrays
       !***
 
+      nbr_count = 0
       nbr_add = 0
       nbr_dist = bignum
+      nbr_coslat = bignum
+      nbr_sinlat = bignum
+      nbr_coslon = bignum
+      nbr_sinlon = bignum
       src_latsnn = bignum
       src_addnn = 0
 
@@ -952,17 +974,89 @@ contains
          !*** smallest four so far
          !***
 
-         check_loop: do nchk=1,num_neighbors
-            if (distance .lt. nbr_dist(nchk)) then
-               do n=num_neighbors,nchk+1,-1
-                  nbr_add(n) = nbr_add(n-1)
-                  nbr_dist(n) = nbr_dist(n-1)
-               end do
-               nbr_add(nchk) = nadd
-               nbr_dist(nchk) = distance
-               exit check_loop
+         if (distance .lt. nbr_dist(num_neighbors)) then
+            ! compute nchk, the first neighbor with ge distance than nadd
+            nchk = num_neighbors
+            nchkflag = .true.
+            do while (nchkflag)
+               if (distance .lt. nbr_dist(nchk-1)) then
+                   nchk = nchk - 1
+               else
+                   nchkflag = .false.
+               endif
+               if (nchk == 1) nchkflag = .false.
+            enddo
+
+            ! check that points are not the same, need to compare nchk-1 and nchk
+            ! only compare against neighbors that have been initialized (nchk <= nbr_count)
+            ! nchk-1 should always be an initialized point if nchk > 1
+            ! nchk may be initialized or not
+            if (nchk > 1) then
+               dist1 = nbr_sinlat(nchk-1)*sinlat(nadd) +  &
+                       nbr_coslat(nchk-1)*coslat(nadd)*   &
+                      (nbr_coslon(nchk-1)*coslon(nadd) + &
+                       nbr_sinlon(nchk-1)*sinlon(nadd))
+               dist1 = MAX ( MIN ( dist1, 1.d0), -1.d0)
+               !dist1 = acos(dist1)
+               ! avoid cost of acos above since we're comparing to a small number
+               ! use cos(x) = 1-x^2/2, x = sqrt(2 * (1 - cos(x)))
+               dist1 = sqrt(2.0d0*(1.0d0-abs(dist1)))
+            else
+               dist1 = bignum
             endif
-         end do check_loop
+
+            if (dist1 > dist_chk) then
+               if (nchk <= nbr_count) then
+                  dist2 = nbr_sinlat(nchk)*sinlat(nadd) +  &
+                          nbr_coslat(nchk)*coslat(nadd)*   &
+                         (nbr_coslon(nchk)*coslon(nadd) + &
+                          nbr_sinlon(nchk)*sinlon(nadd))
+                  dist2 = MAX ( MIN ( dist2, 1.d0), -1.d0)
+                  !dist2 = acos(dist2)
+                  ! avoid cost of acos above since we're comparing to a small number
+                  ! use cos(x) = 1-x^2/2, x = sqrt(2 * (1 - cos(x)))
+                  dist2 = sqrt(2.0d0*(1.0d0-abs(dist2)))
+               else
+                  dist2 = bignum
+               endif
+
+               if (dist2 > dist_chk) then
+                  nbr_count = min(nbr_count + 1, num_neighbors)
+                  do n=num_neighbors,nchk+1,-1
+                     nbr_add(n) = nbr_add(n-1)
+                     nbr_dist(n) = nbr_dist(n-1)
+                     nbr_coslat(n) = nbr_coslat(n-1)
+                     nbr_sinlat(n) = nbr_sinlat(n-1)
+                     nbr_coslon(n) = nbr_coslon(n-1)
+                     nbr_sinlon(n) = nbr_sinlon(n-1)
+                  end do
+                  nbr_add(nchk) = nadd
+                  nbr_dist(nchk) = distance
+                  nbr_coslat(nchk) = coslat(nadd)
+                  nbr_sinlat(nchk) = sinlat(nadd)
+                  nbr_coslon(nchk) = coslon(nadd)
+                  nbr_sinlon(nchk) = sinlon(nadd)
+               else  ! dist2
+!                  if (nlogprt .ge. 2) then
+!                     write(nulou,*) 'remap_dist_gaus_wgt nbr_search skip point2: ',dist2
+!                     write(nulou,*) '  ',nadd,nbr_add(nchk)
+!                     write(nulou,*) '  ',nbr_coslat(nchk),coslat(nadd)
+!                     write(nulou,*) '  ',nbr_sinlat(nchk),sinlat(nadd)
+!                     write(nulou,*) '  ',nbr_coslon(nchk),coslon(nadd)
+!                     write(nulou,*) '  ',nbr_sinlon(nchk),sinlon(nadd)
+!                  endif
+               endif  ! dist2
+            else  ! dist1
+!               if (nlogprt .ge. 2) then
+!                  write(nulou,*) 'remap_dist_gaus_wgt nbr_search skip point1: ',dist1
+!                  write(nulou,*) '  ',nadd,nbr_add(nchk-1)
+!                  write(nulou,*) '  ',nbr_coslat(nchk-1),coslat(nadd)
+!                  write(nulou,*) '  ',nbr_sinlat(nchk-1),sinlat(nadd)
+!                  write(nulou,*) '  ',nbr_coslon(nchk-1),coslon(nadd)
+!                  write(nulou,*) '  ',nbr_sinlon(nchk-1),sinlon(nadd)
+!               endif
+            endif  ! dist1
+         endif  ! distance
 
          if (ll_debug) then
             if (dst_add == il_debug_add) then
@@ -970,7 +1064,7 @@ contains
             endif
          endif
 
-         if (ll_nnei) then
+         if (ll_nnei_dgw) then
             !***
             !*** store the non-masked closest neighbour
             !***
