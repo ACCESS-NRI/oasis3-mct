@@ -1,14 +1,12 @@
 #
 # Include file for OASIS3 Makefile for nemo lenovo at Cerfacs with OpenMP
 # To use this, 
-#  module purge 
+#  module unload mkl
+#  module unload mpi
+#  module unload compiler
 #  module load compiler/intel/18.0.1.163
 #  module load mpi/intelmpi/2018.1.163-ddt
-#  module load lib/phdf5/1.10.4_impi
 #  module load lib/netcdf-fortran/4.4.4_phdf5_1.10.4
-# To use the python interface, in addition (pyoasis target for TopMakefileOasis3):
-#  module load python/3.7.7
-#  source /scratch/globc/andrea/PY_ENV/PyO/bin/activate
 #
 ###############################################################################
 #
@@ -18,7 +16,7 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3-mct main directory (defined in .bash_profile)
-COUPLE          = $(OASIS3_ROOT)
+COUPLE		= $(HOME)/oasis3-mct
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/NEMO_LENOVO_INTEL
@@ -59,7 +57,7 @@ F90FLAGS_1  = -O2 -xCORE-AVX2 -I. -assume byterecl -mt_mpi -qopenmp
 f90FLAGS_1  = $(F90FLAGS_1)
 FFLAGS_1    = $(F90FLAGS_1)
 fFLAGS_1    = $(F90FLAGS_1)
-CCFLAGS_1   = -O2 -qopenmp
+CCFLAGS_1   = 
 LDFLAGS     = $(F90FLAGS_1)  ${NETCDF_LIBRARY}
 #
 ###################
