@@ -43,9 +43,10 @@ wrapper is made using the same filenames as the Fortran ones but ending in
 ``.py``. To access the python interface, one must write a ``import
 pyoasis`` in his/her python code.
 
-These functions can be all tested, at the level of 
-the Python wrapper, in ``/pyoasis`` with “make wrappertest”; this will call the script ``tests/run_pytest.sh`` that invokes the standard ``pytest`` testing framework that has to be installed. To run additional
-toy examples from ``pyoasis/examples`` including python, C and fortran examples, use “make test”.
+Users can find examples on how to use the interface in python, C and Fortran in ``pyoasis/examples``;
+to run all these examples at once, use ``make test`` in ``oasis3-mct/pyoasis``.
+More advanced testing of the python wrapping functions can be done 
+with ``make wrappertest``; this will call the script ``tests/run_pytest.sh`` that invokes the standard ``pytest`` testing framework (that has to be installed).
 
 Creating a component using MPI
 ++++++++++++++++++++
