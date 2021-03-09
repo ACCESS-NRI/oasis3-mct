@@ -54,7 +54,7 @@ F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
 FCBASEFLAGS  = -O2 -xAVX -I.  -assume byterecl -mt_mpi -qopenmp
-#FCBASEFLAGS  = -g -traceback -O0 -check all -I. -assume byterecl -mt_mpi -qopenmp
+#FCBASEFLAGS  = -g -traceback -fpe0 -O0 -check all -check noarg_temp_created -I. -assume byterecl -mt_mpi -qopenmp
 CCBASEFLAGS  = -O2 -qopenmp
 #
 # INC_DIR : includes all *mod for each library
