@@ -43,9 +43,10 @@ wrapper is made using the same filenames as the Fortran ones but ending in
 ``.py``. To access the python interface, one must write a ``import
 pyoasis`` in his/her python code.
 
-These functions are all tested, at the level of 
-the Python wrapper, in /pyoasis with “make wrappertest”. To run all
-tests including python, C and fortran examples from ``pyoasis/examples``, use “make test”.
+Users can find examples on how to use the interface in python, C and Fortran in ``pyoasis/examples``;
+to run all these examples at once, use ``make test`` in ``oasis3-mct/pyoasis``.
+More advanced testing of the python wrapping functions can be done 
+with ``make wrappertest``; this will call the script ``tests/run_pytest.sh`` that invokes the standard ``pytest`` testing framework (that has to be installed).
 
 Creating a component using MPI
 ++++++++++++++++++++
@@ -726,7 +727,7 @@ Prerequisites
 - An MPI library
 - NetCDF 4
 - Python 3 with mpi4py, numpy and netCDF4
-- Extra optional packages for plotting (as in the examples 11 and 12)
+- Extra optional packages for plotting (as in examples ``11-test-interpolation`` and ``12-grid-functions``)
    - matplotlib
    - GEOS (Geometry Engine, Open Source):
      package libgeos-dev under Debian or Ubuntu, geos-devel under Fedora
@@ -770,7 +771,7 @@ Virtual Python environment
 Extra software 
 ..............
 
-- For applications using Cartopy plots, as in the examples 11 and 12: ::
+- For applications using Cartopy plots, as in the examples ``11-test-interpolation`` and ``12-grid-functions`` : :: 
     
     pip install scipy
     pip install matplotlib
@@ -827,7 +828,7 @@ Virtual Python environment
 Extra software 
 ..............
 
-- For applications using Cartopy plots, as in the examples 11 and 12: ::
+- For applications using Cartopy plots, as in the examples ``11-test-interpolation`` and ``12-grid-functions``: ::
     
     pip uninstall scipy
     pip cache remove scipy
