@@ -1,6 +1,10 @@
 #
 # Include file for OASIS3 Makefile for a Bull system using 
 # Intel Compiler and impi 
+# module load intelmpi/2018.5.274
+# module load intel/2018.5.274
+# module load netcdf-fortran/4.5.2_V2
+# module load netcdf-c/4.7.1_V2
 #
 ###############################################################################
 #
@@ -10,7 +14,7 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3-mct main directory
-COUPLE          = /scratch/work/coquartl/oasis3-mct_buildbot
+COUPLE          = /scratch/work/coquartl/oasis3-mct
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/compile_Belenos_impi_openmp
@@ -20,6 +24,7 @@ MPIDIR           = /opt/softs/intel/2018.04/impi/2018.5.274/intel64
 MPIBIN           = $(MPIDIR)/bin
 MPI_INCLUDE      = $(MPIDIR)/include
 MPILIB           = -L$(MPIDIR)/lib
+MPIRUN           = $(MPIBIN)/mpirun --oversubscribe
 #
 # NETCDF library
 NETCDF_INCLUDE  = /opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2/include
@@ -34,42 +39,35 @@ f90         = $(F90)
 f           = $(F90)
 CC          = $(MPIBIN)/mpiicc 
 LD          = $(MPIBIN)/mpiifort
+DYNOPT      = -fPIC
+LDDYNOPT    = -shared
 AR          = ar
 ARFLAGS     = -ruv
+# Fortran libraries for C linking
+F2C_LIBS    =
 #
 # CPP keys and compiler options
 # 
 CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
-CCPPDEF   = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
 #
 # -g is necessary in F90FLAGS and LDFLAGS for pgf90 versions lower than 6.1
 # 
-#F90FLAGS_1  = -O2 -march=core-avx2 -I.  -assume byterecl -qopenmp
-F90FLAGS_1  = -march=core-avx2 -g -traceback -check all -I. -assume byterecl -qopenmp
-f90FLAGS_1  = $(F90FLAGS_1)
-FFLAGS_1    = $(F90FLAGS_1)
-fFLAGS_1    = $(F90FLAGS_1)
-CCFLAGS_1   = 
-LDFLAGS     = -qopenmp
+FCBASEFLAGS = -O2 -march=core-avx2 -I. -assume byterecl -qopenmp
+#FCBASEFLAGS  = -march=core-avx2 -g -traceback -check all -check noarg_temp_created -I. -assume byterecl -qopenmp
+CCBASEFLAGS  = -qopenmp
 #
-MPP_IOOPT = -i4 -r8
+# INC_DIR : includes all *mod for each library
+INC_DIR = -I$(ARCHDIR)/include
+# FLIBS : for toys when linking in local Makefile
+FLIBS=${NETCDF_LIBRARY}
 ###################
 #
-
-# Additional definitions that should not be changed
-#
-FLIBS		= $(NETCDF_LIBRARY)
-# BINDIR        : directory for executables
-BINDIR          = $(ARCHDIR)/bin
-# LIBBUILD      : contains a directory for each library
-LIBBUILD        = $(ARCHDIR)/build/lib
-# INCPSMILE     : includes all *o and *mod for each library
-INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/scrip  -I$(LIBBUILD)/mct
-
-F90FLAGS  = $(F90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-f90FLAGS  = $(f90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-FFLAGS    = $(FFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-fFLAGS    = $(fFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-CCFLAGS   = $(CCFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
+F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) 
+FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) 
+fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) 
+CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+LDFLAGS     = $(FCBASEFLAGS)
+F2C_LDFLAGS = $(F2C_LIBS)
 #
 #############################################################################
