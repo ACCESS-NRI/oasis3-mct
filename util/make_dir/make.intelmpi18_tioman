@@ -57,12 +57,12 @@ F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
 # 
-#F90FLAGS_1  = -g -ffree-line-length-0 -fbounds-check -fopenmp
-F90FLAGS_1  = -g -traceback -O2 -xAVX -I. -assume byterecl -mt_mpi -qopenmp
+F90FLAGS_1  = -O2 -xCORE-AVX2 -I. -assume byterecl -mt_mpi -qopenmp
+#F90FLAGS_1  = -g -traceback -fpe0 -O0 -check all -check noarg_temp_created -I.  -assume byterecl -mt_mpi -qopenmp
 f90FLAGS_1  = $(F90FLAGS_1)
 FFLAGS_1    = $(F90FLAGS_1)
 fFLAGS_1    = $(F90FLAGS_1)
-CCFLAGS_1   = 
+CCFLAGS_1   = -qopenmp
 LDFLAGS     = $(F90FLAGS_1)
 #
 #
