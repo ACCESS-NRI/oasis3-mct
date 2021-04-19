@@ -13,7 +13,7 @@ CHAN            = MPI1
 COUPLE          = $(OASIS3_ROOT)
 #
 # ARCHDIR       : directory created when compiling
-ARCHDIR         = $(HOME)/INSTALL/oasis3-mct
+ARCHDIR         = $(COUPLE)/INSTALL
 #
 # MPI command (for pyoasis scripts)
 MPIRUN      = mpirun --oversubscribe
