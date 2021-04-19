@@ -7,7 +7,7 @@
 \section{Compiling OASIS3-MCT}
 \label{subsec_compile}
 
-OASIS3-MCT is an MPI code. Compiling OASIS3-MCT libraries can be done
+OASIS3-MCT is a mixed MPI-OpenMP parallel code. Compiling OASIS3-MCT libraries can be done
 from the {\tt oasis3-MCT/util/make\_dir} directory
 with the makefile {\tt TopMakefileOasis3}.
 {\tt TopMakefileOasis3} includes the header file {\tt make.inc}
@@ -19,8 +19,7 @@ a template to create a custom file for your machine.
 The root of the OASIS3-MCT tree can be anywhere, but it must be defined
 by the variable {\tt COUPLE}.  Similarly, the variable {\tt ARCHDIR} defines
 the location of the compilation directory.
-Both of these variables are usually defined in the
-{\tt make.your\_platform} file.  Finally, the OASIS3-MCT library
+Finally, the OASIS3-MCT library
 should be compiled with the same compilers and system software as any
 coupled models using it.  After successful compilation, resulting
 libraries are found in the directory in {\tt \$ARCHDIR/lib} while
