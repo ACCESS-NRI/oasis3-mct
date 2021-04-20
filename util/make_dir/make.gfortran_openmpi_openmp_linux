@@ -1,6 +1,8 @@
 #
 # Include file for OASIS3 Makefile for a Linux system using 
-# Portland Group Fortran Compiler and MPICH
+# GNU and OPENMPI
+# Dans .bashrc
+# module load mpi/openmpi-x86_64
 #
 ###############################################################################
 #
@@ -10,7 +12,7 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3 main directory
-COUPLE          = $(HOME)/oasis3-mct
+COUPLE          = /space/coquart/oasis3-mct_4.0
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/compile_oa3-mct_gfopenmpi_gcc_openmp
@@ -44,13 +46,12 @@ CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
 # 
 #F90FLAGS_1  = -g -ffree-line-length-0 -fbounds-check -fopenmp
-F90FLAGS_1  = -ffree-line-length-0 -fopenmp
+F90FLAGS_1  = -ffree-line-length-none -fopenmp
 f90FLAGS_1  = $(F90FLAGS_1)
 FFLAGS_1    = $(F90FLAGS_1)
 fFLAGS_1    = $(F90FLAGS_1)
 CCFLAGS_1   = 
 LDFLAGS     = -fopenmp
-F2C_LDFLAGS =
 #
 #
 ###################

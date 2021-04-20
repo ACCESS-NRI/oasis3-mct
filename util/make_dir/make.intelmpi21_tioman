@@ -1,5 +1,6 @@
 #
-# Include file for OASIS3 Makefile for nemo lenovo at Cerfacs with OpenMP
+# Include file for OASIS3 Makefile for Intel 21 on 
+# Linux computer  with OpenMP
 # module load intel/21.1.1
 # module load intelmpi/2021.1.1
 # module load lib/netcdf-fortran/4.4.4_phdf5_1.10.4

@@ -1,6 +1,6 @@
 #
 # Include file for OASIS3 Makefile for a Linux system using 
-# PGI and OPENMPI
+# Portland Group Fortran Compiler and MPICH
 #
 ###############################################################################
 #
@@ -16,14 +16,14 @@ COUPLE          = $(HOME)/oasis3-mct
 ARCHDIR         = $(COUPLE)/compile_oa3-mct_pgi_openmpi_openmp
 #
 # MPI library
-MPIDIR      = /usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2
+MPIDIR      = /usr/local/pgi/linux86-64/20.4/mpi/openmpi-3.1.3
 MPIBIN      = $(MPIDIR)/bin
 MPI_INCLUDE = $(MPIDIR)/include
 MPILIB      = -L$(MPIDIR)/lib
 #
 # NETCDF library
-NETCDF_INCLUDE  = /usr/local/netcdf-fortran/4.4.1/include
-NETCDF_LIBRARY  = -L/usr/local/netcdf-fortran/4.4.1/lib -Wl,-rpath,/usr/local/netcdf-fortran/4.4.1/lib -lnetcdff  -Wl,-rpath,/usr/local/netcdf-c/4.6.1/lib  -L/usr/local/netcdf-c/4.6.1/lib -lnetcdf
+NETCDF_INCLUDE  = /usr/local/netcdf-fortran/4.4.4_pgi20.4/include
+NETCDF_LIBRARY  = -L/usr/local/netcdf-fortran/4.4.4_pgi20.4/lib -lnetcdff -L/usr/local/netcdf-c/4.6.1_pgi20.4/lib -lnetcdf -Wl,-rpath,/usr/local/netcdf-fortran/4.4.4_pgi20.4/lib -Wl,-rpath,/usr/local/netcdf-c/4.6.1_pgi20.4/lib
 #
 # Compiling and other commands
 MAKE        = gmake
