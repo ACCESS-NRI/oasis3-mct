@@ -121,7 +121,6 @@ elif [ ${arch} == nemo_lenovo ] ; then
     squeue -u $user
 elif [ ${arch} == mac ]; then
     echo 'Executing the model using mpirun'
-    ulimit -s unlimited
     mpirun --oversubscribe -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2
 fi
 echo $casename 'is executed or submitted to queue.'
