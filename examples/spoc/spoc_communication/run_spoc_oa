@@ -18,6 +18,7 @@ casename=`basename $srcdir`
 #
 ## - Define architecture and coupler 
 arch=belenos  # training, belenos, nemo_lenovo, mac 
+              # gfortran_openmpi_openmp_linux
 #
 # - Define number of processes to run each executable
     nproc_exe1=4
@@ -54,6 +55,8 @@ cd $rundir
 #
 if [ $arch == training ]; then
     MPIRUN=/usr/local/intel/impi/2018.1.163/bin64/mpirun
+elif [ $arch == gfortran_openmpi_openmp_linux ]; then
+    MPIRUN=/usr/lib64/openmpi/bin/mpirun
 elif [ $arch == belenos ] ; then
    (( nproc = $nproc_exe1 + $nproc_exe2 ))
   cat <<EOF > $rundir/run_$casename.$arch
@@ -107,7 +110,7 @@ fi
 ######################################################################
 ### 3. Model execution or batch submission
 #
-if [ $arch == training ]; then
+if [ $arch == training ] || [ $arch == gfortran_openmpi_openmp_linux ]; then
     export OMP_NUM_THREADS=1
     echo 'Executing the model using '$MPIRUN 
     $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 
