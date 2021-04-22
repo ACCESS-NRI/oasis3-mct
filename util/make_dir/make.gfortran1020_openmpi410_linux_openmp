@@ -12,7 +12,7 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3 main directory
-COUPLE          = /space/coquart/oasis3-mct
+COUPLE          = $(HOME)/oasis3-mct
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/compile_oa3-mct_gfopenmpi_openmp
