@@ -73,11 +73,7 @@ if [ ${SRC_GRID} == "icos" ]; then
 	fi
 fi
 ##
-if [ ${arch} == gfortran_openmpi_openmp_linux ]; then
-   rundir=/space/${user}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}
-else
-   rundir=$srcdir/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}
-fi
+rundir=$srcdir/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}
 ##
 ######################################################################
 ##
