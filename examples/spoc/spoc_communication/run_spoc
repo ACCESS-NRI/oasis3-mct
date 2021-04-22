@@ -17,8 +17,11 @@ casename=`basename $srcdir`
 ############### User's section #######################################
 #
 ## - Define architecture and coupler 
-arch=mac  # training, belenos, nemo_lenovo, mac
-                                    # gfortran_openmpi_openmp_linux
+arch=pgi_openmpi_openmp_linux  # training, belenos, nemo_lenovo, mac
+             # kraken , gfortran_openmpi_openmp_linux, 
+	     # pgi_openmpi_openmp_linux, 
+	     # pgi20.4_openmpi_openmp_linux (not work with 4.0)
+	     # gnu1020_openmpi_openmp_linux (not work with 4.0)
 #
 # - Define number of processes to run each executable
     nproc_exe1=4
@@ -57,6 +60,12 @@ if [ $arch == training ]; then
     MPIRUN=/usr/local/intel/impi/2018.1.163/bin64/mpirun
 elif [ $arch == gfortran_openmpi_openmp_linux ]; then
     MPIRUN=/usr/lib64/openmpi/bin/mpirun
+elif [ $arch == pgi_openmpi_openmp_linux ]; then
+    MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun
+elif [ $arch == gnu1020_openmpi_openmp_linux ]; then
+    MPIRUN=/usr/local/openmpi/4.1.0_gcc1020/bin/mpirun
+elif [ $arch == pgi20.4_openmpi_openmp_linux ]; then
+    MPIRUN=/usr/local/pgi/linux86-64/20.4/mpi/openmpi-3.1.3/bin/mpirun
 elif [ $arch == belenos ] ; then
    (( nproc = $nproc_exe1 + $nproc_exe2 ))
   cat <<EOF > $rundir/run_$casename.$arch
@@ -108,21 +117,48 @@ time $MPIRUN -np $nproc_exe1 ./$exe1
 time $MPIRUN -np $nproc_exe2 ./$exe2
 #
 EOF
+
+elif [ ${arch} == kraken ] ; then
+  (( nproc = $nproc_exe1 + $nproc_exe2 ))
+  cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash -l
+#SBATCH --partition prod
+# Nom du job
+#SBATCH --job-name spoc
+# Temps limite du job
+#SBATCH --time=00:10:00
+#SBATCH --output=$rundir/$casename.o
+#SBATCH --error=$rundir/$casename.e
+# Nombre de noeuds et de processus
+#SBATCH --nodes=1 --ntasks-per-node=$nproc
+#SBATCH --distribution cyclic
+
+cd $rundir
+
+ulimit -s unlimited
+module purge
+module load compiler/intel/18.0.1.163
+module load mpi/intelmpi/2018.1.163
+module load lib/netcdf-fortran/4.4.4_impi
+module load lib/phdf5/1.8.20_impi
+time mpirun -np $nproc_exe1 ./$exe1
+time mpirun -np $nproc_exe2 ./$exe2
+EOF
 fi 
   
 ######################################################################
 ### 3. Model execution or batch submission
 #
-if [ $arch == training ] || [ $arch == gfortran_openmpi_openmp_linux ]; then
+if [ $arch == training ] || [ $arch == gfortran_openmpi_openmp_linux ] || [ $arch == gnu1020_openmpi_openmp_linux ] || [ $arch == pgi_openmpi_openmp_linux ] || [ $arch == pgi20.4_openmpi_openmp_linux ]; then
     export OMP_NUM_THREADS=1
     echo 'Executing the model using '$MPIRUN 
-    $MPIRUN -np $nproc_exe1 ./$exe1
-    $MPIRUN -np $nproc_exe2 ./$exe2
+    $MPIRUN -oversubscribe -np $nproc_exe1 ./$exe1
+    $MPIRUN -oversubscribe -np $nproc_exe2 ./$exe2
 elif [ $arch == belenos ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $user
-elif [ ${arch} == nemo_lenovo ] ; then
+elif [ ${arch} == nemo_lenovo ] || [ ${arch} == kraken ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $user

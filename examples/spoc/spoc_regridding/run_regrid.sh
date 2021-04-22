@@ -39,8 +39,11 @@ else
 fi
 ##
 ## User's choice of computing architecture
-arch=belenos  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp,
+arch=pgi_openmpi_openmp_linux  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp,
               # training_computer, gfortran_openmpi_openmp_linux, belenos, mac
+	      # pgi_openmpi_openmp_linux, 
+	      # pgi20.4_openmpi_openmp_linux (not work with 4.0)
+	      # gnu1020_openmpi_openmp_linux (not work with 4.0)
 ##
 ######################################################################
 ## - Verification source grid type and remapping
@@ -274,6 +277,19 @@ if [ ${arch} == training_computer ]; then
 elif [ ${arch} == gfortran_openmpi_openmp_linux ]; then
     export OASIS_OMP_NUM_THREADS=$threads
     MPIRUN=/usr/lib64/openmpi/bin/mpirun
+    echo 'Executing the model using '$MPIRUN
+    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+elif [ $arch == pgi_openmpi_openmp_linux ]; then
+    MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun
+    echo 'Executing the model using '$MPIRUN
+    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+elif [ ${arch} == gnu1020_openmpi_openmp_linux ]; then
+    export OASIS_OMP_NUM_THREADS=$threads
+    MPIRUN=/usr/local/openmpi/4.1.0_gcc1020/bin/mpirun
+    echo 'Executing the model using '$MPIRUN
+    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+elif [ $arch == pgi20.4_openmpi_openmp_linux ]; then
+    MPIRUN=/usr/local/pgi/linux86-64/20.4/mpi/openmpi-3.1.3/bin/mpirun
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
 elif [ $arch == nemo_lenovo_intel_impi_openmp ]; then
