@@ -1,7 +1,5 @@
 #
 include ../../../util/make_dir/make.inc
-INC_DIR = -I$(ARCHDIR)/include -I$(ARCHDIR)/build/lib/psmile.MPI1 -I$(ARCHDIR)/build/lib/scrip
-F90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 LIBPSMILE = $(ARCHDIR)/lib/libpsmile.${CHAN}.a $(ARCHDIR)/lib/libmct.a $(ARCHDIR)/lib/libmpeu.a $(ARCHDIR)/lib/libscrip.a
 #
 ##### User configurable options #####
@@ -36,9 +34,9 @@ oasis3_psmile:
 #-------------------------------------------------------------------------------
 #
 ocean: $(OBJ_M1) ocean.o $(LIBPSMILE) Makefile
-	$(LD) $(LDFLAGS) -o $@ $(OBJ_M1) ocean.o $(LIBPSMILE) $(FLIBS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJ_M1) ocean.o $(LIBPSMILE) $(FLIBS) $(NETCDF_LIBRARY)
 atmos: $(OBJ_M2) atmos.o $(LIBPSMILE) Makefile
-	$(LD) $(LDFLAGS) -o $@ $(OBJ_M2) atmos.o $(LIBPSMILE) $(FLIBS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJ_M2) atmos.o $(LIBPSMILE) $(FLIBS) $(NETCDF_LIBRARY)
 #
 #-------------------------------------------------------------------------------
 # Rules for compilation
