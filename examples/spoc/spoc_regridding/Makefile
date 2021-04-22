@@ -1,6 +1,5 @@
 #
 include header_Makefile
-LIBPSMILE = $(ARCHDIR)/lib/libpsmile.${CHAN}.a $(ARCHDIR)/lib/libmct.a $(ARCHDIR)/lib/libmpeu.a $(ARCHDIR)/lib/libscrip.a
 #
 ##### User configurable options #####
 #
@@ -37,9 +36,9 @@ oasis3_psmile:
 #-------------------------------------------------------------------------------
 #
 model1: $(OBJ_M1) model1.o $(LIBPSMILE) Makefile
-	$(LD) $(LDFLAGS) -o $@ $(OBJ_M1) model1.o $(LIBPSMILE) $(FLIBS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJ_M1) model1.o $(LIBPSMILE) $(FLIBS) $(NETCDF_LIBRARY)
 model2: $(OBJ_M2) model2.o $(LIBPSMILE) Makefile
-	$(LD) $(LDFLAGS) -o $@ $(OBJ_M2) model2.o $(LIBPSMILE) $(FLIBS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJ_M2) model2.o $(LIBPSMILE) $(FLIBS) $(NETCDF_LIBRARY)
 #
 #-------------------------------------------------------------------------------
 # Rules for compilation

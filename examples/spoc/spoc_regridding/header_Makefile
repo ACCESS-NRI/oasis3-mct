@@ -1,4 +1,3 @@
 O3DIR = ../../..
 include $(O3DIR)/util/make_dir/make.inc
-INC_DIR = -I$(ARCHDIR)/include -I$(ARCHDIR)/build/lib/psmile.MPI1 -I$(ARCHDIR)/build/lib/scrip
-F90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+LIBPSMILE = $(ARCHDIR)/lib/libpsmile.${CHAN}.a $(ARCHDIR)/lib/libmct.a $(ARCHDIR)/lib/libmpeu.a $(ARCHDIR)/lib/libscrip.a
