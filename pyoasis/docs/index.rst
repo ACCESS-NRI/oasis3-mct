@@ -101,7 +101,7 @@ processes: ::
   comp.create_couplcomm(coupled)
 
 If such a communicator already exists in the code, it should simply be
-provided to OASIS3-MCT with the method ``set_couplcomm``. Notice that the processes not involved in the coupling should anyway invoke this method providing the ``MPI.COMM_NULL`` communicator (predefined in ``mpi4py``): ::
+provided to OASIS3-MCT with the method ``set_couplcomm``. Notice that the processes not involved in the coupling should still invoke this method providing the ``MPI.COMM_NULL`` communicator (predefined in ``mpi4py``): ::
   couplcomm = comp.localcomm.Split(icpl, local_comm_rank)
   if icpl == 0:
       couplcomm = MPI.COMM_NULL
