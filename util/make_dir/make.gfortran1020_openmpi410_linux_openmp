@@ -41,7 +41,7 @@ LDDYNOPT    = -shared
 AR          = ar
 ARFLAGS     = -ruv
 # Fortran libraries for C linking
-F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
+F2C_LIBS    = -lmpi_mpifh -lgfortran -lm
 #
 # CPP keys and compiler options
 #  
