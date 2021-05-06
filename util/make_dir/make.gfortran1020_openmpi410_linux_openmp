@@ -22,11 +22,11 @@ MPIDIR      = /usr/local/openmpi/4.1.0_gcc1020
 MPIBIN      = $(MPIDIR)/bin
 MPI_INCLUDE = $(MPIDIR)/include
 MPILIB      = -L$(MPIDIR)/lib -lmpi
-MPIRUN      = $(MPIBIN)/mpirun
+MPIRUN      = $(MPIBIN)/mpirun --oversubscribe
 #
 # NETCDF library of the system
 NETCDF_INCLUDE = /usr/local/netcdf-fortran/4.4.4_gcc1020/include
-NETCDF_LIBRARY = -L/usr/local/netcdf-fortran/4.4.4_gcc1020/lib -Wl,-rpath,/usr/local/netcdf-fortran/4.4.4_gcc1020/lib -lnetcdff -lnetcdf
+NETCDF_LIBRARY = -L/usr/local/netcdf-fortran/4.4.4_gcc1020/lib -Wl,-rpath,/usr/local/netcdf-fortran/4.4.4_gcc1020/lib -lnetcdff -lnetcdf -lm
 #
 # Compiling and other commands
 MAKE        = gmake
@@ -41,7 +41,7 @@ LDDYNOPT    = -shared
 AR          = ar
 ARFLAGS     = -ruv
 # Fortran libraries for C linking
-F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
+F2C_LIBS    = -lmpi_mpifh -lgfortran -lm
 #
 # CPP keys and compiler options
 #  
