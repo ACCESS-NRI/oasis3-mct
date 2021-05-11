@@ -18,8 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'pyOASIS'
-copyright = '2020, Philippe Gambron, Rupert Ford'
-author = 'Philippe Gambron, Rupert Ford, Andrea Piacentini'
+copyright = '2021, P. Gambron, R. Ford, A. Piacentini, S. Valcke'
+author = 'P. Gambron, R. Ford, A. Piacentini, S. Valcke'
 
 
 # -- General configuration ---------------------------------------------------

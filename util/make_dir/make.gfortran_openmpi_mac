@@ -13,7 +13,7 @@ CHAN            = MPI1
 COUPLE          = $(OASIS3_ROOT)
 #
 # ARCHDIR       : directory created when compiling
-ARCHDIR         = $(HOME)/INSTALL/oasis3-mct
+ARCHDIR         = $(COUPLE)/INSTALL
 #
 # MPI command (for pyoasis scripts)
 MPIRUN      = mpirun --oversubscribe
@@ -25,7 +25,7 @@ NETCDF_LIBRARY = -L/usr/local/lib -lnetcdff -lnetcdf
 # Make command
 MAKE        = make
 # Compilers
-F90         = mpifort -fallow-argument-mismatch # underlying gfortran 10.2 from Brew
+F90         = mpifort
 F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
@@ -43,8 +43,8 @@ ARFLAGS     = -ruv
 #
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
-FCBASEFLAGS  = -O2 -I. -ffree-line-length-0  -mcmodel=medium
-#FCBASEFLAGS  = -g -ffree-line-length-0 -fcheck=bounds  -mcmodel=medium -fallow-argument-mismatch
+FCBASEFLAGS  = -O2 -I. -ffree-line-length-0 -fallow-argument-mismatch -mcmodel=medium
+#FCBASEFLAGS  = -g -ffree-line-length-0 -fallow-argument-mismatch -fcheck=bounds  -mcmodel=medium -fallow-argument-mismatch
 CCBASEFLAGS  = -O2
 #
 # INC_DIR : includes all *mod for each library

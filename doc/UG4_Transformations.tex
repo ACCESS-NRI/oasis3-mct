@@ -136,7 +136,11 @@ noted with the string UNUSED and not described.
     and interpolations, different mappings can be specified for the
     different coupling fields.
   Using {\tt MAPPING}, the files {\it grids.nc}, {\it masks.nc}, and {\it areas.nc}
-  are not needed, except if the post-processing global option
+  are not needed, except for conservative remapping
+for which the normalisation by the true area of the cells is 
+applied, i.e. DESTARTR, DESTNNTR, FRACARTR, or FRACNNTR (see section
+\ref{subsec_interp}), in which case {\em areas.nc} file must be provided,
+  and if the post-processing global option
   CONSERV is specified in the namcouple, in which case
   {\it areas.nc} and {\it masks.nc} files must be provided.
  

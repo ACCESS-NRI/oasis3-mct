@@ -13,7 +13,11 @@ addresses.
 With OASIS3-MCT, the grid data files {\em grids.nc, masks.nc} and {\em
   areas.nc} are required only for certain operations, i.e.  {\em
   grids.nc}, and {\em masks.nc} for {\tt SCRIPR} (see section
-\ref{subsec_interp}) and {\em masks.nc} and {\em areas.nc} for {\tt
+\ref{subsec_interp}), {\em areas.nc} for conservative remapping
+for which the normalisation by the true area of the cells is 
+applied, i.e. DESTARTR, DESTNNTR, FRACARTR, or FRACNNTR (see section
+\ref{subsec_interp})
+and {\em masks.nc} and {\em areas.nc} for {\tt
   CONSERV} (see section \ref{subsec_cooking}). These NetCDF files can
 be created by the user before the run or can be written directly at
 run time by the processes of each component model using the grid

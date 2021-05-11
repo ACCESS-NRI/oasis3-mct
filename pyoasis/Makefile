@@ -16,7 +16,7 @@ test-devel: wrappertest examples examples_f examples_c
 test-python: examples examples_f examples_c
 test-nopython: examples_f_nopython examples_c_nopython
 
-wrappertest: wrappertest
+wrappertest:
 	cd $(PYOASIS)/tests && ./run_pytest.sh
 
 examples: example1 example2 example3 example4 example5 example6 example8 example7 example9 example10

@@ -1,5 +1,5 @@
 #
-# System dependent settings 
+# System dependent settings
 #
 # $Id: make.inc 1123 2006-09-06 12:14:56Z valcke $
 #
