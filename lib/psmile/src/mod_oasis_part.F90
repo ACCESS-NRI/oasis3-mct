@@ -10,6 +10,7 @@ MODULE mod_oasis_part
    USE mod_oasis_mpi
    USE mod_oasis_timer
    USE mod_oasis_load_balancing
+   USE mod_oasis_io, only: oasis_io_varexists, oasis_io_read_avfld
    USE mct_mod
 
    implicit none
@@ -19,6 +20,7 @@ MODULE mod_oasis_part
    !--- interfaces ---
    public :: oasis_def_partition
    public :: oasis_part_setup
+   public :: oasis_part_readgrid
    public :: oasis_part_create
 
    !--- datatypes ---
@@ -39,6 +41,12 @@ MODULE mod_oasis_part
       integer(kind=ip_i4_p)  :: npes     !< tasks count associated with partition
       integer(kind=ip_i4_p)  :: rank     !< rank of each task
       type(mct_gsmap)        :: pgsmap   !< same gsmap but on partition mpicom
+      logical                :: maskflag !< has mask field been defined
+      logical                :: areaflag !< has area field been defined
+      logical                :: fracflag !< has frac field been defined
+      integer(kind=ip_i4_p),pointer  :: mask(:)  !< mask data
+      real   (kind=ip_r8_p),pointer  :: area(:)  !< area data
+      real   (kind=ip_r8_p),pointer  :: frac(:)  !< frac data
       !--- temporary storage from def_part inputs ---
       integer(kind=ip_i4_p)  :: ig_size  !< def_part setting
       integer(kind=ip_i4_p),pointer  :: kparal(:)  !< def_part setting
@@ -388,6 +396,9 @@ CONTAINS
    s_prism_part%npes     = -1
    s_prism_part%rank     = -1
    s_prism_part%ig_size  = -1
+   s_prism_part%maskflag = .false.
+   s_prism_part%areaflag = .false.
+   s_prism_part%fracflag = .false.
 
    call oasis_debug_exit(subname)
 
@@ -440,12 +451,85 @@ CONTAINS
          WRITE(nulprt,*) subname,' ppe_loc= ',s_prism_part%pgsmap%pe_loc
       ENDIF
    endif
+   if (s_prism_part%maskflag) write(nulprt,*) subname,' maskflag = ',s_prism_part%maskflag
+   if (s_prism_part%areaflag) write(nulprt,*) subname,' areaflag = ',s_prism_part%areaflag
+   if (s_prism_part%fracflag) write(nulprt,*) subname,' fracflag = ',s_prism_part%fracflag
    write(nulprt,*) ' '
    CALL oasis_flush(nulprt)
 
    call oasis_debug_exit(subname)
 
  END SUBROUTINE oasis_part_write
+
+!------------------------------------------------------------
+
+!> Read grid data into partition
+
+  SUBROUTINE oasis_part_readgrid()
+   IMPLICIT NONE
+
+   !--------------------------------------------------------
+   integer(kind=ip_intwp_p) :: m
+   integer(kind=ip_intwp_p) :: ierr
+   integer(kind=ip_intwp_p) :: lsize,kmask,karea,kfrac
+   character(len=ic_lvar)   :: gridname
+   type(mct_aVect)          :: avin
+   logical, parameter :: local_timers_on = .false.
+   character(len=*),parameter :: subname = '(oasis_part_readgrid)'
+   !--------------------------------------------------------
+
+   call oasis_debug_enter(subname)
+
+   if (local_timers_on) then
+      call oasis_timer_start('part_readgrid_barrier')
+      if (mpi_comm_local /= MPI_COMM_NULL) &
+               call MPI_BARRIER(mpi_comm_local, ierr)
+      call oasis_timer_stop('part_readgrid_barrier')
+   endif
+   if (local_timers_on) call oasis_timer_start('part_readgrid')
+
+   do m = 1,prism_npart
+      gridname = prism_part(m)%gridname
+      if (mpi_rank_local == 0) write(nulprt,*) subname,m,trim(prism_part(m)%partname),' ',trim(gridname)
+      lsize = mct_gsmap_lsize(prism_part(m)%gsmap,mpi_comm_local)
+      call mct_avect_init(avin,iList='mask',rList='area:frac',lsize=lsize)
+      call mct_avect_zero(avin)
+      kmask = mct_aVect_indexIA(avin,'mask')
+      karea = mct_aVect_indexRA(avin,'area')
+      kfrac = mct_aVect_indexRA(avin,'frac')
+      if (oasis_io_varexists('areas.nc',trim(gridname)//'.srf')) then
+         call oasis_io_read_avfld('areas.nc',avin, &
+            prism_part(m)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+         prism_part(m)%areaflag = .true.
+         allocate(prism_part(m)%area(lsize))
+         prism_part(m)%area(:) = avin%rAttr(karea,:)
+         if (mpi_rank_local == 0) write(nulprt,*) subname,' read area ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%area),maxval(prism_part(m)%area)
+      endif
+      if (oasis_io_varexists('masks.nc',trim(gridname)//'.frc')) then
+         call oasis_io_read_avfld('masks.nc',avin, &
+            prism_part(m)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real')
+         prism_part(m)%fracflag = .true.
+         allocate(prism_part(m)%frac(lsize))
+         prism_part(m)%frac(:) = avin%rAttr(kfrac,:)
+         if (mpi_rank_local == 0) write(nulprt,*) subname,' read frac ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%frac),maxval(prism_part(m)%frac)
+      endif
+      if (oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) then
+         call oasis_io_read_avfld('masks.nc',avin, &
+            prism_part(m)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
+         prism_part(m)%maskflag = .true.
+         allocate(prism_part(m)%mask(lsize))
+         prism_part(m)%mask(:) = avin%iAttr(kmask,:)
+         if (mpi_rank_local == 0) write(nulprt,*) subname,' read mask ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%mask),maxval(prism_part(m)%mask)
+      endif
+      call mct_avect_clean(avin)
+   enddo
+
+   if (local_timers_on) call oasis_timer_stop('part_readgrid')
+
+   call oasis_debug_exit(subname)
+
+ END SUBROUTINE oasis_part_readgrid
+
 !------------------------------------------------------------
 
 !> Create a new partition internally, needed for mapping

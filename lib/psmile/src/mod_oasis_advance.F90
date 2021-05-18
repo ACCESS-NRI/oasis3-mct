@@ -1221,7 +1221,7 @@ contains
                 pcpointer%avect1%rAttr(:,:) = pcpointer%avect1%rAttr(:,:)*sndmult &
                                                          + sndadd
              endif
-             if (snddiag) call oasis_advance_avdiag(pcpointer%avect1,prism_part(partid)%mpicom)
+             if (snddiag) call oasis_advance_avdiag(pcpointer%avect1,partid)
              if (mapid > 0) then
                 write(tstring,'(A,I3.3)') 'pmap_',cplid
                 call oasis_debug_note(subname//' put map')
@@ -1423,7 +1423,7 @@ contains
                                    maxval(pcpointer%avect1%rAttr)
                 endif
              endif
-             if (rcvdiag) call oasis_advance_avdiag(pcpointer%avect1,prism_part(partid)%mpicom)
+             if (rcvdiag) call oasis_advance_avdiag(pcpointer%avect1,partid)
           endif  ! getput
           endif  ! sndrcv
 
@@ -2368,108 +2368,183 @@ contains
 
 !> A generic method for writing the global sums of fields in an attribute vector
 
-  SUBROUTINE oasis_advance_avdiag(av,mpicom,mask,wts)
+  SUBROUTINE oasis_advance_avdiag(av,partid)
+
+    ! We should leverage oasis_advance_avsum if we want more ways to compute the
+    ! global sum.  If we're happy with "lsum8", then it's probably a little faster
+    ! to not call oasis_advance_avsum and keep the implementation local.  
+    ! (tcraig, May, 2021)
 
     implicit none
     type(mct_aVect)      ,intent(in)    :: av    ! input av
-    integer(kind=ip_i4_p),intent(in)    :: mpicom  ! mpi communicator
-    integer(kind=ip_i4_p),intent(in),optional :: mask(:) ! mask to apply to av
-    real(kind=ip_r8_p)   ,intent(in),optional :: wts(:)  ! wts to apply to av
+    integer(kind=ip_i4_p),intent(in)    :: partid  ! partition id
 
-    integer(kind=ip_i4_p) :: n,m,ierr,mype
+    integer(kind=ip_i4_p) :: n,m,ierr
+    integer(kind=ip_i4_p) :: mpicom,mype
     integer(kind=ip_i4_p) :: lsize,fsize        ! local size of av, number of flds in av
+    integer(kind=ip_i4_p) :: gsize              ! global size of av
     logical               :: first_call  
     real(kind=ip_r8_p)    :: lval               ! local temporary
-    real(kind=ip_r8_p),allocatable  :: lsum(:)  ! local sum
-    real(kind=ip_r8_p),allocatable  :: lmin(:)  ! local min
-    real(kind=ip_r8_p),allocatable  :: lmax(:)  ! local max
-    real(kind=ip_r8_p),allocatable  :: gsum(:)  ! global sum
-    real(kind=ip_r8_p),allocatable  :: gmin(:)  ! global min
-    real(kind=ip_r8_p),allocatable  :: gmax(:)  ! global max
-    real(kind=ip_r8_p),allocatable  :: lwts(:)  ! local wts taking into account mask and wts
+    integer(kind=ip_i4_p)             :: lcnt     ! local count
+    real(kind=ip_r8_p)                :: lswt     ! local sum of weights
+    real(kind=ip_r8_p),allocatable    :: lsum(:)  ! local sum
+    real(kind=ip_r8_p),allocatable    :: lsxw(:)  ! local sum of weighted fld
+    real(kind=ip_r8_p),allocatable    :: lmin(:)  ! local min
+    real(kind=ip_r8_p),allocatable    :: lmax(:)  ! local max
+    real(kind=ip_r8_p),allocatable    :: lall(:)  ! local all global reductions
+    integer(kind=ip_i4_p)             :: gcnt     ! global count
+    real(kind=ip_r8_p)                :: gswt     ! global sum of weights
+    real(kind=ip_r8_p),allocatable    :: gsum(:)  ! global sum
+    real(kind=ip_r8_p),allocatable    :: gsxw(:)  ! global sum of weighted fld
+    real(kind=ip_r8_p),allocatable    :: gmin(:)  ! global min
+    real(kind=ip_r8_p),allocatable    :: gmax(:)  ! global max
+    real(kind=ip_r8_p),allocatable    :: gall(:)  ! global all global reductions
+    real(kind=ip_r8_p),allocatable    :: lwts(:)  ! local wts taking into account mask and wts
     type(mct_string) :: mstring     ! mct char type
     character(len=64):: itemc       ! string converted to char
+    character(len=256) :: notes     ! string with diagnostic notes
     character(len=*),parameter :: subname = '(oasis_advance_avdiag)'
 
     call oasis_debug_enter(subname)
 
+    mpicom = prism_part(partid)%mpicom
     if (mpicom == MPI_COMM_NULL) then
        call oasis_debug_exit(subname)
        return
     endif
 
+    notes = ''
     fsize = mct_avect_nRattr(av)
     lsize = mct_avect_lsize(av)
 
     allocate(lsum(fsize))
+    allocate(lsxw(fsize))
     allocate(lmin(fsize))
     allocate(lmax(fsize))
     allocate(gsum(fsize))
+    allocate(gsxw(fsize))
     allocate(gmin(fsize))
     allocate(gmax(fsize))
 
+    allocate(lall(2*fsize+3))
+    allocate(gall(2*fsize+3))
+
     allocate(lwts(lsize))
     lwts = 1.0_ip_r8_p
-!!$    lmin=HUGE(lwts)
-!!$    lmax=-lmin
-    if (present(mask)) then
-       if (size(mask) /= lsize) then
-           WRITE(nulprt,*) subname,estr,'size mask ne size av'
-           call oasis_abort(file=__FILE__,line=__LINE__)
+    if (prism_part(partid)%maskflag) then
+       if (size(prism_part(partid)%mask) /= lsize) then
+          WRITE(nulprt,*) subname,estr,'size mask ne size av'
+          call oasis_abort(file=__FILE__,line=__LINE__)
        endif
        do n = 1,lsize
-          if (mask(n) /= 0) lwts(n) = 0.0_ip_r8_p
+          if (prism_part(partid)%mask(n) /= 0) lwts(n) = 0.0_ip_r8_p
        enddo
+       notes = trim(notes)//':masked'
+    else
+       notes = trim(notes)//':no mask'
     endif
 
-    if (present(wts)) then
-       if (size(wts) /= lsize) then
-           WRITE(nulprt,*) subname,estr,'size wts ne size av'
-           call oasis_abort(file=__FILE__,line=__LINE__)
+    if (prism_part(partid)%areaflag .or. prism_part(partid)%fracflag) then
+       if (prism_part(partid)%areaflag) then
+          if (size(prism_part(partid)%area) /= lsize) then
+             WRITE(nulprt,*) subname,estr,'size area ne size av'
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+          do n = 1,lsize
+             lwts(n) = lwts(n) * prism_part(partid)%area(n)
+          enddo
+          notes = trim(notes)//':area weighted'
        endif
-       do n = 1,lsize
-          lwts(n) = lwts(n) * wts(n)
-       enddo
+
+       if (prism_part(partid)%fracflag) then
+          if (size(prism_part(partid)%frac) /= lsize) then
+             WRITE(nulprt,*) subname,estr,'size frac ne size av'
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+          do n = 1,lsize
+             lwts(n) = lwts(n) * prism_part(partid)%frac(n)
+          enddo
+          notes = trim(notes)//':frac weighted'
+       endif
+    else
+       notes = trim(notes)//':unweighted'
     endif
 
+    lcnt = 0
     lsum = 0.0_ip_r8_p
+    lsxw = 0.0_ip_r8_p
+    lswt = 0.0_ip_r8_p
     lmin =  9.99e36    ! in case lsize is zero
     lmax = -9.99e36    ! in case lsize is zero
-    do m = 1,fsize
     first_call = .true.
     do n = 1,lsize
-       lval = av%rAttr(m,n)*lwts(n)
-       lsum(m) = lsum(m) + lval
        if (lwts(n) /= 0.0_ip_r8_p) then
-          if (first_call) then
-             lmin(m) = lval
-             lmax(m) = lval
-             first_call = .false.
-          else
-             lmin(m) = min(lmin(m),lval)
-             lmax(m) = max(lmax(m),lval)
-          endif
+          lswt = lswt + lwts(n)
+          lcnt = lcnt + 1
+          do m = 1,fsize
+             lval = av%rAttr(m,n)
+             lsum(m) = lsum(m) + lval
+             lsxw(m) = lsxw(m) + lval*lwts(n)
+             if (first_call) then
+                lmin(m) = lval
+                lmax(m) = lval
+             else
+                lmin(m) = min(lmin(m),lval)
+                lmax(m) = max(lmax(m),lval)
+             endif
+          enddo
+       first_call = .false.
        endif
-    enddo
     enddo
 
     mype = -1
     call MPI_COMM_RANK(mpicom,mype,ierr)
-    call oasis_mpi_sum(lsum,gsum,mpicom,string=trim(subname)//':sum',all=.false.)
+
+    ! aggregate reductions where possible to save time
+    lall(1:fsize) = lsum(1:fsize)
+    lall(fsize+1:2*fsize) = lsxw(1:fsize)
+    lall(2*fsize+1) = lswt
+    lall(2*fsize+2) = float(lcnt)
+    lall(2*fsize+3) = float(lsize)
+!    call oasis_mpi_sum(lsum,gsum,mpicom,string=trim(subname)//':sum',all=.false.)
+!    call oasis_mpi_sum(lsxw,gsxw,mpicom,string=trim(subname)//':sxw',all=.false.)
+!    call oasis_mpi_sum(lswt,gswt,mpicom,string=trim(subname)//':swt',all=.false.)
+!    call oasis_mpi_sum(lcnt,gcnt,mpicom,string=trim(subname)//':cnt',all=.false.)
+!    call oasis_mpi_sum(lsize,gszie,mpicom,string=trim(subname)//':siz',all=.false.)
+    call oasis_mpi_sum(lall,gall,mpicom,string=trim(subname)//':all',all=.false.)
     call oasis_mpi_min(lmin,gmin,mpicom,string=trim(subname)//':min',all=.false.)
     call oasis_mpi_max(lmax,gmax,mpicom,string=trim(subname)//':max',all=.false.)
+    gsum(1:fsize) = gall(1:fsize)
+    gsxw(1:fsize) = gall(fsize+1:2*fsize)
+    gswt = gall(2*fsize+1)
+    gcnt = nint(gall(2*fsize+2))
+    gsize = nint(gall(2*fsize+3))
 
     if (mype == 0) then
+       write(nulprt,'(a,1x,a,1x,a)') trim(subname),'CHECK* diags',trim(notes)
+       write(nulprt,'(a,i12)'   ) '  array size     = ',gsize
+       write(nulprt,'(a,i12)'   ) '  masked size    = ',gcnt
+       write(nulprt,'(a,g24.16)') '  sum of weights = ',gswt
        do m = 1,fsize
           call mct_aVect_getRList(mstring,m,av)
           itemc = mct_string_toChar(mstring)
           call mct_string_clean(mstring)
-          write(nulprt,'(a,a16,3g21.12)') '   diags: ',trim(itemc),gmin(m),gmax(m),gsum(m)
+          if (gcnt == 0) then
+             write(nulprt,'(a,1x,a,1x,a,1x,a)') trim(subname),'CHECK* diags, fld=',trim(itemc),'NO unmasked data so NO DIAGNOSTICS'
+          else
+             write(nulprt,'(a,1x,a,1x,a,1x,a)') trim(subname),'CHECK* diags, fld=',trim(itemc),trim(notes)
+             write(nulprt,'(a,g24.16,1x,a)') '  minimum value  = ',gmin(m),trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  maximum value  = ',gmax(m),trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  mean value     = ',gsum(m)/gcnt,trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  weighted mean  = ',gsxw(m)/gswt,trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  unweighted sum = ',gsum(m),trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  weighted sum   = ',gsxw(m),trim(itemc)
+          endif
        enddo
     endif
 
-    deallocate(lsum,lmin,lmax)
-    deallocate(gsum,gmin,gmax)
+    deallocate(lsum,lmin,lmax,lall)
+    deallocate(gsum,gmin,gmax,gall)
     deallocate(lwts)
 
     call oasis_debug_exit(subname)
