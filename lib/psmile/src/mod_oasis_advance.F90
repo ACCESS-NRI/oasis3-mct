@@ -1703,7 +1703,7 @@ contains
     type(mct_aVect)        ,intent(in),optional :: av5  !< source av5 hot
     character(len=*)       ,intent(in),optional :: tstrinp  !< timer label string
 
-    integer(kind=ip_i4_p)  :: fsize,lsizes,lsized,nf,ni,n,m,k,ierr
+    integer(kind=ip_i4_p)  :: fsize,lsizes,lsized,nf,ni,n,m,k,l,ierr
     real(kind=ip_r8_p)     :: sumtmp, wts_sums, wts_sumd, zradi, zlagr
     real(kind=ip_r8_p)     :: wts_sums1(1), wts_sumd1(1)
     integer(kind=ip_i4_p),allocatable :: imasks(:),imaskd(:)
@@ -1884,15 +1884,32 @@ contains
 
        !-------------------
        ! extract mask and area and compute sum of masked area for source
+       ! mask is from mask or frac, mask or frac must be set
+       ! area is area*frac, area must be set
+       !!! REMINDER !!! mask=0 in oasis is an active point mask/=0 is inactive point
        !-------------------
-       lsizes = mct_avect_lsize(mapper%av_ms)
+       lsizes = mct_gsmap_lsize(prism_part(mapper%spart)%pgsmap,prism_part(mapper%spart)%mpicom)
        allocate(imasks(lsizes),areas(lsizes))
-       nf = mct_aVect_indexIA(mapper%av_ms,'mask')
-       imasks(:) = mapper%av_ms%iAttr(nf,:)
-       nf = mct_aVect_indexRA(mapper%av_ms,'area')
-       areas(:) = mapper%av_ms%rAttr(nf,:)*zradi
-       nf = mct_aVect_indexRA(mapper%av_ms,'frac')
-       areas(:) = areas(:)*mapper%av_ms%rAttr(nf,:)
+       if (prism_part(mapper%spart)%maskflag) then
+         imasks(:) = prism_part(mapper%spart)%mask
+       elseif (prism_part(mapper%spart)%fracflag) then
+         imasks(:) = 1
+         do l = 1,lsizes
+            if (prism_part(mapper%spart)%frac(l) /= 0._ip_double_p) imasks(l) = 0
+         enddo
+       else
+         WRITE(nulprt,*) subname,estr,'CONSERV mask/frac not available for grid ',trim(mapper%srcgrid)
+         call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+       if (prism_part(mapper%spart)%areaflag) then
+         areas(:) = prism_part(mapper%spart)%area*zradi
+       else
+         WRITE(nulprt,*) subname,estr,'CONSERV area not available for grid ',trim(mapper%srcgrid)
+         call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+       if (prism_part(mapper%spart)%fracflag) then
+         areas(:) = areas(:)*prism_part(mapper%spart)%frac
+       endif
 
        if (map_barrier .and. present(tstrinp)) then
           call oasis_timer_start(trim(tstrinp)//'_cons_prebarrier')
@@ -1911,15 +1928,32 @@ contains
 
        !-------------------
        ! extract mask and area and compute sum of masked area for destination
+       ! mask is from mask or frac, mask or frac must be set
+       ! area is area*frac, area must be set
+       !!! REMINDER !!! mask=0 in oasis is an active point mask/=0 is inactive point
        !-------------------
-       lsized = mct_avect_lsize(mapper%av_md)
+       lsized = mct_gsmap_lsize(prism_part(mapper%dpart)%pgsmap,prism_part(mapper%spart)%mpicom)
        allocate(imaskd(lsized),aread(lsized))
-       nf = mct_aVect_indexIA(mapper%av_md,'mask')
-       imaskd(:) = mapper%av_md%iAttr(nf,:)
-       nf = mct_aVect_indexRA(mapper%av_md,'area')
-       aread(:) = mapper%av_md%rAttr(nf,:)*zradi
-       nf = mct_aVect_indexRA(mapper%av_md,'frac')
-       aread(:) = aread(:)*mapper%av_md%rAttr(nf,:)
+       if (prism_part(mapper%dpart)%maskflag) then
+         imaskd(:) = prism_part(mapper%dpart)%mask
+       elseif (prism_part(mapper%dpart)%fracflag) then
+         imaskd(:) = 1
+         do l = 1,lsizes
+            if (prism_part(mapper%dpart)%frac(l) /= 0._ip_double_p) imaskd(l) = 0
+         enddo
+       else
+         WRITE(nulprt,*) subname,estr,'CONSERV mask/frac not available for grid ',trim(mapper%dstgrid)
+         call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+       if (prism_part(mapper%dpart)%areaflag) then
+         aread(:) = prism_part(mapper%dpart)%area*zradi
+       else
+         WRITE(nulprt,*) subname,estr,'CONSERV area not available for grid ',trim(mapper%dstgrid)
+         call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+       if (prism_part(mapper%dpart)%fracflag) then
+         aread(:) = aread(:)*prism_part(mapper%dpart)%frac
+       endif
 
        if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cons2')
        call mct_avect_init(avone,rList='one',lsize=lsized)
