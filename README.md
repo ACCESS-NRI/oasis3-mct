@@ -1,6 +1,7 @@
 This version is the master branch of the OASIS3-MCT climate coupler. It will contain the future developments for OASIS3-MCT_5.0
 
 Since the first developments of OASIS3-MCT, it includes:
+- A bug fix when generating the remapping files with SCRIP : if we have fields which require BICUBIC weights followed by fields which require BILINEAR weights, then the BILINEAR weights are corrupted. However if we do things in a different order: BILINEAR first followed by BICUBIC, then things are OK. This problem was solved (ticket 2725)
 - A first beta version of Python API available (STFC)
 - Add ability to set north and south thresholds on the SCRIPR CONSERV namcouple line. 
 - Add number of neighbors to the mapping filename for DISTWGT and GAUSWGT mapping files 
