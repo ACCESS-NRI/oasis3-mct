@@ -2425,6 +2425,8 @@ contains
     real(kind=ip_r8_p),allocatable    :: lsxw(:)  ! local sum of weighted fld
     real(kind=ip_r8_p),allocatable    :: lmin(:)  ! local min
     real(kind=ip_r8_p),allocatable    :: lmax(:)  ! local max
+    real(kind=ip_r8_p),allocatable    :: lminloc(:)  ! local location min
+    real(kind=ip_r8_p),allocatable    :: lmaxloc(:)  ! local location max
     real(kind=ip_r8_p),allocatable    :: lall(:)  ! local all global reductions
     integer(kind=ip_i4_p)             :: gcnt     ! global count
     real(kind=ip_r8_p)                :: gswt     ! global sum of weights
@@ -2432,8 +2434,11 @@ contains
     real(kind=ip_r8_p),allocatable    :: gsxw(:)  ! global sum of weighted fld
     real(kind=ip_r8_p),allocatable    :: gmin(:)  ! global min
     real(kind=ip_r8_p),allocatable    :: gmax(:)  ! global max
+    real(kind=ip_r8_p),allocatable    :: gminloc(:) ! global location min
+    real(kind=ip_r8_p),allocatable    :: gmaxloc(:) ! global location max
     real(kind=ip_r8_p),allocatable    :: gall(:)  ! global all global reductions
     real(kind=ip_r8_p),allocatable    :: lwts(:)  ! local wts taking into account mask and wts
+    integer(kind=ip_i4_p)             :: ngloc, igloc, jgloc  ! location indices
     type(mct_string) :: mstring     ! mct char type
     character(len=64):: itemc       ! string converted to char
     character(len=256) :: notes     ! string with diagnostic notes
@@ -2455,13 +2460,14 @@ contains
     allocate(lsxw(fsize))
     allocate(lmin(fsize))
     allocate(lmax(fsize))
+    allocate(lminloc(fsize))
+    allocate(lmaxloc(fsize))
     allocate(gsum(fsize))
     allocate(gsxw(fsize))
     allocate(gmin(fsize))
     allocate(gmax(fsize))
-
-    allocate(lall(2*fsize+3))
-    allocate(gall(2*fsize+3))
+    allocate(gminloc(fsize))
+    allocate(gmaxloc(fsize))
 
     allocate(lwts(lsize))
     lwts = 1.0_ip_r8_p
@@ -2510,6 +2516,8 @@ contains
     lswt = 0.0_ip_r8_p
     lmin =  9.99e36    ! in case lsize is zero
     lmax = -9.99e36    ! in case lsize is zero
+    lminloc = 0.
+    lmaxloc = 0.
     first_call = .true.
     do n = 1,lsize
        if (lwts(n) /= 0.0_ip_r8_p) then
@@ -2521,13 +2529,21 @@ contains
              lsxw(m) = lsxw(m) + lval*lwts(n)
              if (first_call) then
                 lmin(m) = lval
+                lminloc(m) = prism_part(partid)%indx(n)
                 lmax(m) = lval
+                lmaxloc(m) = prism_part(partid)%indx(n)
              else
-                lmin(m) = min(lmin(m),lval)
-                lmax(m) = max(lmax(m),lval)
+                if (lval < lmin(m)) then
+                   lmin(m) = lval
+                   lminloc(m) = prism_part(partid)%indx(n)
+                endif
+                if (lval > lmax(m)) then
+                   lmax(m) = lval
+                   lmaxloc(m) = prism_part(partid)%indx(n)
+                endif
              endif
           enddo
-       first_call = .false.
+          first_call = .false.
        endif
     enddo
 
@@ -2535,24 +2551,29 @@ contains
     call MPI_COMM_RANK(mpicom,mype,ierr)
 
     ! aggregate reductions where possible to save time
-    lall(1:fsize) = lsum(1:fsize)
-    lall(fsize+1:2*fsize) = lsxw(1:fsize)
-    lall(2*fsize+1) = lswt
-    lall(2*fsize+2) = float(lcnt)
-    lall(2*fsize+3) = float(lsize)
+    allocate(lall(2*fsize+3))
+    allocate(gall(2*fsize+3))
+    lall(1:fsize) = lsum(1:fsize)          ! local unweighted sums
+    lall(fsize+1:2*fsize) = lsxw(1:fsize)  ! local weighted sums
+    lall(2*fsize+1) = lswt                 ! local sum of weights
+    lall(2*fsize+2) = float(lcnt)          ! local active number of gridcells
+    lall(2*fsize+3) = float(lsize)         ! local total number of gridcells
 !    call oasis_mpi_sum(lsum,gsum,mpicom,string=trim(subname)//':sum',all=.false.)
 !    call oasis_mpi_sum(lsxw,gsxw,mpicom,string=trim(subname)//':sxw',all=.false.)
 !    call oasis_mpi_sum(lswt,gswt,mpicom,string=trim(subname)//':swt',all=.false.)
 !    call oasis_mpi_sum(lcnt,gcnt,mpicom,string=trim(subname)//':cnt',all=.false.)
 !    call oasis_mpi_sum(lsize,gszie,mpicom,string=trim(subname)//':siz',all=.false.)
     call oasis_mpi_sum(lall,gall,mpicom,string=trim(subname)//':all',all=.false.)
-    call oasis_mpi_min(lmin,gmin,mpicom,string=trim(subname)//':min',all=.false.)
-    call oasis_mpi_max(lmax,gmax,mpicom,string=trim(subname)//':max',all=.false.)
+    call oasis_mpi_minloc(lmin,lminloc,gmin,gminloc,mpicom,string=trim(subname)//':min',all=.false.)
+    call oasis_mpi_maxloc(lmax,lmaxloc,gmax,gmaxloc,mpicom,string=trim(subname)//':max',all=.false.)
+    ! disaggregate reductions as above
     gsum(1:fsize) = gall(1:fsize)
     gsxw(1:fsize) = gall(fsize+1:2*fsize)
     gswt = gall(2*fsize+1)
     gcnt = nint(gall(2*fsize+2))
     gsize = nint(gall(2*fsize+3))
+    deallocate(lall)
+    deallocate(gall)
 
     if (mype == 0) then
        write(nulprt,'(a,1x,a,1x,a)') trim(subname),'CHECK* diags',trim(notes)
@@ -2567,8 +2588,18 @@ contains
              write(nulprt,'(a,1x,a,1x,a,1x,a)') trim(subname),'CHECK* diags, fld=',trim(itemc),'NO unmasked data so NO DIAGNOSTICS'
           else
              write(nulprt,'(a,1x,a,1x,a,1x,a)') trim(subname),'CHECK* diags, fld=',trim(itemc),trim(notes)
+             ngloc = nint(gminloc(m))
+             igloc = mod(ngloc-1,prism_part(partid)%nx) + 1
+             jgloc = (ngloc - 1) / prism_part(partid)%nx + 1
              write(nulprt,'(a,g24.16,1x,a)') '  minimum value  = ',gmin(m),trim(itemc)
+             write(nulprt,'(a,a1,i6,a1,i6,a1,i9,1x,a)') &
+                                             '     min val at  = ','(',igloc,',',jgloc,')',ngloc,trim(itemc)
+             ngloc = nint(gmaxloc(m))
+             igloc = mod(ngloc-1,prism_part(partid)%nx) + 1
+             jgloc = (ngloc - 1) / prism_part(partid)%nx + 1
              write(nulprt,'(a,g24.16,1x,a)') '  maximum value  = ',gmax(m),trim(itemc)
+             write(nulprt,'(a,a1,i6,a1,i6,a1,i9,1x,a)') &
+                                             '     max val at  = ','(',igloc,',',jgloc,')',ngloc,trim(itemc)
              write(nulprt,'(a,g24.16,1x,a)') '  mean value     = ',gsum(m)/gcnt,trim(itemc)
              write(nulprt,'(a,g24.16,1x,a)') '  weighted mean  = ',gsxw(m)/gswt,trim(itemc)
              write(nulprt,'(a,g24.16,1x,a)') '  unweighted sum = ',gsum(m),trim(itemc)
@@ -2577,8 +2608,8 @@ contains
        enddo
     endif
 
-    deallocate(lsum,lmin,lmax,lall)
-    deallocate(gsum,gmin,gmax,gall)
+    deallocate(lsum,lmin,lminloc,lmax,lmaxloc)
+    deallocate(gsum,gmin,gminloc,gmax,gmaxloc)
     deallocate(lwts)
 
     call oasis_debug_exit(subname)

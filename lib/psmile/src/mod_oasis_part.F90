@@ -38,12 +38,14 @@ MODULE mod_oasis_part
       integer(kind=ip_i4_p)  :: ny       !< global ny size
       character(len=ic_lvar) :: gridname !< grid name
       integer(kind=ip_i4_p)  :: mpicom   !< mpicom for partition tasks only
-      integer(kind=ip_i4_p)  :: npes     !< tasks count associated with partition
-      integer(kind=ip_i4_p)  :: rank     !< rank of each task
+      integer(kind=ip_i4_p)  :: npes     !< tasks count associated with mpicom partition
+      integer(kind=ip_i4_p)  :: rank     !< rank of each task for mpicom partition
       type(mct_gsmap)        :: pgsmap   !< same gsmap but on partition mpicom
+      logical                :: indxflag !< has indx field been defined
       logical                :: maskflag !< has mask field been defined
       logical                :: areaflag !< has area field been defined
       logical                :: fracflag !< has frac field been defined
+      integer(kind=ip_i4_p),pointer  :: indx(:)  !< global index data
       integer(kind=ip_i4_p),pointer  :: mask(:)  !< mask data
       real   (kind=ip_r8_p),pointer  :: area(:)  !< area data
       real   (kind=ip_r8_p),pointer  :: frac(:)  !< frac data
@@ -396,6 +398,7 @@ CONTAINS
    s_prism_part%npes     = -1
    s_prism_part%rank     = -1
    s_prism_part%ig_size  = -1
+   s_prism_part%indxflag = .false.
    s_prism_part%maskflag = .false.
    s_prism_part%areaflag = .false.
    s_prism_part%fracflag = .false.
@@ -428,6 +431,8 @@ CONTAINS
    write(nulprt,*) subname,' compid = ',s_prism_part%gsmap%comp_id
    write(nulprt,*) subname,' ngseg  = ',s_prism_part%gsmap%ngseg
    write(nulprt,*) subname,' gsize  = ',s_prism_part%gsmap%gsize
+   write(nulprt,*) subname,' lsize  = ',s_prism_part%lsize
+   write(nulprt,*) subname,' indx   = ',size(s_prism_part%indx)
    if (s_prism_part%gsmap%ngseg > 10) then
       IF (mpi_comm_local /= MPI_COMM_NULL) THEN
          WRITE(nulprt,*) subname,' start  = ',s_prism_part%gsmap%start(1:10)
@@ -451,6 +456,7 @@ CONTAINS
          WRITE(nulprt,*) subname,' ppe_loc= ',s_prism_part%pgsmap%pe_loc
       ENDIF
    endif
+   if (s_prism_part%indxflag) write(nulprt,*) subname,' indxflag = ',s_prism_part%indxflag
    if (s_prism_part%maskflag) write(nulprt,*) subname,' maskflag = ',s_prism_part%maskflag
    if (s_prism_part%areaflag) write(nulprt,*) subname,' areaflag = ',s_prism_part%areaflag
    if (s_prism_part%fracflag) write(nulprt,*) subname,' fracflag = ',s_prism_part%fracflag
@@ -490,8 +496,24 @@ CONTAINS
 
    do m = 1,prism_npart
       gridname = prism_part(m)%gridname
-      if (mpi_rank_local == 0) write(nulprt,*) subname,m,trim(prism_part(m)%partname),' ',trim(gridname)
-      lsize = mct_gsmap_lsize(prism_part(m)%gsmap,mpi_comm_local)
+      if (prism_part(m)%rank == 0) write(nulprt,*) subname,m,trim(prism_part(m)%partname),' ',trim(gridname)
+      if (prism_part(m)%mpicom /= MPI_COMM_NULL) then
+         lsize = mct_gsmap_lsize(prism_part(m)%pgsmap, prism_part(m)%mpicom)
+      else
+         lsize = 0
+      endif
+
+      ! store indx first
+      prism_part(m)%indxflag = .true.
+      call mct_gsmap_OrderedPoints(prism_part(m)%pgsmap, prism_part(m)%rank, prism_part(m)%indx)
+      if (prism_part(m)%rank == 0) then
+         write(nulprt,*) subname,' set indx ',trim(gridname),' for ',trim(prism_part(m)%partname), size(prism_part(m)%indx)
+         if (size(prism_part(m)%indx) > 0) then
+            write(nulprt,*) subname,' indx = ',prism_part(m)%indx(1:min(10,size(prism_part(m)%indx)))
+         endif
+      endif
+
+      ! read mask, area, frac
       call mct_avect_init(avin,iList='mask',rList='area:frac',lsize=lsize)
       call mct_avect_zero(avin)
       kmask = mct_aVect_indexIA(avin,'mask')
@@ -499,27 +521,27 @@ CONTAINS
       kfrac = mct_aVect_indexRA(avin,'frac')
       if (oasis_io_varexists('areas.nc',trim(gridname)//'.srf')) then
          call oasis_io_read_avfld('areas.nc',avin, &
-            prism_part(m)%gsmap,mpi_comm_local,'area',trim(gridname)//'.srf',fldtype='real')
+            prism_part(m)%pgsmap, prism_part(m)%mpicom,'area',trim(gridname)//'.srf',fldtype='real')
          prism_part(m)%areaflag = .true.
          allocate(prism_part(m)%area(lsize))
          prism_part(m)%area(:) = avin%rAttr(karea,:)
-         if (mpi_rank_local == 0) write(nulprt,*) subname,' read area ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%area),maxval(prism_part(m)%area)
+         if (prism_part(m)%rank == 0) write(nulprt,*) subname,' read area ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%area),maxval(prism_part(m)%area)
       endif
       if (oasis_io_varexists('masks.nc',trim(gridname)//'.frc')) then
          call oasis_io_read_avfld('masks.nc',avin, &
-            prism_part(m)%gsmap,mpi_comm_local,'frac',trim(gridname)//'.frc',fldtype='real')
+            prism_part(m)%pgsmap, prism_part(m)%mpicom,'frac',trim(gridname)//'.frc',fldtype='real')
          prism_part(m)%fracflag = .true.
          allocate(prism_part(m)%frac(lsize))
          prism_part(m)%frac(:) = avin%rAttr(kfrac,:)
-         if (mpi_rank_local == 0) write(nulprt,*) subname,' read frac ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%frac),maxval(prism_part(m)%frac)
+         if (prism_part(m)%rank == 0) write(nulprt,*) subname,' read frac ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%frac),maxval(prism_part(m)%frac)
       endif
       if (oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) then
          call oasis_io_read_avfld('masks.nc',avin, &
-            prism_part(m)%gsmap,mpi_comm_local,'mask',trim(gridname)//'.msk',fldtype='int')
+            prism_part(m)%pgsmap, prism_part(m)%mpicom,'mask',trim(gridname)//'.msk',fldtype='int')
          prism_part(m)%maskflag = .true.
          allocate(prism_part(m)%mask(lsize))
          prism_part(m)%mask(:) = avin%iAttr(kmask,:)
-         if (mpi_rank_local == 0) write(nulprt,*) subname,' read mask ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%mask),maxval(prism_part(m)%mask)
+         if (prism_part(m)%rank == 0) write(nulprt,*) subname,' read mask ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%mask),maxval(prism_part(m)%mask)
       endif
       call mct_avect_clean(avin)
    enddo
