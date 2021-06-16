@@ -164,8 +164,8 @@
       integer (kind=int_kind), dimension(:,:,:), allocatable :: ila_sta_mpi
       character (LEN=14) :: cl_envvar
       integer (kind=int_kind) :: il_envthreads, il_err
-      logical :: ll_gaussreduced_grid = .false.
-      logical :: ll_bicubic = .false.
+      logical :: ll_gaussreduced_grid
+      logical :: ll_bicubic
 
 #ifdef REMAP_TIMING
       logical :: ll_timing = .true.
@@ -193,6 +193,9 @@
       ! num_neighbors = 4 for bilinear or bicubic interpolation
       num_neighbors = 4
       nmap = 1
+      ll_gaussreduced_grid = .FALSE.
+      ll_bicubic           = .FALSE.
+
 
       IF (restrict_TYPE == 'REDUCED') ll_gaussreduced_grid = .TRUE.
       IF (map_type == map_type_bicubic ) ll_bicubic = .TRUE.
