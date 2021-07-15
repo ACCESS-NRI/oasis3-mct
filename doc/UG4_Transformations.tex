@@ -78,13 +78,18 @@ noted with the string UNUSED and not described.
 
 \item {\bf CHECKIN}:
 
-  {\tt CHECKIN} calculates the global minimum, the maximum and the sum
-  of the source field values (not weighted by the grid cell area) and
-  prints them to the OASIS3-MCT debug file (for the master process of
-  the source component model only under the 
-  attribute ``diags''). This operation does not transform the field.
-  CHECKIN operation can significantly slow down the simulation. It should
-  not be used in production mode.
+  {\tt CHECKIN} calculates the global minimum, maximum, mean, and 
+  sum of the (masked, if available) source field values.  If a grid area
+  or fraction field is also available, then the area and/or fraction weighted
+  mean and sum are also diagnosed and written.  Information about masking
+  and weighting is written to the output file.  All diagnotics are
+  written to the master
+  process OASIS3-MCT debug file (under the attribute ``CHECK* diags'').
+  This operation does not transform the field. CHECKIN operations can
+  slow down the simulation and should not be used in
+  production mode.  For backward compatibility, CHECKIN has one generic
+  input line that is no longer used but is still required and can contain anything.
+  See also {\tt CHECKOUT}.
 
   The generic input line is as follows:
  \begin{verbatim}
@@ -772,15 +777,23 @@ If we follow this best practice, the atmospheric cell fractions and mask will be
 
 \item {\bf CHECKOUT}:
 
-  {\tt CHECKOUT} calculates the global minimum, the maximum and the
-  sum of the target field values (not weighted by the grid cell area)
-  and prints them to the OASIS3-MCT debug file (for the master process
-  of the target component model only). These informations are found in 
-  the debug file of the master process of the target model under the 
-  attribute ``diags''. This operation does not
-  transform the field. CHECKOUT operation can significantly slow down the simulation.
-  It should not be used in production mode.
-  The generic input line is as for {\tt CHECKIN} (see above).
+  {\tt CHECKOUT} calculates the global minimum, maximum, mean, and 
+  sum of the (masked, if available) destination field values.  If a grid area
+  or fraction field is also available, then the area and/or fraction weighted
+  mean and sum are also diagnosed and written.  Information about masking
+  and weighting is written to the output file.  All diagnotics are
+  written to the master  process OASIS3-MCT debug file (under the attribute ``CHECK* diags'').
+  This operation does not transform the field. CHECKOUT operations can
+  slow down the simulation and should not be used in
+  production mode.  For backward compatibility, CHECKOUT has one generic
+  input line that is no longer used but is still required and can contain anything.
+  See also {\tt CHECKIN}.
+
+  The generic input line is as follows:
+ \begin{verbatim}
+ # CHECKOUT operation
+     INT = 1  
+\end{verbatim} 
 
 \item {\bf GLORED}: UNUSED
 
