@@ -496,7 +496,7 @@ CONTAINS
 
    do m = 1,prism_npart
       gridname = prism_part(m)%gridname
-      if (prism_part(m)%rank == 0) write(nulprt,*) subname,m,trim(prism_part(m)%partname),' ',trim(gridname)
+      if (prism_part(m)%rank == 0 .and. OASIS_debug >= 2) write(nulprt,*) subname,m,trim(prism_part(m)%partname),' ',trim(gridname)
       if (prism_part(m)%mpicom /= MPI_COMM_NULL) then
          lsize = mct_gsmap_lsize(prism_part(m)%pgsmap, prism_part(m)%mpicom)
       else
@@ -506,7 +506,7 @@ CONTAINS
       ! store indx first
       prism_part(m)%indxflag = .true.
       call mct_gsmap_OrderedPoints(prism_part(m)%pgsmap, prism_part(m)%rank, prism_part(m)%indx)
-      if (prism_part(m)%rank == 0) then
+      if (prism_part(m)%rank == 0 .and. OASIS_debug >= 2) then
          write(nulprt,*) subname,' set indx ',trim(gridname),' for ',trim(prism_part(m)%partname), size(prism_part(m)%indx)
          if (size(prism_part(m)%indx) > 0) then
             write(nulprt,*) subname,' indx = ',prism_part(m)%indx(1:min(10,size(prism_part(m)%indx)))
@@ -525,7 +525,7 @@ CONTAINS
          prism_part(m)%areaflag = .true.
          allocate(prism_part(m)%area(lsize))
          prism_part(m)%area(:) = avin%rAttr(karea,:)
-         if (prism_part(m)%rank == 0) write(nulprt,*) subname,' read area ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%area),maxval(prism_part(m)%area)
+         if (prism_part(m)%rank == 0 .and. OASIS_debug >= 2) write(nulprt,*) subname,' read area ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%area),maxval(prism_part(m)%area)
       endif
       if (oasis_io_varexists('masks.nc',trim(gridname)//'.frc')) then
          call oasis_io_read_avfld('masks.nc',avin, &
@@ -533,7 +533,7 @@ CONTAINS
          prism_part(m)%fracflag = .true.
          allocate(prism_part(m)%frac(lsize))
          prism_part(m)%frac(:) = avin%rAttr(kfrac,:)
-         if (prism_part(m)%rank == 0) write(nulprt,*) subname,' read frac ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%frac),maxval(prism_part(m)%frac)
+         if (prism_part(m)%rank == 0 .and. OASIS_debug >= 2) write(nulprt,*) subname,' read frac ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%frac),maxval(prism_part(m)%frac)
       endif
       if (oasis_io_varexists('masks.nc',trim(gridname)//'.msk')) then
          call oasis_io_read_avfld('masks.nc',avin, &
@@ -541,7 +541,7 @@ CONTAINS
          prism_part(m)%maskflag = .true.
          allocate(prism_part(m)%mask(lsize))
          prism_part(m)%mask(:) = avin%iAttr(kmask,:)
-         if (prism_part(m)%rank == 0) write(nulprt,*) subname,' read mask ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%mask),maxval(prism_part(m)%mask)
+         if (prism_part(m)%rank == 0 .and. OASIS_debug >= 2) write(nulprt,*) subname,' read mask ',trim(gridname),' for ',trim(prism_part(m)%partname) ! ,minval(prism_part(m)%mask),maxval(prism_part(m)%mask)
       endif
       call mct_avect_clean(avin)
    enddo

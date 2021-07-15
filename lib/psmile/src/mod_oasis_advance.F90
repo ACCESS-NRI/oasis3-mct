@@ -84,11 +84,6 @@ contains
 
     IF (local_timers_on) call oasis_timer_start ('advance_init')
 
-    if (OASIS_debug >= 2) then
-       write(nulprt,*) '   subname         at         time    time+lag   act: field '
-       write(nulprt,*) '   diags :     fldname    min      max      sum '
-    endif
-
     !----------------------------------------------------------------
     !> * Loop over all coupler connections, 
     !>   Loop over get and put connections,
@@ -2439,6 +2434,7 @@ contains
     real(kind=ip_r8_p),allocatable    :: gall(:)  ! global all global reductions
     real(kind=ip_r8_p),allocatable    :: lwts(:)  ! local wts taking into account mask and wts
     integer(kind=ip_i4_p)             :: ngloc, igloc, jgloc  ! location indices
+    logical :: dowsum               ! is a weighted sum calculated
     type(mct_string) :: mstring     ! mct char type
     character(len=64):: itemc       ! string converted to char
     character(len=256) :: notes     ! string with diagnostic notes
@@ -2471,6 +2467,7 @@ contains
 
     allocate(lwts(lsize))
     lwts = 1.0_ip_r8_p
+    dowsum = .true.
     if (prism_part(partid)%maskflag) then
        if (size(prism_part(partid)%mask) /= lsize) then
           WRITE(nulprt,*) subname,estr,'size mask ne size av'
@@ -2507,6 +2504,7 @@ contains
           notes = trim(notes)//':frac weighted'
        endif
     else
+       dowsum = .false.
        notes = trim(notes)//':unweighted'
     endif
 
@@ -2576,10 +2574,11 @@ contains
     deallocate(gall)
 
     if (mype == 0) then
+       write(nulprt,*) ' '
        write(nulprt,'(a,1x,a,1x,a)') trim(subname),'CHECK* diags',trim(notes)
-       write(nulprt,'(a,i12)'   ) '  array size     = ',gsize
-       write(nulprt,'(a,i12)'   ) '  masked size    = ',gcnt
-       write(nulprt,'(a,g24.16)') '  sum of weights = ',gswt
+       write(nulprt,'(a,i12)'   ) '  array size      = ',gsize
+       write(nulprt,'(a,i12)'   ) '  masked size     = ',gcnt
+       write(nulprt,'(a,g24.16)') '  sum of weights  = ',gswt
        do m = 1,fsize
           call mct_aVect_getRList(mstring,m,av)
           itemc = mct_string_toChar(mstring)
@@ -2591,21 +2590,24 @@ contains
              ngloc = nint(gminloc(m))
              igloc = mod(ngloc-1,prism_part(partid)%nx) + 1
              jgloc = (ngloc - 1) / prism_part(partid)%nx + 1
-             write(nulprt,'(a,g24.16,1x,a)') '  minimum value  = ',gmin(m),trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  minimum value   = ',gmin(m),trim(itemc)
              write(nulprt,'(a,a1,i6,a1,i6,a1,i9,1x,a)') &
-                                             '     min val at  = ','(',igloc,',',jgloc,')',ngloc,trim(itemc)
+                                             '     min val at   = ','(',igloc,',',jgloc,')',ngloc,trim(itemc)
              ngloc = nint(gmaxloc(m))
              igloc = mod(ngloc-1,prism_part(partid)%nx) + 1
              jgloc = (ngloc - 1) / prism_part(partid)%nx + 1
-             write(nulprt,'(a,g24.16,1x,a)') '  maximum value  = ',gmax(m),trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  maximum value   = ',gmax(m),trim(itemc)
              write(nulprt,'(a,a1,i6,a1,i6,a1,i9,1x,a)') &
-                                             '     max val at  = ','(',igloc,',',jgloc,')',ngloc,trim(itemc)
-             write(nulprt,'(a,g24.16,1x,a)') '  mean value     = ',gsum(m)/gcnt,trim(itemc)
-             write(nulprt,'(a,g24.16,1x,a)') '  weighted mean  = ',gsxw(m)/gswt,trim(itemc)
-             write(nulprt,'(a,g24.16,1x,a)') '  unweighted sum = ',gsum(m),trim(itemc)
-             write(nulprt,'(a,g24.16,1x,a)') '  weighted sum   = ',gsxw(m),trim(itemc)
+                                             '     max val at   = ','(',igloc,',',jgloc,')',ngloc,trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  unweighted mean = ',gsum(m)/gcnt,trim(itemc)
+             if (dowsum) &
+             write(nulprt,'(a,g24.16,1x,a)') '  weighted mean   = ',gsxw(m)/gswt,trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  unweighted sum  = ',gsum(m),trim(itemc)
+             if (dowsum) &
+             write(nulprt,'(a,g24.16,1x,a)') '  weighted sum    = ',gsxw(m),trim(itemc)
           endif
        enddo
+       write(nulprt,*) ' '
     endif
 
     deallocate(lsum,lmin,lminloc,lmax,lmaxloc)
