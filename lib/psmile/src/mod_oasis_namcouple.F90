@@ -29,6 +29,7 @@ MODULE mod_oasis_namcouple
                                                          !< in each line of the file namcouple
   CHARACTER(len=*),parameter :: rform = '(A5000)'        !< formatted line read format
 
+  CHARACTER(len=*),parameter :: ncdftyp_default = 'cdf1'   ! netcdf file type default
   CHARACTER(len=*),parameter :: nmapdec_default = 'decomp_1d'        ! decomp_wghtfile or decomp_1d
 !  CHARACTER(len=*),parameter :: nmapdec_default = 'decomp_wghtfile' ! decomp_wghtfile or decomp_1d
 
@@ -44,6 +45,7 @@ MODULE mod_oasis_namcouple
   INTEGER(kind=ip_i4_p)   ,public :: namruntim     !< namcouple runtime
   INTEGER(kind=ip_i4_p)   ,public :: namlogprt     !< namcouple nlogprt value
   INTEGER(kind=ip_i4_p)   ,public :: namtlogprt    !< namcouple ntlogprt value
+  CHARACTER(len=ic_med)   ,public :: namcdftyp     !< namcouple netcdf file type
   INTEGER(kind=ip_i4_p)   ,public :: namuntmin     !< namcouple min IO unit value
   INTEGER(kind=ip_i4_p)   ,public :: namuntmax     !< namcouple max IO unit value
   LOGICAL                 ,public :: namnorest     !< namcouple allow no restarts
@@ -142,6 +144,8 @@ MODULE mod_oasis_namcouple
   INTEGER(kind=ip_intwp_p) :: nlogprt
 !---- Time statistics level printing
   INTEGER(kind=ip_intwp_p) :: ntlogprt
+!---- netcdf file type
+  CHARACTER(len=ic_med) :: ncdftyp
 !---- min and max unit numbers
   INTEGER(kind=ip_intwp_p) :: nuntmin
   INTEGER(kind=ip_intwp_p) :: nuntmax
@@ -290,16 +294,17 @@ MODULE mod_oasis_namcouple
     clhead   = '$MODINFO ', &
     clprint  = '$NLOGPRT ', &
     clmapdec = '$NMAPDEC ', &
+    clcdftyp = '$NCDFTYP ', &
     clmatxrd = '$NMATXRD ', &
     clwgtopt = '$NWGTOPT ', &
     clunit   = '$NUNITNO ', &
     clrest   = '$NNOREST ', &
     clcal    = '$CALTYPE ', &
     clend    = '$END     '
-  INTEGER (kind=ip_intwp_p),parameter :: nkeywords = 17
+  INTEGER (kind=ip_intwp_p),parameter :: nkeywords = 18
   CHARACTER*9, parameter :: keyword_list(nkeywords) = &
     (/clfield, clchan, clstring, clmod, cljob, cltime, clseq, &
-     cldate, clhead, clprint, clmapdec, clmatxrd, clunit, clrest, &
+     cldate, clhead, clprint, clmapdec, clcdftyp, clmatxrd, clunit, clrest, &
      clcal, clend, clwgtopt /)
   CHARACTER*512 :: tmpstr1, tmpstr2, tmpstr3, tmpstr4
 
@@ -512,6 +517,7 @@ SUBROUTINE oasis_namcouple_init()
   namruntim = ntime
   namlogprt = nlogprt
   namtlogprt = ntlogprt
+  namcdftyp = ncdftyp
   namuntmin = nuntmin
   namuntmax = nuntmax
   namnorest = nnorest
@@ -630,6 +636,7 @@ SUBROUTINE oasis_namcouple_init()
   IF (mpi_rank_global == 0) THEN
      WRITE(nulprt1,*) ' '
      WRITE(nulprt1,*) subname,'namlogprt,t   ',namlogprt, namtlogprt
+     WRITE(nulprt1,*) subname,'namcdftyp     ',TRIM(namcdftyp)
      WRITE(nulprt1,*) subname,'namuntmin,max ',namuntmin, namuntmax
      WRITE(nulprt1,*) subname,'namnorest     ',namnorest
      WRITE(nulprt1,*) subname,'nammapdec     ',TRIM(nammapdec)
@@ -1652,8 +1659,10 @@ SUBROUTINE inipar
   ntime = 0 ; niter = 5
   nstep = 86400 ; nitfn=4
 
+
   !* First get experiment name
 
+  REWIND nulin
   keyword = cljob
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
@@ -1662,6 +1671,7 @@ SUBROUTINE inipar
 
   !* Get number of models involved in this simulation
 
+  REWIND nulin
   keyword = clmod
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
@@ -1670,6 +1680,7 @@ SUBROUTINE inipar
 
   !* Get hardware info for this OASIS simulation
 
+  REWIND nulin
   keyword = clchan
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
@@ -1678,6 +1689,7 @@ SUBROUTINE inipar
 
   !* Get total time for this simulation
 
+  REWIND nulin
   keyword = cltime
   CALL findkeyword (keyword, clline, found)
   IF (found) THEN
@@ -1695,20 +1707,20 @@ SUBROUTINE inipar
      CALL namcouple_abort(subname,__LINE__,tmpstr1)
   ENDIF
 
-  !* Print out total time
-
   CALL prtout('The total time for this run is ntime =', ntime, 1)
 
   !* Get initial date for this simulation
 
+  REWIND nulin
   keyword = cldate
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
      WRITE(nulprt1,*) ' ***WARNING*** '//TRIM(keyword)//' is obsolete in OASIS3-MCT'
   ENDIF
 
-   !* Get number of sequential models involved in this simulation
+  !* Get number of sequential models involved in this simulation
 
+  REWIND nulin
   keyword = clseq
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
@@ -1717,6 +1729,7 @@ SUBROUTINE inipar
 
   !* Get the information mode for this simulation
 
+  REWIND nulin
   keyword = clhead
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
@@ -1725,6 +1738,7 @@ SUBROUTINE inipar
 
   !* Get the printing level for this simulation
 
+  REWIND nulin
   nlogprt = 2
   ntlogprt=0
   keyword = clprint
@@ -1757,13 +1771,12 @@ SUBROUTINE inipar
      ENDIF
   ENDIF   ! found
 
-  !* Print out the printing level
-
   CALL prtout('The printing level is nlogprt =', nlogprt, 1)
   CALL prtout('The time statistics level is ntlogprt =', ntlogprt, 1)
 
   !* Get the calendar type for this simulation
 
+  REWIND nulin
   keyword = clcal
   CALL findkeyword (keyword, clline, found)
   IF (found .and. mpi_rank_global == 0) THEN
@@ -1772,6 +1785,7 @@ SUBROUTINE inipar
 
   !* Get the allow no restart flag value
 
+  REWIND nulin
   nnorest = .false.
   keyword = clrest
   CALL findkeyword (keyword, clline, found)
@@ -1801,18 +1815,15 @@ SUBROUTINE inipar
      ENDIF
   ENDIF  ! found
 
-  !* Print out the allow no restart flag
-
   if (nnorest) then
      CALL prtout('The allow_no_restart flag is set to true  ',1,1)
   else
      CALL prtout('The allow_no_restart flag is set to false ',0,1)
   endif
 
-  REWIND nulin
-
   !* Get the unit map decomp value
 
+  REWIND nulin
   nmapdec = nmapdec_default
   keyword = clmapdec
   CALL findkeyword (keyword, clline, found)
@@ -1839,14 +1850,13 @@ SUBROUTINE inipar
      ENDIF
   ENDIF   ! found
 
-  !* Print out the mapdec value
-
   IF (mpi_rank_global == 0) THEN
      write(nulprt1,*) ' The mapdec value is nmapdec = ',TRIM(nmapdec)
   endif
 
   !* Get the unit matrix read value
 
+  REWIND nulin
   nmatxrd = nmatxrd_default
   keyword = clmatxrd
   CALL findkeyword (keyword, clline, found)
@@ -1873,14 +1883,49 @@ SUBROUTINE inipar
      ENDIF
   ENDIF   ! found
 
-  !* Print out the matxrd value
-
   IF (mpi_rank_global == 0) THEN
      write(nulprt1,*) ' The matxrd value is nmatxrd = ',TRIM(nmatxrd)
   endif
 
+  !* Get the netcdf file type
+
+  REWIND nulin
+  ncdftyp = ncdftyp_default
+  keyword = clcdftyp
+  CALL findkeyword (keyword, clline, found)
+  IF (found) THEN
+     READ(nulin, FMT=rform) clline
+     CALL skip(clline, jpeighty, ios=ios)
+     CALL parse (clline, clvari, 1, jpeighty, ilen, __LINE__)
+     IF (ilen .LE. 0) THEN
+        IF (mpi_rank_global == 0) THEN
+           WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for '//TRIM(keyword)
+           WRITE(nulprt1,*) ' Default value wght will be used '
+           WRITE(nulprt1,*) ' '
+           CALL oasis_flush(nulprt1)
+        ENDIF
+     ELSE
+        IF (TRIM(clvari) == 'cdf1' .or. &
+#ifdef CDF_64BIT_DATA
+            TRIM(clvari) == 'cdf5' .or. &
+#endif
+            TRIM(clvari) == 'cdf2') THEN
+           ncdftyp = clvari
+        ELSE
+           CALL prtout('ERROR in namcouple '//TRIM(keyword)//' argument',jf,1)
+           WRITE(tmpstr1,*) 'ERROR in namcouple '//TRIM(keyword)//' argument '//TRIM(clvari)
+           CALL namcouple_abort(subname,__LINE__,tmpstr1)
+        ENDIF
+     ENDIF
+  ENDIF   ! found
+
+  IF (mpi_rank_global == 0) THEN
+     write(nulprt1,*) ' The cdftyp value is ncdftyp = ',TRIM(ncdftyp)
+  endif
+
   !* Get the unit weights handling option
 
+  REWIND nulin
   nwgtopt = nwgtopt_default
   keyword = clwgtopt
   CALL findkeyword (keyword, clline, found)
@@ -1909,14 +1954,13 @@ SUBROUTINE inipar
      ENDIF
   ENDIF   ! found
 
-  !* Print out the wgtopt value
-
   IF (mpi_rank_global == 0) THEN
      write(nulprt1,*) ' The wgtopt value is nwgtopt = ',TRIM(nwgtopt)
   endif
 
   !* Get the unit min/max values
 
+  REWIND nulin
   nuntmin = 1024
   nuntmax = 9999
   keyword = clunit
@@ -1947,8 +1991,6 @@ SUBROUTINE inipar
         ENDIF
      ENDIF
   ENDIF   ! found
-
-  !* Print out the unit number values
 
   CALL prtout('The min IO unit number is nuntmin =', nuntmin, 1)
   CALL prtout('The max IO unit number is nuntmax =', nuntmax, 1)

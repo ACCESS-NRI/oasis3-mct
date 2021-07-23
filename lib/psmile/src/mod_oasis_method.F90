@@ -155,6 +155,7 @@ CONTAINS
    endif
    OASIS_debug = namlogprt
    TIMER_debug = namtlogprt
+   cdf_filetype = trim(namcdftyp)
    call oasis_unitsetmin(namuntmin)
    call oasis_unitsetmax(namuntmax)
    allow_no_restart = namnorest
@@ -635,6 +636,7 @@ CONTAINS
       write(nulprt,*) subname,'     rank_map   = ',mpi_rank_map
       write(nulprt,*) subname,'     root_map   = ',mpi_root_map
       write(nulprt,*) subname,' OASIS_debug    = ',OASIS_debug
+      write(nulprt,*) subname,' cdf_filetype   = ',trim(cdf_filetype)
       do n = 1,prism_amodels
          write(nulprt,*) subname,'   n,prism_model,root = ',&
             n,TRIM(prism_modnam(n)),mpi_root_global(n)

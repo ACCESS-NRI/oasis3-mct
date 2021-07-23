@@ -280,6 +280,7 @@ C***********************************************************************
      &, itmp4             ! integer temp
 
       integer (kind=int_kind) :: il_nftype
+      integer (kind=int_kind) :: iflag
       real (kind=dbl_kind), dimension(:),allocatable ::
      &  wts1              ! temporary for first order conservative weights
 !-----------------------------------------------------------------------
@@ -293,7 +294,10 @@ C***********************************************************************
 !     create netCDF file for mapping and define some global attributes
 !
 !-----------------------------------------------------------------------
-      ncstat = nf_create (interp_file, NF_CLOBBER, nc_file_id)
+      iflag = NF_CLOBBER
+      if (s_cdf_filetype=='cdf2') iflag = ior(iflag,s_cdf_64bit_offset)
+      if (s_cdf_filetype=='cdf5') iflag = ior(iflag,s_cdf_64bit_data)
+      ncstat = nf_create (interp_file, iflag, nc_file_id)
       call netcdf_error_handler(ncstat)
       !***
       !*** map name
@@ -990,6 +994,7 @@ C***********************************************************************
      &, nc_rmpmatrix2_id  ! extra netCDF id for high-order remap matrix
 
       integer (kind=int_kind) :: il_nftype
+      integer (kind=int_kind) :: iflag
 
       real (kind=dbl_kind), dimension(:),allocatable ::
      &  wts1              ! CSM wants single array for 1st-order wts
@@ -1003,7 +1008,10 @@ C***********************************************************************
 !
 !-----------------------------------------------------------------------
 
-      ncstat = nf_create (interp_file, NF_CLOBBER, nc_file_id)
+      iflag = NF_CLOBBER
+      if (s_cdf_filetype=='cdf2') iflag = ior(iflag,s_cdf_64bit_offset)
+      if (s_cdf_filetype=='cdf5') iflag = ior(iflag,s_cdf_64bit_data)
+      ncstat = nf_create (interp_file, iflag, nc_file_id)
       call netcdf_error_handler(ncstat)
 
       !***
