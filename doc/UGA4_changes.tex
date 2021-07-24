@@ -19,6 +19,8 @@ oasishelp@cerfacs.fr if you wish to be added to that list.
 
 \item The {\tt oasis\_def\_var} interface was overloaded to support excluding the argument, {\tt id\_var\_shape}, from the argument list.  This argument is no longer used.  For backwards compatibility, it can still be passed.
 
+\item The {\tt CHECKIN} and {\tt CHECKOUT} log file output was updated to include more diagnostics as well as mask, area, and fraction weighted means and sums.
+
 \item  {\tt DESTARTR}, {\tt FRACARTR} or {\tt FRACNNTR} options : the ``True Area'' (TR) correction
 
 New options for {\tt SCRIPR CONSERV} to have an exact conservation of the field surface-integrated values, based on the "TRue" (TR) area of the cells. Details can be found in section \ref{subsec_interp} and in \cite{valcke19}. Note that to activate these TR options, the true area of the cell must be provided in the auxiliary file {\it areas.nc} in {\bf square radians}.
