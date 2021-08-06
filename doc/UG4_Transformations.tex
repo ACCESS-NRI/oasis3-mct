@@ -79,7 +79,7 @@ noted with the string UNUSED and not described.
 \item {\bf CHECKIN}:
 
   {\tt CHECKIN} calculates the global minimum, maximum, mean, and 
-  sum of the (masked, if available) source field values.  If a grid area
+  sum of the source field values taking the mask into consideration.  If a grid area
   or fraction field is also available, then the area and/or fraction weighted
   mean and sum are also diagnosed and written.  Information about masking
   and weighting is written to the output file.  All diagnotics are
@@ -778,7 +778,7 @@ If we follow this best practice, the atmospheric cell fractions and mask will be
 \item {\bf CHECKOUT}:
 
   {\tt CHECKOUT} calculates the global minimum, maximum, mean, and 
-  sum of the (masked, if available) destination field values.  If a grid area
+  sum of the destination field values taking the mask into consideration.  If a grid area
   or fraction field is also available, then the area and/or fraction weighted
   mean and sum are also diagnosed and written.  Information about masking
   and weighting is written to the output file.  All diagnotics are
