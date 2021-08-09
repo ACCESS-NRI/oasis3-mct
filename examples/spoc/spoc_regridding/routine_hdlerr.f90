@@ -12,7 +12,7 @@ SUBROUTINE hdlerr(istatus, line)
   integer             :: ierror
   !
   IF (istatus .NE. NF90_NOERR) THEN
-      write ( * , * ) 'NetCDF problem at line',line
+      write ( * , * ) 'NetCDF problem in model1 or model2 at line',line
       write ( * , * ) 'Stopped '
       call MPI_Abort ( MPI_COMM_WORLD, 1, ierror )
   ENDIF
