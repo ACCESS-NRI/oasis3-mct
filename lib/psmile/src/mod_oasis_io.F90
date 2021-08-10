@@ -31,6 +31,13 @@ MODULE mod_oasis_io
    public :: oasis_io_write_fldattr
    public :: oasis_io_read_field_fromroot
 
+   integer(kind=ip_i4_p) :: oasis_io_64bit_offset = nf90_64bit_offset
+#ifdef CDF_64BIT_DATA
+   integer(kind=ip_i4_p) :: oasis_io_64bit_data   = nf90_64bit_data
+#else
+   integer(kind=ip_i4_p) :: oasis_io_64bit_data   = nf90_64bit_offset  ! set to offset by default
+#endif
+
 !===========================================================================
 CONTAINS
 !===========================================================================
@@ -310,6 +317,7 @@ subroutine oasis_io_write_avfile(rstfile,av,gsmap,mpicom,nx,ny,nampre)
    integer(ip_i4_p)    :: master_task,iam,ierr     ! mpi info
    integer(ip_i4_p)    :: ncid,dimid,dimid2(2),varid ! netcdf info
    integer(ip_i4_p)    :: dlen        ! dimension length
+   integer(ip_i4_p)    :: iflag       ! netcdf control
    integer(ip_i4_p)    :: status      ! error code
    logical             :: exists      ! file existance
    real(ip_double_p),allocatable :: array2(:,:)
@@ -355,7 +363,10 @@ subroutine oasis_io_write_avfile(rstfile,av,gsmap,mpicom,nx,ny,nampre)
          status = nf90_redef(ncid)
          call check_status(status,subname,__FILE__,__LINE__)
       else
-         status = nf90_create(trim(rstfile),NF90_CLOBBER,ncid)
+         iflag = NF90_CLOBBER
+         if (cdf_filetype == 'cdf2') iflag = ior(iflag,oasis_io_64bit_offset)
+         if (cdf_filetype == 'cdf5') iflag = ior(iflag,oasis_io_64bit_data)
+         status = nf90_create(trim(rstfile),iflag,ncid)
          call check_status(status,subname,__FILE__,__LINE__)
       endif
 
@@ -779,6 +790,7 @@ subroutine oasis_io_write_array(rstfile,mpicom,iarray,ivarname,rarray,rvarname)
    integer(ip_i4_p)    :: master_task,iam,ierr     ! mpi info
    integer(ip_i4_p)    :: ncid,dimid,dimid1(1),varid ! netcdf info
    integer(ip_i4_p)    :: dlen        ! dimension length
+   integer(ip_i4_p)    :: iflag       ! netcdf control
    integer(ip_i4_p)    :: status      ! error code
    logical             :: exists      ! file existance
 
@@ -811,7 +823,10 @@ subroutine oasis_io_write_array(rstfile,mpicom,iarray,ivarname,rarray,rvarname)
          status = nf90_redef(ncid)
          call check_status(status,subname,__FILE__,__LINE__)
       else
-         status = nf90_create(trim(rstfile),NF90_CLOBBER,ncid)
+         iflag = NF90_CLOBBER
+         if (cdf_filetype == 'cdf2') iflag = ior(iflag,oasis_io_64bit_offset)
+         if (cdf_filetype == 'cdf5') iflag = ior(iflag,oasis_io_64bit_data)
+         status = nf90_create(trim(rstfile),iflag,ncid)
          call check_status(status,subname,__FILE__,__LINE__)
       endif
 
@@ -932,6 +947,7 @@ subroutine oasis_io_write_avfbf(av,gsmap,mpicom,nx,ny,msec,f_string,filename)
    integer(ip_i4_p)    :: start1(1),count1(1)        ! netcdf info
    integer(ip_i4_p)    :: lmsec(1)    ! local msec value
    integer(ip_i4_p)    :: dlen        ! dimension length
+   integer(ip_i4_p)    :: iflag       ! netcdf control
    integer(ip_i4_p)    :: status      ! error code
    logical             :: exists      ! file existance
    logical             :: newfile     ! to create a new history file
@@ -1055,7 +1071,10 @@ subroutine oasis_io_write_avfbf(av,gsmap,mpicom,nx,ny,msec,f_string,filename)
          endif
 
          if (newfile) then
-            status = nf90_create(lfn,NF90_CLOBBER,ncid)
+            iflag = NF90_CLOBBER
+            if (cdf_filetype == 'cdf2') iflag = ior(iflag,oasis_io_64bit_offset)
+            if (cdf_filetype == 'cdf5') iflag = ior(iflag,oasis_io_64bit_data)
+            status = nf90_create(lfn,iflag,ncid)
             call check_status(status,subname,__FILE__,__LINE__)
             status = nf90_def_dim(ncid,'nx',nx,dimid3(1))
             call check_status(status,subname,__FILE__,__LINE__)
@@ -1398,6 +1417,7 @@ subroutine oasis_io_write_2dgridfld_fromroot(filename,fldname,fld,nx,ny)
 
    !--- local ---
    integer(ip_i4_p)    :: ncid,dimid,dimid2(2),varid  ! cdf info
+   integer(ip_i4_p)    :: iflag       ! netcdf control
    integer(ip_i4_p)    :: status      ! error code
    integer(ip_i4_p)    :: ind         ! string index
    logical             :: exists      ! file existance
@@ -1432,7 +1452,10 @@ subroutine oasis_io_write_2dgridfld_fromroot(filename,fldname,fld,nx,ny)
        status = nf90_redef(ncid)
        call check_status(status,subname,__FILE__,__LINE__)
     else
-       status = nf90_create(filename,NF90_CLOBBER,ncid)
+       iflag = NF90_CLOBBER
+       if (cdf_filetype == 'cdf2') iflag = ior(iflag,oasis_io_64bit_offset)
+       if (cdf_filetype == 'cdf5') iflag = ior(iflag,oasis_io_64bit_data)
+       status = nf90_create(filename,iflag,ncid)
        call check_status(status,subname,__FILE__,__LINE__)
     endif
 
@@ -1493,6 +1516,7 @@ subroutine oasis_io_write_2dgridint_fromroot(filename,fldname,fld,nx,ny)
 
    !--- local ---
    integer(ip_i4_p)    :: ncid,dimid,dimid2(2),varid  ! cdf info
+   integer(ip_i4_p)    :: iflag       ! netcdf control
    integer(ip_i4_p)    :: status      ! error code
    integer(ip_i4_p)    :: ind         ! string index
    logical             :: exists      ! file existance
@@ -1527,7 +1551,10 @@ subroutine oasis_io_write_2dgridint_fromroot(filename,fldname,fld,nx,ny)
        status = nf90_redef(ncid)
        call check_status(status,subname,__FILE__,__LINE__)
     else
-       status = nf90_create(filename,NF90_CLOBBER,ncid)
+       iflag = NF90_CLOBBER
+       if (cdf_filetype == 'cdf2') iflag = ior(iflag,oasis_io_64bit_offset)
+       if (cdf_filetype == 'cdf5') iflag = ior(iflag,oasis_io_64bit_data)
+       status = nf90_create(filename,iflag,ncid)
        call check_status(status,subname,__FILE__,__LINE__)
     endif
 
@@ -1589,6 +1616,7 @@ subroutine oasis_io_write_3dgridfld_fromroot(filename,fldname,fld,nx,ny,nc)
 
    !--- local ---
    integer(ip_i4_p)    :: ncid,dimid,dimid3(3),varid  ! cdf info
+   integer(ip_i4_p)    :: iflag       ! netcdf control
    integer(ip_i4_p)    :: status      ! error code
    integer(ip_i4_p)    :: ind         ! string index
    logical             :: exists      ! file existance
@@ -1623,7 +1651,10 @@ subroutine oasis_io_write_3dgridfld_fromroot(filename,fldname,fld,nx,ny,nc)
        status = nf90_redef(ncid)
        call check_status(status,subname,__FILE__,__LINE__)
     else
-       status = nf90_create(filename,NF90_CLOBBER,ncid)
+       iflag = NF90_CLOBBER
+       if (cdf_filetype == 'cdf2') iflag = ior(iflag,oasis_io_64bit_offset)
+       if (cdf_filetype == 'cdf5') iflag = ior(iflag,oasis_io_64bit_data)
+       status = nf90_create(filename,iflag,ncid)
        call check_status(status,subname,__FILE__,__LINE__)
     endif
 

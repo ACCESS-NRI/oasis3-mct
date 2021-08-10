@@ -21,6 +21,7 @@ MODULE mod_oasis_data
   INTEGER(kind=ip_i4_p)	    :: OASIS_debug
   INTEGER(kind=ip_i4_p)     :: TIMER_debug
   INTEGER(kind=ip_i4_p)     :: LUCIA_debug
+  character(len=ic_med)     :: cdf_filetype
 
   logical                   :: enddef_called   ! true when enddef is called, for error checking
 

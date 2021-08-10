@@ -43,6 +43,15 @@
 
 #include <netcdf.inc>
 
+      character(len=char_len), public :: s_cdf_filetype
+
+      integer (kind=int_kind), public :: s_cdf_64bit_offset = nf_64bit_offset
+#ifdef CDF_64BIT_DATA
+      integer (kind=int_kind), public :: s_cdf_64bit_data = nf_64bit_data
+#else
+      integer (kind=int_kind), public :: s_cdf_64bit_data = nf_64bit_offset
+#endif
+
 !***********************************************************************
 
       contains

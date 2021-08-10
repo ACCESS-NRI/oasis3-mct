@@ -61,7 +61,8 @@
       subroutine scrip (interp_file1, map1_name, m_method, n_opt, &
                         lextrapdone, rl_varmul, id_scripvoi, cons_order, &
                         lnorth_thresh, lsouth_thresh, &
-                        mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
+                        mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map, &
+                        cdf_filetype)
 
 !-----------------------------------------------------------------------
 
@@ -105,6 +106,8 @@
       INTEGER (kind=int_kind), intent(in) :: id_scripvoi  ! number of neighbours for DISTWGT, GAUSWGT, LOCCUNIF, LOCCDIST and LOCCGAUS
 
       integer (kind=int_kind), intent(in) :: mpi_comm_map, mpi_rank_map, mpi_size_map, mpi_root_map
+
+      character(len=*), intent(in) :: cdf_filetype   ! netcdf file type
 
 !-----------------------------------------------------------------------
 !
@@ -158,6 +161,7 @@
 
       map_method = m_method
       normalize_opt = n_opt
+      s_cdf_filetype = cdf_filetype
       north_thresh = lnorth_thresh  ! remap conserv
       south_thresh = lsouth_thresh  ! remap conserv
 
