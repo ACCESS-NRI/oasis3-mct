@@ -47,7 +47,7 @@ GPTLget_memusage.o: GPTLget_memusage.c
 	$(CC) $(CCFLAGS) -DHAVE_SLASHPROC -c   $<
 
 shr_reprosumx86.o: shr_reprosumx86.c
-	$(CC) $(CCFLAGS) -DFORTRANUNDERSCORE -c   $<
+	$(CC) $(CCFLAGS) -c   $<
 
 mod_psmile_io.o: mod_psmile_io.F90
 	$(F90) $(F90FLAGS) $(INCLS)  -c   $<

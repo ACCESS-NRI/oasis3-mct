@@ -61,7 +61,7 @@
 
 #endif
 
-int gptlget_memusage_ (int *size, int *rss, int *share, int *text, int *datastack)
+int gptlget_memusage (int *size, int *rss, int *share, int *text, int *datastack)
 {
 #if defined (BGP) || defined(BGQ)
 

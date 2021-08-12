@@ -31,4 +31,4 @@ cp -f $srcdir/namcouple $rundir/.
 
 cd $rundir
 
-${MPIRUN4PY} -np $n1 python ./$exe1 : -np $n4 ./$exe4 : -np $n2  ./$exe2 : -np $n3 ./$exe3
+${MPIRUN4PY} -np $n1 python3 ./$exe1 : -np $n4 ./$exe4 : -np $n2  ./$exe2 : -np $n3 ./$exe3

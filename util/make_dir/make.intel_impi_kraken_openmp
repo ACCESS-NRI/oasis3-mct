@@ -24,7 +24,7 @@ MPIDIR           = /softs/intel/impi/2018.1.163
 MPIBIN           = $(MPIDIR)/bin64
 MPI_INCLUDE      = $(MPIDIR)/include64
 MPILIB           = -L$(MPIDIR)/lib64
-MPIRUN           = $(MPIBIN)/mpirun --oversubscribe
+MPIRUN           = $(MPIBIN)/mpirun
 #
 # NETCDF library
 NETCDF_LIB_DIR1=/softs/local_intel/netcdf-fortran/4.4.4_phdf5/lib
@@ -46,7 +46,7 @@ LDDYNOPT    = -shared
 AR          = ar
 ARFLAGS     = -ruv
 # Fortran libraries for C linking
-F2C_LIBS    =
+F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 # CPP keys and compiler options
 # 

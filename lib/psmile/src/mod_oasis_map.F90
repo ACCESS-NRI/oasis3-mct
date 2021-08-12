@@ -353,7 +353,7 @@ CONTAINS
   call scrip(prism_mapper(mapid)%file,prism_mapper(mapid)%file,namscrmet(namID), &
              namscrnor(namID),lextrapdone,namscrvam(namID),namscrnbr(namID),namscrord(namID), &
              namscrnth(namID),namscrsth(namID), &
-             mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map)
+             mpi_comm_map, mpi_size_map, mpi_rank_map, mpi_root_map, namcdftyp)
   if (local_timers_on) call oasis_timer_stop('cpl_genmap_scrip') 
   if (OASIS_debug >= 15) THEN
      write(nulprt,*) subname,' done scrip '

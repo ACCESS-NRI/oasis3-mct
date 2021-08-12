@@ -46,6 +46,7 @@ MODULE mod_oasis_reprosum
    use mod_oasis_sys,   only: oasis_abort, estr
    use mod_oasis_mpi,   only: oasis_mpi_barrier
    use mod_oasis_timer, only: oasis_timer_start, oasis_timer_stop
+   use, intrinsic :: iso_c_binding
 
 !-----------------------------------------------------------------------
 !- module boilerplate --------------------------------------------------
@@ -87,6 +88,22 @@ MODULE mod_oasis_reprosum
 
    logical :: repro_sum_use_ddpdd = .false.
    logical :: detailed_timing = .false.
+
+!-----------------------------------------------------------------------
+! External C bindings --------------------------------------------------
+!-----------------------------------------------------------------------
+
+   interface
+      subroutine shr_reprosumx86_fix_start(old_cw) bind(C)
+         use iso_c_binding, only: c_int
+         integer(c_int), intent(out) :: old_cw
+      end subroutine shr_reprosumx86_fix_start
+
+      subroutine shr_reprosumx86_fix_end(old_cw) bind(C)
+         use iso_c_binding, only: c_int
+         integer(c_int), intent(in) :: old_cw
+      end subroutine shr_reprosumx86_fix_end
+   end interface
 
    CONTAINS
 
