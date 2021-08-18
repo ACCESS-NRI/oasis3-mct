@@ -2551,6 +2551,8 @@ contains
     ! aggregate reductions where possible to save time
     allocate(lall(2*fsize+3))
     allocate(gall(2*fsize+3))
+    lall=0.
+    gall=0.
     lall(1:fsize) = lsum(1:fsize)          ! local unweighted sums
     lall(fsize+1:2*fsize) = lsxw(1:fsize)  ! local weighted sums
     lall(2*fsize+1) = lswt                 ! local sum of weights
