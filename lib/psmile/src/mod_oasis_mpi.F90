@@ -26,6 +26,8 @@ MODULE mod_oasis_mpi
    public :: oasis_mpi_sum
    public :: oasis_mpi_min
    public :: oasis_mpi_max
+   public :: oasis_mpi_minloc
+   public :: oasis_mpi_maxloc
    public :: oasis_mpi_commsize
    public :: oasis_mpi_commrank
    public :: oasis_mpi_initialized
@@ -116,6 +118,18 @@ MODULE mod_oasis_mpi
      oasis_mpi_maxi1, &
      oasis_mpi_maxr0, &
      oasis_mpi_maxr1
+   end interface
+
+   !> Generic overloaded interface into MPI min reduction
+   interface oasis_mpi_minloc ; module procedure &
+     oasis_mpi_minloci, &
+     oasis_mpi_minlocr
+   end interface
+
+   !> Generic overloaded interface into MPI max reduction
+   interface oasis_mpi_maxloc ; module procedure &
+     oasis_mpi_maxloci, &
+     oasis_mpi_maxlocr
    end interface
 
 ! mpi library include file
@@ -2513,6 +2527,332 @@ SUBROUTINE oasis_mpi_maxr1(lvec,gvec,comm,string,all)
    call oasis_debug_exit(subname)
 
 END SUBROUTINE oasis_mpi_maxr1
+
+!===============================================================================
+!===============================================================================
+
+!> Compute a global minimum and location for a distrbuted array of integers
+
+SUBROUTINE oasis_mpi_minloci(lvec,lveca,gvec,gveca,comm,string,all)
+
+   IMPLICIT none
+
+   !----- arguments ---
+   integer(ip_i4_p),     intent(in) :: lvec(:)  !< local values
+   integer(ip_i4_p),     intent(in) :: lveca(:) !< local location values
+   integer(ip_i4_p),     intent(out):: gvec(:)  !< global values
+   integer(ip_i4_p),     intent(out):: gveca(:) !< global location value
+   integer(ip_i4_p),     intent(in) :: comm     !< mpi communicator
+   character(*),optional,intent(in) :: string   !< to identify caller
+   logical,     optional,intent(in) :: all      !< if true call allreduce, otherwise reduce to task 0
+
+   !----- local ---
+   character(*),parameter       :: subname = '(oasis_mpi_minloci)'
+   logical                      :: lall
+   character(len=256)           :: lstring
+   integer(ip_i4_p)             :: reduce_type  ! mpi reduction type
+   integer(ip_i4_p)             :: lsize
+   integer(ip_i4_p)             :: gsize
+   integer(ip_i4_p),allocatable :: loc2(:,:),glo2(:,:)
+   integer(ip_i4_p)             :: n,ierr
+
+!-------------------------------------------------------------------------------
+! PURPOSE: Finds min of a distributed vector of values, assume local min
+!          already computed
+!-------------------------------------------------------------------------------
+
+   call oasis_debug_enter(subname)
+
+   reduce_type = MPI_MINLOC
+   if (present(all)) then
+     lall = all
+   else
+     lall = .false.
+   endif
+   if (present(string)) then
+     lstring = trim(subName)//":"//trim(string)
+   else
+     lstring = trim(subName)
+   endif
+
+   lsize = size(lvec)
+   gsize = size(gvec)
+
+   if (lsize /= gsize .or. size(lveca) /= lsize .or. size(gveca) /= gsize) then
+     call oasis_mpi_abort(subName//" lsize,gsize incompatable "//trim(string))
+   endif
+
+   allocate(loc2(2,lsize))
+   allocate(glo2(2,gsize))
+
+   glo2 = -999
+   do n = 1,lsize
+     loc2(1,n) = lvec(n)
+     loc2(2,n) = lveca(n)
+   enddo
+
+   if (lall) then
+     call MPI_ALLREDUCE(loc2,glo2,gsize,MPI_2INTEGER,reduce_type,comm,ierr)
+     call oasis_mpi_chkerr(ierr,trim(lstring)//" MPI_ALLREDUCE")
+   else
+     call MPI_REDUCE(loc2,glo2,gsize,MPI_2INTEGER,reduce_type,0,comm,ierr)
+     call oasis_mpi_chkerr(ierr,trim(lstring)//" MPI_REDUCE")
+   endif
+
+   do n = 1,gsize
+     gvec(n)  = glo2(1,n)
+     gveca(n) = glo2(2,n)
+   enddo
+
+   deallocate(loc2,glo2)
+
+   call oasis_debug_exit(subname)
+
+END SUBROUTINE oasis_mpi_minloci
+
+!===============================================================================
+
+!> Compute a global maximum and location for a distrbuted array of integers
+
+SUBROUTINE oasis_mpi_maxloci(lvec,lveca,gvec,gveca,comm,string,all)
+
+   IMPLICIT none
+
+   !----- arguments ---
+   integer(ip_i4_p),     intent(in) :: lvec(:)  !< local values
+   integer(ip_i4_p),     intent(in) :: lveca(:) !< local location values
+   integer(ip_i4_p),     intent(out):: gvec(:)  !< global values
+   integer(ip_i4_p),     intent(out):: gveca(:) !< global location value
+   integer(ip_i4_p),     intent(in) :: comm     !< mpi communicator
+   character(*),optional,intent(in) :: string   !< to identify caller
+   logical,     optional,intent(in) :: all      !< if true call allreduce, otherwise reduce to task 0
+
+   !----- local ---
+   character(*),parameter       :: subname = '(oasis_mpi_maxloci)'
+   logical                      :: lall
+   character(len=256)           :: lstring
+   integer(ip_i4_p)             :: reduce_type  ! mpi reduction type
+   integer(ip_i4_p)             :: lsize
+   integer(ip_i4_p)             :: gsize
+   integer(ip_i4_p),allocatable :: loc2(:,:),glo2(:,:)
+   integer(ip_i4_p)             :: n,ierr
+
+!-------------------------------------------------------------------------------
+! PURPOSE: Finds max of a distributed vector of values, assume local max
+!          already computed
+!-------------------------------------------------------------------------------
+
+   call oasis_debug_enter(subname)
+
+   reduce_type = MPI_MAXLOC
+   if (present(all)) then
+     lall = all
+   else
+     lall = .false.
+   endif
+   if (present(string)) then
+     lstring = trim(subName)//":"//trim(string)
+   else
+     lstring = trim(subName)
+   endif
+
+   lsize = size(lvec)
+   gsize = size(gvec)
+
+   if (lsize /= gsize .or. size(lveca) /= lsize .or. size(gveca) /= gsize) then
+     call oasis_mpi_abort(subName//" lsize,gsize incompatable "//trim(string))
+   endif
+
+   allocate(loc2(2,lsize))
+   allocate(glo2(2,gsize))
+
+   glo2 = -999
+   do n = 1,lsize
+     loc2(1,n) = lvec(n)
+     loc2(2,n) = lveca(n)
+   enddo
+
+   if (lall) then
+     call MPI_ALLREDUCE(loc2,glo2,gsize,MPI_2INTEGER,reduce_type,comm,ierr)
+     call oasis_mpi_chkerr(ierr,trim(lstring)//" MPI_ALLREDUCE")
+   else
+     call MPI_REDUCE(loc2,glo2,gsize,MPI_2INTEGER,reduce_type,0,comm,ierr)
+     call oasis_mpi_chkerr(ierr,trim(lstring)//" MPI_REDUCE")
+   endif
+
+   do n = 1,gsize
+     gvec(n)  = glo2(1,n)
+     gveca(n) = glo2(2,n)
+   enddo
+
+   deallocate(loc2,glo2)
+
+   call oasis_debug_exit(subname)
+
+END SUBROUTINE oasis_mpi_maxloci
+
+!===============================================================================
+!===============================================================================
+
+!> Compute a global minimum and location for a distrbuted array of reals
+
+SUBROUTINE oasis_mpi_minlocr(lvec,lveca,gvec,gveca,comm,string,all)
+
+   IMPLICIT none
+
+   !----- arguments ---
+   real(ip_double_p),    intent(in) :: lvec(:)  !< local values
+   real(ip_double_p),    intent(in) :: lveca(:) !< local location values
+   real(ip_double_p),    intent(out):: gvec(:)  !< global values
+   real(ip_double_p),    intent(out):: gveca(:) !< global location value
+   integer(ip_i4_p),     intent(in) :: comm     !< mpi communicator
+   character(*),optional,intent(in) :: string   !< to identify caller
+   logical,     optional,intent(in) :: all      !< if true call allreduce, otherwise reduce to task 0
+
+   !----- local ---
+   character(*),parameter       :: subname = '(oasis_mpi_minlocr)'
+   logical                      :: lall
+   character(len=256)           :: lstring
+   integer(ip_i4_p)             :: reduce_type  ! mpi reduction type
+   integer(ip_i4_p)             :: lsize
+   integer(ip_i4_p)             :: gsize
+   real(ip_double_p),allocatable:: loc2(:,:),glo2(:,:)
+   integer(ip_i4_p)             :: n,ierr
+
+!-------------------------------------------------------------------------------
+! PURPOSE: Finds min of a distributed vector of values, assume local min
+!          already computed
+!-------------------------------------------------------------------------------
+
+   call oasis_debug_enter(subname)
+
+   reduce_type = MPI_MINLOC
+   if (present(all)) then
+     lall = all
+   else
+     lall = .false.
+   endif
+   if (present(string)) then
+     lstring = trim(subName)//":"//trim(string)
+   else
+     lstring = trim(subName)
+   endif
+
+   lsize = size(lvec)
+   gsize = size(gvec)
+
+   if (lsize /= gsize .or. size(lveca) /= lsize .or. size(gveca) /= gsize) then
+     call oasis_mpi_abort(subName//" lsize,gsize incompatable "//trim(string))
+   endif
+
+   allocate(loc2(2,lsize))
+   allocate(glo2(2,gsize))
+
+   glo2 = -999
+   do n = 1,lsize
+     loc2(1,n) = lvec(n)
+     loc2(2,n) = lveca(n)
+   enddo
+
+   if (lall) then
+     call MPI_ALLREDUCE(loc2,glo2,gsize,MPI_2DOUBLE_PRECISION,reduce_type,comm,ierr)
+     call oasis_mpi_chkerr(ierr,trim(lstring)//" MPI_ALLREDUCE")
+   else
+     call MPI_REDUCE(loc2,glo2,gsize,MPI_2DOUBLE_PRECISION,reduce_type,0,comm,ierr)
+     call oasis_mpi_chkerr(ierr,trim(lstring)//" MPI_REDUCE")
+   endif
+
+   do n = 1,gsize
+     gvec(n)  = glo2(1,n)
+     gveca(n) = glo2(2,n)
+   enddo
+
+   deallocate(loc2,glo2)
+
+   call oasis_debug_exit(subname)
+
+END SUBROUTINE oasis_mpi_minlocr
+
+!===============================================================================
+
+!> Compute a global maximum and location for a distrbuted array of reals
+
+SUBROUTINE oasis_mpi_maxlocr(lvec,lveca,gvec,gveca,comm,string,all)
+
+   IMPLICIT none
+
+   !----- arguments ---
+   real(ip_double_p),    intent(in) :: lvec(:)  !< local values
+   real(ip_double_p),    intent(in) :: lveca(:) !< local location values
+   real(ip_double_p),    intent(out):: gvec(:)  !< global values
+   real(ip_double_p),    intent(out):: gveca(:) !< global location value
+   integer(ip_i4_p),     intent(in) :: comm     !< mpi communicator
+   character(*),optional,intent(in) :: string   !< to identify caller
+   logical,     optional,intent(in) :: all      !< if true call allreduce, otherwise reduce to task 0
+
+   !----- local ---
+   character(*),parameter       :: subname = '(oasis_mpi_maxlocr)'
+   logical                      :: lall
+   character(len=256)           :: lstring
+   integer(ip_i4_p)             :: reduce_type  ! mpi reduction type
+   integer(ip_i4_p)             :: lsize
+   integer(ip_i4_p)             :: gsize
+   real(ip_double_p),allocatable:: loc2(:,:),glo2(:,:)
+   integer(ip_i4_p)             :: n,ierr
+
+!-------------------------------------------------------------------------------
+! PURPOSE: Finds max of a distributed vector of values, assume local max
+!          already computed
+!-------------------------------------------------------------------------------
+
+   call oasis_debug_enter(subname)
+
+   reduce_type = MPI_MAXLOC
+   if (present(all)) then
+     lall = all
+   else
+     lall = .false.
+   endif
+   if (present(string)) then
+     lstring = trim(subName)//":"//trim(string)
+   else
+     lstring = trim(subName)
+   endif
+
+   lsize = size(lvec)
+   gsize = size(gvec)
+
+   if (lsize /= gsize .or. size(lveca) /= lsize .or. size(gveca) /= gsize) then
+     call oasis_mpi_abort(subName//" lsize,gsize incompatable "//trim(string))
+   endif
+
+   allocate(loc2(2,lsize))
+   allocate(glo2(2,gsize))
+
+   glo2 = -999
+   do n = 1,lsize
+     loc2(1,n) = lvec(n)
+     loc2(2,n) = lveca(n)
+   enddo
+
+   if (lall) then
+     call MPI_ALLREDUCE(loc2,glo2,gsize,MPI_2DOUBLE_PRECISION,reduce_type,comm,ierr)
+     call oasis_mpi_chkerr(ierr,trim(lstring)//" MPI_ALLREDUCE")
+   else
+     call MPI_REDUCE(loc2,glo2,gsize,MPI_2DOUBLE_PRECISION,reduce_type,0,comm,ierr)
+     call oasis_mpi_chkerr(ierr,trim(lstring)//" MPI_REDUCE")
+   endif
+
+   do n = 1,gsize
+     gvec(n)  = glo2(1,n)
+     gveca(n) = glo2(2,n)
+   enddo
+
+   deallocate(loc2,glo2)
+
+   call oasis_debug_exit(subname)
+
+END SUBROUTINE oasis_mpi_maxlocr
 
 !===============================================================================
 !===============================================================================

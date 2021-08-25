@@ -89,8 +89,6 @@ points and {\tt ny} to 1.
   
  File {\em masks.nc} may also contain the grid cell fractions that defines the active (i.e. not masked) part of the cells.  Fractions should be consistent with the mask field. The fraction field is only used in the global {\tt CONSERV} operations. If both a mask and fractions are defined for a grid, they must be consistent; OASIS3-MCT will abort if they are not coherent or if both are missing.  Note that by OASIS conventions for the mask, a gridcell with mask=0 (active) should have a fractions greater than 0 and a gridcell with mask=1 (inactive) should have a fractions equal to 0.   The fraction array name must be composed of the grid prefix and the suffix ``.frc''. Fractions can be defined through the {\tt oasis\_write\_frac} API routine, see section \ref{subsubsec_griddef}.
   
- File {\em masks.nc} is mandatory.
-
 \item {\em areas.nc}: this file contains mesh surfaces for the
   component model grids in double precision {\tt REAL} arrays. The
   array names must be composed of the grid prefix and the suffix

@@ -920,6 +920,21 @@ CONTAINS
       if (local_timers_on) call oasis_timer_stop('oasis_enddef_coupler_setup')
 
       !------------------------
+      !>   * Initialize partition grid data call to part_readgrid
+      !------------------------
+
+      if (local_timers_on) call oasis_timer_start('oasis_enddef_part_readgrid')
+      call oasis_part_readgrid()
+      IF (OASIS_debug >= 2)  THEN
+         WRITE(nulprt,*) subname, ' done prism_part_readgrid '
+         CALL oasis_flush(nulprt)
+      ENDIF
+      IF (OASIS_debug >= 2)  THEN
+          CALL oasis_mem_print(nulprt,subname//':part_readgrid')
+      ENDIF
+      if (local_timers_on) call oasis_timer_stop('oasis_enddef_part_readgrid')
+
+      !------------------------
       !>   * Call advance_init to initialize coupling fields from restarts
       !------------------------
 

@@ -82,7 +82,7 @@ mod_oasis_namcouple.o: mod_oasis_kinds.o mod_oasis_data.o mod_oasis_sys.o \
         mod_oasis_parameters.o mod_oasis_mpi.o mod_oasis_string.o
 mod_oasis_part.o: mod_oasis_kinds.o mod_oasis_data.o mod_oasis_sys.o \
         mod_oasis_parameters.o mod_oasis_timer.o mod_oasis_mpi.o mct_mod.o \
-	mod_oasis_load_balancing.o
+	mod_oasis_load_balancing.o mod_oasis_io.o
 mod_oasis_var.o: mod_oasis_kinds.o mod_oasis_data.o mod_oasis_sys.o \
         mod_oasis_parameters.o mod_oasis_timer.o mod_oasis_mpi.o mod_oasis_part.o
 mod_oasis_ioshr.o:  mod_oasis_kinds.o mod_oasis_data.o mod_oasis_sys.o \
