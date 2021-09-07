@@ -4,6 +4,7 @@
 # module load intel/21.1.1
 # module load intelmpi/2021.1.1
 # module load lib/netcdf-fortran/4.4.4_phdf5_1.10.4
+# module load python/3.7.7
 #
 ###############################################################################
 #
@@ -13,10 +14,14 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3-mct main directory
-COUPLE          = $(HOME)/oasis3-mct
+ifeq ($(OASIS_COUPLE), )
+	COUPLE := ~/oasis3-mct
+else
+	COUPLE := $(OASIS_COUPLE)
+endif
 #
 # ARCHDIR       : directory created when compiling
-ARCHDIR         = $(COUPLE)/TIOMAN_INTELONEAPI_OPENMP_oa3-mct
+ ARCHDIR        := $(COUPLE)/INSTALL_OASIS
 #
 # MPI library
 MPIDIR           = /softs/intel/oneapi/mpi/2021.1.1/
@@ -50,8 +55,12 @@ CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
 #
 # -g is necessary in F90FLAGS and LDFLAGS for pgf90 versions lower than 6.1
 # 
-FCBASEFLAGS = -O2 -xAVX -I. -assume byterecl -mt_mpi -qopenmp
-#FCBASEFLAGS  = -g -traceback -fpe0 -O0  -check all -check noarg_temp_created -I. -assume byterecl -mt_mpi -qopenmp
+FCBASEFLAGS := -I. -assume byterecl -mt_mpi -qopenmp
+ifeq ($(OASIS_DEBUG), TRUE)
+	FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created
+else
+	FCBASEFLAGS += -O2 -xCORE-AVX2
+endif
 CCBASEFLAGS  = -O2 -qopenmp
 #
 # INC_DIR : includes all *mod for each library
