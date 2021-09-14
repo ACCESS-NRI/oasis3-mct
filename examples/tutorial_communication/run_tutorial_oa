@@ -7,7 +7,7 @@ user=`whoami`
 #
 ## - Define paths
 srcdir=`pwd`
-datadir=$srcdir/data_spoc
+datadir=$srcdir/data_tutorial
 casename=`basename $srcdir`
 #
 ## - Name of the executables
@@ -17,7 +17,7 @@ casename=`basename $srcdir`
 ############### User's section #######################################
 #
 ## - Define architecture and coupler 
-arch=pgi_openmpi_openmp_linux  # training, belenos, nemo_lenovo, mac 
+arch=mac  # training, belenos, nemo_lenovo, mac 
               # kraken, gfortran_openmpi_openmp_linux
 	      # pgi_openmpi_openmp_linux, 
 	      # pgi20.4_openmpi_openmp_linux (not work with 4.0)
