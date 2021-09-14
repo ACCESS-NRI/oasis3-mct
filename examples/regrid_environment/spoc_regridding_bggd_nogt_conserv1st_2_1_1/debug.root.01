@@ -1,0 +1,834 @@
+(oasis_init_comp) OASIS RUNNING 
+(oasis_init_comp) OPEN debug file for pe, unit :       0    9999
+(oasis_init_comp) model compid model1       1
+ (oasis_unitget)        9998
+ -- ENTER (oasis_init_comp)
+ ---- ENTER (oasis_mpi_maxi1)
+ ------ ENTER (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_chkerr)
+ ---- EXIT  (oasis_mpi_maxi1)
+ ---- ENTER (oasis_mpi_maxi1)
+ ------ ENTER (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_chkerr)
+ ---- EXIT  (oasis_mpi_maxi1)
+ ---- ENTER (oasis_mem_init)
+(oasis_mem_init) Initset conversion flag is    T
+(oasis_mem_init) 8 MB memory   alloc in MB is             8.00
+(oasis_mem_init) 8 MB memory dealloc in MB is            -0.00
+(oasis_mem_init) Memory block size conversion in bytes is          1024.00
+ ---- EXIT  (oasis_mem_init)
+ ---- ENTER (oasis_mem_print)
+ ------ ENTER (oasis_mem_getusage)
+ ------ EXIT  (oasis_mem_getusage)
+(oasis_mem_print) memory use (MB) =      4231.2734       15.2227 (oasis_init_comp)
+ ---- EXIT  (oasis_mem_print)
+ -- EXIT  (oasis_init_comp)
+ -- ENTER (oasis_get_localcomm)
+ localcomm :           3
+ -- EXIT  (oasis_get_localcomm)
+ -- ENTER (oasis_def_partition)
+ ---- ENTER (oasis_part_zero)
+ ---- EXIT  (oasis_part_zero)
+ -- EXIT  (oasis_def_partition)
+ -- ENTER (oasis_def_var_v1)
+ ---- ENTER (oasis_def_var_v2)
+ ------ ENTER (oasis_var_zero)
+ ------ EXIT  (oasis_var_zero)
+  
+ (oasis_def_var) prism_nvar    =            1
+ (oasis_def_var) varname =            1 FSENDANA
+ (oasis_def_var) varpart =            1           1
+ (oasis_def_var) varnum  =            1           1
+ (oasis_def_var) varops  =            1          20
+ (oasis_def_var) vartype =            1           4
+  
+ ---- EXIT  (oasis_def_var_v2)
+ -- EXIT  (oasis_def_var_v1)
+ -- ENTER (oasis_enddef)
+ ---- ENTER (oasis_mem_print)
+ ------ ENTER (oasis_mem_getusage)
+ ------ EXIT  (oasis_mem_getusage)
+(oasis_mem_print) memory use (MB) =      4232.2578       17.9297 (oasis_enddef):start
+ ---- EXIT  (oasis_mem_print)
+ ---- ENTER (oasis_mpi_maxi1)
+ ------ ENTER (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_chkerr)
+ ---- EXIT  (oasis_mpi_maxi1)
+ ---- ENTER (oasis_mpi_maxi1)
+ ------ ENTER (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_chkerr)
+ ---- EXIT  (oasis_mpi_maxi1)
+ (oasis_enddef) compid         =            1
+ (oasis_enddef) compnm         = model1
+ (oasis_enddef) mpi_comm_world =            0
+ (oasis_enddef) mpi_comm_global=            6
+ (oasis_enddef)     size_global=            2
+ (oasis_enddef)     rank_global=            0
+ (oasis_enddef) mpi_comm_local =            3
+ (oasis_enddef)     size_local =            1
+ (oasis_enddef)     rank_local =            0
+ (oasis_enddef)     root_local =            0
+ (oasis_enddef) OASIS_debug    =           10
+ (oasis_enddef)   n,prism_model,root =            1 model1           0
+ (oasis_enddef)   n,prism_model,root =            2 model2           1
+ ---- ENTER (oasis_part_setup)
+ ------ ENTER (oasis_mpi_reducelists)
+ -------- ENTER (oasis_mpi_commrank)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_commrank)
+ -------- ENTER (oasis_mpi_commsize)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_commsize)
+ -------- ENTER (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_bcasti0)
+ -------- ENTER (oasis_mpi_bcastc1)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_bcastc1)
+ -------- ENTER (oasis_mpi_mini0)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_mini0)
+ ------ EXIT  (oasis_mpi_reducelists)
+ ------ ENTER (oasis_part_write)
+  
+ (oasis_part_write) partnm = model1_part000001
+ (oasis_part_write) npart  =            1
+ (oasis_part_write) mpicom =            7
+ (oasis_part_write) npes   =            1
+ (oasis_part_write) rank   =            0
+ (oasis_part_write) compid =            1
+ (oasis_part_write) ngseg  =            1
+ (oasis_part_write) gsize  =        20592
+ (oasis_part_write) lsize  =        20592
+ (oasis_part_write) indx   =            1
+ (oasis_part_write) start  =            1
+ (oasis_part_write) length =        20592
+ (oasis_part_write) pe_loc =            0
+ (oasis_part_write) pstart =            1
+ (oasis_part_write) plength=        20592
+ (oasis_part_write) ppe_loc=            0
+  
+ ------ EXIT  (oasis_part_write)
+ ---- EXIT  (oasis_part_setup)
+ ---- ENTER (oasis_mem_print)
+ ------ ENTER (oasis_mem_getusage)
+ ------ EXIT  (oasis_mem_getusage)
+(oasis_mem_print) memory use (MB) =      4232.2578       17.9883 (oasis_enddef):part_setup
+ ---- EXIT  (oasis_mem_print)
+ ---- ENTER (oasis_var_setup)
+ ------ ENTER (oasis_mpi_reducelists)
+ -------- ENTER (oasis_mpi_commrank)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_commrank)
+ -------- ENTER (oasis_mpi_commsize)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_commsize)
+ -------- ENTER (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_bcasti0)
+ -------- ENTER (oasis_mpi_bcastc1)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_bcastc1)
+ -------- ENTER (oasis_mpi_mini0)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_mini0)
+ ------ EXIT  (oasis_mpi_reducelists)
+ ---- EXIT  (oasis_var_setup)
+ ---- ENTER (oasis_mem_print)
+ ------ ENTER (oasis_mem_getusage)
+ ------ EXIT  (oasis_mem_getusage)
+(oasis_mem_print) memory use (MB) =      4232.2578       17.9922 (oasis_enddef):var_setup
+ ---- EXIT  (oasis_mem_print)
+ ---- ENTER (oasis_mpi_barrier)
+ ------ ENTER (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_chkerr)
+ ---- EXIT  (oasis_mpi_barrier)
+ ---- ENTER (oasis_write2files)
+ ------ ENTER (oasis_mpi_bcasti0)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcasti0)
+ ---- EXIT  (oasis_write2files)
+ ---- ENTER (oasis_mpi_barrier)
+ ------ ENTER (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_chkerr)
+ ---- EXIT  (oasis_mpi_barrier)
+ ---- ENTER (oasis_mpi_barrier)
+ ------ ENTER (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_chkerr)
+ ---- EXIT  (oasis_mpi_barrier)
+ ---- ENTER (oasis_mem_print)
+ ------ ENTER (oasis_mem_getusage)
+ ------ EXIT  (oasis_mem_getusage)
+(oasis_mem_print) memory use (MB) =      4232.2578       18.0000 (oasis_enddef):write2files
+ ---- EXIT  (oasis_mem_print)
+ (oasis_enddef) done mct_world_init 
+ ---- ENTER (oasis_coupler_setup)
+ (oasis_coupler_setup) part2decomp = decomp_1d
+ (oasis_coupler_setup) smatread_method = ceg
+ (oasis_coupler_setup) BCAST from            1           0
+ ------ ENTER (oasis_mpi_bcasti0)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcasti0)
+ (oasis_coupler_setup) bcast mynvar            1
+ ------ ENTER (oasis_mpi_bcastc1)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcastc1)
+ (oasis_coupler_setup) bcast myvar FSENDANA
+ ------ ENTER (oasis_mpi_bcasti1)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcasti1)
+ (oasis_coupler_setup) bcast myops           20
+ ------ ENTER (oasis_mpi_bcasti1)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcasti1)
+ (oasis_coupler_setup) bcast mynum            1
+ (oasis_coupler_setup) BCAST from            2           1
+ ------ ENTER (oasis_mpi_bcasti0)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcasti0)
+ (oasis_coupler_setup) bcast mynvar            1
+ ------ ENTER (oasis_mpi_bcastc1)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcastc1)
+ (oasis_coupler_setup) bcast myvar FRECVANA
+ ------ ENTER (oasis_mpi_bcasti1)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcasti1)
+ (oasis_coupler_setup) bcast myops           21
+ ------ ENTER (oasis_mpi_bcasti1)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcasti1)
+ (oasis_coupler_setup) bcast mynum            1
+ (oasis_coupler_setup) model variable info:
+         model,nvars =      1     1
+                 model,idx,var,num,ops =      1     1  FSENDANA     1    20  prism_out
+         model,nvars =      2     1
+                 model,idx,var,num,ops =      2     1  FRECVANA     1    21  prism_in
+  
+ ------ ENTER (oasis_string_listGetNum)
+ -------- ENTER (oasis_string_countChar)
+ -------- EXIT  (oasis_string_countChar)
+ ------ EXIT  (oasis_string_listGetNum)
+ ------ ENTER (oasis_string_listGetNum)
+ -------- ENTER (oasis_string_countChar)
+ -------- EXIT  (oasis_string_countChar)
+ ------ EXIT  (oasis_string_listGetNum)
+ ------ ENTER (oasis_string_listGetNum)
+ -------- ENTER (oasis_string_countChar)
+ -------- EXIT  (oasis_string_countChar)
+ ------ EXIT  (oasis_string_listGetNum)
+ ------ ENTER (oasis_string_listGetName)
+ -------- ENTER (oasis_string_listIsValid)
+ -------- EXIT  (oasis_string_listIsValid)
+ -------- ENTER (oasis_string_listGetNum)
+ ---------- ENTER (oasis_string_countChar)
+ ---------- EXIT  (oasis_string_countChar)
+ -------- EXIT  (oasis_string_listGetNum)
+ ------ EXIT  (oasis_string_listGetName)
+ ------ ENTER (oasis_string_listGetNum)
+ -------- ENTER (oasis_string_countChar)
+ -------- EXIT  (oasis_string_countChar)
+ ------ EXIT  (oasis_string_listGetNum)
+ ------ ENTER (oasis_string_listGetName)
+ -------- ENTER (oasis_string_listIsValid)
+ -------- EXIT  (oasis_string_listIsValid)
+ -------- ENTER (oasis_string_listGetNum)
+ ---------- ENTER (oasis_string_countChar)
+ ---------- EXIT  (oasis_string_countChar)
+ -------- EXIT  (oasis_string_listGetNum)
+ ------ EXIT  (oasis_string_listGetName)
+ ------ ENTER (oasis_string_listGetName)
+ -------- ENTER (oasis_string_listIsValid)
+ -------- EXIT  (oasis_string_listIsValid)
+ -------- ENTER (oasis_string_listGetNum)
+ ---------- ENTER (oasis_string_countChar)
+ ---------- EXIT  (oasis_string_countChar)
+ -------- EXIT  (oasis_string_listGetNum)
+ ------ EXIT  (oasis_string_listGetName)
+ ------ ENTER (oasis_string_listGetNum)
+ -------- ENTER (oasis_string_countChar)
+ -------- EXIT  (oasis_string_countChar)
+ ------ EXIT  (oasis_string_listGetNum)
+ ------ ENTER (oasis_mpi_maxi1)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_maxi1)
+ ------ ENTER (oasis_string_listGetNum)
+ -------- ENTER (oasis_string_countChar)
+ -------- EXIT  (oasis_string_countChar)
+ ------ EXIT  (oasis_string_listGetNum)
+ (oasis_coupler_setup) fldlist rebuild nflds1,nflds2 for FSENDANA
+ (oasis_coupler_setup) fldlist rebuild nflds1,nflds2            1           1
+ (oasis_coupler_setup) fldlist rebuild nflds2 > nflds1 for FSENDANA
+ ------ ENTER (oasis_coupler_bldvarname)
+ ------ EXIT  (oasis_coupler_bldvarname)
+ (oasis_coupler_setup) fldlist rebuild n1, n2            1           1           1
+ (oasis_coupler_setup) fldlist rebuild fldlist            1 FSENDANA
+ (oasis_coupler_setup) fldlist rebuild varid            1           1
+ ------ ENTER (oasis_mpi_barrier)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_barrier)
+ (oasis_coupler_setup) DEBUG ci:initialize coupler            1           1
+ ------ ENTER (oasis_mpi_bcastl0)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcastl0)
+ ------ ENTER (oasis_map_genmap)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read grids.nc bggd.clo
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read masks.nc bggd.msk
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti2)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti2)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_varexists)
+ -------- EXIT  (oasis_io_varexists)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read areas.nc bggd.srf
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcastr2)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcastr2)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read grids.nc bggd.lon
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcastr2)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcastr2)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read grids.nc bggd.lat
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcastr2)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcastr2)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read grids.nc bggd.clo
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcastr3)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcastr3)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read grids.nc bggd.cla
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcastr3)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcastr3)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read grids.nc nogt.clo
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read masks.nc nogt.msk
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti2)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti2)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_varexists)
+ -------- EXIT  (oasis_io_varexists)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read areas.nc nogt.srf
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcastr2)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcastr2)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read grids.nc nogt.lon
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcastr2)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcastr2)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read grids.nc nogt.lat
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcastr2)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcastr2)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read grids.nc nogt.clo
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcastr3)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcastr3)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+ -------- ENTER (oasis_io_read_field_fromroot)
+ (oasis_io_read_field_fromroot) read grids.nc nogt.cla
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcasti0)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcasti0)
+ ---------- ENTER (oasis_mpi_bcastr3)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_bcastr3)
+ -------- EXIT  (oasis_io_read_field_fromroot)
+  
+ Entering routine grid_init
+  
+ Using lat/lon boxes to restrict search.
+  
+ Leaving routine grid_init
+  
+  
+ Entering routine scrip
+  Computing remappings between: bggd                                                                            
+                           and  nogt                                                                            
+  
+ Entering routine init_remap_vars
+  
+ Leaving routine init_remap_vars
+  
+ Entering routine remap_conserv
+ Check overlapping point of the source grid
+ Check overlapping point of the target grid
+ grid1 sweep 
+ The mesh       105970  is non-convex
+ srch_corner_lat=   1.5697795930895344        1.5641867665233915        1.5611022045382688        1.5636192673177356     
+ srch_corner_lon=   1.2740903539558603        4.4156830075456535        5.2344512028435410        6.1269178326208458     
+ The mesh       105970  is non-convex
+ srch_corner_lat=   1.5697795930895344        1.5641867665233915        1.5611022045382688        1.5636192673177356     
+ srch_corner_lon=   1.2740903539558603        4.4156830075456535        5.2344512028435410        6.1269178326208458     
+ grid1 end sweep 
+ grid2 sweep 
+ grid2 end sweep 
+ Total number of links =       387575
+  
+ Leaving routine remap_conserv
+ Elapsed time for timer remap_conserv overlay   :     0.0250
+ Elapsed time for timer remap_conserv grid1 swee:     6.8850
+ Elapsed time for timer remap_conserv grid2 swee:     4.7270
+ Elapsed time for timer remap_conserv overall   :    12.1360
+  
+ Entering routine sort_add
+  
+ Leaving routine sort_add
+  
+ Entering routine uniq_add
+  
+ Leaving routine uniq_add
+  
+ Entering routine resize_remap_vars
+  
+ Leaving routine resize_remap_vars
+  
+  
+    Entering ROUTINE fracnnei  -  Level 4
+            ****************     *******
+  
+  Treating the tricky points of the remapping
+  
+ ************ There are           0 Vmm points in all
+  
+ Entering routine resize_remap_vars
+  
+ Leaving routine resize_remap_vars
+  
+    Leaving ROUTINE fracnnei  -  Level 4
+  
+  
+ Entering routine write_remap 
+  
+ Entering routine write_remap_scrip 
+  
+ Leaving routine write_remap_scrip 
+  
+ Leaving routine write_remap 
+ Elapsed time for timer scrip sort_add          :     0.1370
+ Elapsed time for timer scrip conserv uniq_add  :     0.0360
+ Elapsed time for timer scrip conserv fracnnei  :     0.0070
+  
+ Entering routine free_grid
+  
+  
+ Leaving routine free_grid
+  
+  
+ Entering routine free_remap_vars
+  
+ Leaving routine free_remap_vars
+  
+ Leaving routine scrip
+ ------ EXIT  (oasis_map_genmap)
+ ------ ENTER (oasis_mpi_bcasti0)
+ -------- ENTER (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_chkerr)
+ ------ EXIT  (oasis_mpi_bcasti0)
+ ------ ENTER (oasis_part_create)
+ -------- ENTER (oasis_mpi_mini0)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_mini0)
+ -------- ENTER (oasis_part_zero)
+ -------- EXIT  (oasis_part_zero)
+ (oasis_part_create) create new part            2      106428
+ -------- ENTER (oasis_part_write)
+  
+ (oasis_part_write) partnm = model1_part000002
+ (oasis_part_write) npart  =            2
+ (oasis_part_write) mpicom =            7
+ (oasis_part_write) npes   =            1
+ (oasis_part_write) rank   =            0
+ (oasis_part_write) compid =            1
+ (oasis_part_write) ngseg  =            1
+ (oasis_part_write) gsize  =       106428
+ (oasis_part_write) lsize  =           -1
+ (oasis_part_write) indx   =            1
+ (oasis_part_write) start  =            1
+ (oasis_part_write) length =       106428
+ (oasis_part_write) pe_loc =            0
+ (oasis_part_write) pstart =            1
+ (oasis_part_write) plength=       106428
+ (oasis_part_write) ppe_loc=            0
+  
+ -------- EXIT  (oasis_part_write)
+ ------ EXIT  (oasis_part_create)
+ ------ ENTER (oasis_map_sMatReaddnc_ceg)
+ -------- ENTER (oasis_mpi_commsize)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_commsize)
+ (oasis_map_sMatReaddnc_ceg) reading mapping matrix data decomposed...
+ (oasis_map_sMatReaddnc_ceg) * file name                  : rmp_bggd_to_nogt_CONSERV_FRACNNEI.nc
+ (oasis_map_sMatReaddnc_ceg) * matrix dims src x dst      :        20592  x      106428
+ (oasis_map_sMatReaddnc_ceg) * number of non-zero elements:       155035
+ -------- ENTER (oasis_mpi_bcasti1)
+ ---------- ENTER (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_chkerr)
+ -------- EXIT  (oasis_mpi_bcasti1)
+ (oasis_map_sMatReaddnc_ceg) ... done reading file
+ ------ EXIT  (oasis_map_sMatReaddnc_ceg)
+ (oasis_coupler_setup)(oasis_coupler_setup) mct_rearr_print m0001- smpx:
+ (oasis_coupler_setup)(oasis_coupler_setup) mct_rearr_print m0001- smpy:
+  
+ (oasis_coupler_setup) couplers initialized
+ ------ ENTER (oasis_coupler_print)
+  
+ (oasis_coupler_print) model and cplid           1           1
+ (oasis_coupler_print)   timerid send                1 FSENDANA
+ (oasis_coupler_print)   send fields      FSENDANA
+ (oasis_coupler_print)   from model                  1
+ (oasis_coupler_print)   to model                    2
+ (oasis_coupler_print)   using router                1
+ (oasis_coupler_print)   transform                   1
+ (oasis_coupler_print)   snd diagnose      T
+ (oasis_coupler_print)   snd fld mult        1.0000000000000000     
+ (oasis_coupler_print)   snd fld add         0.0000000000000000     
+ (oasis_coupler_print)   namcouple op                5
+ (oasis_coupler_print)   valid             T
+ (oasis_coupler_print)   namcouple id                1
+ (oasis_coupler_print)   variable ids                1
+ (oasis_coupler_print)   sndrcv flag       T
+ (oasis_coupler_print)   output flag       T
+ (oasis_coupler_print)   input flag        F
+ (oasis_coupler_print)   input file       
+ (oasis_coupler_print)   restart file     rst.nc
+ (oasis_coupler_print)   tag                    201001
+ (oasis_coupler_print)   seq                         1
+ (oasis_coupler_print)   maxtime                 21600
+ (oasis_coupler_print)   dt, lag                  7200           0
+ (oasis_coupler_print)   partid, gsize               1       20592
+ (oasis_coupler_print)   partid, lsize               1       20592
+ (oasis_coupler_print)   partid, nx,ny             144         143
+ (oasis_coupler_print)   rpartid,gsize               2      106428
+ (oasis_coupler_print)   rpartid,nx,ny             362         294
+ (oasis_coupler_print)   maploc           src
+ (oasis_coupler_print)   src grid        :bggd
+ (oasis_coupler_print)   dst grid        :nogt
+ (oasis_coupler_print)   use map                     1 rmp_bggd_to_nogt_CONSERV_FRACNNEI.nc
+ (oasis_coupler_print)   nwgts                       1           1
+ (oasis_coupler_print)   conserve                    0
+ (oasis_coupler_print)   conserve opt     bfb                                                             
+ (oasis_coupler_print)   location         src
+ (oasis_coupler_print)   opt,optval       bfb src
+ (oasis_coupler_print)   s/d partids                 1           2
+ (oasis_coupler_print)   from/to partitionbggd nogt
+ (oasis_coupler_print)   from nx,ny              20592         144         143
+ (oasis_coupler_print)   to nx,ny               106428         362         294
+ ------ EXIT  (oasis_coupler_print)
+  
+ ---- EXIT  (oasis_coupler_setup)
+ (oasis_enddef) done prism_coupler_setup 
+ ---- ENTER (oasis_mem_print)
+ ------ ENTER (oasis_mem_getusage)
+ ------ EXIT  (oasis_mem_getusage)
+(oasis_mem_print) memory use (MB) =      4243.1250       29.3359 (oasis_enddef):coupler_setup
+ ---- EXIT  (oasis_mem_print)
+ ---- ENTER (oasis_part_readgrid)
+ (oasis_part_readgrid)           1 model1_part000001 bggd
+ (oasis_part_readgrid) set indx bggd for model1_part000001       20592
+ (oasis_part_readgrid) indx =            1           2           3           4           5           6           7           8           9          10
+ ------ ENTER (oasis_io_varexists)
+ ------ EXIT  (oasis_io_varexists)
+ ------ ENTER (oasis_io_read_avfld)
+ ------ EXIT  (oasis_io_read_avfld)
+ (oasis_part_readgrid) read area bggd for model1_part000001
+ ------ ENTER (oasis_io_varexists)
+ ------ EXIT  (oasis_io_varexists)
+ ------ ENTER (oasis_io_varexists)
+ ------ EXIT  (oasis_io_varexists)
+ ------ ENTER (oasis_io_read_avfld)
+ ------ EXIT  (oasis_io_read_avfld)
+ (oasis_part_readgrid) read mask bggd for model1_part000001
+ (oasis_part_readgrid)           2 model1_part000002 nogt
+ (oasis_part_readgrid) set indx nogt for model1_part000002      106428
+ (oasis_part_readgrid) indx =            1           2           3           4           5           6           7           8           9          10
+ ------ ENTER (oasis_io_varexists)
+ ------ EXIT  (oasis_io_varexists)
+ ------ ENTER (oasis_io_read_avfld)
+ ------ EXIT  (oasis_io_read_avfld)
+ (oasis_part_readgrid) read area nogt for model1_part000002
+ ------ ENTER (oasis_io_varexists)
+ ------ EXIT  (oasis_io_varexists)
+ ------ ENTER (oasis_io_varexists)
+ ------ EXIT  (oasis_io_varexists)
+ ------ ENTER (oasis_io_read_avfld)
+ ------ EXIT  (oasis_io_read_avfld)
+ (oasis_part_readgrid) read mask nogt for model1_part000002
+ ---- EXIT  (oasis_part_readgrid)
+ (oasis_enddef) done prism_part_readgrid 
+ ---- ENTER (oasis_mem_print)
+ ------ ENTER (oasis_mem_getusage)
+ ------ EXIT  (oasis_mem_getusage)
+(oasis_mem_print) memory use (MB) =      4253.2227       39.4883 (oasis_enddef):part_readgrid
+ ---- EXIT  (oasis_mem_print)
+ ---- ENTER (oasis_advance_init)
+ ----------------------------------------------------------------
+ (oasis_advance_init) Field cplid :           1
+ (oasis_advance_init) read restart:           1 FSENDANA
+ (oasis_advance_init) lag prism_mcoupler :           0           1
+ (oasis_advance_init) getput , mapid :         103           1
+ ----------------------------------------------------------------
+ ----------------------------------------------------------------
+ (oasis_advance_init) Field cplid :           1
+ (oasis_advance_init) loctrans:           1 FSENDANA
+ ----------------------------------------------------------------
+ ---- EXIT  (oasis_advance_init)
+ (oasis_enddef) done prism_advance_init 
+ ---- ENTER (oasis_mem_print)
+ ------ ENTER (oasis_mem_getusage)
+ ------ EXIT  (oasis_mem_getusage)
+(oasis_mem_print) memory use (MB) =      4253.2227       39.5039 (oasis_enddef):advance_init
+ ---- EXIT  (oasis_mem_print)
+ ---- ENTER (oasis_mem_print)
+ ------ ENTER (oasis_mem_getusage)
+ ------ EXIT  (oasis_mem_getusage)
+(oasis_mem_print) memory use (MB) =      4253.2227       39.5039 (oasis_enddef):end
+ ---- EXIT  (oasis_mem_print)
+ -- EXIT  (oasis_enddef)
+ -- ENTER (oasis_put_r28)
+ ---- ENTER (oasis_put_worker)
+ ------ ENTER (oasis_advance_run)
+ -------- ENTER (oasis_coupler_bldvarname)
+ -------- EXIT  (oasis_coupler_bldvarname)
+ (oasis_advance_run) lreadrest : F  arrayon =  T F F F F
+ (oasis_advance_run) at            0           0  PACK: FSENDANA instant
+ (oasis_advance_run) at            0           0  SEND: FSENDANA
+ -------- ENTER (oasis_advance_avdiag)
+ ---------- ENTER (oasis_mpi_sumr1)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_sumr1)
+ ---------- ENTER (oasis_mpi_minlocr)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_minlocr)
+ ---------- ENTER (oasis_mpi_maxlocr)
+ ------------ ENTER (oasis_mpi_chkerr)
+ ------------ EXIT  (oasis_mpi_chkerr)
+ ---------- EXIT  (oasis_mpi_maxlocr)
+  
+(oasis_advance_avdiag) CHECK* diags :masked:area weighted
+  array size      =        20592
+  masked size     =        14579
+  sum of weights  =    9.546568912937989    
+(oasis_advance_avdiag) CHECK* diags, fld= FSENDANA :masked:area weighted
+  minimum value   =    1.000000000000000     FSENDANA
+     min val at   = (    73,    72)    10297 FSENDANA
+  maximum value   =    2.866025315566249     FSENDANA
+     max val at   = (     1,    72)    10225 FSENDANA
+  unweighted mean =    1.820883117050366     FSENDANA
+  weighted mean   =    1.847555014005673     FSENDANA
+  unweighted sum  =    26546.65496347729     FSENDANA
+  weighted sum    =    17.63781126164927     FSENDANA
+  
+ -------- EXIT  (oasis_advance_avdiag)
+ -------- ENTER (oasis_advance_map)
+ -------- EXIT  (oasis_advance_map)
+ (oasis_advance_run) at            0           0  WRIT: FSENDANA
+ -------- ENTER (oasis_io_write_avfbf)
+ -------- EXIT  (oasis_io_write_avfbf)
+ (oasis_advance_run) at            0           0  KINF: FSENDANA           8
+ ------ EXIT  (oasis_advance_run)
+ ---- EXIT  (oasis_put_worker)
+ -- EXIT  (oasis_put_r28)
+ -- ENTER (oasis_terminate)
+(oasis_terminate): Calling MPI_Finalize
+ ---- ENTER (oasis_mem_print)
+ ------ ENTER (oasis_mem_getusage)
+ ------ EXIT  (oasis_mem_getusage)
+(oasis_mem_print) memory use (MB) =      4233.6875       30.1484 (oasis_terminate)
+ ---- EXIT  (oasis_mem_print)
+ (oasis_terminate) SUCCESSFUL RUN
+ -- EXIT  (oasis_terminate)

@@ -1,0 +1,43 @@
+ -----------------------------------------------------------
+ model2 running with reals compiled as kind            8
+ I am component model2 global rank :           1
+ ----------------------------------------------------------
+ I am the model2 component identifier           2 local rank           0
+ Number of processors :           1
+ ----------------------------------------------------------
+ Target grid name : nogt
+ Data_filename :grids.nc                      
+ Longitudes :nogt.lon
+ Latitudes :nogt.lat
+ Reading input file grids.nc                      
+ Global dimensions nlon=         362  nlat=         294
+ Data_filename :grids.nc                      
+ Longitudes :nogt.lon
+ Latitudes :nogt.lat
+ ... global grid longitudes reading done
+ ... global grid latitudes reading done
+ End of routine read_grid
+ ... global grid mask reading done
+ End of routine read_mask
+ After grid and mask reading
+ After allocate il_paral, il_size           3
+ il_paral =            0           0      106428
+ After oasis_def_partition
+ After oasis_def_var
+ After oasis_enddef
+ MINVAL(field_recv),MAXVAL(field_recv)= 0.0000 2.8660
+ After calculating the interpolation error
+ Local fields writing done
+ End of routine write field
+ Local fields writing done
+ End of routine write field
+ Min (%) and its location in the error field :    0.0000000000000000     
+           1           1
+ Max (%) and its location in the error field :  0.5021
+         326         217
+ Number of non-masked points :       65087
+ Number of non-masked points that received a value :       65087
+ Error mean on non masked points that received a value (%):  0.1595
+ Delta error (%/echelle) :  0.50213281700219059     
+ End calculation of stat on the error
+ End of the program, before oasis_terminate
