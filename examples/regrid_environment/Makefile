@@ -10,13 +10,22 @@ include header_Makefile
 CPPKEYDECOMP_M1=DECOMP_APPLE
 CPPKEYDECOMP_M2=DECOMP_APPLE
 #
+# Case of remapping weights:
+# SCRIPweights for remapping weights computed by SCRIP
+# ESMFweights for remapping weights read in an existing file specified by the OASIS namcouple
+CPPKEY_WEIGHTS=SCRIPweights # SCRIPweights ESMFweights
+#
+# Case of analytical function:
+# FANA1 for standard analytical function
+# FANA2 for Gulf  stream as analytical function
+CPPKEY_FANA=FANA1 # FANA1 FANA2 FANA3
 ### End User configurable options ###
 #
-OBJ_M1 =  routine_hdlerr.o read_all_data.o \
+OBJ_M1 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \
           decomp_def.o gradient_bicubic.o \
           function_ana.o distance_rad.o \
           gradient_conserv.o
-OBJ_M2 =  routine_hdlerr.o read_all_data.o \
+OBJ_M2 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \
           decomp_def_m2.o function_ana.o \
           write_all_fields.o
 #-------------------------------------------------------------------------------
@@ -44,6 +53,8 @@ model2: $(OBJ_M2) model2.o $(LIBPSMILE) Makefile
 # Rules for compilation
 #-------------------------------------------------------------------------------
 #
+routine_model_abort.o : routine_model_abort.f90
+				$(F90) $(F90FLAGS) -c routine_model_abort.f90
 routine_hdlerr.o :		routine_hdlerr.f90
 				$(F90) $(F90FLAGS) -c routine_hdlerr.f90
 read_all_data.o :		read_all_data.F90
@@ -64,9 +75,9 @@ gradient_conserv.o :		gradient_conserv.f90
 				$(F90) $(F90FLAGS) -c gradient_conserv.f90
 
 model1.o :	model1.F90 Makefile
-		$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M1} -c model1.F90
-model2.o :	model2.f90 Makefile
-		$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M2} -c model2.f90
+		$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M1} -D${CPPKEY_WEIGHTS} -D${CPPKEY_FANA} -c model1.F90
+model2.o :	model2.F90 Makefile
+		$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M2} -D${CPPKEY_WEIGHTS} -D${CPPKEY_FANA} -c model2.F90
 #
 #-------------------------------------------------------------------------------
 # Utilities
