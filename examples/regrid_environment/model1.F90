@@ -8,6 +8,7 @@ PROGRAM model1
   USE netcdf
   USE mod_oasis
   USE read_all_data
+  USE function_ana
   !
   IMPLICIT NONE
   !
@@ -236,7 +237,13 @@ PROGRAM model1
   ALLOCATE(field_send(nlon,nlat), STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field1_send'
   !
-  CALL function_ana(nlon, nlat, gg_lon, gg_lat, field_send)
+#ifdef FANA1
+  CALL function_ana1(nlon, nlat, gg_lon, gg_lat, field_send)
+#elif defined FANA2
+  CALL function_ana2(nlon, nlat, gg_lon, gg_lat, field_send)
+#elif defined FANA3
+  CALL function_vortex(nlon, nlat, gg_lon, gg_lat, field_send)
+#endif
   !
   ! Define indices corresponding to the local part of the coupling field
   ibeg=1 ; iend=nlon
@@ -249,6 +256,7 @@ PROGRAM model1
   ENDIF
   WRITE(w_unit,*) 'ibeg, iend, jbeg, jend', ibeg, iend, jbeg, jend
   !
+#ifdef SCRIPweights
   ! Special treament for bicubic remapping
   IF (cl_remap == 'bicu') THEN
      IF ( trim(cl_type_src) == 'LR') THEN
@@ -318,6 +326,11 @@ PROGRAM model1
                     field_send(ibeg:iend,jbeg:jend),&
                     ierror )
   ENDIF
+#elif defined ESMFweights
+  call oasis_put(var_id, 0, &
+                 field_send(ibeg:iend,jbeg:jend),(/var_sh(2),var_sh(4)/), &
+                 ierror )
+#endif
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !         TERMINATION 
