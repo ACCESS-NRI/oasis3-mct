@@ -148,7 +148,7 @@ PROGRAM model2
      ENDIF
      !
      ! Read dimensions of the global grid
-     CALL read_dimgrid(nlon,nlat,data_gridname,cl_grd_tgt,w_unit,file_debug)
+     CALL read_dimgrid(nlon, nlat, cl_grd_tgt, w_unit, file_debug)
      !
      ! Allocate grid arrays
      ALLOCATE(gg_lon(nlon,nlat), STAT=ierror )
@@ -163,8 +163,8 @@ PROGRAM model2
      IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating mask_error'
      !
      ! Read global grid longitudes, latitudes and mask 
-     CALL read_grid(nlon,nlat, data_gridname, cl_grd_tgt, w_unit, file_debug, gg_lon,gg_lat)
-     CALL read_mask(nlon,nlat, data_maskname, cl_grd_tgt, w_unit, file_debug, gg_mask)
+     CALL read_grid(nlon, nlat, 1, 1, nlon, nlat, cl_grd_tgt, w_unit, gg_lon, gg_lat, file_debug)
+     CALL read_mask(nlon,nlat, 1, 1, nlon, nlat, cl_grd_tgt, w_unit, gg_mask, file_debug)
      !
      IF (file_debug) THEN
          WRITE(w_unit,*) 'After grid and mask reading'

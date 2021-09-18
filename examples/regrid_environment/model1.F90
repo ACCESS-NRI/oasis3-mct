@@ -8,7 +8,9 @@ PROGRAM model1
   USE netcdf
   USE mod_oasis
   USE read_all_data
+  USE write_all_fields
   USE function_ana
+  USE def_parallel_decomposition
   !
   IMPLICIT NONE
   !
@@ -24,7 +26,7 @@ PROGRAM model1
   CHARACTER(len=6)   :: comp_name = 'model1'
   CHARACTER(len=128) :: comp_out       ! name of the output log file
   CHARACTER(len=3)   :: chout
-  CHARACTER(len=4)   :: cl_grd_src     ! name of the source grid
+  CHARACTER(len=4)   :: cl_grd_src, cl_grd_tgt     ! name of the source grid
   CHARACTER(len=11)  :: cl_remap       ! type of remapping
   CHARACTER(len=2)   :: cl_type_src    ! type of the source grid
   CHARACTER(len=8)   :: cl_period_src  ! periodicity of the source grid (P=periodic or R=regional)
@@ -34,10 +36,15 @@ PROGRAM model1
   NAMELIST /grid_source_characteristics/cl_type_src
   NAMELIST /grid_source_characteristics/cl_period_src
   NAMELIST /grid_source_characteristics/il_overlap_src
+  NAMELIST /grid_target_characteristics/cl_grd_tgt
   !
-  ! Global grid parameters : 
+  ! Grid parameters 
+  INTEGER :: il_extentx, il_extenty, il_offsetx, il_offsety
+  INTEGER :: il_size, il_offset
+  INTEGER :: nlon_atmos, nlat_atmos    ! dimensions in the 2 space directions
+  DOUBLE PRECISION, DIMENSION(:,:),   POINTER   :: grid_lon_atmos, grid_lat_atmos ! lon, lat of the cell centers
+  INTEGER, DIMENSION(:,:),            POINTER   :: grid_msk_atmos ! mask, 0 == valid point, 1 == masked point
   INTEGER :: nlon, nlat    ! dimensions in the 2 space directions
-  INTEGER :: il_size       ! dimension of the partition description array
   REAL (kind=wp), DIMENSION(:,:), POINTER  :: gg_lon,gg_lat ! grid point longitudes and latitudes
   INTEGER, DIMENSION(:,:), POINTER         :: gg_mask       ! grid point mask
   !
@@ -46,6 +53,9 @@ PROGRAM model1
   INTEGER :: comp_id    ! component identification
   !
   INTEGER, DIMENSION(:), ALLOCATABLE :: il_paral ! Decomposition for each proc
+  INTEGER               :: il_part_id
+  INTEGER               :: ig_paral_size
+  INTEGER, DIMENSION(:), ALLOCATABLE :: ig_paral
   !
   INTEGER :: ierror, rank, w_unit
   LOGICAL :: file_debug = .true.
@@ -125,10 +135,8 @@ PROGRAM model1
   ENDIF
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  !  GRID DEFINITION 
-  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  !
-  ! For simplicity, all processes read the whole global grid and mask files grids.nc and masks.nc
+  !  GRID ACRONYMS and DIMENSIONS
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ !
   !
   ! Get arguments giving source grid acronym and characteristics 
   OPEN(UNIT=70,FILE='name_grids.dat',FORM='FORMATTED')
@@ -144,7 +152,48 @@ PROGRAM model1
   ENDIF
   !
   ! Read dimensions of the global grid
-  CALL read_dimgrid(nlon,nlat,data_gridname,cl_grd_src,w_unit,file_debug)
+  CALL read_dimgrid(nlon_atmos, nlat_atmos, cl_grd_src, w_unit, file_debug)
+  CALL read_dimgrid(nlon, nlat, cl_grd_src, w_unit, file_debug)
+  !
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  !  PARTITION DEFINITION
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ !
+  !
+  ! Definition of the local partition
+  call def_local_partition(nlon_atmos, nlat_atmos, npes, mype, &
+                         il_extentx, il_extenty, il_size, il_offsetx, il_offsety, il_offset)
+  WRITE(w_unit,*) 'Local partition definition'
+  WRITE(w_unit,*) 'il_extentx, il_extenty, il_size, il_offsetx, il_offsety, il_offset = ', &
+                   il_extentx, il_extenty, il_size, il_offsetx, il_offsety, il_offset
+  call flush(w_unit)
+  !
+  call def_paral_size (ig_paral_size)
+  ALLOCATE(ig_paral(ig_paral_size))
+  call def_paral (il_offset, il_size, il_extentx, il_extenty, nlon_atmos, ig_paral_size, ig_paral)
+  WRITE(w_unit,*) 'ig_paral = ', ig_paral(:)
+  call flush(w_unit)
+  CALL oasis_def_partition (il_part_id, ig_paral, ierror)
+  DEALLOCATE(ig_paral)
+  !
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  !  GRID DEFINITION
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ! Allocation of local grid arrays
+  ALLOCATE(grid_lon_atmos(il_extentx, il_extenty), STAT=ierror )
+  ALLOCATE(grid_lat_atmos(il_extentx, il_extenty), STAT=ierror )
+  ALLOCATE(grid_msk_atmos(il_extentx, il_extenty), STAT=ierror )
+  !
+  ! Reading local grid arrays from input file ocean_mesh.nc
+  WRITE(w_unit,*) 'Before read_grid, nlon_atmos, nlat_atmos', nlon_atmos, nlat_atmos
+  call flush(w_unit)
+  
+  CALL read_grid(nlon_atmos, nlat_atmos, il_offsetx+1, il_offsety+1, il_extentx, il_extenty, &
+                cl_grd_src, w_unit, grid_lon_atmos, grid_lat_atmos, file_debug) 
+  WRITE(w_unit,*) 'After read_grid, nlon_atmos, nlat_atmos', nlon_atmos, nlat_atmos
+  CALL read_mask(nlon_atmos, nlat_atmos, il_offsetx+1, il_offsety+1, il_extentx, il_extenty, &
+                cl_grd_src, w_unit, grid_msk_atmos, file_debug) 
+  WRITE(w_unit,*) 'After read_mask, nlon_atmos, nlat_atmos', nlon_atmos, nlat_atmos
+  call flush(w_unit)
   !
   ! Allocate grid arrays
   ALLOCATE(gg_lon(nlon,nlat), STAT=ierror )
@@ -155,38 +204,11 @@ PROGRAM model1
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating indice_mask'
   !
   ! Read global grid longitudes, latitudes and mask 
-  CALL read_grid(nlon,nlat, data_gridname, cl_grd_src, w_unit, file_debug, gg_lon, gg_lat)
-  CALL read_mask(nlon,nlat, data_maskname, cl_grd_src, w_unit, file_debug, gg_mask)
+  CALL read_grid(nlon, nlat, 1, 1, nlon, nlat, cl_grd_src, w_unit, gg_lon, gg_lat, file_debug)
+  CALL read_mask(nlon,nlat, 1, 1, nlon, nlat, cl_grd_src, w_unit, gg_mask, file_debug)
   !
   IF (file_debug) THEN
       WRITE(w_unit,*) 'After grid and mask reading'
-      CALL FLUSH(w_unit)
-  ENDIF
-  !
-  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  !  PARTITION DEFINITION (each process treats a local part of the coupling field) 
-  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ !
-  !
-#ifdef DECOMP_APPLE
-  il_size = 3
-#elif defined DECOMP_BOX
-  il_size = 5
-#endif
-  ALLOCATE(il_paral(il_size))
-  IF (file_debug) THEN
-      WRITE(w_unit,*) 'After allocate il_paral, il_size', il_size
-      CALL FLUSH(w_unit)
-  ENDIF
-  !
-  CALL decomp_def (il_paral, il_size, nlon, nlat, mype, npes, w_unit)
-  IF (file_debug) THEN
-      WRITE(w_unit,*) 'After decomp_def, il_paral = ', il_paral(:)
-      CALL FLUSH(w_unit)
-  ENDIF
-  !
-  CALL oasis_def_partition (part_id, il_paral, ierror)
-  IF (file_debug) THEN
-      WRITE(w_unit,*) 'After oasis_def_partition'
       CALL FLUSH(w_unit)
   ENDIF
   !
@@ -200,7 +222,7 @@ PROGRAM model1
   var_type = OASIS_Real
   !
   ! Declaration of the field associated with the partition
-  CALL oasis_def_var (var_id, var_name, part_id, &
+  CALL oasis_def_var (var_id, var_name, il_part_id, &
      var_nodims, OASIS_Out, var_sh, var_type, ierror)
   IF (ierror /= 0) THEN
       WRITE(w_unit,*) 'oasis_def_var abort by model1 compid ',comp_id
@@ -210,8 +232,6 @@ PROGRAM model1
       WRITE(w_unit,*) 'After oasis_def_var'
       CALL FLUSH(w_unit)
   ENDIF
-  !
-  DEALLOCATE(il_paral)
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !  TERMINATION OF DEFINITION PHASE 
@@ -234,15 +254,15 @@ PROGRAM model1
   ! For simplicity, all processes allocate and define the whole global field
   !
   ! Allocate the field sent by model1
-  ALLOCATE(field_send(nlon,nlat), STAT=ierror )
+  ALLOCATE(field_send(nlon_atmos,nlat_atmos), STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field1_send'
   !
 #ifdef FANA1
-  CALL function_ana1(nlon, nlat, gg_lon, gg_lat, field_send)
+  CALL function_ana1(nlon_atmos, nlat_atmos, grid_lon_atmos, grid_lat_atmos, field_send)
 #elif defined FANA2
-  CALL function_ana2(nlon, nlat, gg_lon, gg_lat, field_send)
+  CALL function_ana2(nlon_atmos, nlat_atmos, grid_lon_atmos, grid_lat_atmos, field_send)
 #elif defined FANA3
-  CALL function_vortex(nlon, nlat, gg_lon, gg_lat, field_send)
+  CALL function_vortex(nlon_atmos, nlat_atmos, grid_lon_atmos, grid_lat_atmos, field_send)
 #endif
   !
   ! Define indices corresponding to the local part of the coupling field
@@ -323,12 +343,12 @@ PROGRAM model1
   ! Standard oasis_put for other types of remappings
   ELSE
      call oasis_put(var_id, 0, &
-                    field_send(ibeg:iend,jbeg:jend),&
+                    field_send(:,:),&
                     ierror )
   ENDIF
 #elif defined ESMFweights
   call oasis_put(var_id, 0, &
-                 field_send(ibeg:iend,jbeg:jend),(/var_sh(2),var_sh(4)/), &
+                 field_send(:,:),(/var_sh(2),var_sh(4)/), &
                  ierror )
 #endif
   !

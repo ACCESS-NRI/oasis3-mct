@@ -23,8 +23,8 @@ CPPKEY_FANA=FANA1 # FANA1 FANA2 FANA3
 #
 OBJ_M1 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \
           decomp_def.o gradient_bicubic.o \
-          function_ana.o distance_rad.o \
-          gradient_conserv.o
+          function_ana.o distance_rad.o write_all_fields.o \
+          def_parallel_decomposition.o gradient_conserv.o
 OBJ_M2 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \
           decomp_def_m2.o function_ana.o \
           write_all_fields.o
@@ -59,6 +59,10 @@ routine_hdlerr.o :		routine_hdlerr.f90
 				$(F90) $(F90FLAGS) -c routine_hdlerr.f90
 read_all_data.o :		read_all_data.F90
 				$(F90) $(F90FLAGS) -c read_all_data.F90
+def_parallel_decomposition.o :  def_parallel_decomposition.F90
+				$(F90) $(F90FLAGS) -D$(CPPKEYDECOMP_M1) -c def_parallel_decomposition.F90
+def_parallel_decomposition_m2.o : def_parallel_decomposition.F90
+				$(F90) $(F90FLAGS) -D$(CPPKEYDECOMP_M2) -o def_parallel_decomposition_m2.o -c def_parallel_decomposition.F90
 write_all_fields.o :		write_all_fields.F90
 				$(F90) $(F90FLAGS) -c write_all_fields.F90
 function_ana.o :		function_ana.f90
