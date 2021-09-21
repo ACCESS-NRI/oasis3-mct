@@ -22,8 +22,8 @@ CPPKEY_FANA=FANA1 # FANA1 FANA2 FANA3
 ### End User configurable options ###
 #
 OBJ_M1 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \
-          decomp_def.o gradient_bicubic.o \
-          function_ana.o distance_rad.o write_all_fields.o \
+          decomp_def.o function_ana.o gradient_bicubic.o \
+          distance_rad.o write_all_fields.o \
           def_parallel_decomposition.o gradient_conserv.o
 OBJ_M2 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \
           decomp_def_m2.o function_ana.o \
@@ -71,8 +71,8 @@ decomp_def.o : 			decomp_def.F90
 				$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M1} -c decomp_def.F90
 decomp_def_m2.o : 		decomp_def.F90
 				$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M2} -o decomp_def_m2.o -c decomp_def.F90
-gradient_bicubic.o :	gradient_bicubic.f90
-				$(F90) $(F90FLAGS) -c gradient_bicubic.f90
+gradient_bicubic.o :	        gradient_bicubic.F90
+				$(F90) $(F90FLAGS) -D${CPPKEY_FANA} -c gradient_bicubic.F90
 distance_rad.o :		distance_rad.f90
 				$(F90) $(F90FLAGS) -c distance_rad.f90
 gradient_conserv.o :		gradient_conserv.f90

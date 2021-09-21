@@ -40,7 +40,7 @@ PROGRAM model1
   !
   ! Grid parameters 
   INTEGER :: il_extentx, il_extenty, il_offsetx, il_offsety
-  INTEGER :: il_size, il_offset
+  INTEGER :: il_size, il_offset, ib
   INTEGER :: nlon_atmos, nlat_atmos    ! dimensions in the 2 space directions
   DOUBLE PRECISION, DIMENSION(:,:),   POINTER   :: grid_lon_atmos, grid_lat_atmos ! lon, lat of the cell centers
   INTEGER, DIMENSION(:,:),            POINTER   :: grid_msk_atmos ! mask, 0 == valid point, 1 == masked point
@@ -72,6 +72,7 @@ PROGRAM model1
   INTEGER                       :: part_id   ! use to connect the partition to the variables 
   INTEGER                       :: var_sh(1) ! not used anymore
   INTEGER :: ibeg, iend, jbeg, jend
+  INTEGER :: ibeg2, iend2, jbeg2, jend2
   !
   ! Exchanged local fields arrays
   REAL (kind=wp),   POINTER     :: field_send(:,:)
@@ -254,15 +255,15 @@ PROGRAM model1
   ! For simplicity, all processes allocate and define the whole global field
   !
   ! Allocate the field sent by model1
-  ALLOCATE(field_send(nlon_atmos,nlat_atmos), STAT=ierror )
+  ALLOCATE(field_send(il_extentx, il_extenty), STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field1_send'
   !
 #ifdef FANA1
-  CALL function_ana1(nlon_atmos, nlat_atmos, grid_lon_atmos, grid_lat_atmos, field_send)
+  CALL function_ana1(il_extentx, il_extenty, grid_lon_atmos, grid_lat_atmos, field_send)
 #elif defined FANA2
-  CALL function_ana2(nlon_atmos, nlat_atmos, grid_lon_atmos, grid_lat_atmos, field_send)
+  CALL function_ana2(il_extentx, il_extenty, grid_lon_atmos, grid_lat_atmos, field_send)
 #elif defined FANA3
-  CALL function_vortex(nlon_atmos, nlat_atmos, grid_lon_atmos, grid_lat_atmos, field_send)
+  CALL function_vortex(il_extentx, il_extenty, grid_lon_atmos, grid_lat_atmos, field_send)
 #endif
   !
   ! Define indices corresponding to the local part of the coupling field
@@ -275,38 +276,59 @@ PROGRAM model1
       jend = nlat 
   ENDIF
   WRITE(w_unit,*) 'ibeg, iend, jbeg, jend', ibeg, iend, jbeg, jend
+  ibeg2=il_offsetx+1
+  iend2=il_offsetx+il_extentx
+  jbeg2=il_offsety+1
+  jend2=il_offsety+il_extenty
+  WRITE(w_unit,*) 'ibeg2, iend2, jbeg2, jend2', ibeg2, iend2, jbeg2, jend2
+  call flush (w_unit)
   !
 #ifdef SCRIPweights
   ! Special treament for bicubic remapping
   IF (cl_remap == 'bicu') THEN
      IF ( trim(cl_type_src) == 'LR') THEN
+        call flush (w_unit)
         ! Calculate the gradients in i, j and ij needed for the bicubic remapping for LR grids
         ! For simplicity, all processes calculate gradients on the whole grid
-        ALLOCATE(gradient_i(nlon,nlat), STAT=ierror )
+        ALLOCATE(gradient_i(il_extentx,il_extenty), STAT=ierror )
         IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_i'
-        ALLOCATE(gradient_j(nlon,nlat), STAT=ierror )
+        call flush (w_unit)
+        ALLOCATE(gradient_j(il_extentx,il_extenty), STAT=ierror )
         IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_j'
-        ALLOCATE(gradient_ij(nlon,nlat), STAT=ierror )
+        call flush (w_unit)
+        ALLOCATE(gradient_ij(il_extentx,il_extenty), STAT=ierror )
         IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_ij'
-        call gradient_bicubic(nlon, nlat, field_send, gg_mask, gg_lat, gg_lon, il_overlap_src,  &
-                                  cl_period_src, gradient_i, gradient_j, gradient_ij)
+        call flush (w_unit)
+        WRITE(w_unit,*) 'After allocate gradients'
+        call flush (w_unit)
+        IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_ij'
+        call gradient_bicubic(nlon_atmos, nlat_atmos, ibeg, jbeg, il_extentx, il_extenty, &
+                                  cl_grd_src, il_overlap_src, cl_period_src, w_unit,  &
+                                  gradient_i, gradient_j, gradient_ij, file_debug)
+        WRITE(w_unit,*) 'After gradient_bicubic'
+        call flush (w_unit)
+        do ib=1,il_extenty
+           WRITE(w_unit,*) 'gradient_i'
+           WRITE(w_unit,*) gradient_i(:,ib)
+           WRITE(w_unit,*) 'gradient_j'
+           WRITE(w_unit,*) gradient_j(:,ib)
+           WRITE(w_unit,*) 'gradient_ij'
+           WRITE(w_unit,*) gradient_ij(:,ib)
+           WRITE(w_unit,*) 'field_send'
+           WRITE(w_unit,*) field_send(:,ib)
+        enddo
+        call flush (w_unit)
         IF (file_debug) THEN
            WRITE(w_unit,*) 'Bicubic_gradient calculated '
            CALL FLUSH(w_unit)
         ENDIF
         ! Send the local part of the coupling field and gradients 
-        call oasis_put(var_id, 0, &
-                       field_send(ibeg:iend,jbeg:jend), &
-                       ierror, &
-                       gradient_i(ibeg:iend,jbeg:jend), &
-                       gradient_j(ibeg:iend,jbeg:jend), &
-                       gradient_ij(ibeg:iend,jbeg:jend) )
+        call oasis_put(var_id, 0, field_send, ierror, &
+                       gradient_i, gradient_j, gradient_ij)
      ELSE IF ( trim(cl_type_src) == 'D') THEN
         ! For Gaussian Reduced grids, a 16-point algorithm is used so gradients
         ! are not needed; send only the local part of the coupling field
-        call oasis_put(var_id, 0, &
-                       field_send(ibeg:iend,jbeg:jend), &
-                       ierror )
+        call oasis_put(var_id, 0, field_send, ierror)
      ELSE
         ! Bicubic remapping is not possible for othe grid types
         WRITE(w_unit,*) 'Cannot perform bicubic interpolation for type of grid ',cl_type_src
@@ -330,11 +352,8 @@ PROGRAM model1
            CALL FLUSH(w_unit)
         ENDIF
         ! Send the local part of the coupling field and gradients
-        call oasis_put(var_id, 0, &
-                       field_send(ibeg:iend,jbeg:jend), &
-                       ierror, &
-                       grad_lat(ibeg:iend,jbeg:jend), &
-                       grad_lon(ibeg:iend,jbeg:jend) )
+        call oasis_put(var_id, 0, field_send, ierror, &
+                       grad_lat, grad_lon)
      ELSE
         ! 2nd order conservative not implemented for grids other than LR
         WRITE(w_unit,*) 'Cannot perform second order conserv interpolation for type of grid ',cl_type_src
@@ -342,14 +361,10 @@ PROGRAM model1
      ENDIF
   ! Standard oasis_put for other types of remappings
   ELSE
-     call oasis_put(var_id, 0, &
-                    field_send(:,:),&
-                    ierror )
+     call oasis_put(var_id, 0, field_send, ierror)
   ENDIF
 #elif defined ESMFweights
-  call oasis_put(var_id, 0, &
-                 field_send(:,:),(/var_sh(2),var_sh(4)/), &
-                 ierror )
+  call oasis_put(var_id, 0, field_send(:,:),(/var_sh(2),var_sh(4)/), ierror)
 #endif
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

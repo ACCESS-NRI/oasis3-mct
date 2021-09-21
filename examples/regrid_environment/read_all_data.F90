@@ -109,6 +109,7 @@ END SUBROUTINE read_dimgrid
   INTEGER,  DIMENSION(2)          :: ila_dim, ila_st
   CHARACTER(len=*),PARAMETER :: subname = '(read_grid)'
   !
+#define _DEBUG
 #ifdef _DEBUG
   WRITE(w_unit,*) 'Starting read_grid'
   CALL flush(w_unit)
@@ -123,17 +124,13 @@ END SUBROUTINE read_dimgrid
       CALL FLUSH(w_unit)
   ENDIF
   CALL hdlerr( NF90_INQ_VARID(il_grids_id, cl_nam, il_lon_id), w_unit, subname, __FILE__, __LINE__ )
+  !
   cl_nam=cl_grd//".lat"
   IF (file_debug) THEN
       WRITE(w_unit,*) 'Latitudes :',cl_nam
       CALL FLUSH(w_unit)
   ENDIF
   CALL hdlerr( NF90_INQ_VARID(il_grids_id, cl_nam, il_lat_id),  w_unit, subname, __FILE__, __LINE__ )
-  cl_nam=cl_grd//".clo"
-  IF (file_debug) THEN
-      WRITE(w_unit,*) 'Corner longitudes :',cl_nam
-      CALL FLUSH(w_unit)
-  ENDIF
   !
   CALL flush(w_unit)
   ila_st(1) = id_begi
