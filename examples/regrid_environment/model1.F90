@@ -71,8 +71,6 @@ PROGRAM model1
   ! Grid parameters definition
   INTEGER                       :: part_id   ! use to connect the partition to the variables 
   INTEGER                       :: var_sh(1) ! not used anymore
-  INTEGER :: ibeg, iend, jbeg, jend
-  INTEGER :: ibeg2, iend2, jbeg2, jend2
   !
   ! Exchanged local fields arrays
   REAL (kind=wp),   POINTER     :: field_send(:,:)
@@ -266,23 +264,6 @@ PROGRAM model1
   CALL function_vortex(il_extentx, il_extenty, grid_lon_atmos, grid_lat_atmos, field_send)
 #endif
   !
-  ! Define indices corresponding to the local part of the coupling field
-  ibeg=1 ; iend=nlon
-  jbeg=((nlat/npes)*mype)+1 
-  !
-  IF (mype .LT. npes - 1) THEN
-      jend = (nlat/npes)*(mype+1)
-  ELSE
-      jend = nlat 
-  ENDIF
-  WRITE(w_unit,*) 'ibeg, iend, jbeg, jend', ibeg, iend, jbeg, jend
-  ibeg2=il_offsetx+1
-  iend2=il_offsetx+il_extentx
-  jbeg2=il_offsety+1
-  jend2=il_offsety+il_extenty
-  WRITE(w_unit,*) 'ibeg2, iend2, jbeg2, jend2', ibeg2, iend2, jbeg2, jend2
-  call flush (w_unit)
-  !
 #ifdef SCRIPweights
   ! Special treament for bicubic remapping
   IF (cl_remap == 'bicu') THEN
@@ -302,7 +283,7 @@ PROGRAM model1
         WRITE(w_unit,*) 'After allocate gradients'
         call flush (w_unit)
         IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_ij'
-        call gradient_bicubic(nlon_atmos, nlat_atmos, ibeg, jbeg, il_extentx, il_extenty, &
+        call gradient_bicubic(nlon_atmos, nlat_atmos, il_offsetx+1, il_offsety+1, il_extentx, il_extenty, &
                                   cl_grd_src, il_overlap_src, cl_period_src, w_unit,  &
                                   gradient_i, gradient_j, gradient_ij, file_debug)
         WRITE(w_unit,*) 'After gradient_bicubic'
