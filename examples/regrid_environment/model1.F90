@@ -45,8 +45,6 @@ PROGRAM model1
   DOUBLE PRECISION, DIMENSION(:,:),   POINTER   :: grid_lon_atmos, grid_lat_atmos ! lon, lat of the cell centers
   INTEGER, DIMENSION(:,:),            POINTER   :: grid_msk_atmos ! mask, 0 == valid point, 1 == masked point
   INTEGER :: nlon, nlat    ! dimensions in the 2 space directions
-  REAL (kind=wp), DIMENSION(:,:), POINTER  :: gg_lon,gg_lat ! grid point longitudes and latitudes
-  INTEGER, DIMENSION(:,:), POINTER         :: gg_mask       ! grid point mask
   !
   INTEGER :: mype, npes ! MPI task rank and number
   INTEGER :: local_comm  ! local MPI communicator
@@ -195,18 +193,6 @@ PROGRAM model1
                 cl_grd_src, w_unit, grid_msk_atmos, file_debug) 
   WRITE(w_unit,*) 'After read_mask, nlon_atmos, nlat_atmos', nlon_atmos, nlat_atmos
   call flush(w_unit)
-  !
-  ! Allocate grid arrays
-  ALLOCATE(gg_lon(nlon,nlat), STAT=ierror )
-  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gg_lon'
-  ALLOCATE(gg_lat(nlon,nlat), STAT=ierror )
-  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gg_lat'
-  ALLOCATE(gg_mask(nlon,nlat), STAT=ierror )
-  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating indice_mask'
-  !
-  ! Read global grid longitudes, latitudes and mask 
-  CALL read_grid(nlon, nlat, 1, 1, nlon, nlat, cl_grd_src, w_unit, gg_lon, gg_lat, file_debug)
-  CALL read_mask(nlon,nlat, 1, 1, nlon, nlat, cl_grd_src, w_unit, gg_mask, file_debug)
   !
   IF (file_debug) THEN
       WRITE(w_unit,*) 'After grid and mask reading'
