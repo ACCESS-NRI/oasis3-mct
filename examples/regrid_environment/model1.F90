@@ -288,17 +288,6 @@ PROGRAM model1
                                   gradient_i, gradient_j, gradient_ij, file_debug)
         WRITE(w_unit,*) 'After gradient_bicubic'
         call flush (w_unit)
-        do ib=1,il_extenty
-           WRITE(w_unit,*) 'gradient_i'
-           WRITE(w_unit,*) gradient_i(:,ib)
-           WRITE(w_unit,*) 'gradient_j'
-           WRITE(w_unit,*) gradient_j(:,ib)
-           WRITE(w_unit,*) 'gradient_ij'
-           WRITE(w_unit,*) gradient_ij(:,ib)
-           WRITE(w_unit,*) 'field_send'
-           WRITE(w_unit,*) field_send(:,ib)
-        enddo
-        call flush (w_unit)
         IF (file_debug) THEN
            WRITE(w_unit,*) 'Bicubic_gradient calculated '
            CALL FLUSH(w_unit)
@@ -322,16 +311,29 @@ PROGRAM model1
         ! Calculate the gradients in lat and lon directions needed for 2nd order
         ! conservative remapping for LR grids
         ! For simplicity, all processes calculate gradients on the whole grid
-        ALLOCATE(grad_lat(nlon,nlat), STAT=ierror )
+        ALLOCATE(grad_lat(il_extentx,il_extenty), STAT=ierror )
         IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_i'
-        ALLOCATE(grad_lon(nlon,nlat), STAT=ierror )
+        ALLOCATE(grad_lon(il_extentx,il_extenty), STAT=ierror )
         IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_j'
-        call gradient_conserv(nlon, nlat, field_send, gg_mask, gg_lat, gg_lon, &
-                    & il_overlap_src, cl_period_src, grad_lat, grad_lon)
+        call gradient_conserv(nlon_atmos, nlat_atmos, il_offsetx+1, il_offsety+1, il_extentx, il_extenty, &
+                                  cl_grd_src, il_overlap_src, cl_period_src, w_unit,  &
+                                  grad_lon, grad_lat, file_debug)
+        do ib=1,il_extenty
+           WRITE(w_unit,*) 'grad_lon'
+           WRITE(w_unit,*) grad_lon(:,ib)
+           WRITE(w_unit,*) 'grad_lat'
+           WRITE(w_unit,*) grad_lat(:,ib)
+           WRITE(w_unit,*) 'field_send'
+           WRITE(w_unit,*) field_send(:,ib)
+        enddo
+        call flush (w_unit)
+
         IF (file_debug) THEN
            WRITE(w_unit,*) 'Conservative gradient calculated '
            CALL FLUSH(w_unit)
         ENDIF
+        grad_lon=0.0
+        grad_lat=0.0
         ! Send the local part of the coupling field and gradients
         call oasis_put(var_id, 0, field_send, ierror, &
                        grad_lat, grad_lon)

@@ -9,12 +9,12 @@ contains
   INTEGER, INTENT(in)  :: nlon, nlat, npes, mype
   INTEGER, INTENT(out) :: il_extentx, il_extenty, il_size, il_offsetx, il_offsety, il_offset
   !
-  il_extentx = nlon/npes ; IF (mype == npes-1)  il_extentx = nlon - (nlon/npes * mype)
-  il_extenty = nlat
+  il_extentx = nlon
+  il_extenty = nlat/npes ; IF (mype == npes-1)  il_extenty = nlat - (nlat/npes * mype)
   il_size = il_extentx * il_extenty
-  il_offsetx = (nlon/npes * mype)
-  il_offsety = 0 
-  il_offset = nlat * il_offsetx
+  il_offsetx = 0
+  il_offsety = (nlat/npes * mype)
+  il_offset = nlon * il_offsety
   ! 
 END SUBROUTINE def_local_partition
 !

@@ -75,8 +75,8 @@ gradient_bicubic.o :	        gradient_bicubic.F90
 				$(F90) $(F90FLAGS) -D${CPPKEY_FANA} -c gradient_bicubic.F90
 distance_rad.o :		distance_rad.f90
 				$(F90) $(F90FLAGS) -c distance_rad.f90
-gradient_conserv.o :		gradient_conserv.f90
-				$(F90) $(F90FLAGS) -c gradient_conserv.f90
+gradient_conserv.o :		gradient_conserv.F90
+				$(F90) $(F90FLAGS) -D${CPPKEY_FANA}  -c gradient_conserv.F90
 
 model1.o :	model1.F90 Makefile
 		$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M1} -D${CPPKEY_WEIGHTS} -D${CPPKEY_FANA} -c model1.F90

@@ -1,11 +1,6 @@
 subroutine gradient_bicubic(NX1, NY1, ibeg, jbeg, iloc, jloc, &
                             cl_grd_src, id_per, cd_per, w_unit, &
                             local_gradient_i, local_gradient_j, local_gradient_ij, file_debug)
-!****
-!               *****************************
-!               * OASIS ROUTINE  -  LEVEL ? *
-!               * -------------     ------- *
-!               *****************************
 !
 !**** *gradient_bicubic*  - calculate gradients for bicubic remapping
 !
@@ -19,7 +14,7 @@ subroutine gradient_bicubic(NX1, NY1, ibeg, jbeg, iloc, jloc, &
 !     ---------
 !       *CALL*  *gradient_bicubic*(NX1, NY1, ibeg, jbeg, iloc, jloc, 
 !                                  cl_grd_src, id_per, cd_per, w_unit,
-!                                  local_gradient_i, local_gradient_j, local_gradient_ij)
+!                                  local_gradient_i, local_gradient_j, local_gradient_ij, file_debug)
 !
 !     Input:
 !     -----
@@ -33,6 +28,7 @@ subroutine gradient_bicubic(NX1, NY1, ibeg, jbeg, iloc, jloc, &
 !          id_per         : number of overlapping points for source grid
 !          cd_per         : grip periodicity type
 !          w_unit         : log file unit
+!          file_debug     : logical for activating debug outputs
 !
 !     Output:
 !     ------
@@ -91,7 +87,7 @@ REAL (kind=wp) ::  &
 REAL (kind=wp), DIMENSION(:,:), POINTER :: &
           src_lon,   &          ! source grid longitudes [radiants]
           src_lat,   &          ! source grid latitudes [radiants]
-          src_array, &          ! analytic field
+          src_array, &          ! analytical field
           gradient_i, &  ! global gradient in i-direction (real 2D)
           gradient_j, &  ! global gradient in j-direction (real 2D)
           gradient_ij    ! global gradient in ij-direction (real 2D)

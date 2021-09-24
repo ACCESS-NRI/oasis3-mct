@@ -1,13 +1,7 @@
-SUBROUTINE gradient_conserv(NX1, NY1, src_array, sou_mask, &
-                         src_latitudes, src_longitudes, &
-                         id_per, cd_per, &
-                         grad_lat, grad_lon)
+SUBROUTINE gradient_conserv(NX1, NY1, ibeg, jbeg, iloc, jloc, &
+                         cl_grd_src, id_per, cd_per, w_unit, &
+                         local_grad_lon, local_grad_lat, file_debug)
 
-!****
-!               *****************************
-!               * OASIS ROUTINE  -  LEVEL ? *
-!               * -------------     ------- *
-!               *****************************
 !
 !**** *gradient_conserv*  - calculate gradients for conservative remapping
 !
@@ -21,69 +15,70 @@ SUBROUTINE gradient_conserv(NX1, NY1, src_array, sou_mask, &
 !
 !**   Interface:
 !     ---------
-!       *CALL*  *gradient_conserv*(NX1, NY1, src_array, sou_mask, src_latitudes, &
-!                                  src_longitudes, grad_lat, grad_lon)
+!       *CALL*  *gradient_conserv*(NX1, NY1, jbeg, iloc, jloc,
+!                                  cl_grd_src, id_per, cd_per, w_unit,
+!                                  local_grad_lat, local_grad_lon, file_debug)
 !
 !     Input:
 !     -----
-!          NX1            : grid dimension in x-direction (integer)
-!          NY1            : grid dimension in y-direction (integer)
-!          src_array      : array on source grid (real 2D)
-!          sou_mask       : source grid mask (integer 2D)
-!          src_latitudes  : latitudes on source grid (real 2D)
-!          src_longitudes : longitudes on source grid (real 2D)
+!          NX1            : grid global dimension in x-direction (integer)
+!          NY1            : grid global dimension in y-direction (integer)
+!          ibeg           : start of local domain in global domain in x-direction
+!          jbeg           : start of local domain in global domain in y-direction
+!          iloc           : grid local dimension in x-direction (integer)
+!          jloc           : grid local dimension in y-direction (integer)
+!          cl_grd_src     : grid acronym
 !          id_per         : number of overlapping points for source grid
 !          cd_per         : grip periodicity type
+!          w_unit         : log file unit
+!          file_debug     : logical for activating debug outputs
 ! 
 !     Output:
 !     ------
-!          grad_lat       : gradient in latitudinal direction (real 2D)
-!          grad_lon       : gradient in longitudinal direction (real 2D)
-!
-!     History:
-!     -------
-!       Version   Programmer     Date        Description
-!       -------   ----------     ----        -----------  
-!       2.5       V. Gayler      2001/09/20  created
+!          local_grad_lon       : gradient in longitudinal direction (real 2D)
+!          local_grad_lat       : gradient in latitudinal direction (real 2D)
 !
 ! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+!
+      USE read_all_data
+      USE function_ana
+!
+      IMPLICIT NONE
 
-IMPLICIT NONE
-
-  INTEGER, PARAMETER :: wp = SELECTED_REAL_KIND(12,307) ! double
+      INTEGER, PARAMETER :: wp = SELECTED_REAL_KIND(12,307) ! double
 !-----------------------------------------------------------------------
-!     INTENT(IN)
+!      INTENT(IN)
 !-----------------------------------------------------------------------
       INTEGER, INTENT(IN) :: &
-          NX1, NY1, &             ! source grid dimensions
-          id_per                  ! nbr of overlapping grid points
+          NX1, NY1,  &         ! source grid dimensions
+         ibeg, jbeg, &         ! source grid local start
+         iloc, jloc            ! source grid local dimensions
 
+      CHARACTER(len=4), INTENT(IN) ::  &
+         cl_grd_src            ! grid acronym
+
+      INTEGER, INTENT(IN) :: &
+          id_per,      &       ! nbr of overlapping grid points
+          w_unit               ! log file
+  
       CHARACTER*8, INTENT(IN) :: &
           cd_per                ! grip periodicity type     
 
-      REAL (kind=wp), DIMENSION(NX1,NY1), INTENT(IN) :: &
-          src_array             ! array on source grid
-
-      INTEGER, DIMENSION(NX1,NY1), INTENT(IN) :: &
-          sou_mask              ! source grid mask
-
-      REAL (kind=wp), DIMENSION(NX1,NY1), INTENT(IN) :: &
-          src_latitudes, &        ! source grid latitudes
-          src_longitudes          ! source grid longitudes
+      LOGICAL, INTENT(IN)      :: file_debug
 
 !-----------------------------------------------------------------------
 !     INTENT(OUT)
 !-----------------------------------------------------------------------
-      REAL (kind=wp), DIMENSION(NX1,NY1), INTENT(OUT) :: &
-           grad_lat, &            ! gradient in latitudinal direction
-           grad_lon             ! gradient in longitudinal direction
+      REAL (kind=wp), DIMENSION(iloc,jloc), INTENT(OUT) :: &
+           local_grad_lon, &             ! gradient in longitudinal direction
+           local_grad_lat                ! gradient in latitudinal direction
 
 !-----------------------------------------------------------------------
 !     LOCAL VARIABLES
 !-----------------------------------------------------------------------
       INTEGER :: &
            i, j, &                ! looping indicees
-           ip1, jp1, im1, jm1
+           ip1, jp1, im1, jm1, iend, jend
 
       REAL (kind=wp) :: &
            distance_rad           ! distance in rad
@@ -96,36 +91,63 @@ IMPLICIT NONE
            grad_i, grad_j, &      ! gradient in i / j direction
            ABSold, ABSnew, lat_factor
 
-      REAL (kind=wp), DIMENSION(NX1,NY1) :: &
+      REAL (kind=wp), DIMENSION(:,:), POINTER :: &
            src_lon, &             ! source grid longitudes [radiants]
            src_lat, &             ! source grid latitudes [radiants]
-           pi180                  ! conversion factor: deg -> rad
+           src_array, &           ! analytical field
+           grad_lon, &            ! global gradient in latitudinal direction
+           grad_lat               ! global gradient in longitudinal direction
+
+      INTEGER, DIMENSION(:,:), POINTER :: &
+           sou_mask             ! source grid mask
+
       REAL (kind=wp), PARAMETER :: &
            pi  = 3.14159265358979323846, &  ! PI
-           pi2 = 2.0d0*pi                   ! 2PI
+           pi2 = 2.0d0*pi, &                ! 2PI
+           pi180  = 1.74532925199432957692e-2 ! =PI/180
 
       INTEGER, PARAMETER ::  il_maskval= 1 ! in our grids sea_value = 0 and land_value = 1
 
 !-----------------------------------------------------------------------
 !
-!!      IF (nlogprt .GE. 2) THEN
-!!          WRITE (UNIT = nulou,FMT = *)' '
-!!          WRITE (UNIT = nulou,FMT = *)' Entering routine gradient_conserv   '
-!!          WRITE (UNIT = nulou,FMT = *)' '
-!!          CALL FLUSH(nulou)
-!!      ENDIF
+!     Read global grid and global mask
+!     --------------------------------
+      ALLOCATE(src_lon(NX1, NY1))
+      ALLOCATE(src_lat(NX1, NY1))
+      CALL read_grid(NX1, NY1, 1, 1, NX1, NY1, cl_grd_src, w_unit, src_lon, src_lat, file_debug)
 !
-!     Transformation from degree to radiant
+      ALLOCATE(sou_mask(NX1, NY1))
+      CALL read_mask(NX1, NY1, 1, 1, NX1, NY1, cl_grd_src, w_unit, sou_mask, file_debug)
+
+!     Global field from analytical function
 !     -------------------------------------
-      pi180  = 1.74532925199432957692e-2 ! =PI/180
+      ALLOCATE(src_array(NX1, NY1))
+#ifdef FANA1
+      CALL function_ana1(NX1, NY1, src_lon, src_lat, src_array)
+#elif defined FANA2
+      CALL function_ana2(NX1, NY1, src_lon, src_lat, src_array)
+#elif defined FANA3
+      CALL function_ana3(NX1, NY1, src_lon, src_lat, src_array)
+#endif
 
-      src_lon = src_longitudes * pi180
-      src_lat = src_latitudes * pi180
+!     Global gradient allocation
+!     --------------------------
+      ALLOCATE(grad_lon(NX1, NY1))
+      ALLOCATE(grad_lat(NX1, NY1))
 
-!-----------------------------------------------------------------------
+!     Initialization
+!     --------------
+      grad_lon  = 0.
+      grad_lat  = 0.
 
+!     transformation in radiants for gradient calculation
+!     ---------------------------------------------------
+      src_lon = src_lon * pi180
+      src_lat = src_lat * pi180 
+
+!     calculate gradients
+!     -------------------
       DO i = 1, NX1
-
          DO j = 1, NY1
                    
             IF (sou_mask(i,j) /= il_maskval) THEN
@@ -229,11 +251,10 @@ IMPLICIT NONE
 
          ENDDO
       ENDDO
-!!      IF (nlogprt .GE. 2) THEN
-!!          WRITE (UNIT = nulou,FMT = *)' '
-!!          WRITE (UNIT = nulou,FMT = *)' Leaving routine gradient   '
-!!          WRITE (UNIT = nulou,FMT = *)' '
-!!          CALL FLUSH(nulou)
-!!      ENDIF 
+      !
+      iend = ibeg+iloc-1
+      jend = jbeg+jloc-1
+      local_grad_lat = grad_lat(ibeg:iend, jbeg:jend)
+      local_grad_lon = grad_lon(ibeg:iend, jbeg:jend)
 
 END SUBROUTINE gradient_conserv
