@@ -52,10 +52,8 @@ PROGRAM model1
   INTEGER :: local_comm  ! local MPI communicator
   INTEGER :: comp_id    ! component identification
   !
-  INTEGER, DIMENSION(:), ALLOCATABLE :: il_paral ! Decomposition for each proc
   INTEGER               :: il_part_id
-  INTEGER               :: ig_paral_size
-  INTEGER, DIMENSION(:), ALLOCATABLE :: ig_paral
+  INTEGER, DIMENSION(3) :: ig_paral
   !
   INTEGER :: ierror, rank, w_unit
   LOGICAL :: file_debug = .true.
@@ -159,20 +157,24 @@ PROGRAM model1
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ !
   !
   ! Definition of the local partition
-  call def_local_partition(nlon_atmos, nlat_atmos, npes, mype, &
+  WRITE(w_unit,*) 'cl_type_src = ', cl_type_src
+  call flush(w_unit)
+  call def_local_partition(nlon_atmos, nlat_atmos, npes, mype, cl_type_src, &
                          il_extentx, il_extenty, il_size, il_offsetx, il_offsety, il_offset)
   WRITE(w_unit,*) 'Local partition definition'
   WRITE(w_unit,*) 'il_extentx, il_extenty, il_size, il_offsetx, il_offsety, il_offset = ', &
                    il_extentx, il_extenty, il_size, il_offsetx, il_offsety, il_offset
   call flush(w_unit)
   !
-  call def_paral_size (ig_paral_size)
-  ALLOCATE(ig_paral(ig_paral_size))
-  call def_paral (il_offset, il_size, il_extentx, il_extenty, nlon_atmos, ig_paral_size, ig_paral)
+  ! APPLE PARTITION
+  ig_paral(1) = 1
+  ig_paral(2) = il_offset
+  ig_paral(3) = il_size
+  !
   WRITE(w_unit,*) 'ig_paral = ', ig_paral(:)
   call flush(w_unit)
+  !
   CALL oasis_def_partition (il_part_id, ig_paral, ierror)
-  DEALLOCATE(ig_paral)
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !  GRID DEFINITION
