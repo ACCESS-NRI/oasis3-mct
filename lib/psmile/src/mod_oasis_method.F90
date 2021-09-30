@@ -160,8 +160,8 @@ CONTAINS
    call oasis_unitsetmax(namuntmax)
    allow_no_restart = namnorest
 
-   ! If TIMER_debug < 0 activate LUCIA load balancing analysis
-   LUCIA_debug = ABS(MIN(namtlogprt,0))
+   ! If namelist load balancing variable > 0, activate event timeline analysis
+   IF ( namlblogprt > 0 ) ET_debug = .TRUE.
 
    !------------------------
    !> * Check if NFIELDS=0, there is no coupling.
@@ -406,12 +406,11 @@ CONTAINS
    !  verbose level disabled if load balance analysis
    !------------------------
 
-   IF ( LUCIA_debug > 0 .AND. OASIS_debug > 0 ) THEN
+   IF ( ET_debug .AND. OASIS_debug > 0 ) THEN
       WRITE (UNIT = nulprt1,FMT = *) subname,wstr, &
-       ' With LUCIA load balance analysis '
+       ' WARNING: With load balance analysis '
       WRITE (UNIT = nulprt1,FMT = *)  &
-       ' we set OASIS_debug = 0 '
-      !OASIS_debug = 0
+       ' OASIS_debug should be 0 '
       CALL oasis_flush(nulprt1)
    ENDIF
 
@@ -550,29 +549,8 @@ CONTAINS
 
    iu=-1
    CALL oasis_unitget(iu)
-   ! If load balance analysis, new log files opened (lucia.*)
-   IF ( LUCIA_debug == 1 ) THEN
-      IF (mpi_size_local < 20 ) THEN
-         nullucia=iu
-      ! Open LUCIA log file on a subset of process only
-      ELSE IF (mpi_size_local < 100 .AND. MOD(mpi_rank_local,mpi_size_local/5) == 0 ) THEN
-         nullucia=iu
-      ELSE IF (mpi_size_local >= 100 .AND. MOD(mpi_rank_local,mpi_size_local/20) == 0 ) THEN
-         nullucia=iu
-      ELSE
-         nullucia = 0
-      ENDIF
-      ! Define log file name and open it
-      IF (nullucia /= 0) THEN
-         WRITE(filename,'(a,i2.2,a,i6.6)') 'lucia.',compid,'.',mpi_rank_local
-         OPEN(nullucia,file=filename,status='REPLACE')
-!         WRITE(nullucia,'(2a,2i8)') subname,' OPEN LUCIA load balancing analysis file for pe, unit :',mpi_size_local,nullucia
-!         CALL oasis_flush(nullucia)
-      ENDIF
-   ! LB analysis only
-   ELSEIF ( LUCIA_debug == 2 ) THEN
-      IF (mpi_size_global == 0 ) nullucia=iu
-   ENDIF
+
+   IF ( ET_debug .AND. mpi_size_global == 0 ) nulet=iu
 
    call oasis_debug_enter(subname)
 
@@ -644,22 +622,6 @@ CONTAINS
       call oasis_flush(nulprt)
    endif
 
-   IF ( LUCIA_debug == 1 ) THEN
-      ! We stop all process to read clock time (almost) synchroneously
-      !EM to be avoided with LB
-      !EM call oasis_mpi_barrier(mpi_comm_global)
-      IF ( nullucia /= 0 ) THEN
-         WRITE(nullucia, FMT='(A,F16.5)') 'Balance: IT                  ', MPI_Wtime()
-         WRITE(nullucia, FMT='(A12,A)'  ) 'Balance: MD ', trim(compnm)
-         call oasis_flush(nullucia)
-      ELSE
-!EM modification for LUCIA + LB analysis together
-         ! Since now, non printing processes do not participate to load balance analysis
-         !EM LUCIA_debug = 0
-         LUCIA_debug = -1
-      ENDIF
-   ENDIF
-
    call oasis_debug_exit(subname)
 
  END SUBROUTINE oasis_init_comp
@@ -701,8 +663,7 @@ CONTAINS
    !------------------------------------
    !> * Print load balancing information
    !------------------------------------
-   IF ( ABS(LUCIA_debug) > 0 ) &
-      call oasis_lb_print(trim(compnm),namruntim)
+   IF (ET_debug) call oasis_lb_print(trim(compnm),namruntim)
 
    deallocate(compnmlist)
 
@@ -776,8 +737,7 @@ CONTAINS
    endif
 
    CALL oasis_timer_start ('oasis_enddef')
-   if (ABS(LUCIA_debug) > 0 ) &
-      CALL oasis_lb_measure(-1,LB_ENDF)
+   if (ET_debug) CALL oasis_lb_measure(-1,LB_ENDF)
    if (local_timers_on) call oasis_timer_start('oasis_enddef_prep')
 
    !------------------------
@@ -949,7 +909,7 @@ CONTAINS
       ENDIF
       if (local_timers_on) call oasis_timer_stop('oasis_enddef_advance_init')
 
-   elseif ( ABS(LUCIA_debug) > 0 ) then
+   elseif (ET_debug) then
 
       WRITE(nulprt,*) ' load balancing special allocate for uncoupled components'
       CALL flush(nulprt)
@@ -964,8 +924,7 @@ CONTAINS
    if (present(kinfo)) then
       kinfo = OASIS_OK
    endif
-   if (ABS(LUCIA_debug) > 0 ) &
-      CALL oasis_lb_measure(-1,LB_ENDF)
+   if (ET_debug) CALL oasis_lb_measure(-1,LB_ENDF)
    CALL oasis_timer_stop ('oasis_enddef')
    call oasis_timer_stop('init_thru_enddef')
 

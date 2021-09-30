@@ -245,8 +245,13 @@ module mod_oasis_load_balancing
             ievent = ievent + icpl_nb*2
 
          ! The event number is incremented by two if restart writing
-         IF ( llrst ) &
+         IF ( llrst ) THEN
             ievent = ievent + 2
+            ! Two additional events if restart and EXPOUT
+            IF ( llout ) &
+               ievent = ievent + 2
+         ENDIF
+
 
          ! Since there is no way to count the number
          ! of partial restart calls before the end of the run, we prefer to
@@ -257,7 +262,7 @@ module mod_oasis_load_balancing
          ne = ne + 1
 
          IF (OASIS_Debug >= 10) &
-            write(nulprt,*) subname,' defining new timeline event'
+            write(nulprt,*) subname,' New total of timeline events : ', ievent
 
       end subroutine oasis_lb_define
 
@@ -289,6 +294,11 @@ module mod_oasis_load_balancing
          ! Logical made necessary to identify and limit partial restart writing
          ! event measurement
          logical, SAVE :: over_partial_restart = .FALSE.
+
+         ! Termination of LB_ENDF can be called twice (restart case)
+         ! Skip the second one
+         IF ( ikind == LB_ENDF .AND. event_index >= ( LB_NB_INIT_TIMING*2 + 1 )) &
+           return
 
          ! Special recording for init operations
          IF ( ikind == LB_ENDF .OR. ikind == LB_PART ) THEN
@@ -394,6 +404,7 @@ module mod_oasis_load_balancing
 
          integer(ip_i4_p) :: lb_tag = 4000
          integer(ip_i4_p) :: max_field_nb
+         integer(ip_i4_p) :: lastevent
 
          integer(ip_i4_p), allocatable   :: pair_field_cntp(:)
          integer(ip_i4_p), allocatable   :: ig_globSize(:)
@@ -427,7 +438,7 @@ module mod_oasis_load_balancing
          call oasis_mpi_barrier(mpi_comm_global)
 
          ! Take performance measurement of the load balancing analysis itself
-         ! and exclude this time for the total simulation time
+         ! and exclude this time from the total simulation time
          !
          ! Done by all components, including uncoupled
          !
@@ -463,35 +474,39 @@ module mod_oasis_load_balancing
             IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
                                      mpi_rank_local,' WARNING allocating total timer'
 
+            dg_simu_wtimer = 0._ip_double_p
+
             ! All processes send the total simulation time to the master
             CALL MPI_Gather( dl_simu_wtimer, 2, MPI_DOUBLE, dg_simu_wtimer, 2, MPI_DOUBLE, &
                              0, mpi_comm_global, ierror)
 
             ! The LB analysis is output on a text file
-            INQUIRE(unit=nullucia, opened=lopened)
-            IF (  lopened ) CLOSE(nullucia)
-            OPEN(nullucia, file='load_balancing_info.txt', status='REPLACE')
+            INQUIRE(unit=nulet, opened=lopened)
+            IF (  lopened ) CLOSE(nulet)
+            OPEN(nulet, file='load_balancing_info.txt', status='REPLACE')
 
             !
-            soonest_start = MINVAL(dg_simu_wtimer(1:mpi_size_global*2-1:2))
-            latest_stop   = MAXVAL(dg_simu_wtimer(2:mpi_size_global*2:2))
+            !soonest_start = MINVAL(dg_simu_wtimer(1:mpi_size_global*2-1:2))
+            !latest_stop   = MAXVAL(dg_simu_wtimer(2:mpi_size_global*2:2))
+            soonest_start = MINVAL(dg_simu_wtimer, mask = dg_simu_wtimer > 0._ip_double_p )
+            latest_stop   = MAXVAL(dg_simu_wtimer, mask = dg_simu_wtimer > 0._ip_double_p )
 
             !
             ! Check clock synchronisation
             !
             clock_spread = latest_stop - MINVAL(dg_simu_wtimer(2:mpi_size_global*2:2))
 
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) ' ------------------------------'
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,'(a37,f8.3)') ' Coupled model simulation time (s): ', latest_stop-soonest_start
-            WRITE(nullucia,*) '    (coupled components only)  '
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) ' ------------------------------'
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,'(a16,f10.3)') ' Speed (SYPD) : ', DBLE(simutime) * 365. / ( latest_stop-soonest_start )
-            WRITE(nullucia,'(a16,f8.3)') ' Cost (CHPSY) : ', DBLE(mpi_size_world) * 24 * ( latest_stop-soonest_start ) / ( DBLE(simutime) * 365. )
-            WRITE(nullucia,*) ' '
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) ' ------------------------------'
+            WRITE(nulet,*) ' '
+            WRITE(nulet,'(a37,f8.3)') ' Coupled model simulation time (s): ', latest_stop-soonest_start
+            WRITE(nulet,*) '    (coupled components only)  '
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) ' ------------------------------'
+            WRITE(nulet,*) ' '
+            WRITE(nulet,'(a16,f10.3)') ' Speed (SYPD) : ', DBLE(simutime) * 365. / ( latest_stop-soonest_start )
+            WRITE(nulet,'(a16,f8.3)') ' Cost (CHPSY) : ', DBLE(mpi_size_world) * 24 * ( latest_stop-soonest_start ) / ( DBLE(simutime) * 365. )
+            WRITE(nulet,*) ' '
 
 
             ! The same anaysis is given per component
@@ -512,9 +527,9 @@ module mod_oasis_load_balancing
                   ENDIF
                ENDDO
 
-               WRITE(nullucia,'(A7,A10,A19,F8.3)') ' Model ', TRIM(prism_modnam(nf)),&
+               WRITE(nulet,'(A7,A10,A19,F8.3)') ' Model ', TRIM(prism_modnam(nf)),&
                       ' simulation time : ', latest_stop-soonest_start
-               WRITE(nullucia,'(A32,F8.3)') '                  cost (CHPSY): ', &
+               WRITE(nulet,'(A32,F8.3)') '                  cost (CHPSY): ', &
                       DBLE(ne) * 24 * ( latest_stop-soonest_start ) / ( DBLE(simutime) * 365. )
 
             ENDDO
@@ -536,8 +551,7 @@ module mod_oasis_load_balancing
 
 
          ! "before" termination phase measurement
-         if (ABS(LUCIA_debug) > 0 ) &
-            CALL oasis_lb_measure(-1,LB_TERM)
+         if (ET_debug) CALL oasis_lb_measure(-1,LB_TERM)
 
          DEALLOCATE( local_table_lb, local_coupler_lb, local_counterpart_lb )
 
@@ -632,6 +646,18 @@ module mod_oasis_load_balancing
                call flush(nulprt)
             ENDIF
 
+            ! Remove from the netcdf file non attributed events
+            IF ( ANY ( local_timeline(:)%kind == LB_TERM ) ) THEN
+               lastevent = 1
+               DO WHILE ( local_timeline(lastevent)%kind /= LB_TERM )
+                  lastevent = lastevent + 1
+               ENDDO
+               ievent = MIN ( ievent, lastevent+1 )
+            ENDIF
+
+            IF (OASIS_Debug >= 10) &
+               WRITE(nulprt,*) subname,' Final timeline length ', ievent
+
             ierror = nf90_def_dim(ncid,'nx',ievent/2,ncdimid(1))
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' define netcdf dim ', ierror ; call flush(nulprt)
@@ -714,19 +740,19 @@ module mod_oasis_load_balancing
 
             ! only "before" event characteristics are saved ("after" have the same)
             write_timeline(1:ievent/2) = local_timeline(1:ievent-1:2)%kind
-            ierror = nf90_put_var(ncid,ncvarid(3),write_timeline)
+            ierror = nf90_put_var(ncid,ncvarid(3),write_timeline(1:ievent/2))
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' put netcdf var kind', ierror ; call flush(nulprt)
             ENDIF
 
             write_timeline(1:ievent/2) = local_timeline(1:ievent-1:2)%field
-            ierror = nf90_put_var(ncid,ncvarid(4),write_timeline)
+            ierror = nf90_put_var(ncid,ncvarid(4),write_timeline(1:ievent/2))
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' put netcdf var field', ierror ; call flush(nulprt)
             ENDIF
 
             write_timeline(1:ievent/2) = local_timeline(1:ievent-1:2)%cntp
-            ierror = nf90_put_var(ncid,ncvarid(5),write_timeline)
+            ierror = nf90_put_var(ncid,ncvarid(5),write_timeline(1:ievent/2))
             IF (OASIS_Debug >= 2) THEN
                write(nulprt,*) subname,' put netcdf var counterpart model', ierror ; call flush(nulprt)
             ENDIF
@@ -967,85 +993,85 @@ module mod_oasis_load_balancing
                                    mpi_comm_global,'oasis_lb_print')
             END DO
 
-            WRITE(nullucia,*) ' ------------------------------'
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) '     Load balance analysis '
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) ' ------------------------------'
-            WRITE(nullucia,*) ' '
+            WRITE(nulet,*) ' ------------------------------'
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) '     Load balance analysis '
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) ' ------------------------------'
+            WRITE(nulet,*) ' '
 
             ! Print computation time, "waiting" time
 
-            write(nullucia,*) ' Model    /   Computing time  /  Waiting time  '
-            WRITE(nullucia,*) ' '
+            write(nulet,*) ' Model    /   Computing time  /  Waiting time  '
+            WRITE(nulet,*) ' '
 
             DO n = 1, prism_amodels
-               write(nullucia,'(a10,a3,f8.3,a3,f8.3)') &
+               write(nulet,'(a10,a3,f8.3,a3,f8.3)') &
                               TRIM(prism_modnam(n)) , ' / ', &
                               g_lb_diag_buff(1,n), ' / ', &
                               g_lb_diag_buff(2,n)
             ENDDO
 
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) ' ------------------------------'
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) '     Additional information '
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) ' ------------------------------'
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) ' ------------------------------'
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) '     Additional information '
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) ' ------------------------------'
 
             DO n = 1, prism_amodels
-               WRITE(nullucia,*) ' '
-               WRITE(nullucia,*) ' ------------------------------'
-               write(nullucia,'(a4,a10)') '    ', TRIM(prism_modnam(n))
-               WRITE(nullucia,*) ' ------------------------------'
-               WRITE(nullucia,*) ' '
-               write(nullucia,*) ' Specific oasis_get time '
-               write(nullucia,*) ' (n/a if no oasis_get) '
+               WRITE(nulet,*) ' '
+               WRITE(nulet,*) ' ------------------------------'
+               write(nulet,'(a4,a10)') '    ', TRIM(prism_modnam(n))
+               WRITE(nulet,*) ' ------------------------------'
+               WRITE(nulet,*) ' '
+               write(nulet,*) ' Specific oasis_get time '
+               write(nulet,*) ' (n/a if no oasis_get) '
                do ne = 1, prism_amodels
                   if ( g_lb_diag_buff(11+ne,n) > 0. ) THEN
-                     write(nullucia,'(a20,a10)') '         from model ', TRIM(prism_modnam(ne))
-                     write(nullucia,'(a11,f8.3)') '         : ', g_lb_diag_buff(11+ne,n)
+                     write(nulet,'(a20,a10)') '         from model ', TRIM(prism_modnam(ne))
+                     write(nulet,'(a11,f8.3)') '         : ', g_lb_diag_buff(11+ne,n)
                   endif
                enddo
-               WRITE(nullucia,*) ' '
-               WRITE(nullucia,*) ' -------------------'
-               WRITE(nullucia,*) ' '
-               write(nullucia,'(a16,f8.3)') ' Total jitter : ', g_lb_diag_buff(3,n)
-               WRITE(nullucia,*) ' '
-               write(nullucia,'(a29,f6.2)') ' Partial coupling cost (%) : ', g_lb_diag_buff(4,n)
-               write(nullucia,'(a56,f6.2)') ' Partial coupling cost including OASIS operations (%) : ', g_lb_diag_buff(5,n)
-               WRITE(nullucia,*) ' '
-               WRITE(nullucia,*) ' '
-               WRITE(nullucia,*) ' OASIS Operations : '
-               WRITE(nullucia,*) ' -------------------'
-               write(nullucia,'(a31,f8.3)') ' Total mapping/interpolation : ', g_lb_diag_buff(6,n)
-               write(nullucia,'(a19,f8.3)') '     with spread : ', g_lb_diag_buff(7,n)
-               WRITE(nullucia,*) ' '
-               write(nullucia,'(a46,f8.3)') ' Total Netcdf output (OUTPUT+EXPOUT+restart): ', g_lb_diag_buff(8,n)
-               write(nullucia,'(a19,f8.3)') '     with spread : ', g_lb_diag_buff(9,n)
-               WRITE(nullucia,*) ' '
-               WRITE(nullucia,'(a21,f8.3)') ' including restart : ', g_lb_diag_buff(10,n)
-               write(nullucia,'(a19,f8.3)') '     with spread : ', g_lb_diag_buff(11,n)
-               WRITE(nullucia,*) ' '
+               WRITE(nulet,*) ' '
+               WRITE(nulet,*) ' -------------------'
+               WRITE(nulet,*) ' '
+               write(nulet,'(a16,f8.3)') ' Total jitter : ', g_lb_diag_buff(3,n)
+               WRITE(nulet,*) ' '
+               write(nulet,'(a29,f6.2)') ' Partial coupling cost (%) : ', g_lb_diag_buff(4,n)
+               write(nulet,'(a56,f6.2)') ' Partial coupling cost including OASIS operations (%) : ', g_lb_diag_buff(5,n)
+               WRITE(nulet,*) ' '
+               WRITE(nulet,*) ' '
+               WRITE(nulet,*) ' OASIS Operations : '
+               WRITE(nulet,*) ' -------------------'
+               write(nulet,'(a31,f8.3)') ' Total mapping/interpolation : ', g_lb_diag_buff(6,n)
+               write(nulet,'(a19,f8.3)') '     with spread : ', g_lb_diag_buff(7,n)
+               WRITE(nulet,*) ' '
+               write(nulet,'(a46,f8.3)') ' Total Netcdf output (OUTPUT+EXPOUT+restart): ', g_lb_diag_buff(8,n)
+               write(nulet,'(a19,f8.3)') '     with spread : ', g_lb_diag_buff(9,n)
+               WRITE(nulet,*) ' '
+               WRITE(nulet,'(a21,f8.3)') ' including restart : ', g_lb_diag_buff(10,n)
+               write(nulet,'(a19,f8.3)') '     with spread : ', g_lb_diag_buff(11,n)
+               WRITE(nulet,*) ' '
 
-               call flush(nullucia)
+               call flush(nulet)
 
             ENDDO 
 
-            WRITE(nullucia,*) ' ------------------------------'
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) ' Total time of this load balancing analysis: '
-            WRITE(nullucia,'(a9,f8.3)') '       : ', MPI_WTIME() - dlb_time
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) ' ------------------------------'
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) ' Clock spread after synchronise '
-            WRITE(nullucia,*) ' .i.e. node clocks synchronisation (s) : '
-            WRITE(nullucia,'(a9,f12.8)') '       : ', clock_spread
-            WRITE(nullucia,*) ' '
-            WRITE(nullucia,*) ' ------------------------------'
+            WRITE(nulet,*) ' ------------------------------'
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) ' Total time of this load balancing analysis: '
+            WRITE(nulet,'(a9,f8.3)') '       : ', MPI_WTIME() - dlb_time
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) ' ------------------------------'
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) ' Clock spread after synchronise '
+            WRITE(nulet,*) ' .i.e. node clocks synchronisation (s) : '
+            WRITE(nulet,'(a9,f12.8)') '       : ', clock_spread
+            WRITE(nulet,*) ' '
+            WRITE(nulet,*) ' ------------------------------'
 
-            CLOSE(nullucia)
+            CLOSE(nulet)
 
             IF ( mpi_rank_global == 0 ) DEALLOCATE(g_lb_diag_buff)
 

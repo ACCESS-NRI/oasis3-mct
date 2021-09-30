@@ -1901,17 +1901,7 @@ CONTAINS
      CALL oasis_flush(nulprt)
   endif
 
-  IF ( LUCIA_debug == 1) THEN
-     DO nc = 1, prism_mcoupler
-        IF (prism_coupler_put(nc)%valid) &
-           WRITE(nullucia, '(A12,I4.4,1X,A)') 'Balance: SN ', prism_coupler_put(nc)%namID, TRIM(prism_coupler_put(nc)%fldlist)
-        IF (prism_coupler_get(nc)%valid) &
-           WRITE(nullucia, '(A12,I4.4,1X,A)') 'Balance: RC ', prism_coupler_get(nc)%namID, TRIM(prism_coupler_get(nc)%fldlist)
-     ENDDO
-  ENDIF
-
-!EM modif to add new LB analysis
-  IF ( ABS(LUCIA_debug) > 0 ) THEN
+  IF (ET_debug) THEN
 
      ! How much event to measure should we expect
      ! number of get/put

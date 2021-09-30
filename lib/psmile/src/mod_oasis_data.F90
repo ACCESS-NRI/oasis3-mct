@@ -17,13 +17,13 @@ MODULE mod_oasis_data
 
 ! GENERAL
 
-  INTEGER(kind=ip_intwp_p)  :: nulprt, nulprt1, nullucia  ! unit numbers for log files
+  INTEGER(kind=ip_intwp_p)  :: nulprt, nulprt1, nulet  ! unit numbers for log files
   INTEGER(kind=ip_i4_p)	    :: OASIS_debug
   INTEGER(kind=ip_i4_p)     :: TIMER_debug
-  INTEGER(kind=ip_i4_p)     :: LUCIA_debug
   character(len=ic_med)     :: cdf_filetype
 
   logical                   :: enddef_called   ! true when enddef is called, for error checking
+  logical                   :: ET_debug
 
   INTEGER(kind=ip_i4_p)     :: size_namfld
   CHARACTER(len=ic_lvar), POINTER :: total_namsrcfld(:), total_namdstfld(:)
@@ -89,10 +89,10 @@ CONTAINS
 
   nulprt = 6
   nulprt1 = 6
-  nullucia = 60
+  nulet = 60
   OASIS_debug = 0
   TIMER_debug = 0
-  LUCIA_debug = 0
+  ET_debug = .FALSE.
   compid = -1
   compnm = trim(cspval)
   oasis_coupled = .false.
