@@ -1408,6 +1408,8 @@ contains
                 endif
              endif
              call oasis_debug_note(subname//' apply rcvmult rcvadd')
+
+             ! BLASNEW local field values
              if (rcvadd /= 0.0_ip_double_p .or. rcvmult /= 1.0_ip_double_p) then
                 pcpointer%avect1%rAttr(:,:) = pcpointer%avect1%rAttr(:,:)*rcvmult &
                                                          + rcvadd
@@ -1418,6 +1420,25 @@ contains
                                    maxval(pcpointer%avect1%rAttr)
                 endif
              endif
+
+             ! BLASNEW other fields added
+             if (pcpointer%rfno > 0) then
+                call oasis_debug_note(subname//' add more flds from blasnew')
+                do n = 1,pcpointer%rfno
+                   if (OASIS_debug >= 15) then
+                      write(nulprt,*) subname,' DEBUG blasnew add ',trim(pcpointer%rfna(n)),pcpointer%rfmult(n),pcpointer%rfadd(n)
+                      write(nulprt,*) subname,' DEBUG blasnew add ',minval(prism_coupler_get(pcpointer%rfcpl(n))%avect1p%rAttr(pcpointer%rffnum(n),:)),maxval(prism_coupler_get(pcpointer%rfcpl(n))%avect1p%rAttr(pcpointer%rffnum(n),:))
+                   endif
+                   pcpointer%avect1%rAttr(nfav,:) = pcpointer%avect1%rAttr(nfav,:) + &
+                      (prism_coupler_get(pcpointer%rfcpl(n))%avect1p%rAttr(pcpointer%rffnum(n),:) * pcpointer%rfmult(n) + pcpointer%rfadd(n))
+                enddo
+             endif
+
+             ! save current field states for other BLASNEW sums later
+             if (pcpointer%blasfld) then
+                pcpointer%avect1p%rAttr(nfav,:) = pcpointer%avect1%rAttr(nfav,:)
+             endif
+
              if (rcvdiag) call oasis_advance_avdiag(pcpointer%avect1,partid)
           endif  ! getput
           endif  ! sndrcv
@@ -1601,7 +1622,7 @@ contains
        !------------------------------------------------
 
        if (getput == OASIS3_GET) then
-         IF (time_now .AND. unpack) THEN
+          IF (time_now .AND. unpack) THEN
              if (kinfo == OASIS_output) then
                 kinfo = OASIS_recvout
              elseif (kinfo == OASIS_fromrest) then
@@ -1657,7 +1678,7 @@ contains
                 if (present(array2dout)) write(nulprt,*) subname,' DEBUG array copy = ',&
                          cplid,minval(array2dout),maxval(array2dout)
              endif
-         ENDIF
+          ENDIF
           if (time_now) pcpointer%status(nfav) = OASIS_COMM_READY
        endif
 
