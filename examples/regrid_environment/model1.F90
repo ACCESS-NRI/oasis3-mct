@@ -40,11 +40,10 @@ PROGRAM model1
   !
   ! Grid parameters 
   INTEGER :: il_extentx, il_extenty, il_offsetx, il_offsety
-  INTEGER :: il_size, il_offset, ib
+  INTEGER :: il_size, il_offset
   INTEGER :: nlon_atmos, nlat_atmos    ! dimensions in the 2 space directions
   DOUBLE PRECISION, DIMENSION(:,:),   POINTER   :: grid_lon_atmos, grid_lat_atmos ! lon, lat of the cell centers
   INTEGER, DIMENSION(:,:),            POINTER   :: grid_msk_atmos ! mask, 0 == valid point, 1 == masked point
-  INTEGER :: nlon, nlat    ! dimensions in the 2 space directions
   !
   INTEGER :: mype, npes ! MPI task rank and number
   INTEGER :: local_comm  ! local MPI communicator
@@ -57,7 +56,7 @@ PROGRAM model1
   LOGICAL :: file_debug = .true.
   !
   ! Names of exchanged Fields
-  CHARACTER(len=8), PARAMETER :: var_name = 'FSENDANA' ! 8 characters field sent by model1
+  CHARACTER(len=8), PARAMETER :: var_name = 'FSENDANA' ! 8 characters field sent
   !
   ! Used in oasis_def_var and oasis_def_var
   INTEGER                       :: var_id
@@ -65,7 +64,6 @@ PROGRAM model1
   INTEGER                       :: var_type
   !
   ! Grid parameters definition
-  INTEGER                       :: part_id   ! use to connect the partition to the variables 
   INTEGER                       :: var_sh(1) ! not used anymore
   !
   ! Exchanged local fields arrays
@@ -148,7 +146,6 @@ PROGRAM model1
   !
   ! Read dimensions of the global grid
   CALL read_dimgrid(nlon_atmos, nlat_atmos, cl_grd_src, w_unit, file_debug)
-  CALL read_dimgrid(nlon, nlat, cl_grd_src, w_unit, file_debug)
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !  PARTITION DEFINITION
@@ -306,16 +303,6 @@ PROGRAM model1
         call gradient_conserv(nlon_atmos, nlat_atmos, il_offsetx+1, il_offsety+1, il_extentx, il_extenty, &
                                   cl_grd_src, il_overlap_src, cl_period_src, w_unit,  &
                                   grad_lon, grad_lat, file_debug)
-        do ib=1,il_extenty
-           WRITE(w_unit,*) 'grad_lon'
-           WRITE(w_unit,*) grad_lon(:,ib)
-           WRITE(w_unit,*) 'grad_lat'
-           WRITE(w_unit,*) grad_lat(:,ib)
-           WRITE(w_unit,*) 'field_send'
-           WRITE(w_unit,*) field_send(:,ib)
-        enddo
-        call flush (w_unit)
-
         IF (file_debug) THEN
            WRITE(w_unit,*) 'Conservative gradient calculated '
            CALL FLUSH(w_unit)
@@ -335,7 +322,8 @@ PROGRAM model1
      call oasis_put(var_id, 0, field_send, ierror)
   ENDIF
 #elif defined ESMFweights
-  call oasis_put(var_id, 0, field_send(:,:),(/var_sh(2),var_sh(4)/), ierror)
+!  call oasis_put(var_id, 0, field_send(:,:),(/var_sh(2),var_sh(4)/), ierror)
+  call oasis_put(var_id, 0, field_send, ierror)
 #endif
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
