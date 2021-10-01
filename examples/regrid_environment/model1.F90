@@ -391,6 +391,10 @@ PROGRAM model1
 !  call oasis_put(var_id_s, 0, field_send(:,:),(/var_sh(2),var_sh(4)/), ierror)
   call oasis_put(var_id_s, 0, field_send, ierror)
 #endif
+  IF (file_debug) THEN
+      WRITE(w_unit,*) 'After oasis_put'
+      CALL FLUSH(w_unit)
+  ENDIF
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   ! RECEIVE ARRAYS AND CALCULATE THE ERROR 
@@ -459,11 +463,17 @@ PROGRAM model1
   !
   data_filename='error_interp_'//chout//'.nc'
   field_name='error_interp'
-  CALL write_field(nlon_t, nlat_t, data_filename, field_name, w_unit, file_debug, grid_lon_s, grid_lat_s, field_error)
+  CALL write_field(il_extentx_t, il_extenty_t, data_filename, field_name, w_unit, file_debug, grid_lon_t, grid_lat_t, field_error)
   !
-  data_filename='FRECVANA'//chout//'.nc'
-  field_name='FRECVANA' 
-  CALL write_field(nlon_t, nlat_t, data_filename, field_name, w_unit, file_debug, grid_lon_s, grid_lat_s, field_recv)
+  data_filename='FRECVANA_'//chout//'.nc'
+  field_name='FRECVANA'
+  !
+  CALL write_field(il_extentx_t, il_extenty_t, data_filename, field_name, w_unit, file_debug, grid_lon_t, grid_lat_t, field_recv)
+  IF (file_debug) THEN
+      WRITE (w_unit,*) 'After writing the field received'
+      WRITE (w_unit,*) field_recv
+      CALL FLUSH(w_unit)
+  ENDIF  
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   ! Calculate error min and max on non-masked points that received an interpolated value
