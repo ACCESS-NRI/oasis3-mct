@@ -3,13 +3,6 @@ include header_Makefile
 #
 ##### User configurable options #####
 #
-# CPP keys for model 1 (_M1) and for model 2 (_M2)
-# type of decomposition :
-# DECOMP_APPLE for 1D decomposition
-# DECOMP_BOX for 2D decomposition
-CPPKEYDECOMP_M1=DECOMP_APPLE
-CPPKEYDECOMP_M2=DECOMP_APPLE
-#
 # Case of remapping weights:
 # SCRIPweights for remapping weights computed by SCRIP
 # ESMFweights for remapping weights read in an existing file specified by the OASIS namcouple
@@ -22,19 +15,16 @@ CPPKEY_FANA=FANA1 # FANA1 FANA2 FANA3
 ### End User configurable options ###
 #
 OBJ_M1 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \
-          decomp_def.o function_ana.o gradient_bicubic.o \
+          function_ana.o gradient_bicubic.o \
           distance_rad.o write_all_fields.o \
           def_parallel_decomposition.o gradient_conserv.o
-OBJ_M2 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \
-          decomp_def_m2.o function_ana.o \
-          write_all_fields.o
 #-------------------------------------------------------------------------------
 # General rules
 #-------------------------------------------------------------------------------
 #
 default: all
 #
-all: oasis3_psmile model1 model2
+all: oasis3_psmile model1
 #
 # Compile and link libaries
 oasis3_psmile:
@@ -46,8 +36,6 @@ oasis3_psmile:
 #
 model1: $(OBJ_M1) model1.o $(LIBPSMILE) Makefile
 	$(LD) $(LDFLAGS) -o $@ $(OBJ_M1) model1.o $(LIBPSMILE) $(FLIBS) $(NETCDF_LIBRARY)
-model2: $(OBJ_M2) model2.o $(LIBPSMILE) Makefile
-	$(LD) $(LDFLAGS) -o $@ $(OBJ_M2) model2.o $(LIBPSMILE) $(FLIBS) $(NETCDF_LIBRARY)
 #
 #-------------------------------------------------------------------------------
 # Rules for compilation
@@ -60,17 +48,11 @@ routine_hdlerr.o :		routine_hdlerr.f90
 read_all_data.o :		read_all_data.F90
 				$(F90) $(F90FLAGS) -c read_all_data.F90
 def_parallel_decomposition.o :  def_parallel_decomposition.F90
-				$(F90) $(F90FLAGS) -D$(CPPKEYDECOMP_M1) -c def_parallel_decomposition.F90
-def_parallel_decomposition_m2.o : def_parallel_decomposition.F90
-				$(F90) $(F90FLAGS) -D$(CPPKEYDECOMP_M2) -o def_parallel_decomposition_m2.o -c def_parallel_decomposition.F90
+				$(F90) $(F90FLAGS) -c def_parallel_decomposition.F90
 write_all_fields.o :		write_all_fields.F90
 				$(F90) $(F90FLAGS) -c write_all_fields.F90
 function_ana.o :		function_ana.f90
 				$(F90) $(F90FLAGS) -c function_ana.f90
-decomp_def.o : 			decomp_def.F90
-				$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M1} -c decomp_def.F90
-decomp_def_m2.o : 		decomp_def.F90
-				$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M2} -o decomp_def_m2.o -c decomp_def.F90
 gradient_bicubic.o :	        gradient_bicubic.F90
 				$(F90) $(F90FLAGS) -D${CPPKEY_FANA} -c gradient_bicubic.F90
 distance_rad.o :		distance_rad.f90
@@ -79,9 +61,7 @@ gradient_conserv.o :		gradient_conserv.F90
 				$(F90) $(F90FLAGS) -D${CPPKEY_FANA}  -c gradient_conserv.F90
 
 model1.o :	model1.F90 Makefile
-		$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M1} -D${CPPKEY_WEIGHTS} -D${CPPKEY_FANA} -c model1.F90
-model2.o :	model2.F90 Makefile
-		$(F90) $(F90FLAGS) -D${CPPKEYDECOMP_M2} -D${CPPKEY_WEIGHTS} -D${CPPKEY_FANA} -c model2.F90
+		$(F90) $(F90FLAGS) -D${CPPKEY_WEIGHTS} -D${CPPKEY_FANA} -c model1.F90
 #
 #-------------------------------------------------------------------------------
 # Utilities
@@ -93,7 +73,7 @@ help:
 # Clean directory
 #
 clean:
-	-rm -f *.o *.mod *.MOD model1 model2
+	-rm -f *.o *.mod *.MOD model1
 	-rm -f i.*.F90 *.L
 	-rm -f core core.* 
 #

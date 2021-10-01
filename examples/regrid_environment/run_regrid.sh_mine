@@ -76,7 +76,7 @@ if [ ${SRC_GRID} == "icos" ]; then
 	fi
 fi
 ##
-rundir=$srcdir/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}
+rundir=$srcdir/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_011021
 ##
 ######################################################################
 ##
@@ -126,8 +126,10 @@ cp -f $datadir/namcouple_${SRC_GRID}_${TGT_GRID}_${remap} $rundir/namcouple
 SRC_GRID_TYPE=`sed -n 20p $rundir/namcouple | tr -s ' ' | cut -d" " -f2` # source grid type
 SRC_GRID_PERIOD=`sed -n 17p $rundir/namcouple | tr -s ' ' | cut -d" " -f1` # "P" for periodic, "R" for non-periodic
 SRC_GRID_OVERLAP=`sed -n 17p $rundir/namcouple | tr -s ' ' | cut -d" " -f2` # Number of overlapping grid points for periodic grids
+TGT_GRID_TYPE=LR
 
 echo "SRC_GRID_TYPE : $SRC_GRID_TYPE"
+echo "TGT_GRID_TYPE : $TGT_GRID_TYPE"
 echo "SRC_GRID_PERIOD : $SRC_GRID_PERIOD"
 echo "SRC_GRID_OVERLAP : $SRC_GRID_OVERLAP"
 
@@ -142,6 +144,7 @@ il_overlap_src=$SRC_GRID_OVERLAP
 \$end
 \$grid_target_characteristics
 cl_grd_tgt='$TGT_GRID'
+cl_type_tgt='$TGT_GRID_TYPE'
 \$end
 EOF
 #
@@ -306,7 +309,7 @@ elif [ $arch == belenos ]; then
     squeue -u $user
 elif [ ${arch} == mac ]; then
     echo 'Executing the model using mpirun'
-    mpirun --oversubscribe -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2
+    mpirun --oversubscribe -np $nproc_exe1 ./$exe1
 fi
 
 echo $casename 'is executed or submitted to queue.'
