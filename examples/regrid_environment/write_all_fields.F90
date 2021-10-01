@@ -34,7 +34,15 @@ MODULE write_all_fields
   !
   ! Dimensions
   !
+  IF (file_debug) THEN
+      WRITE(w_unit,*) 'Entering write_field, data_filename = ', data_filename
+     CALL FLUSH(w_unit)
+  ENDIF
   CALL hdlerr(NF90_CREATE(data_filename, NF90_CLOBBER, il_file_id), w_unit, subname, __FILE__, __LINE__ )
+  IF (file_debug) THEN
+      WRITE(w_unit,*) 'After creating data_filename = ', data_filename
+      CALL FLUSH(w_unit)
+  ENDIF
   !
   CALL hdlerr( NF90_DEF_DIM(il_file_id, "lon", nlon, LONID), w_unit, subname, __FILE__, __LINE__ )
   CALL hdlerr( NF90_DEF_DIM(il_file_id, "lat", nlat, LATID), w_unit, subname, __FILE__, __LINE__ )
@@ -63,6 +71,10 @@ MODULE write_all_fields
   !gjoffCALL hdlerr( NF90_PUT_ATT(il_file_id, il_array_id, "_FillValue", dl_FillValue),__LINE__ )
   !
   CALL hdlerr( NF90_ENDDEF(il_file_id), w_unit, subname, __FILE__, __LINE__ )
+  IF (file_debug) THEN
+      WRITE(w_unit,*) 'After NF90_ENDDEF '
+      CALL FLUSH(w_unit)
+  ENDIF
   !
   ila_what(:)=1
   !
@@ -71,8 +83,7 @@ MODULE write_all_fields
   !
   ! Data
   !
-  CALL hdlerr( NF90_PUT_VAR (il_file_id, il_lon_id, gridlon, &
-     ila_what, ila_dim), w_unit, subname, __FILE__, __LINE__ )
+  CALL hdlerr( NF90_PUT_VAR (il_file_id, il_lon_id, gridlon, ila_what, ila_dim), w_unit, subname, __FILE__, __LINE__ )
   !
   CALL hdlerr( NF90_PUT_VAR (il_file_id, il_lat_id, gridlat, &
      ila_what, ila_dim), w_unit, subname, __FILE__, __LINE__ )
