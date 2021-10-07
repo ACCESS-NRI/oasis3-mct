@@ -1,0 +1,45 @@
+#!/bin/ksh
+#set -x
+srcdir=`pwd`
+ext="071021"
+casename=`basename $srcdir`
+fileres=$srcdir/RUNDIR_${ext}/resu.txt
+n_p_t=1_4_1
+echo ${n_p_t} > $fileres
+for SRC_GRID in bggd icos ssea ; do
+   TGT_GRID=nogt
+   for remap in distwgt conserv1st ; do
+#       run_regrid.sh $SRC_GRID $TGT_GRID $remap $n_p_t
+        rundir=$srcdir/RUNDIR_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${n_p_t}_${ext}
+        resu=`grep "Error mean" ${rundir}/model1.out_100 | awk -F " " '{print $12}'`
+        echo ${SRC_GRID}' '${TGT_GRID}' '${remap}' '${n_p_t}' : '${resu} >> $fileres
+   done
+done
+for SRC_GRID in bggd ssea ; do
+   TGT_GRID=nogt
+   for remap in bili bicu ; do
+#        run_regrid.sh $SRC_GRID $TGT_GRID $remap $n_p_t
+	rundir=$srcdir/RUNDIR_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${n_p_t}_${ext}
+        resu=`grep "Error mean" ${rundir}/model1.out_100 | awk -F " " '{print $12}'`
+        echo ${SRC_GRID}' '${TGT_GRID}' '${remap}' '${n_p_t}' : '${resu} >> $fileres
+   done
+done 
+SRC_GRID=bggd
+TGT_GRID=nogt
+remap=conserv2nd
+#run_regrid.sh $SRC_GRID $TGT_GRID $remap $n_p_t
+rundir=$srcdir/RUNDIR_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${n_p_t}_${ext}
+resu=`grep "Error mean" ${rundir}/model1.out_100 | awk -F " " '{print $12}'`
+echo ${SRC_GRID}' '${TGT_GRID}' '${remap}' '${n_p_t}' : '${resu} >> $fileres
+#
+for TGT_GRID in bggd icos ssea ; do
+   SRC_GRID=nogt
+   for remap in distwgt bili bicu conserv1st conserv2nd ; do
+#        run_regrid.sh $SRC_GRID $TGT_GRID $remap $n_p_t
+        rundir=$srcdir/RUNDIR_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${n_p_t}_${ext}
+        resu=`grep "Error mean" ${rundir}/model1.out_100 | awk -F " " '{print $12}'`
+        echo ${SRC_GRID}' '${TGT_GRID}' '${remap}' '${n_p_t}' : '${resu} >> $fileres
+   done
+done
+echo 'Differences'
+echo `diff $srcdir/resu.txt_OK $srcdir/RUNDIR_${ext}/resu.txt`

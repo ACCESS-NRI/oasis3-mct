@@ -1,0 +1,27 @@
+1_4_1
+bggd nogt distwgt 1_4_1 : 0.0742
+bggd nogt conserv1st 1_4_1 : 0.1413
+icos nogt distwgt 1_4_1 : 0.0789
+icos nogt conserv1st 1_4_1 : 0.2167
+ssea nogt distwgt 1_4_1 : 0.0745
+ssea nogt conserv1st 1_4_1 : 0.1525
+bggd nogt bili 1_4_1 : 0.0040
+bggd nogt bicu 1_4_1 : 0.0016
+ssea nogt bili 1_4_1 : 0.0054
+ssea nogt bicu 1_4_1 : 0.0002
+bggd nogt conserv2nd 1_4_1 : 0.0015
+nogt bggd distwgt 1_4_1 : 0.0287
+nogt bggd bili 1_4_1 : 0.0115
+nogt bggd bicu 1_4_1 : 0.0114
+nogt bggd conserv1st 1_4_1 : 0.0179
+nogt bggd conserv2nd 1_4_1 : 0.0139
+nogt icos distwgt 1_4_1 : 0.0923
+nogt icos bili 1_4_1 : 0.0604
+nogt icos bicu 1_4_1 : 0.0599
+nogt icos conserv1st 1_4_1 : 0.0719
+nogt icos conserv2nd 1_4_1 : 0.0552
+nogt ssea distwgt 1_4_1 : 0.0744
+nogt ssea bili 1_4_1 : 0.0467
+nogt ssea bicu 1_4_1 : 0.0463
+nogt ssea conserv1st 1_4_1 : 0.0605
+nogt ssea conserv2nd 1_4_1 : 0.0651
