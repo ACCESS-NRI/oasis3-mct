@@ -13,12 +13,12 @@ casename=`basename $srcdir`
 if [ $# -eq 0 ] ; then
    echo "By default, i.e. without arguments, the source grid is bggd,"
    echo "the target grid is nogt and the remapping is 1st order conservative;"
-   echo "2 nodes, 1 MPI task per node and 1 OpenMP thread per MPI task are used for the run."
+   echo "1 node, 1 MPI task per node and 1 OpenMP thread per MPI task are used for the run."
    SRC_GRID=bggd
    TGT_GRID=nogt
    remap=conserv1st
-   n_p_t=2_1_1
-   nnode=2
+   n_p_t=1_1_1
+   nnode=1
    mpiprocs=1
    threads=1 
 elif [ $# -ne 4 ] ; then
@@ -39,7 +39,7 @@ else
 fi
 ##
 ## User's choice of computing architecture
-arch=pgi20.4_openmpi_openmp_linux  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp,
+arch=mac  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp,
               # training_computer, gfortran_openmpi_openmp_linux, belenos, mac
 	      # pgi_openmpi_openmp_linux, 
 	      # pgi20.4_openmpi_openmp_linux (not work with 4.0)
@@ -76,19 +76,13 @@ if [ ${SRC_GRID} == "icos" ]; then
 	fi
 fi
 ##
-rundir=$srcdir/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}
+rundir=$srcdir/RUNDIR_071021/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_071021
 ##
 ######################################################################
 ##
 ## - Name of the executables
 exe1=model1
-exe2=model2
 ##
-## - Define number of processes to run each executable
-(( nproc = $nnode * $mpiprocs ))
-(( nproc_exe2 = $nproc / 2 ))
-(( nproc_exe1 = $nproc - $nproc_exe2 ))
-
 echo ''
 echo '**************************************************************************************************************'
 echo '*** '$casename' : '$run
@@ -104,8 +98,7 @@ echo 'User         : '$user
 echo 'Grids        : '$SRC_GRID'-->'$TGT_GRID
 echo 'Remap        : '$remap
 echo ''
-echo $exe1' runs on '$nproc_exe1 'processes'
-echo $exe2' runs on '$nproc_exe2 'processes'
+echo $exe1' runs on '$mpiprocs 'processes'
 echo ''
 echo ''
 
@@ -117,19 +110,37 @@ ln -sf $datadir/grids.nc  $rundir/grids.nc
 ln -sf $datadir/masks.nc  $rundir/masks.nc
 ln -sf $datadir/areas.nc  $rundir/areas.nc
 ln -sf $srcdir/$exe1 $rundir/.
-ln -sf $srcdir/$exe2 $rundir/.
 cp -f $datadir/namcouple_${SRC_GRID}_${TGT_GRID}_${remap} $rundir/namcouple
 
 ## - Grid source characteristics 
 # These are read in the namcouple file. If you decide to use another namcouple than the ones coming from /data_oasis3
 # you may have to change the 3 lines below
-SRC_GRID_TYPE=`sed -n 20p $rundir/namcouple | tr -s ' ' | cut -d" " -f2` # source grid type
-SRC_GRID_PERIOD=`sed -n 17p $rundir/namcouple | tr -s ' ' | cut -d" " -f1` # "P" for periodic, "R" for non-periodic
-SRC_GRID_OVERLAP=`sed -n 17p $rundir/namcouple | tr -s ' ' | cut -d" " -f2` # Number of overlapping grid points for periodic grids
-
-echo "SRC_GRID_TYPE : $SRC_GRID_TYPE"
-echo "SRC_GRID_PERIOD : $SRC_GRID_PERIOD"
-echo "SRC_GRID_OVERLAP : $SRC_GRID_OVERLAP"
+if [ ${SRC_GRID} == bggd ]; then
+    SRC_GRID_TYPE=LR
+    SRC_GRID_PERIOD=P
+    SRC_GRID_OVERLAP=0   
+elif [ ${SRC_GRID} == ssea ]; then
+    SRC_GRID_TYPE=D
+    SRC_GRID_PERIOD=P
+    SRC_GRID_OVERLAP=0
+elif [ ${SRC_GRID} == icos ]; then
+    SRC_GRID_TYPE=U
+    SRC_GRID_PERIOD=P
+    SRC_GRID_OVERLAP=0
+elif [ ${SRC_GRID} == nogt ]; then
+    SRC_GRID_TYPE=LR
+    SRC_GRID_PERIOD=P
+    SRC_GRID_OVERLAP=2
+fi
+if [ ${TGT_GRID} == bggd ]; then
+    TGT_GRID_TYPE=LR  
+elif [ ${TGT_GRID} == ssea ]; then
+    TGT_GRID_TYPE=D
+elif [ ${TGT_GRID} == icos ]; then
+    TGT_GRID_TYPE=U
+elif [ ${TGT_GRID} == nogt ]; then
+    TGT_GRID_TYPE=LR
+fi
 
 ## - Create name_grids.dat, that will be read by the models, from namcouple informations
 cat <<EOF >> $rundir/name_grids.dat
@@ -142,6 +153,7 @@ il_overlap_src=$SRC_GRID_OVERLAP
 \$end
 \$grid_target_characteristics
 cl_grd_tgt='$TGT_GRID'
+cl_type_tgt='$TGT_GRID_TYPE'
 \$end
 EOF
 #
@@ -177,7 +189,7 @@ export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
 export OASIS_OMP_NUM_THREADS=$threads
 
-time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 
+time mpirun -np $mpiprocs ./$exe1 
 EOF
 
 ###---------------------------------------------------------------------
@@ -202,7 +214,7 @@ elif [ ${arch} == kraken_intel_impi_openmp ]; then
 # Number of MPI tasks per node
 #SBATCH --ntasks-per-node=$mpiprocs
 # Number of OpenMP threads per MPI task
-#SBATCH --cpus-per-task=36
+#SBATCH --cpus-per-task=$threads
 
 cd $rundir
 module purge
@@ -232,7 +244,7 @@ export OMP_NUM_THREADS=$threads
     INTELMPI_BINDING="-env I_MPI_PIN_PROCESSOR_LIST \${MAP_CPU}"
     I_IMPI_BINDING="-env I_MPI_PERHOST \${mpiprocs} \${INTELMPI_BINDING}"
 
-time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 
+time mpirun -np $mpiprocs ./$exe1
 EOF
 
 elif [ $arch == belenos ] ; then
@@ -260,7 +272,7 @@ export KMP_AFFINITY=verbose,granularity=fine,compact
 export OASIS_OMP_NUM_THREADS=$threads
 export OMP_NUM_THREADS=$threads
 #
-time mpirun -np ${nproc_exe1} ./$exe1 : -np ${nproc_exe2} ./$exe2
+time mpirun -np ${mpiprocs} ./$exe1
 #
 EOF
 
@@ -273,25 +285,25 @@ if [ ${arch} == training_computer ]; then
     export OASIS_OMP_NUM_THREADS=$threads
     MPIRUN=/usr/local/intel/impi/2018.1.163/bin64/mpirun
     echo 'Executing the model using '$MPIRUN
-    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+    $MPIRUN -np $mpiprocs ./$exe1 > runjob.err
 elif [ ${arch} == gfortran_openmpi_openmp_linux ]; then
     export OASIS_OMP_NUM_THREADS=$threads
     MPIRUN=/usr/lib64/openmpi/bin/mpirun
     echo 'Executing the model using '$MPIRUN
-    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+    $MPIRUN -np $mpiprocs ./$exe1 > runjob.err
 elif [ $arch == pgi_openmpi_openmp_linux ]; then
     MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun
     echo 'Executing the model using '$MPIRUN
-    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+    $MPIRUN -np $mpiprocs ./$exe1 > runjob.err
 elif [ ${arch} == gnu1020_openmpi_openmp_linux ]; then
     export OASIS_OMP_NUM_THREADS=$threads
     MPIRUN=/usr/local/openmpi/4.1.0_gcc1020/bin/mpirun
     echo 'Executing the model using '$MPIRUN
-    $MPIRUN -oversubscribe -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+    $MPIRUN -oversubscribe -np $mpiprocs ./$exe1 > runjob.err
 elif [ $arch == pgi20.4_openmpi_openmp_linux ]; then
     MPIRUN=/usr/local/pgi/linux86-64/20.4/mpi/openmpi-3.1.3/bin/mpirun
     echo 'Executing the model using '$MPIRUN
-    $MPIRUN -oversubscribe -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
+    $MPIRUN -oversubscribe -np $mpiprocs ./$exe1 > runjob.err
 elif [ $arch == nemo_lenovo_intel_impi_openmp ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
@@ -306,7 +318,7 @@ elif [ $arch == belenos ]; then
     squeue -u $user
 elif [ ${arch} == mac ]; then
     echo 'Executing the model using mpirun'
-    mpirun --oversubscribe -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2
+    mpirun --oversubscribe -np $mpiprocs ./$exe1
 fi
 
 echo $casename 'is executed or submitted to queue.'
