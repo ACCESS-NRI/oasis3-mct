@@ -8,16 +8,14 @@ $RUNTIME
 $END 
 ############################################ 
 $NLOGPRT  
-1 0 
+2 0 
 $END 
 ############################################ 
 $STRINGS  
-FSENDANA FRECVANA 1 7200 3 rst.nc EXPOUT 
+FSENDANA FRECVANA 1 7200 1 rst.nc EXPOUT 
 144 143  362 294 bggd nogt 
 P  0  P  2 
-CHECKIN SCRIPR CHECKOUT  
-INT=1 
+SCRIPR
 CONSERV LR SCALAR LATLON 1 FRACNNEI FIRST
-INT=1 
 #### 
 $END 
