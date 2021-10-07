@@ -1,4 +1,4 @@
-#############################################
+############################################
 $NFIELDS  
 1 
 $END 
@@ -13,9 +13,8 @@ $END
 ############################################ 
 $STRINGS  
 FSENDANA FRECVANA 1 7200 1 rst.nc EXPOUT 
-144 143  362 294 bggd nogt 
-P  0  P  2 
-SCRIPR
-BILINEAR LR SCALAR LATLON 1 
-#### 
-$END 
+362 294  15212 1 nogt icos 
+P 2 P 0  
+SCRIPR 
+BICUBIC LR SCALAR LATLON 1
+$END
