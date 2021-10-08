@@ -76,7 +76,7 @@ if [ ${SRC_GRID} == "icos" ]; then
 	fi
 fi
 ##
-rundir=$srcdir/RUNDIR_071021/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_071021
+rundir=$srcdir/RUNDIR_071021bis/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_071021bis
 ##
 ######################################################################
 ##
