@@ -47,10 +47,10 @@ PROGRAM model1
   INTEGER :: il_size_t, il_offset_t
   INTEGER :: nlon_s, nlat_s    ! dimensions in the 2 space directions
   INTEGER :: nlon_t, nlat_t    ! dimensions in the 2 space directions
-  DOUBLE PRECISION, DIMENSION(:,:),   POINTER   :: grid_lon_s, grid_lat_s ! lon, lat of the cell centers
-  DOUBLE PRECISION, DIMENSION(:,:),   POINTER   :: grid_lon_t, grid_lat_t ! lon, lat of the cell centers
-  INTEGER, DIMENSION(:,:),            POINTER   :: grid_msk_s ! mask, 0 == valid point, 1 == masked point
-  INTEGER, DIMENSION(:,:),            POINTER   :: grid_msk_t ! mask, 0 == valid point, 1 == masked point
+  REAL (kind=wp), ALLOCATABLE   :: grid_lon_s(:,:), grid_lat_s(:,:) ! lon, lat of the cell centers
+  REAL (kind=wp), ALLOCATABLE   :: grid_lon_t(:,:), grid_lat_t(:,:) ! lon, lat of the cell centers
+  INTEGER, ALLOCATABLE          :: grid_msk_s(:,:) ! mask, 0 == valid point, 1 == masked point
+  INTEGER, ALLOCATABLE          :: grid_msk_t(:,:) ! mask, 0 == valid point, 1 == masked point
   !
   INTEGER :: mype, npes ! MPI task rank and number
   INTEGER :: local_comm  ! local MPI communicator
@@ -75,12 +75,14 @@ PROGRAM model1
   INTEGER                       :: var_sh(1) ! not used anymore
   !
   ! Exchanged local fields arrays
-  REAL (kind=wp),   POINTER     :: field_send(:,:)
-  REAL (kind=wp),   POINTER     :: gradient_i(:,:), gradient_j(:,:), gradient_ij(:,:)
-  REAL (kind=wp),   POINTER     :: grad_lat(:,:), grad_lon(:,:)
-  REAL (kind=wp),   POINTER     :: field_recv(:,:)
-  REAL (kind=wp),   POINTER     :: field_ana(:,:), field_error(:,:)
-  INTEGER, POINTER              :: mask_error(:,:) ! error mask, 0 == masked point, 1 == valid point
+  REAL (kind=wp), ALLOCATABLE   :: field_send(:,:)
+  REAL (kind=wp), ALLOCATABLE   :: gradient_i(:,:), gradient_j(:,:), gradient_ij(:,:)
+  REAL (kind=wp), ALLOCATABLE   :: grad_lat(:,:), grad_lon(:,:)
+  REAL (kind=wp), ALLOCATABLE   :: field_recv(:,:), field_recv_global(:,:)
+  REAL (kind=wp), ALLOCATABLE   :: grid_lon_global_t(:,:), grid_lat_global_t(:,:)
+  REAL (kind=wp), ALLOCATABLE   :: field_ana(:,:), field_error(:,:), field_error_global(:,:)
+  INTEGER, ALLOCATABLE          :: mask_error(:,:), mask_error_global(:,:) ! error mask, 0 == masked point, 1 == valid point
+  INTEGER, ALLOCATABLE          :: il_size_all(:), il_offset_all(:)
   !
   INTEGER :: ic_nmsk, ic_nmskrv
   REAL (kind=wp)                :: min, max               ! Minimum and maximum of the error
@@ -457,50 +459,99 @@ PROGRAM model1
       CALL FLUSH(w_unit)
   ENDIF
   !
-  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  !  Write the error and the field in a NetCDF file by proc0
-  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ! Gather field received and error on master process to calculate min and max and write them to files
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !
-  data_filename='error_interp_'//chout//'.nc'
-  field_name='error_interp'
-  CALL write_field(il_extentx_t, il_extenty_t, data_filename, field_name, w_unit, file_debug, grid_lon_t, grid_lat_t, field_error)
-  !
-  data_filename='FRECVANA_'//chout//'.nc'
-  field_name='FRECVANA'
-  !
-  CALL write_field(il_extentx_t, il_extenty_t, data_filename, field_name, w_unit, file_debug, grid_lon_t, grid_lat_t, field_recv)
   IF (file_debug) THEN
-      WRITE (w_unit,*) 'After writing the field received'
-      WRITE (w_unit,*) field_recv
+      WRITE (w_unit,*) 'Before gathering the field received and the error '
       CALL FLUSH(w_unit)
-  ENDIF  
+  ENDIF
+
+  ! Gather the whole field on the master process to calculate the error
+  IF (mype == 0) THEN
+      ALLOCATE(il_size_all(npes))
+      ALLOCATE(il_offset_all(npes))
+      ALLOCATE(field_recv_global(nlon_t, nlat_t),STAT=ierror )
+      ALLOCATE(field_error_global(nlon_t, nlat_t),STAT=ierror )
+      IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_recv_global'
+      ALLOCATE(mask_error_global(nlon_t, nlat_t),STAT=ierror )
+      ALLOCATE(grid_lon_global_t(nlon_t, nlat_t),STAT=ierror )
+      ALLOCATE(grid_lat_global_t(nlon_t, nlat_t),STAT=ierror )
+      field_recv_global(:,:) = 0.0
+      grid_lon_global_t(:,:) = 0.0
+      grid_lat_global_t(:,:) = 0.0
+  ENDIF
+  CALL MPI_GATHER(il_size_t, 1, MPI_INTEGER, il_size_all, 1, MPI_INTEGER, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHER il_size_all target'
+  CALL FLUSH(w_unit)
+  CALL MPI_GATHER(il_offset_t, 1, MPI_INTEGER, il_offset_all, 1, MPI_INTEGER, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHER il_offset_all target'
+  CALL FLUSH(w_unit)
+  CALL MPI_Gatherv(field_recv, il_size_t, MPI_DOUBLE_PRECISION, field_recv_global, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHERv field_recv_global'
+  CALL FLUSH(w_unit)
+  CALL MPI_Gatherv(field_error, il_size_t, MPI_DOUBLE_PRECISION, field_error_global, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHERv field_error_global'
+  CALL FLUSH(w_unit)
+  CALL MPI_Gatherv(mask_error, il_size_t, MPI_INTEGER, mask_error_global, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHERv mask_error_global'
+  CALL FLUSH(w_unit)  
+  CALL MPI_Gatherv(grid_lon_t, il_size_t, MPI_DOUBLE_PRECISION, grid_lon_global_t, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHERv grid_lon_global_t'
+  CALL FLUSH(w_unit)
+  CALL MPI_Gatherv(grid_lat_t, il_size_t, MPI_DOUBLE_PRECISION, grid_lat_global_t, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHERv grid_lat_global_t'
+  CALL FLUSH(w_unit)
+  !
+  IF (mype == 0) THEN
+      data_filename='FRECVANA.nc'
+      field_name='FRECVANA'
+      !
+      CALL write_field(nlon_t, nlat_t, data_filename, field_name, w_unit, file_debug, grid_lon_global_t, grid_lat_global_t, field_recv_global)
+      IF (file_debug) THEN
+          WRITE (w_unit,*) 'After writing the field received'
+          CALL FLUSH(w_unit)
+      ENDIF
+      data_filename='REGRID_ERROR.nc'
+      field_name='ERROR'
+      !
+      CALL write_field(nlon_t, nlat_t, data_filename, field_name, w_unit, file_debug, grid_lon_global_t, grid_lat_global_t, field_error_global)
+      IF (file_debug) THEN
+          WRITE (w_unit,*) 'After writing the field received'
+          CALL FLUSH(w_unit)
+      ENDIF       
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   ! Calculate error min and max on non-masked points that received an interpolated value
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !
-  min=MINVAL(field_error, MASK=mask_error>0)
-  IF (file_debug) THEN
-     WRITE(w_unit,*) 'Min (%) and its location in the error field : ',min
-     WRITE(w_unit,*) MINLOC(field_error)
-     CALL FLUSH(w_unit)
-  ENDIF
-  !
-  max=MAXVAL(field_error, MASK=mask_error>0)
-  IF (file_debug) THEN
-      WRITE(w_unit,'(A47,1X,F6.4)')'Max (%) and its location in the error field : ',max
-      WRITE(w_unit,*) MAXLOC(field_error)
-      CALL FLUSH(w_unit)
-  ENDIF
-  !
-  IF (file_debug) THEN
-      ic_nmsk=nlon_t*nlat_t-SUM(grid_msk_t)
-      WRITE(w_unit,*) 'Number of non-masked points :',ic_nmsk
-      ic_nmskrv=SUM(mask_error)
-      WRITE(w_unit,*) 'Number of non-masked points that received a value :',ic_nmskrv
-      WRITE(w_unit,'(A60,1X,F6.4)') 'Error mean on non masked points that received a value (%): ', SUM(ABS(field_error), MASK=mask_error>0)/ic_nmskrv
-      WRITE(w_unit,*) 'Delta error (%/echelle) :',(max - min)/echelle
-      WRITE(w_unit,*) 'End calculation of stat on the error'
+      min=MINVAL(field_error_global, MASK=mask_error_global>0)
+      IF (file_debug) THEN
+          WRITE(w_unit,*) 'Min (%) and its location in the error field : ',min
+          WRITE(w_unit,*) MINLOC(field_error_global)
+          CALL FLUSH(w_unit)
+      ENDIF
+      !
+      max=MAXVAL(field_error_global, MASK=mask_error_global>0)
+      IF (file_debug) THEN
+          WRITE(w_unit,'(A47,1X,F6.4)')'Max (%) and its location in the error field : ',max
+          WRITE(w_unit,*) MAXLOC(field_error_global)
+          CALL FLUSH(w_unit)
+      ENDIF
+      !
+      IF (file_debug) THEN
+          ic_nmsk=nlon_t*nlat_t-SUM(grid_msk_t)
+          WRITE(w_unit,*) 'Number of non-masked points :',ic_nmsk
+          ic_nmskrv=SUM(mask_error)
+          WRITE(w_unit,*) 'Number of non-masked points that received a value :',ic_nmskrv
+          WRITE(w_unit,'(A60,1X,F6.4)') 'Error mean on non masked points that received a value (%): ', SUM(ABS(field_error), MASK=mask_error>0)/ic_nmskrv
+          WRITE(w_unit,*) 'Delta error (%/echelle) :',(max - min)/echelle
+          WRITE(w_unit,*) 'End calculation of stat on the error'
+          CALL FLUSH(w_unit)
+      ENDIF
+  ELSE
+      WRITE(w_unit,*) 'Before oasis_terminate'
       CALL FLUSH(w_unit)
   ENDIF
   !
