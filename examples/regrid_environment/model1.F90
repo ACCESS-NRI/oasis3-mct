@@ -494,7 +494,7 @@ PROGRAM model1
   CALL MPI_Gatherv(field_error, il_size_t, MPI_DOUBLE_PRECISION, field_error_global, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
   WRITE (w_unit,*) 'After MPI_GATHERv field_error_global'
   CALL FLUSH(w_unit)
-  CALL MPI_Gatherv(mask_error, il_size_t, MPI_INTEGER, mask_error_global, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
+  CALL MPI_Gatherv(mask_error, il_size_t, MPI_INTEGER, mask_error_global, il_size_all , il_offset_all, MPI_INTEGER, 0, local_comm, ierror)
   WRITE (w_unit,*) 'After MPI_GATHERv mask_error_global'
   CALL FLUSH(w_unit)  
   CALL MPI_Gatherv(grid_lon_t, il_size_t, MPI_DOUBLE_PRECISION, grid_lon_global_t, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
