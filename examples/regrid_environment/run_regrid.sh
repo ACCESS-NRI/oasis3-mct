@@ -11,72 +11,77 @@ casename=`basename $srcdir`
 
 ## - Define case
 if [ $# -eq 0 ] ; then
-   echo "By default, i.e. without arguments, the source grid is bggd,"
-   echo "the target grid is nogt and the remapping is 1st order conservative;"
-   echo "1 node, 1 MPI task per node and 1 OpenMP thread per MPI task are used for the run."
-   SRC_GRID=bggd
-   TGT_GRID=nogt
-   remap=conserv1st
-   n_p_t=1_1_1
-   nnode=1
-   mpiprocs=1
-   threads=1 
-elif [ $# -ne 4 ] ; then
-   echo "If you don't want to run the default case without arguments, "
-   echo "you must run the script with 4 arguments i.e. './run_testinterp.sh src tgt remap nnodes_nprocs_nthreads'"
-   echo "where 'src' is the source grid, 'tgt' the target grid and 'remap' the remapping,"
-   echo "'nnodes' the total number of nodes for the run, 'nprocs' the number of MPI tasks per node"
-   echo "and 'nthreads' the number of OpenMP threads per MPI task"
-   exit
+    echo "By default, i.e. without arguments, the source grid is bggd,"
+    echo "the target grid is nogt and the remapping is 1st order conservative with SCRIP;"
+    echo "1 node, 1 MPI task per node and 1 OpenMP thread per MPI task are used for the run,"
+    echo "and no suffixe is used in the rundir name."
+    SRC_GRID=bggd
+    TGT_GRID=nogt
+    remap=conserv1st
+    n_p_t=1_1_1
+    nnode=1
+    mpiprocs=1
+    threads=1
+    library=SCRIP
+    ext=""
+elif [ $# -ne 6 ] ; then
+    echo "If you don't want to run the default case without arguments, "
+    echo "you must run the script with 6 arguments i.e. './run_testinterp.sh src tgt remap nnodes_nprocs_nthreads library ext'"
+    echo "where 'src' is the source grid, 'tgt' the target grid and 'remap' the remapping,"
+    echo "'nnodes' the total number of nodes for the run, 'nprocs' the number of MPI tasks per node"
+    echo "'nthreads' the number of OpenMP threads per MPI task"
+    echo "'library' is the regridder used (either SCRIP, ESMF or XIOS)"
+    echo "'ext' is suffixe is used in the rundir name."
+    exit
 else
-   SRC_GRID=$1
-   TGT_GRID=$2
-   remap=$3
-   n_p_t=$4
-   nnode=`echo $n_p_t | awk -F _ '{print $1}'`
-   mpiprocs=`echo $n_p_t | awk -F _ '{print $2}'`
-   threads=`echo $n_p_t | awk -F _ '{print $3}'`
+    SRC_GRID=$1
+    TGT_GRID=$2
+    remap=$3
+    n_p_t=$4
+    nnode=`echo $n_p_t | awk -F _ '{print $1}'`
+    mpiprocs=`echo $n_p_t | awk -F _ '{print $2}'`
+    threads=`echo $n_p_t | awk -F _ '{print $3}'`
+    library=$5
+    ext=$6
 fi
 ##
+nproces=`echo $(($nnode*$mpiprocs))`
+##
 ## User's choice of computing architecture
-arch=mac  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp,
-              # training_computer, gfortran_openmpi_openmp_linux, belenos, mac
-	      # pgi_openmpi_openmp_linux, 
-	      # pgi20.4_openmpi_openmp_linux (not work with 4.0)
-	      # gnu1020_openmpi_openmp_linux (not work with 4.0)
+#SVSV: verifier les architectures et simplifier
+arch=kraken_intel_impi_openmp  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp,
+          # training_computer, gfortran_openmpi_openmp_linux, belenos, mac
+	  # pgi_openmpi_openmp_linux, 
+	  # pgi20.4_openmpi_openmp_linux (not work with 4.0)
+	  # gnu1020_openmpi_openmp_linux (not work with 4.0)
 ##
 ######################################################################
-## - Verification source grid type and remapping
-#
-## - Source grid : bggd, ssea or icos
-## bggd is an atmosphere structured (LR) grid
-## ssea is an atmosphere gaussian reduced grid (D) : no 2nd order conservative remapping
-## icos is an atmosphere unstructured grid (U) : no bilinear, no bicubic nor 2nd order conservative remapping
 ##
-## - Target grid : nogt
-## nogt is an ocean structured (LR) grid
+## - Grids
+## bggd is an atmosphere structured (LR) grid
+## ssea is an atmosphere gaussian reduced (D) grid
+## icos/icoh is an atmosphere unstructured (U) grid
+## nogt/t12e is an ocean structured (LR) grid
 ##
 ## - Remapping : distwgt (nearest-neighbour), bili (bilinear), bicu (bicubic), conserv1st or conserv2nd (1st or 2nd order conservative remapping)
 ##
-## Configuration files 'namcouple' are given in /data_oasis3
-## Warning: If you add any extra lines in one of the namcouple given as examples you will have to
-## change the definition of SRC_GRID_TYPE, SRC_GRID_PERIOD and SRC_GRID_OVERLAP in this script (see below lines 140-142)
-##
-## - Verification source grid type and remapping
-if [ ${SRC_GRID} == "ssea" ]; then
+## - Verification source grid type and remapping for SCRIP (no conserv2nd for ssea ; no bili, bicu, conserv2nd for icos)
+if [ ${library} == "SCRIP" ]; then
+    if [ ${SRC_GRID} == "ssea" ]; then
 	if [ ${remap} == "conserv2nd" ]; then
-		echo "Impossible to perform conserv2nd remapping from gaussian reduced grid ssea"
-		exit
+	    echo "Impossible to perform conserv2nd remapping from gaussian reduced grid ssea"
+	    exit
 	fi
-fi
-if [ ${SRC_GRID} == "icos" ]; then
+    fi
+    if [ ${SRC_GRID} == "icos" ] || [ ${SRC_GRID} == "icoh" ]; then
 	if [ ${remap} == "conserv2nd" ] || [ ${remap} == "bicu" ] || [ ${remap} == "bili" ]; then
-		echo "Impossible to perform ${remap} remapping from unstructured grid icos"
-		exit
+	    echo "Impossible to perform ${remap} remapping from unstructured grid icos"
+	    exit
 	fi
+    fi
 fi
 ##
-rundir=$srcdir/RUNDIR_071021bis/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_071021bis
+rundir=$srcdir/RUNDIR_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_${library}_${ext}
 ##
 ######################################################################
 ##
@@ -98,23 +103,25 @@ echo 'User         : '$user
 echo 'Grids        : '$SRC_GRID'-->'$TGT_GRID
 echo 'Remap        : '$remap
 echo ''
-echo $exe1' runs on '$mpiprocs 'processes'
+echo $exe1' runs on '$nproces 'processes'
 echo ''
 echo ''
 
 ## - Copy everything needed into rundir
 \rm -fr $rundir/*
 mkdir -p $rundir
-
+##
 ln -sf $datadir/grids.nc  $rundir/grids.nc
 ln -sf $datadir/masks.nc  $rundir/masks.nc
-ln -sf $datadir/areas.nc  $rundir/areas.nc
+#ln -sf $datadir/areas.nc  $rundir/areas.nc
 ln -sf $srcdir/$exe1 $rundir/.
-cp -f $datadir/namcouple_${SRC_GRID}_${TGT_GRID}_${remap} $rundir/namcouple
+if [ ${library} == "SCRIP" ]; then
+    cp -f $datadir/namcouple_${SRC_GRID}_${TGT_GRID}_${remap} $rundir/namcouple
+elif [ ${library} == "ESMF" ]; then
+    cp -f $datadir/namcouple_${SRC_GRID}_${TGT_GRID}_esmf $rundir/namcouple
+fi
 
 ## - Grid source characteristics 
-# These are read in the namcouple file. If you decide to use another namcouple than the ones coming from /data_oasis3
-# you may have to change the 3 lines below
 if [ ${SRC_GRID} == bggd ]; then
     SRC_GRID_TYPE=LR
     SRC_GRID_PERIOD=P
@@ -123,11 +130,11 @@ elif [ ${SRC_GRID} == ssea ]; then
     SRC_GRID_TYPE=D
     SRC_GRID_PERIOD=P
     SRC_GRID_OVERLAP=0
-elif [ ${SRC_GRID} == icos ]; then
+elif [ ${SRC_GRID} == icos ] || [ ${SRC_GRID} == "icoh" ]; then
     SRC_GRID_TYPE=U
     SRC_GRID_PERIOD=P
     SRC_GRID_OVERLAP=0
-elif [ ${SRC_GRID} == nogt ]; then
+elif [ ${SRC_GRID} == nogt ] || [ ${SRC_GRID} == "t12e" ]; then
     SRC_GRID_TYPE=LR
     SRC_GRID_PERIOD=P
     SRC_GRID_OVERLAP=2
@@ -138,7 +145,7 @@ elif [ ${TGT_GRID} == ssea ]; then
     TGT_GRID_TYPE=D
 elif [ ${TGT_GRID} == icos ]; then
     TGT_GRID_TYPE=U
-elif [ ${TGT_GRID} == nogt ]; then
+elif [ ${TGT_GRID} == nogt ] || [ ${SRC_GRID} == "t12e" ]; then
     TGT_GRID_TYPE=LR
 fi
 
@@ -166,7 +173,7 @@ cd $rundir
 ### NEMO_LENOVO_INTEL_IMPI_OPENMP
 ###---------------------------------------------------------------------
 if [ ${arch} == nemo_lenovo_intel_impi_openmp ]; then
-
+#SVSV a adpater a ESMF
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash -l
 #SBATCH --partition prod
@@ -189,20 +196,56 @@ export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
 export OASIS_OMP_NUM_THREADS=$threads
 
-time mpirun -np $mpiprocs ./$exe1 
+time mpirun -np $nproces ./$exe1
 EOF
 
 ###---------------------------------------------------------------------
 ### KRAKEN_INTEL_IMPI_OPENMP 
 ###---------------------------------------------------------------------
 elif [ ${arch} == kraken_intel_impi_openmp ]; then
-
-  timreq=00:30:00
-
-  cat <<EOF > $rundir/run_$casename.$arch
+    timreq=00:30:00
+    if [ ${library} == "SCRIP" ]; then
+	cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash -l
 #Partition
 #SBATCH --partition prod
+# Nom du job
+#SBATCH --job-name ${n_p_t}
+# Time limit for the job
+#SBATCH --time=$timreq
+#SBATCH --output=$rundir/$casename.o
+#SBATCH --error=$rundir/$casename.e
+# Number of nodes
+#SBATCH --nodes=$nnode
+# Number of MPI tasks per node
+#SBATCH --ntasks-per-node=$mpiprocs
+
+cd $rundir
+
+export KMP_STACKSIZE=1GB
+export I_MPI_PIN_DOMAIN=omp
+export I_MPI_WAIT_MODE=enable
+export KMP_AFFINITY=verbose,granularity=fine,compact
+export OASIS_OMP_NUM_THREADS=$threads
+
+time mpirun -np $nproces ./$exe1
+EOF
+      
+    elif [ ${library} == "ESMF" ]; then
+	
+	case $remap in
+	    bili)             meth_esmfname="bilinear" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
+	    bicu)             meth_esmfname="patch" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
+	    distwgt)          meth_esmfname="neareststod" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
+	    conserv1st)       meth_esmfname="conserve" ; options="--ignore_unmapped --norm_type fracarea" ;;
+	    conserve2nd)      meth_esmfname="conserve2nd" ; options="--ignore_unmapped --norm_type fracarea" ;;
+	    *)  echo "Method $remap unknown in ESMF."
+		exit ;;
+	esac      
+  cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash -l
+#Partition
+#SBATCH --partition debug
 # Nom du job
 #SBATCH --job-name ${n_p_t}
 # Time limit for the job
@@ -217,37 +260,28 @@ elif [ ${arch} == kraken_intel_impi_openmp ]; then
 #SBATCH --cpus-per-task=$threads
 
 cd $rundir
-module purge
-module load compiler/intel/18.0.1.163
-module load mpi/intelmpi/2018.1.163
-module load lib/netcdf-fortran/4.4.4_impi
-module load lib/netcdf-c/4.6.1_impi
 
 export KMP_STACKSIZE=1GB
 export I_MPI_PIN_DOMAIN=omp
 export I_MPI_WAIT_MODE=enable
-(( map = $threads - 1 ))
-affin="verbose,granularity=fine,proclist=[0"
-for place in \$(seq \$map); do
-  affin=\${affin}",\${place}"
-  echo \$place
-done
-echo affin1 \$affin
-affin=\${affin}"],explicit"
-export KMP_AFFINITY=\$affin
-echo KMP_AFFINITY \$KMP_AFFINITY
-export OASIS_OMP_NUM_THREADS=$threads
+export KMP_AFFINITY=verbose,granularity=fine,compact
 export OMP_NUM_THREADS=$threads
 
-    # Binding IntelMPI
-    MAP_CPU="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35"
-    INTELMPI_BINDING="-env I_MPI_PIN_PROCESSOR_LIST \${MAP_CPU}"
-    I_IMPI_BINDING="-env I_MPI_PERHOST \${mpiprocs} \${INTELMPI_BINDING}"
+python $srcdir/OasisGridsToESMF.py $SRC_GRID $rundir
+python $srcdir/OasisGridsToESMF.py $TGT_GRID $rundir
+# Generate ESMF weights
+time mpirun -np $nproces ESMF_RegridWeightGen -s ${SRC_GRID}_ESMF.nc -d ${TGT_GRID}_ESMF.nc -m ${meth_esmfname} -w ESMFweights.nc --ignore_degenerate ${options}
 
-time mpirun -np $mpiprocs ./$exe1
+# Convert ESMF weight file in OASIS format
+$srcdir/ESMFWeightsToOasis.sh ${SRC_GRID} ${TGT_GRID} ${remap}
+
+time mpirun -np $nproces ./$exe1
 EOF
+    fi
 
 elif [ $arch == belenos ] ; then
+#SVSVSV a adpater a ESMF
+    
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash
 #SBATCH --exclusive
@@ -272,7 +306,7 @@ export KMP_AFFINITY=verbose,granularity=fine,compact
 export OASIS_OMP_NUM_THREADS=$threads
 export OMP_NUM_THREADS=$threads
 #
-time mpirun -np ${mpiprocs} ./$exe1
+time mpirun -np ${nproces} ./$exe1
 #
 EOF
 
@@ -285,25 +319,25 @@ if [ ${arch} == training_computer ]; then
     export OASIS_OMP_NUM_THREADS=$threads
     MPIRUN=/usr/local/intel/impi/2018.1.163/bin64/mpirun
     echo 'Executing the model using '$MPIRUN
-    $MPIRUN -np $mpiprocs ./$exe1 > runjob.err
+    $MPIRUN -np $nproces ./$exe1 > runjob.err
 elif [ ${arch} == gfortran_openmpi_openmp_linux ]; then
     export OASIS_OMP_NUM_THREADS=$threads
     MPIRUN=/usr/lib64/openmpi/bin/mpirun
     echo 'Executing the model using '$MPIRUN
-    $MPIRUN -np $mpiprocs ./$exe1 > runjob.err
+    $MPIRUN -np $nproces ./$exe1 > runjob.err
 elif [ $arch == pgi_openmpi_openmp_linux ]; then
     MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun
     echo 'Executing the model using '$MPIRUN
-    $MPIRUN -np $mpiprocs ./$exe1 > runjob.err
+    $MPIRUN -np $nproces ./$exe1 > runjob.err
 elif [ ${arch} == gnu1020_openmpi_openmp_linux ]; then
     export OASIS_OMP_NUM_THREADS=$threads
     MPIRUN=/usr/local/openmpi/4.1.0_gcc1020/bin/mpirun
     echo 'Executing the model using '$MPIRUN
-    $MPIRUN -oversubscribe -np $mpiprocs ./$exe1 > runjob.err
+    $MPIRUN -oversubscribe -np $nproces ./$exe1 > runjob.err
 elif [ $arch == pgi20.4_openmpi_openmp_linux ]; then
     MPIRUN=/usr/local/pgi/linux86-64/20.4/mpi/openmpi-3.1.3/bin/mpirun
     echo 'Executing the model using '$MPIRUN
-    $MPIRUN -oversubscribe -np $mpiprocs ./$exe1 > runjob.err
+    $MPIRUN -oversubscribe -np $nproces ./$exe1 > runjob.err
 elif [ $arch == nemo_lenovo_intel_impi_openmp ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
@@ -318,7 +352,7 @@ elif [ $arch == belenos ]; then
     squeue -u $user
 elif [ ${arch} == mac ]; then
     echo 'Executing the model using mpirun'
-    mpirun --oversubscribe -np $mpiprocs ./$exe1
+    mpirun --oversubscribe -np $nproces ./$exe1
 fi
 
 echo $casename 'is executed or submitted to queue.'
