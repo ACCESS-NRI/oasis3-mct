@@ -50,7 +50,7 @@ PROGRAM model1
   REAL (kind=wp), ALLOCATABLE   :: grid_lon_s(:,:), grid_lat_s(:,:) ! lon, lat of the cell centers
   REAL (kind=wp), ALLOCATABLE   :: grid_lon_t(:,:), grid_lat_t(:,:) ! lon, lat of the cell centers
   INTEGER, ALLOCATABLE          :: grid_msk_s(:,:) ! mask, 0 == valid point, 1 == masked point
-  INTEGER, ALLOCATABLE          :: grid_msk_t(:,:) ! mask, 0 == valid point, 1 == masked point
+  INTEGER, ALLOCATABLE          :: grid_msk_t(:,:), grid_msk_t_global(:,:) ! mask, 0 == valid point, 1 == masked point
   !
   INTEGER :: mype, npes ! MPI task rank and number
   INTEGER :: local_comm  ! local MPI communicator
@@ -476,6 +476,7 @@ PROGRAM model1
       ALLOCATE(field_error_global(nlon_t, nlat_t),STAT=ierror )
       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_recv_global'
       ALLOCATE(mask_error_global(nlon_t, nlat_t),STAT=ierror )
+      ALLOCATE(grid_msk_t_global(nlon_t, nlat_t),STAT=ierror )
       ALLOCATE(grid_lon_global_t(nlon_t, nlat_t),STAT=ierror )
       ALLOCATE(grid_lat_global_t(nlon_t, nlat_t),STAT=ierror )
       field_recv_global(:,:) = 0.0
@@ -495,6 +496,9 @@ PROGRAM model1
   WRITE (w_unit,*) 'After MPI_GATHERv field_error_global'
   CALL FLUSH(w_unit)
   CALL MPI_Gatherv(mask_error, il_size_t, MPI_INTEGER, mask_error_global, il_size_all , il_offset_all, MPI_INTEGER, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHERv mask_error_global'
+  CALL FLUSH(w_unit)  
+  CALL MPI_Gatherv(grid_msk_t, il_size_t, MPI_INTEGER, grid_msk_t_global, il_size_all , il_offset_all, MPI_INTEGER, 0, local_comm, ierror)
   WRITE (w_unit,*) 'After MPI_GATHERv mask_error_global'
   CALL FLUSH(w_unit)  
   CALL MPI_Gatherv(grid_lon_t, il_size_t, MPI_DOUBLE_PRECISION, grid_lon_global_t, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
@@ -541,11 +545,11 @@ PROGRAM model1
       ENDIF
       !
       IF (file_debug) THEN
-          ic_nmsk=nlon_t*nlat_t-SUM(grid_msk_t)
+          ic_nmsk=nlon_t*nlat_t-SUM(grid_msk_t_global)
           WRITE(w_unit,*) 'Number of non-masked points :',ic_nmsk
-          ic_nmskrv=SUM(mask_error)
+          ic_nmskrv=SUM(mask_error_global)
           WRITE(w_unit,*) 'Number of non-masked points that received a value :',ic_nmskrv
-          WRITE(w_unit,'(A60,1X,F6.4)') 'Error mean on non masked points that received a value (%): ', SUM(ABS(field_error), MASK=mask_error>0)/ic_nmskrv
+          WRITE(w_unit,'(A60,1X,F6.4)') 'Error mean on non masked points that received a value (%): ', SUM(ABS(field_error_global), MASK=mask_error_global>0)/ic_nmskrv
           WRITE(w_unit,*) 'Delta error (%/echelle) :',(max - min)/echelle
           WRITE(w_unit,*) 'End calculation of stat on the error'
           CALL FLUSH(w_unit)
