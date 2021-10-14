@@ -81,6 +81,18 @@ if [ ${library} == "SCRIP" ]; then
     fi
 fi
 ##
+## If nogt is source grid and remap is bili, bicu or distwgt, not shoul not be transformed in an unstructured grid
+OasisGridsToESMF=OasisGridsToESMF.py
+if [ ${library} == "ESMF" ]; then
+    if [ ${SRC_GRID} == "nogt" ]; then
+        if [ ${remap} == "conserv1st" ] || [ ${remap} == "conserv2nd" ] ; then
+            OasisGridsToESMF=OasisGridsToESMF_nogtunstruct.py
+        fi
+    fi
+fi
+OasisGridsToESMF=OasisGridsToESMF_nogtunstruct.py
+echo $OasisGridsToESMF
+##
 rundir=$srcdir/RUNDIR_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_${library}_${ext}
 ##
 ######################################################################
@@ -238,14 +250,14 @@ EOF
 	    bicu)             meth_esmfname="patch" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
 	    distwgt)          meth_esmfname="neareststod" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
 	    conserv1st)       meth_esmfname="conserve" ; options="--ignore_unmapped --norm_type fracarea" ;;
-	    conserve2nd)      meth_esmfname="conserve2nd" ; options="--ignore_unmapped --norm_type fracarea" ;;
+	    conserv2nd)      meth_esmfname="conserve2nd" ; options="--ignore_unmapped --norm_type fracarea" ;;
 	    *)  echo "Method $remap unknown in ESMF."
 		exit ;;
 	esac      
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash -l
 #Partition
-#SBATCH --partition debug
+#SBATCH --partition prod
 # Nom du job
 #SBATCH --job-name ${n_p_t}
 # Time limit for the job
@@ -267,8 +279,8 @@ export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
 export OMP_NUM_THREADS=$threads
 
-python $srcdir/OasisGridsToESMF.py $SRC_GRID $rundir
-python $srcdir/OasisGridsToESMF.py $TGT_GRID $rundir
+python $srcdir/$OasisGridsToESMF $SRC_GRID $rundir
+python $srcdir/$OasisGridsToESMF $TGT_GRID $rundir
 # Generate ESMF weights
 time mpirun -np $nproces ESMF_RegridWeightGen -s ${SRC_GRID}_ESMF.nc -d ${TGT_GRID}_ESMF.nc -m ${meth_esmfname} -w ESMFweights.nc --ignore_degenerate ${options}
 
