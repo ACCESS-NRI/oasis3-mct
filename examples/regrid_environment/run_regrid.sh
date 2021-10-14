@@ -90,10 +90,9 @@ if [ ${library} == "ESMF" ]; then
         fi
     fi
 fi
-OasisGridsToESMF=OasisGridsToESMF_nogtunstruct.py
 echo $OasisGridsToESMF
 ##
-rundir=$srcdir/RUNDIR_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_${library}_${ext}
+rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_${library}_${ext}
 ##
 ######################################################################
 ##
