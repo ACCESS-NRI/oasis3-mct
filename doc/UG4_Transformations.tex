@@ -765,11 +765,52 @@ If we follow this best practice, the atmospheric cell fractions and mask will be
  
   {\tt BLASNEW} performs a scalar multiply or scalar add to any
   destination field.  This is the equivalent of {\tt BLASOLD} on the
-  destination side.  The prior feature that supported linear
-  combinations of the current coupling field with any other fields
-  after the interpolation has been deprecated.
+  destination side.  In addition, unlike {\tt BLASOLD}, other fields on the
+  destination side can be added with a multiplier and addition weight.
 
-  This analysis requires the same input line(s) as {\tt BLASOLD}.
+  This transformation requires at least one configuring line with two
+  parameters:
+ \begin{verbatim}
+# BLASNEW operation
+     $XMULT   $NBFIELDS 
+\end{verbatim}
+  % \vspace{-0.2cm}
+  where {\tt \$XMULT} is the multiplicative coefficient of the destination
+  field. {\tt
+    \$NBFIELDS} will be 0 if no additional fields or scalars are needed, 1 if a
+  single scalar needs to be added, and greater than 1 if additional fields
+  are to be added. The number of {\tt \$NBFIELDS} indicates the number
+  of additional lines.  If {\tt \$NBFIELDS} is greater than 0, the first
+  additional input line must be the string {\tt CONSTANT} and then
+  a real value, {\tt \$AVALUE}, which will be added to
+  the field.  Even if {\tt \$AVALUE} is zero, this line must still be included
+  if {\tt \$NBFIELDS} is greater than 0.  If {\tt \$NBFIELDS} is greater than 1,
+  then additional input lines have the format {\tt \$FNAME \$XMULT \$AVALUE}
+  where {\tt \$FNAME} is the name of a field received in OASIS3-MCT in the same model
+  and {\tt \$XMULT} and {\tt \$AVALUE} are the multipliers and additive terms
+  to be applied to {\tt \$FNAME} :
+ \begin{verbatim}
+     CONSTANT  $AVALUE
+     $FNAME1 $XMULT1 $AVALUE1
+     $FNAME2 $XMULT2 $AVALUE2
+\end{verbatim} 
+For example :
+\begin{verbatim}
+     2.0  3
+     CONSTANT  0.0
+     FLD001 1.0 0.0
+     FLD002 5.0 -100.
+\end{verbatim}
+  will multiply the destination field by 2.0 and then add (FLD001 + FLD002*5.0 - 100)
+  to that destination field.  All combined fields must be received by the same model
+  component in OASIS3-MCT (either via coupling or input), and the field size and decomposition
+  must be consistent across all fields being combined.  The value of the field being
+  combined is associated with the last valid coupled value.  This allows fields to
+  be combined that are not coupled at the same frequency by using valid lagged values.
+  The order of the receive calls is also important.  If a field to be combined is received
+  after the destination field, then the values used are from an earlier timestep.
+  Note that while this feature is supported in OASIS3-MCT, a more transparent implementation
+  might be to combine fields in the model (not in OASIS3-MCT) after they are received independently.
 
 \item {\bf MASKP}: UNUSED
 

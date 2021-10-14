@@ -48,6 +48,7 @@ MODULE mod_oasis_coupler
   type prism_coupler_type
      !--- fixed at initialization ---
      type(mct_aVect)       :: aVect1   !< primary aVect
+     type(mct_aVect)       :: aVect1p  !< primary aVect, value at most recent coupling time (used in BLASNEW)
      type(mct_aVect)       :: aVect1m  !< extra aVect needed for mapping
      type(mct_aVect)       :: aVect2   !< higher order mapping data
      type(mct_aVect)       :: aVect3   !< higher order mapping data
@@ -87,6 +88,13 @@ MODULE mod_oasis_coupler
      real(kind=ip_double_p):: sndadd   !< send field addition term
      real(kind=ip_double_p):: rcvmult  !< receive field multiplier term
      real(kind=ip_double_p):: rcvadd   !< receive field addition term
+     logical               :: blasfld  !< flag indicates field used in other BLASNEW computations
+     integer(kind=ip_i4_p) :: rfno     !< BLASNEW extra field number for local variable
+     character(len=ic_med) ,pointer :: rfna(:)  !< blasnew extra field name
+     real(kind=ip_double_p),pointer :: rfmult(:)!< blasnew extra field multiplier term
+     real(kind=ip_double_p),pointer :: rfadd(:) !< blasnew extra field addition term
+     integer(kind=ip_i4_p) ,pointer :: rfcpl(:) !< blasnew extra field coupler id
+     integer(kind=ip_i4_p) ,pointer :: rffnum(:)!< blasnew extra field field number
      !--- time varying info ---
      integer(kind=ip_i4_p) :: ltime    !< time at last coupling
      integer(kind=ip_i4_p) :: ctime    !< time at last call
@@ -127,7 +135,7 @@ CONTAINS
   IMPLICIT none
 
   integer(kind=ip_i4_p) :: l,n,n1,n2,nn,nv,nm,nv1,nv1a,nns,lnn,nc,nf,nvf,npc,r1,ierr
-  integer(kind=ip_i4_p) :: pe,nflds1,nflds2,ncnt
+  integer(kind=ip_i4_p) :: pe,nflds1,nflds2,ncnt,nc2,nf2
   integer(kind=ip_i4_p) :: part1, part2
   integer(kind=ip_i4_p) :: spart,dpart ! src, dst partitions for mapping
         ! part1 = my local part, partID
@@ -288,6 +296,8 @@ CONTAINS
      pcpointer%sndadd  = 0.0_ip_double_p
      pcpointer%rcvmult = 1.0_ip_double_p
      pcpointer%rcvadd  = 0.0_ip_double_p
+     pcpointer%blasfld = .false.
+     pcpointer%rfno    = 0
   enddo  ! npc
   enddo  ! nc
 
@@ -981,7 +991,7 @@ CONTAINS
                     call oasis_abort(file=__FILE__,line=__LINE__)
                  endif
 
-             else
+              else
                  pcpointer%comp   = nm
                  pcpointer%seq    = namfldseq(nn)
                  pcpointer%dt     = namflddti(nn)
@@ -1004,10 +1014,25 @@ CONTAINS
                  pcpointer%input  = .false.
                  pcpointer%sndmult= namfldsmu(nn)
                  pcpointer%sndadd = namfldsad(nn)
-                 pcpointer%rcvmult= namflddmu(nn)
-                 pcpointer%rcvadd = namflddad(nn)
+                 pcpointer%rcvmult= namflddmu(1,nn)
+                 pcpointer%rcvadd = namflddad(1,nn)
                  pcpointer%snddiag= namchecki(nn)
                  pcpointer%rcvdiag= namchecko(nn)
+                 pcpointer%rfno   = namflddno(nn) - 1
+                 if (namflddno(nn) > 1) then
+                    allocate(pcpointer%rfna  (pcpointer%rfno))
+                    allocate(pcpointer%rfmult(pcpointer%rfno))
+                    allocate(pcpointer%rfadd (pcpointer%rfno))
+                    allocate(pcpointer%rfcpl (pcpointer%rfno))
+                    allocate(pcpointer%rffnum(pcpointer%rfno))
+                    do n1 = 2,namflddno(nn)
+                       pcpointer%rfna  (n1-1) = namflddna(n1,nn)
+                       pcpointer%rfmult(n1-1) = namflddmu(n1,nn)
+                       pcpointer%rfadd (n1-1) = namflddad(n1,nn)
+                       pcpointer%rfcpl (n1-1) = -1
+                       pcpointer%rffnum(n1-1) = -1
+                    enddo
+                 endif
 
                  !--------------------------------
                  !>       * Set prism_coupler input and output flags
@@ -1715,6 +1740,7 @@ CONTAINS
         !>   * Initialize avect1m, the data in avect1 mapped to another grid
         !--------------------------------
 
+        if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4f')
         lsize = mct_gsmap_lsize(prism_part(part2)%gsmap,mpi_comm_local)
         if (OASIS_debug >= 15) then
            write(nulprt,'(1x,2a,4i12)') subname,' DEBUG ci:part2 info ',part2,mapID,gsize,lsize
@@ -1762,6 +1788,7 @@ CONTAINS
 ! CEG split 1 loop into 2 to allow map reading on different models in parallel.
 !-------------------------------------------------
 
+  if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4g')
   if (local_timers_on >= 1) then
      call oasis_timer_start('cpl_setup_n4_rt_barrier')
      call oasis_mpi_barrier(mpi_comm_local, 'cpl_setup_n4_rt')
@@ -1884,8 +1911,58 @@ CONTAINS
 
   enddo   ! npc
   enddo   ! prism_mcoupler
+  if (local_timers_on >= 3) call oasis_timer_stop('cpl_setup_n4g')
 
-  if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4g')
+  !--------------------------------
+  !>   * Find blasnew extra fields
+  !--------------------------------
+
+  if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4h')
+  do nc = 1,prism_mcoupler
+     pcpointer => prism_coupler_get(nc)
+     if (pcpointer%valid) then
+        do nf = 1,pcpointer%rfno
+           if (OASIS_debug >= 15) &
+              write(nulprt,*) subname," DEBUG blasnew search for ",trim(pcpointer%rfna(nf))
+           found = .false.
+           do nc2 = 1,prism_mcoupler
+              if (prism_coupler_get(nc2)%valid .and. &
+                  prism_coupler_get(nc2)%getput == OASIS3_GET) then
+                 if (OASIS_debug >= 15) &
+                    write(nulprt,*) subname," DEBUG blasnew in ",nc2,trim(prism_coupler_get(nc2)%fldlist)
+                 nf2 = mct_avect_indexRA(prism_coupler_get(nc2)%avect1,trim(pcpointer%rfna(nf)),perrWith='quiet')
+                 if (nf2 > 0) then
+                    if (found) then
+                       write(nulprt,*) subname,estr,'multiple fields found for ',trim(pcpointer%rfna(nf))
+                       call oasis_abort(file=__FILE__,line=__LINE__)
+                    endif
+                    pcpointer%rfcpl(nf)  = nc2
+                    pcpointer%rffnum(nf) = nf2
+                    if (.not. prism_coupler_get(nc2)%blasfld) then
+                       prism_coupler_get(nc2)%blasfld = .true.
+                       lsize = mct_aVect_lsize(prism_coupler_get(nc2)%aVect1)
+                       call mct_aVect_init(prism_coupler_get(nc2)%aVect1p,prism_coupler_get(nc2)%aVect1,lsize)
+                       call mct_aVect_zero(prism_coupler_get(nc2)%aVect1p)
+                       if (lsize /= mct_aVect_lsize(pcpointer%aVect1)) then
+                          write(nulprt,*) subname,estr,'error in blasnew fld size for ',trim(pcpointer%rfna(nf))
+                          write(nulprt,*) subname,estr,'error in blasnew fld size ',lsize,mct_aVect_lsize(pcpointer%aVect1)
+                          call oasis_abort(file=__FILE__,line=__LINE__)
+                       endif
+                    endif
+                    found = .true.
+                 endif
+              endif
+           enddo
+           if (.not.found) then
+              write(nulprt,*) subname,estr,'blasnew field not found for ',trim(pcpointer%rfna(nf))
+              call oasis_abort(file=__FILE__,line=__LINE__)
+           endif
+        enddo
+     endif
+  enddo
+
+  if (local_timers_on >= 3) call oasis_timer_stop('cpl_setup_n4h')
+  if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4i')
   !----------------------------------------------------------
   !> * Diagnostics for all couplers
   !----------------------------------------------------------
@@ -1978,7 +2055,7 @@ CONTAINS
 
   ENDIF
 
-  if (local_timers_on >= 3) call oasis_timer_stop ('cpl_setup_n4g')
+  if (local_timers_on >= 3) call oasis_timer_stop ('cpl_setup_n4i')
   if (local_timers_on >= 1) call oasis_timer_stop ('cpl_setup_n4')
   IF (local_timers_on >= 1) call oasis_timer_stop('cpl_setup')
 
@@ -1998,7 +2075,7 @@ CONTAINS
   type(prism_coupler_type), intent(in) :: pcprint !< specific prism_coupler
   !----------------------------------------------------------
   integer(ip_i4_p) :: mapid, rouid, parid, namid, nflds, rpard
-  integer(ip_i4_p) :: spart,dpart
+  integer(ip_i4_p) :: spart, dpart, nn
   character(len=*),parameter :: subname = '(oasis_coupler_print)'
 
   call oasis_debug_enter(subname)
@@ -2032,6 +2109,15 @@ CONTAINS
      write(nulprt,*) subname,'   rcv diagnose     ',pcprint%rcvdiag
      write(nulprt,*) subname,'   rcv fld mult     ',pcprint%rcvmult
      write(nulprt,*) subname,'   rcv fld add      ',pcprint%rcvadd
+     write(nulprt,*) subname,'   blas fields      ',pcprint%blasfld
+     write(nulprt,*) subname,'   blas fld number  ',pcprint%rfno
+     do nn = 1,pcprint%rfno
+       write(nulprt,*) subname,'   blas fld name    ',nn,trim(pcprint%rfna(nn))
+       write(nulprt,*) subname,'   blas fld mult    ',nn,pcprint%rfmult(nn)
+       write(nulprt,*) subname,'   blas fld add     ',nn,pcprint%rfadd(nn)
+       write(nulprt,*) subname,'   blas fld cplid   ',nn,pcprint%rfcpl(nn)
+       write(nulprt,*) subname,'   blas fld fnum    ',nn,pcprint%rffnum(nn)
+     enddo
   endif
      write(nulprt,*) subname,'   namcouple op     ',pcprint%ops
      write(nulprt,*) subname,'   valid            ',pcprint%valid
