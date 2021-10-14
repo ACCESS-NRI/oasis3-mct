@@ -1,10 +1,10 @@
 #!/bin/ksh
 #set -x
 srcdir=`pwd`
-ext="131021b"
-library=SCRIP
+n_p_t=$1
+library=$2
+ext=$3
 casename=`basename $srcdir`
-n_p_t=1_4_1
 fileres=$srcdir/RUNDIR_${ext}/resu_${library}.txt
 echo $n_p_t > $fileres
 for SRC_GRID in bggd icos ssea ; do
