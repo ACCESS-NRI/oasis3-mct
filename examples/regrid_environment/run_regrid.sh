@@ -81,7 +81,14 @@ if [ ${library} == "SCRIP" ]; then
     fi
 fi
 ##
-## If nogt is source grid and remap is bili, bicu or distwgt, not shoul not be transformed in an unstructured grid
+## For t12e and icoh, only conserv1st is possible with this environment (but it could be extended to other remappings)
+if [ ${SRC_GRID} == "icoh" ] || [ ${SRC_GRID} == "t12e" ] || [ ${TGT_GRID} == "icoh" ] || [ ${TGT_GRID} == "t12e" ]; then
+    if [ ${remap} == "conserv2nd" ] || [ ${remap} == "bicu" ] || [ ${remap} == "bili" ] || [ ${remap} == "distwgt" ]; then
+	echo "This environment is not configured to perform ${remap} remapping for t12e or icoh"
+	exit
+    fi
+fi    
+## If nogt is source grid and remap is bili, bicu or distwgt, nogt should not be transformed in an unstructured grid
 OasisGridsToESMF=OasisGridsToESMF.py
 if [ ${library} == "ESMF" ]; then
     if [ ${SRC_GRID} == "nogt" ]; then
