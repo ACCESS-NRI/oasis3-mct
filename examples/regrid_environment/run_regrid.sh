@@ -104,7 +104,11 @@ rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${re
 ######################################################################
 ##
 ## - Name of the executables
-exe1=model1
+if [ ${library} == "ESMF" ]; then
+    exe1=model1_ESMF
+elif [ ${library} == "SCRIP" ]; then
+    exe1=model1_SCRIP
+fi
 ##
 echo ''
 echo '**************************************************************************************************************'
@@ -163,7 +167,7 @@ elif [ ${TGT_GRID} == ssea ]; then
     TGT_GRID_TYPE=D
 elif [ ${TGT_GRID} == icos ]; then
     TGT_GRID_TYPE=U
-elif [ ${TGT_GRID} == nogt ] || [ ${SRC_GRID} == "t12e" ]; then
+elif [ ${TGT_GRID} == nogt ] || [ ${TGT_GRID} == "t12e" ]; then
     TGT_GRID_TYPE=LR
 fi
 
