@@ -132,19 +132,31 @@ END SUBROUTINE read_dimgrid
   ENDIF
   CALL hdlerr( NF90_INQ_VARID(il_grids_id, cl_nam, il_lat_id),  w_unit, subname, __FILE__, __LINE__ )
   !
-  CALL flush(w_unit)
+  IF (file_debug) THEN
+      WRITE(w_unit,*) 'il_lon_id, il_lat_id :',il_lon_id, il_lat_id
+      CALL FLUSH(w_unit)
+  ENDIF
   ila_st(1) = id_begi
   ila_st(2) = id_begj
   !
   ila_dim(1) = id_lon
   ila_dim(2) = id_lat
   !
+  IF (file_debug) THEN
+      WRITE(w_unit,*) 'ila_st, ila_dim :', ila_st(:), ila_dim(:)
+      CALL FLUSH(w_unit)
+  ENDIF
+  !
   CALL hdlerr( NF90_GET_VAR (il_grids_id, il_lon_id, dda_lon, ila_st, ila_dim),  w_unit, subname, __FILE__, __LINE__ )
+  IF (file_debug) THEN
+      WRITE(w_unit,*) 'Local grid longitudes read from file'
+      CALL flush(w_unit)
+  ENDIF
   CALL hdlerr( NF90_GET_VAR (il_grids_id, il_lat_id, dda_lat, ila_st, ila_dim),  w_unit, subname, __FILE__, __LINE__ )
-#ifdef _DEBUG
-  WRITE(w_unit,*) 'Local grid longitudes and latitudes read from file'
-  CALL flush(w_unit)
-#endif
+  IF (file_debug) THEN
+      WRITE(w_unit,*) 'Local grid latitudes read from file'
+      CALL flush(w_unit)
+  ENDIF
   !
   CALL hdlerr( NF90_CLOSE(il_grids_id),  w_unit, subname, __FILE__, __LINE__ )
   !
