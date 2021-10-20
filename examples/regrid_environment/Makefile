@@ -3,11 +3,6 @@ include header_Makefile
 #
 ##### User configurable options #####
 #
-# Case of remapping weights:
-# SCRIPweights for remapping weights computed by SCRIP
-# ESMFweights for remapping weights read in an existing file specified by the OASIS namcouple
-CPPKEY_WEIGHTS=SCRIPweights # SCRIPweights ESMFweights
-#
 # Case of analytical function:
 # FANA1 for standard analytical function
 # FANA2 for Gulf  stream as analytical function
@@ -61,7 +56,7 @@ gradient_conserv.o :		gradient_conserv.F90
 				$(F90) $(F90FLAGS) -D${CPPKEY_FANA}  -c gradient_conserv.F90
 
 model1.o :	model1.F90 Makefile
-		$(F90) $(F90FLAGS) -D${CPPKEY_WEIGHTS} -D${CPPKEY_FANA} -c model1.F90
+		$(F90) $(F90FLAGS) -D${CPPKEY_FANA} -c model1.F90
 #
 #-------------------------------------------------------------------------------
 # Utilities
