@@ -6,7 +6,9 @@ user=`whoami`
 
 ## - Define paths
 srcdir=`pwd`
-datadir=$srcdir/data_oasis
+oasisdir=$srcdir/OASIS
+xiosdir=$srcdir/XIOS
+esmfdir=$srcdir/ESMF
 casename=`basename $srcdir`
 
 ## - Define case
@@ -86,27 +88,8 @@ if [ ${library} == "SCRP" ]; then
 fi
 ##
 ## - Verification of remapping for XIOS (no distwgt, bili or bicu - not supported for all grids)
-if [ ${library} == "XIOS" ]; then
-    if [ ${remap} == "conserv1st" ]; then
-	xiosmethod=CONSERV_FRACAREA
-    elif [ ${remap} == "conserv2nd" ]; then
-	xiosmethod=CONS2ND_FRACAREA
-    else
-	echo "XIOS does not support ${remap} remapping "
-	exit
-    fi
-fi
+
 ##
-## With ESMF, if nogt is source grid and remap is bili, bicu or distwgt, nogt should not be transformed in an unstructured grid
-if [ ${library} == "ESMF" ]; then
-    OasisGridsToESMF="ESMF/OasisGridsToESMF.py"
-    if [ ${SRC_GRID} == "nogt" ]; then
-        if [ ${remap} == "conserv1st" ] || [ ${remap} == "conserv2nd" ]; then
-            OasisGridsToESMF="ESMF/OasisGridsToESMF_nogtunstruct.py"
-        fi
-    fi
-fi
-## 
 ##SVSV Adapt xios.xml to src and tgt grids
 ##
 rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_${library}_${ext}
@@ -115,10 +98,6 @@ rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${re
 ##
 ## - Name of the executables
 exe1=model1
-if [ ${library} == "XIOS" ]; then
-    #SVSV
-    exexios=oasis_testcase.exe
-fi
 ##
 echo ''
 echo '**************************************************************************************************************'
@@ -144,26 +123,49 @@ echo ''
 \rm -fr $rundir/*
 mkdir -p $rundir
 ##
-ln -sf $datadir/grids.nc  $rundir/grids.nc
-ln -sf $datadir/masks.nc  $rundir/masks.nc
+ln -sf $oasisdir/grids.nc  $rundir/grids.nc
+ln -sf $oasisdir/masks.nc  $rundir/masks.nc
 ln -sf $srcdir/$exe1 $rundir/.
 ##
 if [ ${library} == "SCRP" ]; then
-    cp -f $datadir/namcouple_${SRC_GRID}_${TGT_GRID}_${remap} $rundir/namcouple
+    cp -f $oasisdir/namcouple_${SRC_GRID}_${TGT_GRID}_${remap} $rundir/namcouple
 else
-    cp -f $datadir/namcouple_${SRC_GRID}_${TGT_GRID} $rundir/namcouple
+    cp -f $oasisdir/namcouple_${SRC_GRID}_${TGT_GRID} $rundir/namcouple
 fi
 #
+if [ ${library} == "ESMF" ]; then
+    ## With ESMF, nogt should be transformed to an unstructured grid 
+    OasisGridsToESMF="OasisGridsToESMF.py"
+    if [ ${SRC_GRID} == "nogt" ]; then
+        if [ ${remap} == "conserv1st" ] || [ ${remap} == "conserv2nd" ]; then
+            OasisGridsToESMF="OasisGridsToESMF_nogtunstruct.py"
+        fi
+    fi
+    cp -f $esmfdir/$OasisGridsToESMF  $rundir/.
+    cp -f $esmfdir/ESMFWeightsToOasis.sh  $rundir/.
+fi
+## 
 if [ ${library} == "XIOS" ]; then
+    ## Only 1st and 2nd order conservative remapping for XIOS
+    if [ ${remap} == "conserv1st" ]; then
+	xiosmethod=CONSERV_FRACAREA
+    elif [ ${remap} == "conserv2nd" ]; then
+	xiosmethod=CONS2ND_FRACAREA
+    else
+	echo "XIOS does not support ${remap} remapping "
+	exit
+    fi
+    #SVSV
+    exexios=oasis_testcase.exe    
     cat <<EOF > param.def
 &params_run
 nb_proc_toy=$nproces
 /
 EOF
     cp -f param.def $rundir/param.def
-    cp -f $srcdir/XIOS/iodef.xml $rundir/iodef.xml
-    cp -f $srcdir/XIOS/context_toy.xml $rundir/context_toy.xml
-    cp -f $srcdir/XIOS/$exexios $rundir/$exexios
+    cp -f $xiosdir/iodef.xml $rundir/iodef.xml
+    cp -f $xiosdir/context_toy.xml $rundir/context_toy.xml
+    cp -f $xiosdir/$exexios $rundir/$exexios
     #
 fi
 #
@@ -316,13 +318,13 @@ export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
 export OMP_NUM_THREADS=$threads
 
-python $srcdir/$OasisGridsToESMF $SRC_GRID $rundir
-python $srcdir/$OasisGridsToESMF $TGT_GRID $rundir
+python ./$OasisGridsToESMF $SRC_GRID $rundir
+python ./$OasisGridsToESMF $TGT_GRID $rundir
 # Generate ESMF weights
 time mpirun -np $nproces ESMF_RegridWeightGen -s ${SRC_GRID}_ESMF.nc -d ${TGT_GRID}_ESMF.nc -m ${meth_esmfname} -w ESMFweights.nc --ignore_degenerate ${options}
 
 # Convert ESMF weight file in OASIS format
-$srcdir/ESMFWeightsToOasis.sh ${SRC_GRID} ${TGT_GRID} ${remap}
+./ESMFWeightsToOasis.sh ${SRC_GRID} ${TGT_GRID} ${remap}
 
 time mpirun -np $nproces ./$exe1
 EOF
@@ -362,13 +364,9 @@ export KMP_AFFINITY=verbose,granularity=fine,compact
 export OMP_NUM_THREADS=$threads
 
 # Generate XIOS weights
-#SVSV tester en enlevant la ou les lignes suivantes
-#source /scratch/globc/valcke/XIOS_trunk/arch/arch-X64_CERFACS.env
-#source /softs/intel/impi/2018.1.163/bin64/mpivars.sh 
 time mpirun -np $nproces ./$exexios 
-# Convert ESMF weight file in OASIS format SVSV automatiser CONSERV_FRACAREA
+# Convert ESMF weight file in OASIS format
 python $srcdir/XIOS/XiosWeightsToOasis.py
-#SVSV automatiser CONSERV_FRACAREA et penser $srcdir/ESMFWeightsToOasis.sh ${SRC_GRID} ${TGT_GRID} ${remap}
 ln -sf rmp_${SRC_GRID}_to_${TGT_GRID}_xios_${xiosmethod}.nc rmp_${SRC_GRID}_to_${TGT_GRID}.nc
 #
 time mpirun -np $nproces ./$exe1
