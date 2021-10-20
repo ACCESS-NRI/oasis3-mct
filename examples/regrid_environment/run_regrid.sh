@@ -22,7 +22,7 @@ if [ $# -eq 0 ] ; then
     nnode=1
     mpiprocs=1
     threads=1
-    library=SCRIP
+    library=SCRP
     ext=""
 elif [ $# -ne 6 ] ; then
     echo "If you don't want to run the default case without arguments, "
@@ -30,7 +30,7 @@ elif [ $# -ne 6 ] ; then
     echo "where 'src' is the source grid, 'tgt' the target grid and 'remap' the remapping,"
     echo "'nnodes' the total number of nodes for the run, 'nprocs' the number of MPI tasks per node"
     echo "'nthreads' the number of OpenMP threads per MPI task"
-    echo "'library' is the regridder used (either SCRIP, ESMF or XIOS)"
+    echo "'library' is the regridder used (either SCRP, ESMF or XIOS)"
     echo "'ext' is suffixe is used in the rundir name."
     exit
 else
@@ -45,6 +45,10 @@ else
     ext=$6
 fi
 ##
+if [ ${library} != "SCRP" ] && [ ${library} != "ESMF" ] && [ ${library} != "XIOS" ]; then
+    echo "Remapping library must be either SCRP (for SCRIP), ESMF or XIOS"
+    exit
+fi
 nproces=`echo $(($nnode*$mpiprocs))`
 ##
 ## User's choice of computing architecture
@@ -65,8 +69,8 @@ arch=kraken_intel_impi_openmp  # nemo_lenovo_intel_impi_openmp, kraken_intel_imp
 ##
 ## - Remapping : distwgt (nearest-neighbour), bili (bilinear), bicu (bicubic), conserv1st or conserv2nd (1st or 2nd order conservative remapping)
 ##
-## - Verification source grid type and remapping for SCRIP (no conserv2nd for ssea ; no bili, bicu, conserv2nd for icos)
-if [ ${library} == "SCRIP" ]; then
+## - Verification source grid type and remapping for SCRP (no conserv2nd for ssea ; no bili, bicu, conserv2nd for icos)
+if [ ${library} == "SCRP" ]; then
     if [ ${SRC_GRID} == "ssea" ]; then
 	if [ ${remap} == "conserv2nd" ]; then
 	    echo "Impossible to perform conserv2nd remapping from gaussian reduced grid ssea"
@@ -81,33 +85,39 @@ if [ ${library} == "SCRIP" ]; then
     fi
 fi
 ##
-## For t12e and icoh, only conserv1st is possible with this environment (but it could be extended to other remappings)
-if [ ${SRC_GRID} == "icoh" ] || [ ${SRC_GRID} == "t12e" ] || [ ${TGT_GRID} == "icoh" ] || [ ${TGT_GRID} == "t12e" ]; then
-    if [ ${remap} == "conserv2nd" ] || [ ${remap} == "bicu" ] || [ ${remap} == "bili" ] || [ ${remap} == "distwgt" ]; then
-	echo "This environment is not configured to perform ${remap} remapping for t12e or icoh"
+## - Verification of remapping for XIOS (no distwgt, bili or bicu - not supported for all grids)
+if [ ${library} == "XIOS" ]; then
+    if [ ${remap} == "conserv1st" ]; then
+	xiosmethod=CONSERV_FRACAREA
+    elif [ ${remap} == "conserv2nd" ]; then
+	xiosmethod=CONS2ND_FRACAREA
+    else
+	echo "XIOS does not support ${remap} remapping "
 	exit
     fi
-fi    
-## If nogt is source grid and remap is bili, bicu or distwgt, nogt should not be transformed in an unstructured grid
-OasisGridsToESMF=OasisGridsToESMF.py
+fi
+##
+## With ESMF, if nogt is source grid and remap is bili, bicu or distwgt, nogt should not be transformed in an unstructured grid
 if [ ${library} == "ESMF" ]; then
+    OasisGridsToESMF="ESMF/OasisGridsToESMF.py"
     if [ ${SRC_GRID} == "nogt" ]; then
-        if [ ${remap} == "conserv1st" ] || [ ${remap} == "conserv2nd" ] ; then
-            OasisGridsToESMF=OasisGridsToESMF_nogtunstruct.py
+        if [ ${remap} == "conserv1st" ] || [ ${remap} == "conserv2nd" ]; then
+            OasisGridsToESMF="ESMF/OasisGridsToESMF_nogtunstruct.py"
         fi
     fi
 fi
-echo $OasisGridsToESMF
+## 
+##SVSV Adapt xios.xml to src and tgt grids
 ##
 rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${SRC_GRID}_${TGT_GRID}_${remap}_${nnode}_${mpiprocs}_${threads}_${library}_${ext}
 ##
 ######################################################################
 ##
 ## - Name of the executables
-if [ ${library} == "ESMF" ]; then
-    exe1=model1_ESMF
-elif [ ${library} == "SCRIP" ]; then
-    exe1=model1_SCRIP
+exe1=model1
+if [ ${library} == "XIOS" ]; then
+    #SVSV
+    exexios=oasis_testcase.exe
 fi
 ##
 echo ''
@@ -124,6 +134,7 @@ echo 'Host         : '$host
 echo 'User         : '$user
 echo 'Grids        : '$SRC_GRID'-->'$TGT_GRID
 echo 'Remap        : '$remap
+echo 'Remapping library: '$library
 echo ''
 echo $exe1' runs on '$nproces 'processes'
 echo ''
@@ -135,14 +146,27 @@ mkdir -p $rundir
 ##
 ln -sf $datadir/grids.nc  $rundir/grids.nc
 ln -sf $datadir/masks.nc  $rundir/masks.nc
-#ln -sf $datadir/areas.nc  $rundir/areas.nc
 ln -sf $srcdir/$exe1 $rundir/.
-if [ ${library} == "SCRIP" ]; then
+##
+if [ ${library} == "SCRP" ]; then
     cp -f $datadir/namcouple_${SRC_GRID}_${TGT_GRID}_${remap} $rundir/namcouple
-elif [ ${library} == "ESMF" ]; then
-    cp -f $datadir/namcouple_${SRC_GRID}_${TGT_GRID}_esmf $rundir/namcouple
+else
+    cp -f $datadir/namcouple_${SRC_GRID}_${TGT_GRID} $rundir/namcouple
 fi
-
+#
+if [ ${library} == "XIOS" ]; then
+    cat <<EOF > param.def
+&params_run
+nb_proc_toy=$nproces
+/
+EOF
+    cp -f param.def $rundir/param.def
+    cp -f $srcdir/XIOS/iodef.xml $rundir/iodef.xml
+    cp -f $srcdir/XIOS/context_toy.xml $rundir/context_toy.xml
+    cp -f $srcdir/XIOS/$exexios $rundir/$exexios
+    #
+fi
+#
 ## - Grid source characteristics 
 if [ ${SRC_GRID} == bggd ]; then
     SRC_GRID_TYPE=LR
@@ -184,6 +208,9 @@ il_overlap_src=$SRC_GRID_OVERLAP
 cl_grd_tgt='$TGT_GRID'
 cl_type_tgt='$TGT_GRID_TYPE'
 \$end
+\$remapper
+cl_library='$library'
+\$end
 EOF
 #
 cd $rundir
@@ -195,7 +222,7 @@ cd $rundir
 ### NEMO_LENOVO_INTEL_IMPI_OPENMP
 ###---------------------------------------------------------------------
 if [ ${arch} == nemo_lenovo_intel_impi_openmp ]; then
-#SVSV a adpater a ESMF
+#SVSV a adpater a ESMF et XIOS
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash -l
 #SBATCH --partition prod
@@ -226,7 +253,7 @@ EOF
 ###---------------------------------------------------------------------
 elif [ ${arch} == kraken_intel_impi_openmp ]; then
     timreq=00:30:00
-    if [ ${library} == "SCRIP" ]; then
+    if [ ${library} == "SCRP" ]; then
 	cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash -l
 #Partition
@@ -297,6 +324,53 @@ time mpirun -np $nproces ESMF_RegridWeightGen -s ${SRC_GRID}_ESMF.nc -d ${TGT_GR
 # Convert ESMF weight file in OASIS format
 $srcdir/ESMFWeightsToOasis.sh ${SRC_GRID} ${TGT_GRID} ${remap}
 
+time mpirun -np $nproces ./$exe1
+EOF
+    elif [ ${library} == "XIOS" ]; then
+  cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash -l
+#Partition
+#SBATCH --partition prod
+# Nom du job
+#SBATCH --job-name ${n_p_t}
+# Time limit for the job
+#SBATCH --time=$timreq
+#SBATCH --output=$rundir/$casename.o
+#SBATCH --error=$rundir/$casename.e
+# Number of nodes
+#SBATCH --nodes=$nnode
+# Number of MPI tasks per node
+#SBATCH --ntasks-per-node=$mpiprocs
+# Number of OpenMP threads per MPI task
+#SBATCH --cpus-per-task=$threads
+
+cd $rundir
+#SVSV tester en enlevant les lignes suivantes
+#module load compiler/intel/18.0.1.163
+#module load mpi/intelmpi/2018.1.163
+#module load lib/phdf5/1.10.4_impi
+#module load lib/netcdf-fortran/4.4.4_phdf5_1.10.4
+#module load compiler/gcc/5.4.0
+#module load tools/totalview/2021.1.16
+#module load perf/likwid/5.0.1
+#module load python/3.7.7
+
+export KMP_STACKSIZE=1GB
+export I_MPI_PIN_DOMAIN=omp
+export I_MPI_WAIT_MODE=enable
+export KMP_AFFINITY=verbose,granularity=fine,compact
+export OMP_NUM_THREADS=$threads
+
+# Generate XIOS weights
+#SVSV tester en enlevant la ou les lignes suivantes
+#source /scratch/globc/valcke/XIOS_trunk/arch/arch-X64_CERFACS.env
+#source /softs/intel/impi/2018.1.163/bin64/mpivars.sh 
+time mpirun -np $nproces ./$exexios 
+# Convert ESMF weight file in OASIS format SVSV automatiser CONSERV_FRACAREA
+python $srcdir/XIOS/XiosWeightsToOasis.py
+#SVSV automatiser CONSERV_FRACAREA et penser $srcdir/ESMFWeightsToOasis.sh ${SRC_GRID} ${TGT_GRID} ${remap}
+ln -sf rmp_${SRC_GRID}_to_${TGT_GRID}_xios_${xiosmethod}.nc rmp_${SRC_GRID}_to_${TGT_GRID}.nc
+#
 time mpirun -np $nproces ./$exe1
 EOF
     fi

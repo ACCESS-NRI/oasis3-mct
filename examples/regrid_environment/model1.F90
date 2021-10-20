@@ -32,6 +32,7 @@ PROGRAM model1
   CHARACTER(len=2)   :: cl_type_tgt    ! type of the target grid
   CHARACTER(len=8)   :: cl_period_src  ! periodicity of the source grid (P=periodic or R=regional)
   INTEGER            :: il_overlap_src ! number of overlapping points 
+  CHARACTER(len=4)   :: cl_library     ! remapper (SCRP, ESMF or XIOS) 
   NAMELIST /grid_source_characteristics/cl_grd_src
   NAMELIST /grid_source_characteristics/cl_remap
   NAMELIST /grid_source_characteristics/cl_type_src 
@@ -39,6 +40,7 @@ PROGRAM model1
   NAMELIST /grid_source_characteristics/il_overlap_src
   NAMELIST /grid_target_characteristics/cl_grd_tgt
   NAMELIST /grid_target_characteristics/cl_type_tgt
+  NAMELIST /remapper/cl_library
   !
   ! Grid parameters 
   INTEGER :: il_extentx_s, il_extenty_s, il_offsetx_s, il_offsety_s
@@ -152,6 +154,7 @@ PROGRAM model1
   OPEN(UNIT=70,FILE='name_grids.dat',FORM='FORMATTED')
   READ(UNIT=70,NML=grid_source_characteristics)
   READ(UNIT=70,NML=grid_target_characteristics)
+  READ(UNIT=70,NML=remapper)
   CLOSE(70)
   !
   IF (file_debug) THEN
@@ -159,6 +162,7 @@ PROGRAM model1
       WRITE(w_unit,*) 'Remapping : ',cl_remap
       WRITE(w_unit,*) 'Source and target grid type : ',cl_type_src, cl_type_tgt
       WRITE(w_unit,*) 'Source grid overlapping pts :',il_overlap_src
+      WRITE(w_unit,*) 'Remapping library :', cl_library
       CALL flush(w_unit)
   ENDIF
   !
@@ -318,81 +322,81 @@ PROGRAM model1
   CALL function_vortex(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
 #endif
   !
-#ifdef SCRIPweights
-  ! Special treament for bicubic remapping
-  IF (cl_remap == 'bicu') THEN
-     IF ( trim(cl_type_src) == 'LR') THEN
-        call flush (w_unit)
-        ! Calculate the gradients in i, j and ij needed for the bicubic remapping for LR grids
-        ! For simplicity, all processes calculate gradients on the whole grid
-        ALLOCATE(gradient_i(il_extentx_s,il_extenty_s), STAT=ierror )
-        IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_i'
-        call flush (w_unit)
-        ALLOCATE(gradient_j(il_extentx_s,il_extenty_s), STAT=ierror )
-        IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_j'
-        call flush (w_unit)
-        ALLOCATE(gradient_ij(il_extentx_s,il_extenty_s), STAT=ierror )
-        IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_ij'
-        call flush (w_unit)
-        WRITE(w_unit,*) 'After allocate gradients'
-        call flush (w_unit)
-        IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_ij'
-        call gradient_bicubic(nlon_s, nlat_s, il_offsetx_s+1, il_offsety_s+1, il_extentx_s, il_extenty_s, &
-                                  cl_grd_src, il_overlap_src, cl_period_src, w_unit,  &
-                                  gradient_i, gradient_j, gradient_ij, file_debug)
-        WRITE(w_unit,*) 'After gradient_bicubic'
-        call flush (w_unit)
-        IF (file_debug) THEN
-           WRITE(w_unit,*) 'Bicubic_gradient calculated '
-           CALL FLUSH(w_unit)
-        ENDIF
-        ! Send the local part of the coupling field and gradients 
-        call oasis_put(var_id_s, 0, field_send, ierror, &
-                       gradient_i, gradient_j, gradient_ij)
-     ELSE IF ( trim(cl_type_src) == 'D') THEN
-        ! For Gaussian Reduced grids, a 16-point algorithm is used so gradients
-        ! are not needed; send only the local part of the coupling field
-        call oasis_put(var_id_s, 0, field_send, ierror)
-     ELSE
-        ! Bicubic remapping is not possible for othe grid types
-        WRITE(w_unit,*) 'Cannot perform bicubic interpolation for type of grid ',cl_type_src
-        CALL oasis_abort(comp_id,comp_name,'Bicubic interpolation impossible for that grid')
-     ENDIF
-  !
-  ! Special treament for 2nd order conservative remapping
-  ELSE IF (cl_remap == 'conserv2nd') THEN
-     IF ( trim(cl_type_src) == 'LR') THEN
-        ! Calculate the gradients in lat and lon directions needed for 2nd order
-        ! conservative remapping for LR grids
-        ! For simplicity, all processes calculate gradients on the whole grid
-        ALLOCATE(grad_lat(il_extentx_s,il_extenty_s), STAT=ierror )
-        IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_i'
-        ALLOCATE(grad_lon(il_extentx_s,il_extenty_s), STAT=ierror )
-        IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_j'
-        call gradient_conserv(nlon_s, nlat_s, il_offsetx_s+1, il_offsety_s+1, il_extentx_s, il_extenty_s, &
-                                  cl_grd_src, il_overlap_src, cl_period_src, w_unit,  &
-                                  grad_lon, grad_lat, file_debug)
-        IF (file_debug) THEN
-           WRITE(w_unit,*) 'Conservative gradient calculated '
-           CALL FLUSH(w_unit)
-        ENDIF
-        !
-        ! Send the local part of the coupling field and gradients
-        call oasis_put(var_id_s, 0, field_send, ierror, &
-                       grad_lat, grad_lon)
-     ELSE
-        ! 2nd order conservative not implemented for grids other than LR
-        WRITE(w_unit,*) 'Cannot perform second order conserv interpolation for type of grid ',cl_type_src
-        CALL oasis_abort(comp_id,comp_name,'Second order conserv interpolation impossible for that grid')
-     ENDIF
-  ! Standard oasis_put for other types of remappings
+
+  IF (cl_library == 'SCRP') THEN
+      ! Special treament for bicubic remapping
+      IF (cl_remap == 'bicu') THEN
+          IF ( trim(cl_type_src) == 'LR') THEN
+              call flush (w_unit)
+              ! Calculate the gradients in i, j and ij needed for the bicubic remapping for LR grids
+              ! For simplicity, all processes calculate gradients on the whole grid
+              ALLOCATE(gradient_i(il_extentx_s,il_extenty_s), STAT=ierror )
+              IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_i'
+              call flush (w_unit)
+              ALLOCATE(gradient_j(il_extentx_s,il_extenty_s), STAT=ierror )
+              IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_j'
+              call flush (w_unit)
+              ALLOCATE(gradient_ij(il_extentx_s,il_extenty_s), STAT=ierror )
+              IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_ij'
+              call flush (w_unit)
+              WRITE(w_unit,*) 'After allocate gradients'
+              call flush (w_unit)
+              IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_ij'
+              call gradient_bicubic(nlon_s, nlat_s, il_offsetx_s+1, il_offsety_s+1, il_extentx_s, il_extenty_s, &
+                 cl_grd_src, il_overlap_src, cl_period_src, w_unit,  &
+                 gradient_i, gradient_j, gradient_ij, file_debug)
+              WRITE(w_unit,*) 'After gradient_bicubic'
+              call flush (w_unit)
+              IF (file_debug) THEN
+                  WRITE(w_unit,*) 'Bicubic_gradient calculated '
+                  CALL FLUSH(w_unit)
+              ENDIF
+              ! Send the local part of the coupling field and gradients 
+              call oasis_put(var_id_s, 0, field_send, ierror, &
+                 gradient_i, gradient_j, gradient_ij)
+          ELSE IF ( trim(cl_type_src) == 'D') THEN
+              ! For Gaussian Reduced grids, a 16-point algorithm is used so gradients
+              ! are not needed; send only the local part of the coupling field
+              call oasis_put(var_id_s, 0, field_send, ierror)
+          ELSE
+              ! Bicubic remapping is not possible for othe grid types
+              WRITE(w_unit,*) 'Cannot perform bicubic interpolation for type of grid ',cl_type_src
+              CALL oasis_abort(comp_id,comp_name,'Bicubic interpolation impossible for that grid')
+          ENDIF
+          !
+          ! Special treament for 2nd order conservative remapping
+      ELSE IF (cl_remap == 'conserv2nd') THEN
+          IF ( trim(cl_type_src) == 'LR') THEN
+              ! Calculate the gradients in lat and lon directions needed for 2nd order
+              ! conservative remapping for LR grids
+              ! For simplicity, all processes calculate gradients on the whole grid
+              ALLOCATE(grad_lat(il_extentx_s,il_extenty_s), STAT=ierror )
+              IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_i'
+              ALLOCATE(grad_lon(il_extentx_s,il_extenty_s), STAT=ierror )
+              IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating gradient_j'
+              call gradient_conserv(nlon_s, nlat_s, il_offsetx_s+1, il_offsety_s+1, il_extentx_s, il_extenty_s, &
+                 cl_grd_src, il_overlap_src, cl_period_src, w_unit,  &
+                 grad_lon, grad_lat, file_debug)
+              IF (file_debug) THEN
+                  WRITE(w_unit,*) 'Conservative gradient calculated '
+                  CALL FLUSH(w_unit)
+              ENDIF
+              !
+              ! Send the local part of the coupling field and gradients
+              call oasis_put(var_id_s, 0, field_send, ierror, &
+                 grad_lat, grad_lon)
+          ELSE
+              ! 2nd order conservative not implemented for grids other than LR
+              WRITE(w_unit,*) 'Cannot perform second order conserv interpolation for type of grid ',cl_type_src
+              CALL oasis_abort(comp_id,comp_name,'Second order conserv interpolation impossible for that grid')
+          ENDIF
+      ELSE
+          ! Standard oasis_put for other types of remappings for SCROP
+          CALL oasis_put(var_id_s, 0, field_send, ierror)
+      ENDIF
   ELSE
-     call oasis_put(var_id_s, 0, field_send, ierror)
+      CALL oasis_put(var_id_s, 0, field_send, ierror)
   ENDIF
-#elif defined ESMFweights
-!  call oasis_put(var_id_s, 0, field_send(:,:),(/var_sh(2),var_sh(4)/), ierror)
-  call oasis_put(var_id_s, 0, field_send, ierror)
-#endif
   IF (file_debug) THEN
       WRITE(w_unit,*) 'After oasis_put'
       CALL FLUSH(w_unit)
