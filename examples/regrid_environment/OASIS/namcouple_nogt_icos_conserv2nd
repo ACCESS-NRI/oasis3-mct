@@ -1,0 +1,20 @@
+############################################
+$NFIELDS  
+1 
+$END 
+############################################ 
+$RUNTIME  
+21600 
+$END 
+############################################ 
+$NLOGPRT  
+1 0 
+$END 
+############################################ 
+$STRINGS  
+FSENDANA FRECVANA 1 7200 1 rst.nc EXPOUT 
+362 294  15212 1 nogt icos 
+P 2 P 0  
+SCRIPR 
+CONSERV LR SCALAR LATITUDE 1 FRACAREA SECOND
+$END
