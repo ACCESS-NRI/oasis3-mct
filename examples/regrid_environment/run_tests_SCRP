@@ -1,0 +1,30 @@
+#!/bin/ksh
+#set -x
+srcdir=`pwd`
+n_p_t=$1
+ext=$2
+library=SCRP
+casename=`basename $srcdir`
+for SGRID in bggd icos ssea ; do
+   TGRID=nogt
+   for remap in distwgt conserv1st ; do
+       ./run_regrid.sh $SGRID $TGRID $remap $n_p_t $library $ext
+   done
+done
+for SGRID in bggd ssea ; do
+   TGRID=nogt
+   for remap in bili bicu ; do
+        ./run_regrid.sh $SGRID $TGRID $remap $n_p_t $library $ext
+   done
+done 
+SGRID=bggd
+TGRID=nogt
+remap=conserv2nd
+./run_regrid.sh $SGRID $TGRID $remap $n_p_t $library $ext
+#
+for TGRID in bggd icos ssea ; do
+   SGRID=nogt
+   for remap in distwgt bili bicu conserv1st conserv2nd ; do
+        ./run_regrid.sh $SGRID $TGRID $remap $n_p_t $library $ext
+   done
+done

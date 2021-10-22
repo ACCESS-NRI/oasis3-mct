@@ -1,0 +1,22 @@
+#!/bin/ksh
+#set -x
+srcdir=`pwd`
+n_p_t=$1
+ext=$2
+library=XIOS
+casename=`basename $srcdir`
+for SGRID in bggd icos ssea  ; do
+   TGRID=nogt
+   for remap in conserv1st conserv2nd ; do
+       echo "$SGRID $TGRID $remap $n_p_t $library $ext"
+       ./run_regrid.sh $SGRID $TGRID $remap $n_p_t $library $ext
+   done
+done
+
+for TGRID in bggd icos ssea  ; do
+    SGRID=nogt
+    echo "$SGRID $TGRID $remap $n_p_t $library $ext"
+    for remap in conserv1st conserv2nd ; do
+	./run_regrid.sh $SGRID $TGRID $remap $n_p_t $library $ext
+    done
+done
