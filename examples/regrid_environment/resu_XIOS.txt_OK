@@ -1,0 +1,13 @@
+1_1_1
+regrid_environment_bggd_nogt_conserv1st_1_1_1_XIOS_221021  :  0.1595
+regrid_environment_bggd_nogt_conserv2nd_1_1_1_XIOS_221021  :  0.0149
+regrid_environment_icos_nogt_conserv1st_1_1_1_XIOS_221021  :  0.1524
+regrid_environment_icos_nogt_conserv2nd_1_1_1_XIOS_221021  :  0.0151
+regrid_environment_nogt_bggd_conserv1st_1_1_1_XIOS_221021  :  0.0432
+regrid_environment_nogt_bggd_conserv2nd_1_1_1_XIOS_221021  :  0.0333
+regrid_environment_nogt_icos_conserv1st_1_1_1_XIOS_221021  :  0.0366
+regrid_environment_nogt_icos_conserv2nd_1_1_1_XIOS_221021  :  0.0262
+regrid_environment_nogt_ssea_conserv1st_1_1_1_XIOS_221021  :  0.0390
+regrid_environment_nogt_ssea_conserv2nd_1_1_1_XIOS_221021  :  0.0184
+regrid_environment_ssea_nogt_conserv1st_1_1_1_XIOS_221021  :  0.1013
+regrid_environment_ssea_nogt_conserv2nd_1_1_1_XIOS_221021  :  0.0262
