@@ -31,6 +31,6 @@ ncrename -h -v mask_b,dst_grid_imask ${fweights_oasis}
 ncrename -h -v col,src_address ${fweights_oasis}
 ncrename -h -v row,dst_address ${fweights_oasis}
 rm -f work.nc
-ln -sf ${fweights_oasis} rmp_${sgrid}_to_${dgrid}.nc
+ln -sf ${fweights_oasis} rmp_${sgrid}_${dgrid}.nc
 #mv ${fweights_oasis} ${output_weightdir}
 
