@@ -1,0 +1,60 @@
+<!-- -->
+<context id="toy">
+  
+  <calendar type="Gregorian" time_origin="1850-01-01 00:00:00" /> 
+  
+  <domain_definition>
+    <domain id="src_domain" radius="1.0"/>
+    <domain id="tgt_domain" radius="1.0"/>
+  </domain_definition>
+  
+  <grid_definition>  
+    <grid id="src_grid2D">
+      <domain domain_ref="src_domain" />
+    </grid>
+
+    <grid id="tgt_grid2D">
+      <domain domain_ref="tgt_domain" />
+    </grid>
+  </grid_definition>
+  
+  
+  <field_definition level="1" prec="8" operation="instant" freq_op="1ts" enabled=".true." default_value="1.e+20" detect_missing_value="true">
+    <field id="src_field2D" grid_ref="src_grid2D" />
+    <field id="tgt_field2D" grid_ref="tgt_grid2D"/>
+  </field_definition>
+
+
+
+<!-- implementation of specifics test case -->
+<!-- interpolate 2D-field between two horizontal mesh  -->
+
+  <domain_definition>
+    <domain id="interpolated_domain" domain_ref="tgt_domain">
+      <interpolate_domain id="interpolation"
+	                  order="ORDER"
+			  renormalize="true"
+			  use_area="false"
+			  quantity="false"
+			  detect_missing_value="true"
+			  write_weight="true"
+			  weight_filename="remap_weights.nc"
+			  read_write_convention="fortran"/>
+    </domain>
+  </domain_definition>    
+
+  <file_definition  type="one_file" >
+    
+    <file id="toy_output_src" output_freq="1ts" type="one_file" enabled="false">
+       <field id="source_field2D" field_ref="src_field2D" /> 
+    </file>
+
+    <file id="toy_output_tgt" output_freq="1ts" type="one_file" enabled="true">
+       <!-- <field id="analytical_field2D" field_ref="tgt_field2D"/> -->
+       <field id="interpolated_field2D" field_ref="src_field2D" domain_ref="interpolated_domain"  grid_ref="_reset_"/>
+    </file>
+
+  </file_definition>
+  
+  
+</context>
