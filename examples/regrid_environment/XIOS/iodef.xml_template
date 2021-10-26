@@ -5,8 +5,8 @@
   <context id="toy">
     <variable_definition>
 <!--  Path of the grid definition NetCDF files -->
-      <variable id="grids_input_file"> /scratch/globc/valcke/oasis3-mct/examples/regrid_environment/OASIS/grids.nc </variable>
-      <variable id="masks_input_file"> /scratch/globc/valcke/oasis3-mct/examples/regrid_environment/OASIS/masks.nc </variable>
+      <variable id="grids_input_file">GRIDS</variable>
+      <variable id="masks_input_file">MASKS</variable>
       <variable id="areas_input_file"> /scratch/globc/valcke/oasis3-mct_other/compare_interpolations/grids_compare/areas.nc </variable>
 
 <!--  Choose src and tgt domain between nogt torc t12e bggd icos icoh ssea -->

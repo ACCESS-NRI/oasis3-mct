@@ -44,15 +44,27 @@ fi
 nproces=`echo $(($nnode*$mpiprocs))`
 
 ## - Check grids
-## bggd is an atmosphere structured (LR) grid ; ssea is an atmosphere gaussian reduced (D) grid
-## icos/icoh is an atmosphere unstructured (U) grid ; nogt/t12e is an ocean structured (LR) grid
-if [ ${SGRID} != "bggd" ] && [ ${SGRID} != "ssea" ] && [ ${SGRID} != "icos" ] && [ ${SGRID} != "icoh" ] && [ ${SGRID} != "nogt" ] && [ ${SGRID} != "t12e" ]; then
-    echo "Source grid must be either bggd, ssea, icos, icoh, nogt, t12e "
+## bggd is an atmosphere structured (LR) grid ; sse7 is an atmosphere gaussian reduced (D) grid
+## icos/icoh is an atmosphere unstructured (U) grid ; nogt/torc/t12e is an ocean structured (LR) grid
+if [ ${SGRID} != "bggd" ] && [ ${SGRID} != "sse7" ] && [ ${SGRID} != "icos" ] && [ ${SGRID} != "icoh" ] && [ ${SGRID} != "nogt" ] && [ ${SGRID} != "torc" ] && [ ${SGRID} != "t12e" ]; then
+    echo "Source grid must be either bggd, sse7, icos, icoh, nogt, torc or t12e "
     exit
 fi
-if [ ${TGRID} != "bggd" ] && [ ${TGRID} != "ssea" ] && [ ${TGRID} != "icos" ] && [ ${TGRID} != "icoh" ] && [ ${TGRID} != "nogt" ] && [ ${TGRID} != "t12e" ]; then
-    echo "Source grid must be either bggd, ssea, icos, icoh, nogt, t12e "
+if [ ${TGRID} != "bggd" ] && [ ${TGRID} != "sse7" ] && [ ${TGRID} != "icos" ] && [ ${TGRID} != "icoh" ] && [ ${TGRID} != "nogt" ] && [ ${TGRID} != "torc" ] && [ ${TGRID} != "t12e" ]; then
+    echo "Target grid must be either bggd, sse7, icos, icoh, nogt, torc or t12e "
     exit
+fi
+if [ ${SGRID} == "bggd" ] && [ ${SGRID} == "sse7" ] && [ ${SGRID} == "icos" ] && [ ${SGRID} == "icoh" ]; then
+    if [ ${TGRID} != "nogt" ] && [ ${TGRID} != "torc" ] && [ ${TGRID} != "t12e" ]; then
+	echo "You have to match an atmospheric grid (bggd, sse7, icos or icoh) with an ocean grid (nogt, torc, t12e)"
+	exit
+    fi
+fi	
+if [ ${TGRID} == "bggd" ] && [ ${TGRID} == "sse7" ] && [ ${TGRID} == "icos" ] && [ ${TGRID} == "icoh" ]; then
+    if [ ${SGRID} != "nogt" ] && [ ${SGRID} != "torc" ] && [ ${SGRID} != "t12e" ]; then
+	echo "You have to match an an ocean grid (nogt, torc, t12e) with an atmospheric grid (bggd, sse7, icos or icoh)" 
+	exit
+    fi
 fi
 
 ## - Check remap
@@ -68,11 +80,11 @@ if [ ${library} != "SCRP" ] && [ ${library} != "ESMF" ] && [ ${library} != "XIOS
     exit
 fi
 
-## - Check source grid type and remapping for SCRP (no conserv2nd for ssea ; no bili, bicu, conserv2nd for icos)
+## - Check source grid type and remapping for SCRP (no conserv2nd for sse7 ; no bili, bicu, conserv2nd for icos)
 if [ ${library} == "SCRP" ]; then
-    if [ ${SGRID} == "ssea" ]; then
+    if [ ${SGRID} == "sse7" ]; then
 	if [ ${remap} == "conserv2nd" ]; then
-	    echo "Impossible to perform conserv2nd remapping from gaussian reduced grid ssea"
+	    echo "Impossible to perform conserv2nd remapping from gaussian reduced grid sse7"
 	    exit
 	fi
     elif [ ${SGRID} == "icos" ] || [ ${SGRID} == "icoh" ]; then
@@ -99,28 +111,20 @@ fi
 ## - Grid source characteristics 
 if [ ${SGRID} == bggd ]; then
     STYPE=LR ; SRCP=P ; SRCPN=0   
-elif [ ${SGRID} == ssea ]; then
+elif [ ${SGRID} == sse7 ]; then
     STYPE=D ; SRCP=P ; SRCPN=0
-elif [ ${SGRID} == icos ]; then
+elif [ ${SGRID} == icos ] || [ ${SGRID} == icoh ]; then
     STYPE=U ; SRCP=P ; SRCPN=0
-elif [ ${SGRID} == "icoh" ]; then
-    STYPE=U ; SRCP=P ; SRCPN=0   
-elif [ ${SGRID} == nogt ]; then
-    STYPE=LR ; SRCP=P ; SRCPN=2
-elif [ ${SGRID} == t12e ]; then
+elif [ ${SGRID} == nogt ] || [ ${SGRID} == torc ] || [ ${SGRID} == t12e ]; then
     STYPE=LR ; SRCP=P ; SRCPN=2
 fi
 if [ ${TGRID} == bggd ]; then
     TTYPE=LR ; TGTP=P
-elif [ ${TGRID} == ssea ]; then
+elif [ ${TGRID} == sse7 ]; then
     TTYPE=D ; TGTP=P
-elif [ ${TGRID} == icos ]; then
+elif [ ${TGRID} == icos ] || [ ${TGRID} == icoh ]; then
     TTYPE=U ; TGTP=P
-elif [ ${TGRID} == "icoh" ]; then
-    TTYPE=U ; TGTP=P
-elif [ ${TGRID} == nogt ]; then
-    TTYPE=LR ; TGTP=P
-elif [ ${TGRID} == t12e ]; then
+elif [ ${TGRID} == nogt ] || [ ${TGRID} == torc ] || [ ${TGRID} == t12e ]; then
     TTYPE=LR ; TGTP=P
 fi
 
@@ -153,13 +157,21 @@ echo 'Remapping library: '$library
 echo ''
 echo $exe1' runs on '$nproces 'processes'
 echo ''
-echo ''
 
-## - Copy everything needed into rundir
-ln -sf $oasisdir/grids.nc  $rundir/grids.nc
-ln -sf $oasisdir/masks.nc  $rundir/masks.nc
+### - Define mask name which depends on ocean grid
+###   except for t12e for which we don't follow the best practice and use the masks calculated with nogt
+if [ ${SGRID} == "nogt" ] || [ ${TGRID} == "nogt" ] || [ ${SGRID} == "t12e" ] || [ ${TGRID} == "t12e" ]; then
+    maskname=$oasisdir/${library}_masks/masks_nogt_${library}.nc
+elif [ ${SGRID} == "torc" ] || [ ${TGRID} == "torc" ]; then
+    maskname=$oasisdir/${library}_masks/masks_torc_${library}.nc
+fi
+
+### - Link everything needed into rundir
+ln -sf $oasisdir/grids.nc $rundir/grids.nc
+ln -sf ${maskname} $rundir/masks.nc
 ln -sf $srcdir/$exe1 $rundir/.
-##
+
+###
 if [ ${library} == "ESMF" ]; then
     ## With ESMF, nogt should be transformed to an unstructured grid 
     OasisGridsToESMF="OasisGridsToESMF.py"
@@ -183,7 +195,7 @@ EOF
     cp -f param.def $rundir/param.def
     cat <<EOF > sed.sh
 #!/bin/ksh
-sed -e 's:SGRID:$SGRID:' -e 's:TGRID:$TGRID:' $xiosdir/iodef.xml_template > ${rundir}/iodef.xml
+sed -e 's:SGRID:$SGRID:' -e 's:TGRID:$TGRID:' -e 's:GRIDS:$rundir/grids.nc:' -e 's:MASKS:$rundir/masks.nc:' $xiosdir/iodef.xml_template > ${rundir}/iodef.xml
 sed -e 's:ORDER:$order:' $xiosdir/context_toy.xml_template > ${rundir}/context_toy.xml
 EOF
     chmod u+x sed.sh
@@ -191,6 +203,7 @@ EOF
     cp -f $xiosdir/$exexios $rundir/$exexios
     #
 fi
+
 
 ## - Create name_grids.dat, that will be read by the models, from namcouple informations
 cat <<EOF >> $rundir/name_grids.dat

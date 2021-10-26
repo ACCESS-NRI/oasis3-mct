@@ -1,27 +1,53 @@
 1_1_1
-regrid_environment_bggd_nogt_bicu_1_1_1_SCRP_221021  :  0.0016
-regrid_environment_bggd_nogt_bili_1_1_1_SCRP_221021  :  0.0057
-regrid_environment_bggd_nogt_conserv1st_1_1_1_SCRP_221021  :  0.1595
-regrid_environment_bggd_nogt_conserv2nd_1_1_1_SCRP_221021  :  0.0025
-regrid_environment_bggd_nogt_distwgt_1_1_1_SCRP_221021  :  0.2794
-regrid_environment_icos_nogt_conserv1st_1_1_1_SCRP_221021  :  0.1524
-regrid_environment_icos_nogt_distwgt_1_1_1_SCRP_221021  :  0.2743
-regrid_environment_nogt_bggd_bicu_1_1_1_SCRP_221021  :  0.0283
-regrid_environment_nogt_bggd_bili_1_1_1_SCRP_221021  :  0.0287
-regrid_environment_nogt_bggd_conserv1st_1_1_1_SCRP_221021  :  0.0422
-regrid_environment_nogt_bggd_conserv2nd_1_1_1_SCRP_221021  :  0.0764
-regrid_environment_nogt_bggd_distwgt_1_1_1_SCRP_221021  :  0.1441
-regrid_environment_nogt_icos_bicu_1_1_1_SCRP_221021  :  0.0284
-regrid_environment_nogt_icos_bili_1_1_1_SCRP_221021  :  0.0290
-regrid_environment_nogt_icos_conserv1st_1_1_1_SCRP_221021  :  0.0367
-regrid_environment_nogt_icos_conserv2nd_1_1_1_SCRP_221021  :  0.0272
-regrid_environment_nogt_icos_distwgt_1_1_1_SCRP_221021  :  0.1516
-regrid_environment_nogt_ssea_bicu_1_1_1_SCRP_221021  :  0.0227
-regrid_environment_nogt_ssea_bili_1_1_1_SCRP_221021  :  0.0234
-regrid_environment_nogt_ssea_conserv1st_1_1_1_SCRP_221021  :  0.0394
-regrid_environment_nogt_ssea_conserv2nd_1_1_1_SCRP_221021  :  0.0228
-regrid_environment_nogt_ssea_distwgt_1_1_1_SCRP_221021  :  0.1440
-regrid_environment_ssea_nogt_bicu_1_1_1_SCRP_221021  :  0.0001
-regrid_environment_ssea_nogt_bili_1_1_1_SCRP_221021  :  0.0047
-regrid_environment_ssea_nogt_conserv1st_1_1_1_SCRP_221021  :  0.1013
-regrid_environment_ssea_nogt_distwgt_1_1_1_SCRP_221021  :  0.2168
+bggd   nogt   bicu  :  0.0016
+bggd   nogt   bili  :  0.0057
+bggd   nogt   conserv1st  :  0.1595
+bggd   nogt   conserv2nd  :  0.0025
+bggd   nogt   distwgt  :  0.2794
+bggd   torc   bicu  :  0.0011
+bggd   torc   bili  :  0.0053
+bggd   torc   conserv1st  :  0.0571
+bggd   torc   conserv2nd  :  0.0024
+bggd   torc   distwgt  :  0.2824
+icos   nogt   conserv1st  :  0.1524
+icos   nogt   distwgt  :  0.2743
+icos   torc   conserv1st  :  0.0574
+icos   torc   distwgt  :  0.2729
+nogt   bggd   bicu  :  0.0283
+nogt   bggd   bili  :  0.0287
+nogt   bggd   conserv1st  :  0.0422
+nogt   bggd   conserv2nd  :  0.0764
+nogt   bggd   distwgt  :  0.1441
+nogt   icos   bicu  :  0.0284
+nogt   icos   bili  :  0.0290
+nogt   icos   conserv1st  :  0.0367
+nogt   icos   conserv2nd  :  0.0272
+nogt   icos   distwgt  :  0.1516
+nogt   sse7   bicu  :  0.0227
+nogt   sse7   bili  :  0.0234
+nogt   sse7   conserv1st  :  0.0394
+nogt   sse7   conserv2nd  :  0.0228
+nogt   sse7   distwgt  :  0.1440
+sse7   nogt   bicu  :  0.0001
+sse7   nogt   bili  :  0.0047
+sse7   nogt   conserv1st  :  0.1013
+sse7   nogt   distwgt  :  0.2168
+sse7   torc   bicu  :  0.0001
+sse7   torc   bili  :  0.0044
+sse7   torc   conserv1st  :  0.0438
+sse7   torc   distwgt  :  0.2163
+torc   bggd   bicu  :  0.0460
+torc   bggd   bili  :  0.0479
+torc   bggd   conserv1st  :  0.0761
+torc   bggd   conserv2nd  :  0.2163
+torc   bggd   distwgt  :  0.2612
+torc   icos   bicu  :  0.0495
+torc   icos   bili  :  0.0520
+torc   icos   conserv1st  :  0.0761
+torc   icos   conserv2nd  :  0.0363
+torc   icos   distwgt  :  0.2777
+torc   sse7   bicu  :  0.0376
+torc   sse7   bili  :  0.0401
+torc   sse7   conserv1st  :  0.0861
+torc   sse7   conserv2nd  :  0.0386
+torc   sse7   distwgt  :  0.2655
