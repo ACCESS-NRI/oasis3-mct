@@ -1,31 +1,61 @@
 1_1_1
-regrid_environment_bggd_nogt_bicu_1_1_1_ESMF_221021  :  0.0057
-regrid_environment_bggd_nogt_bili_1_1_1_ESMF_221021  :  0.0056
-regrid_environment_bggd_nogt_conserv1st_1_1_1_ESMF_221021  :  0.1597
-regrid_environment_bggd_nogt_conserv2nd_1_1_1_ESMF_221021  :  0.0134
-regrid_environment_bggd_nogt_distwgt_1_1_1_ESMF_221021  :  0.2794
-regrid_environment_icos_nogt_bicu_1_1_1_ESMF_221021  :  0.0041
-regrid_environment_icos_nogt_bili_1_1_1_ESMF_221021  :  0.0041
-regrid_environment_icos_nogt_conserv1st_1_1_1_ESMF_221021  :  0.1523
-regrid_environment_icos_nogt_conserv2nd_1_1_1_ESMF_221021  :  0.1019
-regrid_environment_icos_nogt_distwgt_1_1_1_ESMF_221021  :  0.2743
-regrid_environment_nogt_bggd_bicu_1_1_1_ESMF_221021  :  0.0314
-regrid_environment_nogt_bggd_bili_1_1_1_ESMF_221021  :  0.0314
-regrid_environment_nogt_bggd_conserv1st_1_1_1_ESMF_221021  :  0.0434
-regrid_environment_nogt_bggd_conserv2nd_1_1_1_ESMF_221021  :  0.0367
-regrid_environment_nogt_bggd_distwgt_1_1_1_ESMF_221021  :  0.1433
-regrid_environment_nogt_icos_bicu_1_1_1_ESMF_221021  :  0.0317
-regrid_environment_nogt_icos_bili_1_1_1_ESMF_221021  :  0.0317
-regrid_environment_nogt_icos_conserv1st_1_1_1_ESMF_221021  :  0.0366
-regrid_environment_nogt_icos_conserv2nd_1_1_1_ESMF_221021  :  0.0310
-regrid_environment_nogt_icos_distwgt_1_1_1_ESMF_221021  :  0.1516
-regrid_environment_nogt_ssea_bicu_1_1_1_ESMF_221021  :  0.0256
-regrid_environment_nogt_ssea_bili_1_1_1_ESMF_221021  :  0.0256
-regrid_environment_nogt_ssea_conserv1st_1_1_1_ESMF_221021  :  0.0390
-regrid_environment_nogt_ssea_conserv2nd_1_1_1_ESMF_221021  :  0.0218
-regrid_environment_nogt_ssea_distwgt_1_1_1_ESMF_221021  :  0.1440
-regrid_environment_ssea_nogt_bicu_1_1_1_ESMF_221021  :  0.1548
-regrid_environment_ssea_nogt_bili_1_1_1_ESMF_221021  :  0.1548
-regrid_environment_ssea_nogt_conserv1st_1_1_1_ESMF_221021  :  0.1013
-regrid_environment_ssea_nogt_conserv2nd_1_1_1_ESMF_221021  :  0.0500
-regrid_environment_ssea_nogt_distwgt_1_1_1_ESMF_221021  :  0.2168
+bggd   nogt   bicu  :  0.0057
+bggd   nogt   bili  :  0.0056
+bggd   nogt   conserv1st  :  0.1597
+bggd   nogt   conserv2nd  :  0.0134
+bggd   nogt   distwgt  :  0.2794
+bggd   torc   bicu  :  0.0053
+bggd   torc   bili  :  0.0052
+bggd   torc   conserv1st  :  0.0571
+bggd   torc   conserv2nd  :  0.0130
+bggd   torc   distwgt  :  0.2824
+icos   nogt   bicu  :  0.0041
+icos   nogt   bili  :  0.0041
+icos   nogt   conserv1st  :  0.1523
+icos   nogt   conserv2nd  :  0.1019
+icos   nogt   distwgt  :  0.2743
+icos   torc   bicu  :  0.0039
+icos   torc   bili  :  0.0039
+icos   torc   conserv1st  :  0.0573
+icos   torc   conserv2nd  :  0.0491
+icos   torc   distwgt  :  0.2728
+nogt   bggd   bicu  :  0.0314
+nogt   bggd   bili  :  0.0314
+nogt   bggd   conserv1st  :  0.0434
+nogt   bggd   conserv2nd  :  0.0367
+nogt   bggd   distwgt  :  0.1433
+nogt   icos   bicu  :  0.0317
+nogt   icos   bili  :  0.0317
+nogt   icos   conserv1st  :  0.0366
+nogt   icos   conserv2nd  :  0.0310
+nogt   icos   distwgt  :  0.1516
+nogt   sse7   bicu  :  0.0256
+nogt   sse7   bili  :  0.0256
+nogt   sse7   conserv1st  :  0.0391
+nogt   sse7   conserv2nd  :  0.0221
+nogt   sse7   distwgt  :  0.1440
+sse7   nogt   bicu  :  0.0038
+sse7   nogt   bili  :  0.0039
+sse7   nogt   conserv1st  :  0.1014
+sse7   nogt   conserv2nd  :  0.0408
+sse7   nogt   distwgt  :  0.2168
+sse7   torc   bicu  :  0.0034
+sse7   torc   bili  :  0.0034
+sse7   torc   conserv1st  :  0.0437
+sse7   torc   conserv2nd  :  0.0231
+sse7   torc   distwgt  :  0.2163
+torc   bggd   bicu  :  0.0539
+torc   bggd   bili  :  0.0539
+torc   bggd   conserv1st  :  0.0760
+torc   bggd   conserv2nd  :  0.0449
+torc   bggd   distwgt  :  0.2612
+torc   icos   bicu  :  0.0592
+torc   icos   bili  :  0.0592
+torc   icos   conserv1st  :  0.0761
+torc   icos   conserv2nd  :  0.0480
+torc   icos   distwgt  :  0.2778
+torc   sse7   bicu  :  0.0474
+torc   sse7   bili  :  0.0474
+torc   sse7   conserv1st  :  0.0860
+torc   sse7   conserv2nd  :  0.0331
+torc   sse7   distwgt  :  0.2656
