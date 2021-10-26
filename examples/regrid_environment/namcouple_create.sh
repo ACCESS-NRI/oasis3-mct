@@ -32,7 +32,7 @@ fi
 #
 if [ ${SGRID} == "bggd" ]; then
     SRCDIMI=144 ; SRCDIMJ=143 ; STYPE=LR ; SRCP=P ; SRCPN=0 
-elif [ ${SGRID} == "ssea" ]; then
+elif [ ${SGRID} == "sse7" ]; then
     SRCDIMI=24572 ; SRCDIMJ=1 ; STYPE=D ; SRCP=P ; SRCPN=0
 elif [ ${SGRID} == "icos" ]; then
     SRCDIMI=15212 ; SRCDIMJ=1 ; STYPE=U ; SRCP=P ; SRCPN=0
@@ -40,12 +40,14 @@ elif [ ${SGRID} == "icoh" ]; then
     SRCDIMI=2016012 ; SRCDIMJ=1 ; STYPE=U ; SRCP=P ; SRCPN=0   
 elif [ ${SGRID} == "nogt" ]; then
     SRCDIMI=362 ; SRCDIMJ=294 ; STYPE=LR ; SRCP=P ; SRCPN=2
+elif [ ${SGRID} == "torc" ]; then
+    SRCDIMI=182 ; SRCDIMJ=149 ; STYPE=LR ; SRCP=P ; SRCPN=2    
 elif [ ${SGRID} == "t12e" ]; then
     SRCDIMI=4322 ; SRCDIMJ=3147 ; STYPE=LR ; SRCP=P ; SRCPN=2
 fi
 if [ ${TGRID} == "bggd" ]; then
     TGTDIMI=144 ; TGTDIMJ=143 ; TTYPE=LR ; TGTP=P ; TGTPN=0   
-elif [ ${TGRID} == "ssea" ]; then
+elif [ ${TGRID} == "sse7" ]; then
     TGTDIMI=24572 ; TGTDIMJ=1 ; TTYPE=D ; TGTP=P ; TGTPN=0
 elif [ ${TGRID} == "icos" ]; then
     TGTDIMI=15212 ; TGTDIMJ=1 ; TTYPE=U ; TGTP=P ; TGTPN=0
@@ -53,6 +55,8 @@ elif [ ${TGRID} == "icoh" ]; then
     TGTDIMI=2016012 ; TGTDIMJ=1 ; TTYPE=U ; TGTP=P ; TGTPN=0   
 elif [ ${TGRID} == "nogt" ]; then
     TGTDIMI=362 ; TGTDIMJ=294 ; TTYPE=LR ; TGTP=P ; TGTPN=2
+elif [ ${TGRID} == "torc" ]; then
+    TGTDIMI=182 ; TGTDIMJ=149 ; TTYPE=LR ; TGTP=P ; TGTPN=2    
 elif [ ${TGRID} == "t12e" ]; then
     TGTDIMI=4322 ; TGTDIMJ=3147 ; TTYPE=LR ; TGTP=P ; TGTPN=2
 fi
