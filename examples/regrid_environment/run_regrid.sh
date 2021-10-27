@@ -5,7 +5,7 @@ host=`uname -n`
 user=`whoami`
 
 ## - User's choice of computing architecture
-arch=kraken_intel_impi_openmp  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp, belenos, mac
+arch=belenos  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp, belenos, mac
 
 ## - Define paths
 srcdir=`pwd`
@@ -160,11 +160,6 @@ elif [ ${SGRID} == "torc" ] || [ ${TGRID} == "torc" ]; then
     maskname=$oasisdir/${library}_masks/masks_torc_${library}.nc
 fi
 
-### - Link everything needed into rundir
-ln -sf $oasisdir/grids.nc $rundir/grids.nc
-ln -sf ${maskname} $rundir/masks.nc
-ln -sf $srcdir/$exe1 $rundir/.
-
 ###
 if [ ${library} == "ESMF" ]; then
     ## With ESMF, nogt should be transformed to an unstructured grid 
@@ -176,9 +171,18 @@ if [ ${library} == "ESMF" ]; then
     fi
     cp -f $esmfdir/$OasisGridsToESMF  $rundir/.
     cp -f $esmfdir/ESMFWeightsToOasis.sh  $rundir/.
-fi
+    ### Define regridding options
+    case $remap in
+	bili)             meth_esmfname="bilinear" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
+	bicu)             meth_esmfname="patch" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
+	distwgt)          meth_esmfname="neareststod" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
+	conserv1st)       meth_esmfname="conserve" ; options="--ignore_unmapped --norm_type fracarea" ;;
+	conserv2nd)      meth_esmfname="conserve2nd" ; options="--ignore_unmapped --norm_type fracarea" ;;
+	*)  echo "Method $remap unknown in ESMF."
+	    exit ;;
+    esac      
 ## 
-if [ ${library} == "XIOS" ]; then
+elif [ ${library} == "XIOS" ]; then
     exexios=oasis_testcase.exe    
     cat <<EOF > param.def
 &params_run
@@ -197,6 +201,10 @@ EOF
     #
 fi
 
+### - Link everything needed into rundir
+ln -sf $oasisdir/grids.nc $rundir/grids.nc
+ln -sf ${maskname} $rundir/masks.nc
+ln -sf $srcdir/$exe1 $rundir/.
 
 ## - Create name_grids.dat, that will be read by the models, from namcouple informations
 cat <<EOF >> $rundir/name_grids.dat
@@ -285,15 +293,7 @@ EOF
       
     elif [ ${library} == "ESMF" ]; then
 	
-	case $remap in
-	    bili)             meth_esmfname="bilinear" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
-	    bicu)             meth_esmfname="patch" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
-	    distwgt)          meth_esmfname="neareststod" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
-	    conserv1st)       meth_esmfname="conserve" ; options="--ignore_unmapped --norm_type fracarea" ;;
-	    conserv2nd)      meth_esmfname="conserve2nd" ; options="--ignore_unmapped --norm_type fracarea" ;;
-	    *)  echo "Method $remap unknown in ESMF."
-		exit ;;
-	esac      
+
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash -l
 #Partition
@@ -367,7 +367,7 @@ EOF
 
 elif [ $arch == belenos ] ; then
 #SVSVSV to adapt for ESMF et XIOS
-    
+    if [ ${library} == "SCRP" ]; then   
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash
 #SBATCH --exclusive
@@ -396,7 +396,41 @@ time mpirun -np ${nproces} ./$exe1
 #
 EOF
 
-fi 
+    elif [ ${library} == "ESMF" ]; then
+	  cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash -l
+#SBATCH --exclusive
+#SBATCH --partition=normal256
+#SBATCH --job-name ${remap}_${nthreads}
+#SBATCH --time=02:00:00
+#SBATCH -o $rundir/$casename.o
+#SBATCH -e $rundir/$casename.e
+#SBATCH -N $nnode
+#SBATCH --ntasks-per-node=$mpiprocs
+#
+ulimit -s unlimited
+
+cd $rundir
+
+#
+export KMP_STACKSIZE=1GB
+export I_MPI_WAIT_MODE=enable
+export KMP_AFFINITY=verbose,granularity=fine,compact
+export OASIS_OMP_NUM_THREADS=$threads
+export OMP_NUM_THREADS=$threads
+
+python ./$OasisGridsToESMF $SGRID $rundir
+python ./$OasisGridsToESMF $TGRID $rundir
+# Generate ESMF weights
+time mpirun -np $nproces ESMF_RegridWeightGen -s ${SGRID}_ESMF.nc -d ${TGRID}_ESMF.nc -m ${meth_esmfname} -w ESMFweights.nc --ignore_degenerate ${options}
+
+# Convert ESMF weight file in OASIS format
+./ESMFWeightsToOasis.sh ${SGRID} ${TGRID} ${remap}
+
+time mpirun -np $nproces ./$exe1
+EOF
+    fi		
+fi  
 
 ######################################################################
 ### - Execute the model
