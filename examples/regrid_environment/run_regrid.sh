@@ -394,17 +394,44 @@ time mpirun -np $nproces ESMF_RegridWeightGen -s ${SGRID}_ESMF.nc -d ${TGRID}_ES
 
 time mpirun -np $nproces ./$exe1
 EOF
-    fi		
-fi  
+	  
+    elif [ ${library} == "XIOS" ]; then
+	cat <<EOF > $rundir/run_$casename.$arch
+#!/bin/bash -l
+#SBATCH --exclusive
+#SBATCH --partition=normal256
+#SBATCH --job-name ${remap}_${nthreads}
+#SBATCH --time=02:00:00
+#SBATCH -o $rundir/$casename.o
+#SBATCH -e $rundir/$casename.e
+#SBATCH -N $nnode
+#SBATCH --ntasks-per-node=$mpiprocs
+#
+ulimit -s unlimited
+
+cd $rundir
+
+#
+export KMP_STACKSIZE=1GB
+export I_MPI_WAIT_MODE=enable
+export KMP_AFFINITY=verbose,granularity=fine,compact
+export OMP_NUM_THREADS=$threads   
+# 
+# Generate XIOS weights
+time mpirun -np $nproces ./$exexios 
+# Convert ESMF weight file in OASIS format
+python $srcdir/XIOS/XiosWeightsToOasis.py
+ln -sf rmp_${SGRID}_to_${TGRID}_xios_${xiosmethod}.nc rmp_${SGRID}_${TGRID}.nc
+#
+time mpirun -np $nproces ./$exe1
+EOF
+    fi
+fi
 
 ######################################################################
 ### - Execute the model
 
-if [ $arch == nemo_lenovo_intel_impi_openmp ]; then
-    echo 'Submitting the job to queue using sbatch'
-    sbatch $rundir/run_$casename.$arch
-    squeue -u $USER
-elif [ $arch == kraken_intel_impi_openmp ]; then
+if [ $arch == kraken_intel_impi_openmp ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $USER
