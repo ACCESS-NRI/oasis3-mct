@@ -5,12 +5,7 @@ host=`uname -n`
 user=`whoami`
 
 ## - User's choice of computing architecture
-#SVSV: verifier les architectures et simplifier
-arch=kraken_intel_impi_openmp  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp,
-          # training_computer, gfortran_openmpi_openmp_linux, belenos, mac
-	  # pgi_openmpi_openmp_linux, 
-	  # pgi20.4_openmpi_openmp_linux (not work with 4.0)
-	  # gnu1020_openmpi_openmp_linux (not work with 4.0)
+arch=kraken_intel_impi_openmp  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp, belenos, mac
 
 ## - Define paths
 srcdir=`pwd`
@@ -128,8 +123,7 @@ elif [ ${TGRID} == nogt ] || [ ${TGRID} == torc ] || [ ${TGRID} == t12e ]; then
     TTYPE=LR ; TGTP=P
 fi
 
-## - SVSV Adapt xios.xml to src and tgt grids
-##
+## - rundir definition
 rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${SGRID}_${TGRID}_${remap}_${nnode}_${mpiprocs}_${threads}_${library}_${ext}
 \rm -fr $rundir/* ; mkdir -p $rundir
 
@@ -185,7 +179,6 @@ if [ ${library} == "ESMF" ]; then
 fi
 ## 
 if [ ${library} == "XIOS" ]; then
-    #SVSV
     exexios=oasis_testcase.exe    
     cat <<EOF > param.def
 &params_run
@@ -232,7 +225,7 @@ cd $rundir
 ### NEMO_LENOVO_INTEL_IMPI_OPENMP
 ###---------------------------------------------------------------------
 if [ ${arch} == nemo_lenovo_intel_impi_openmp ]; then
-#SVSV a adpater a ESMF et XIOS
+#SVSV to adpat for ESMF et XIOS
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash -l
 #SBATCH --partition prod
@@ -373,7 +366,7 @@ EOF
     fi
 
 elif [ $arch == belenos ] ; then
-#SVSVSV a adpater a ESMF et XIOS
+#SVSVSV to adapt for ESMF et XIOS
     
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash
@@ -408,30 +401,7 @@ fi
 ######################################################################
 ### - Execute the model
 
-if [ ${arch} == training_computer ]; then
-    export OASIS_OMP_NUM_THREADS=$threads
-    MPIRUN=/usr/local/intel/impi/2018.1.163/bin64/mpirun
-    echo 'Executing the model using '$MPIRUN
-    $MPIRUN -np $nproces ./$exe1 > runjob.err
-elif [ ${arch} == gfortran_openmpi_openmp_linux ]; then
-    export OASIS_OMP_NUM_THREADS=$threads
-    MPIRUN=/usr/lib64/openmpi/bin/mpirun
-    echo 'Executing the model using '$MPIRUN
-    $MPIRUN -np $nproces ./$exe1 > runjob.err
-elif [ $arch == pgi_openmpi_openmp_linux ]; then
-    MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun
-    echo 'Executing the model using '$MPIRUN
-    $MPIRUN -np $nproces ./$exe1 > runjob.err
-elif [ ${arch} == gnu1020_openmpi_openmp_linux ]; then
-    export OASIS_OMP_NUM_THREADS=$threads
-    MPIRUN=/usr/local/openmpi/4.1.0_gcc1020/bin/mpirun
-    echo 'Executing the model using '$MPIRUN
-    $MPIRUN -oversubscribe -np $nproces ./$exe1 > runjob.err
-elif [ $arch == pgi20.4_openmpi_openmp_linux ]; then
-    MPIRUN=/usr/local/pgi/linux86-64/20.4/mpi/openmpi-3.1.3/bin/mpirun
-    echo 'Executing the model using '$MPIRUN
-    $MPIRUN -oversubscribe -np $nproces ./$exe1 > runjob.err
-elif [ $arch == nemo_lenovo_intel_impi_openmp ]; then
+if [ $arch == nemo_lenovo_intel_impi_openmp ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $USER
