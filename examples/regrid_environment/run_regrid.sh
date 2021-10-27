@@ -5,7 +5,7 @@ host=`uname -n`
 user=`whoami`
 
 ## - User's choice of computing architecture
-arch=belenos  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp, belenos, mac
+arch=belenos  # kraken_intel_impi_openmp, belenos, mac (for SCRP only)
 
 ## - Define paths
 srcdir=`pwd`
@@ -230,39 +230,9 @@ cd $rundir
 ## - Creation of configuration scripts
 
 ###---------------------------------------------------------------------
-### NEMO_LENOVO_INTEL_IMPI_OPENMP
-###---------------------------------------------------------------------
-if [ ${arch} == nemo_lenovo_intel_impi_openmp ]; then
-#SVSV to adpat for ESMF et XIOS
-  cat <<EOF > $rundir/run_$casename.$arch
-#!/bin/bash -l
-#SBATCH --partition prod
-#SBATCH --job-name ${n_p_t}
-#SBATCH --time=00:02:00
-#SBATCH --output=$rundir/$casename.o
-#SBATCH --error=$rundir/$casename.e
-# Number of nodes
-#SBATCH --nodes=$nnode
-# Number of MPI tasks per node
-#SBATCH --ntasks-per-node=$mpiprocs
-# Number of OpenMP threads per MPI task
-##SBATCH --cpus-per-task=24
-cd $rundir
-
-export KMP_STACKSIZE=1GB
-export I_MPI_PIN_DOMAIN=omp
-#export I_MPI_PIN_DOMAIN=socket
-export I_MPI_WAIT_MODE=enable
-export KMP_AFFINITY=verbose,granularity=fine,compact
-export OASIS_OMP_NUM_THREADS=$threads
-
-time mpirun -np $nproces ./$exe1
-EOF
-
-###---------------------------------------------------------------------
 ### KRAKEN_INTEL_IMPI_OPENMP 
 ###---------------------------------------------------------------------
-elif [ ${arch} == kraken_intel_impi_openmp ]; then
+if [ ${arch} == kraken_intel_impi_openmp ]; then
     timreq=00:30:00
     if [ ${library} == "SCRP" ]; then
 	cat <<EOF > $rundir/run_$casename.$arch
@@ -366,7 +336,6 @@ EOF
     fi
 
 elif [ $arch == belenos ] ; then
-#SVSVSV to adapt for ESMF et XIOS
     if [ ${library} == "SCRP" ]; then   
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash
@@ -381,10 +350,6 @@ elif [ $arch == belenos ] ; then
 #
 ulimit -s unlimited
 cd $rundir
-#
-module load intelmpi/2018.5.274
-module load intel/2018.5.274
-module load netcdf-fortran/4.5.2_V2
 #
 export KMP_STACKSIZE=1GB
 export I_MPI_WAIT_MODE=enable
