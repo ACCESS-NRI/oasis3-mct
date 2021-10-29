@@ -5,7 +5,7 @@ host=`uname -n`
 user=`whoami`
 
 ## - User's choice of computing architecture
-arch=belenos  # kraken_intel_impi_openmp, belenos, mac (for SCRP only)
+arch=belenos  # kraken_intel_impi_openmp, belenos
 
 ## - Define paths
 srcdir=`pwd`
@@ -381,8 +381,6 @@ cd $rundir
 export KMP_STACKSIZE=1GB
 export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
-export OASIS_OMP_NUM_THREADS=$threads
-export OMP_NUM_THREADS=$threads
 
 python ./$OasisGridsToESMF $SGRID $rundir
 python ./$OasisGridsToESMF $TGRID $rundir
@@ -415,7 +413,6 @@ cd $rundir
 export KMP_STACKSIZE=1GB
 export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
-export OMP_NUM_THREADS=$threads   
 # 
 # Generate XIOS weights
 time mpirun -np $nproces ./$exexios 
@@ -439,9 +436,6 @@ elif [ $arch == belenos ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $user
-elif [ ${arch} == mac ]; then
-    echo 'Executing the model using mpirun'
-    mpirun --oversubscribe -np $nproces ./$exe1
 fi
 
 echo $casename 'is executed or submitted to queue.'
