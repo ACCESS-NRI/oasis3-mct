@@ -1,6 +1,7 @@
 module def_parallel_decomposition
 !
-! The global grid is split in npes rectangle partitions with local extent in x = global extent
+! For LR grids, the global grid is split in npes rectangle partitions with local extent in x = global extent
+! For U or D grids, the first dimension is split in npes segments
 !
 contains
    SUBROUTINE def_local_partition (nlon, nlat, npes, mype, cl_type_src, &
