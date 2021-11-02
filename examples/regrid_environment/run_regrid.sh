@@ -5,7 +5,7 @@ host=`uname -n`
 user=`whoami`
 
 ## - User's choice of computing architecture
-arch=belenos  # kraken_intel_impi_openmp, belenos
+arch=kraken_intel_impi_openmp  # kraken_intel_impi_openmp, belenos
 
 ## - Define paths
 srcdir=`pwd`
@@ -204,7 +204,7 @@ fi
 ### - Link everything needed into rundir
 ln -sf $oasisdir/grids.nc $rundir/grids.nc
 ln -sf ${maskname} $rundir/masks.nc
-ln -sf $srcdir/$exe1 $rundir/.
+ln -sf $srcdir/src/$exe1 $rundir/.
 
 ## - Create name_grids.dat, that will be read by the models, from namcouple informations
 cat <<EOF >> $rundir/name_grids.dat
