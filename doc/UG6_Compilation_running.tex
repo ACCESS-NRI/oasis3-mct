@@ -187,9 +187,10 @@ Different examples implementing the different parts of the API with the Fortran,
 \item{\tt 12-grid-functions}: Graphical version of {{\tt 10-grid}}, i.e. the {\tt pyoa} grid layout is displayed if the same graphical packages than for {{\tt 11-test-interpolation}} are installed.
 \end{itemize}
 
-The different examples can be launched with the {\tt Makefile} in
-directory {\tt /pyoasis} using targets {\tt examples, examples\_f
-  examples\_c} to run respectively python, Fortran and C examples.
+The different examples can be launched with the {\tt Makefile} from
+directory {\tt /pyoasis} using targets {\tt examples}, {\tt
+  examples\_f} or 
+  {\tt examples\_c} to run respectively python, Fortran and C examples.
 
 \section{Debugging}
 \label{subsec_debug}
@@ -223,11 +224,6 @@ depending on TIMER\_Debug value :
   and the max times over all processes and also writes in its file
   all the results for each process.
 \end{itemize}
-
-Note that TIMER\_Debug can also be set to -1 to activate the {\it lucia}
-tool that can be used to perform an analysis of the coupled components
-load balance. More information can be found in the README file in {\tt
-  oasis3-mct/util/lucia} directory and report mentioned therein.
  
 The time given for each timer is calculated by the difference between
 calls to {\tt oasis\_timer\_start()} and {\tt oasis\_timer\_stop()}
