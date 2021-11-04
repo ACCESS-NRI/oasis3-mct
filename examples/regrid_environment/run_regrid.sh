@@ -103,7 +103,7 @@ if [ ${library} == "XIOS" ]; then
 	exit
     fi
 fi    
-## - Grid source characteristics 
+## - Source grid characteristics 
 if [ ${SGRID} == bggd ]; then
     STYPE=LR ; SRCP=P ; SRCPN=0   
 elif [ ${SGRID} == sse7 ]; then
@@ -113,6 +113,7 @@ elif [ ${SGRID} == icos ] || [ ${SGRID} == icoh ]; then
 elif [ ${SGRID} == nogt ] || [ ${SGRID} == torc ] || [ ${SGRID} == t12e ]; then
     STYPE=LR ; SRCP=P ; SRCPN=2
 fi
+## - Target grid characteristics 
 if [ ${TGRID} == bggd ]; then
     TTYPE=LR ; TGTP=P
 elif [ ${TGRID} == sse7 ]; then
@@ -227,7 +228,7 @@ EOF
 cd $rundir
 
 ######################################################################
-## - Creation of configuration scripts
+## - Creation of batch job  scripts
 
 ###---------------------------------------------------------------------
 ### KRAKEN_INTEL_IMPI_OPENMP 
@@ -327,7 +328,7 @@ export OMP_NUM_THREADS=$threads
 
 # Generate XIOS weights
 time mpirun -np $nproces ./$exexios 
-# Convert ESMF weight file in OASIS format
+# Convert XIOS weight file in OASIS format
 python $srcdir/XIOS/XiosWeightsToOasis.py
 ln -sf rmp_${SGRID}_to_${TGRID}_xios_${xiosmethod}.nc rmp_${SGRID}_${TGRID}.nc
 #
