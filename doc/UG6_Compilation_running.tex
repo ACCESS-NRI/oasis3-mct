@@ -10,6 +10,7 @@
 OASIS3-MCT is a mixed MPI-OpenMP parallel code. Compiling OASIS3-MCT libraries can be done
 from the {\tt oasis3-MCT/util/make\_dir} directory
 with the makefile {\tt TopMakefileOasis3}.
+
 {\tt TopMakefileOasis3} includes the header file {\tt make.inc}
 which should then point to (include) your own {\tt make.your\_platform}
 file.  That file is specific to the hardware and compiling platform used.
@@ -21,9 +22,9 @@ by the variable {\tt COUPLE}.  Similarly, the variable {\tt ARCHDIR} defines
 the location of the compilation directory.
 Finally, the OASIS3-MCT library
 should be compiled with the same compilers and system software as any
-coupled models using it.  After successful compilation, resulting
+coupled model component using it.  After successful compilation, resulting
 libraries are found in the directory in {\tt \$ARCHDIR/lib} while
-object and module files are found in {\tt \$ARCHDIR/build} and {\tt \$ARCHDIR/build\_shared}. 
+object and module files are found in {\tt \$ARCHDIR/build-static} and {\tt \$ARCHDIR/build-shared}. 
 
 OASIS3-MCT has historically created static libraries for use in
 Fortran source codes.  However, C language bindings are now
@@ -72,7 +73,7 @@ Log and error messages from compilation are normally saved in the directory
 {\tt COMP.log} and {\tt COMP.err} or similar.  The {\tt TopMakefileOasis3}
 output will direct users to the compile output files.
 
-To interface a component code with OASIS3-MCT and use {\tt mod\_oasis} (see section \ref{subsubsec_Use}), it is required to include OASIS3-MCT modules from {\tt \$ARCHDIR/include} and link with appropriate libraries in {\tt \$ARCHDIR/lib} during the compilation and linking.
+To interface a component code with OASIS3-MCT and use the module {\tt mod\_oasis} (see section \ref{subsubsec_Use}), it is required to include OASIS3-MCT modules from {\tt \$ARCHDIR/include} and link with appropriate libraries in {\tt \$ARCHDIR/lib} during the compilation and linking.
 
 Exchange of coupling fields in single and double precision is now supported directly through the interface 
 (see section \ref{subsubsec_Declaration}).  Single precision fields are converted to double precision fields internally and temporarily.
@@ -110,49 +111,57 @@ with {\bf PGF90}.
 \section{Running OASIS3-MCT}
 \label{subsec_running}
 
-Examples of running environments are provided with the sources. See also the instructions on OASIS web site at
-{\tt
-  https://verc.enes.org/oasis/oasis-dedicated-user-support-1/user-toys}
-for more details.
+The following examples of running environments are provided with the
+sources in the {\tt oasis3-mct/examples} directory.
 
-\subsection{The tutorial toy model}
+\subsection{tutorial\_communication}
 \label{subsec_tutorial}
 
-A practical example  is provided in {\tt
-  oasis3-mct/examples/tutorial} reproducing the coupling between two
-simple codes, model1 and model2, with OASIS3-MCT. 
+The directory  {\tt oasis3-mct/examples/tutorial\_communication}
+contains the files of a tutorial to learn how to instrument codes
+with calls to the OASIS3-MCT library in order to couple them
+together. The tutorial involves two toy model codes, {\tt ocean.F90}
+and {\tt atmos.F90}, to be instrumented with calls
+to OASIS3-MCT API (Application Program Interface) routines. Toy models
+are skeleton programs that do not contain any real physics or dynamics
+but that can reproduce real exchanges of coupling
+fields. Instrumenting those toy models gives a practical experience of
+using the OASIS3-MCT library. All information about this tutorial is
+provided in the document {\tt tutorial\_communication.pdf} therein. 
 
-See
-the document {\tt tutorial.pdf} there in and the on-line
-tutorial at \\
-{\tt
-  https://verc.enes.org/oasis/oasis-dedicated-user-support-1/user-toys}
+This tutorial is extracted from the Short Online Private Course (SPOC)
+on “Code Coupling with OASIS3-MCT” shortly described in the next section. 
 
-{\tt
- /tutorial-and-test\_interpolation-of-oasis3-mct-1}
-for more details.
+\subsection{spoc}
+\label{subsec_spoc}
 
-\subsection{The test\_1bin\_ocnice toy model}
-\label{subsec_1bin_ocnice}
+This directory contains the sources used in the Short Online Private
+Course (SPOC) on “Code Coupling with OASIS3-MCT” developed in the
+framework of the ESiWACE Centre of Excellence. This SPOC is composed
+of videos, quizzes and hands-on. The goal is to instrument two toy
+models to set-up a real coupled model exchanging coupling fields (directory
+  /spoc\_communication) and to learn more about OASIS3-MCT regridding
+functionality (directory {\tt /spoc\_regridding}). If you are interested in
+attending the SPOC, please visit the online training section of
+CERFACS web site at https://cerfacs.fr/online-training/.
 
-Another practical example on how to use OASIS3-MCT is provided in \\ {\tt oasis3-mct/examples/test\_1bin\_ocnice}. 
-This toy model reproduces the coupling between 5 sub-components within
-the “ocnice” executable. See
-the document {\tt test\_1bin\_ocnice.pdf} there in for more details.
+Videos and quizzes extracted from the SPOC are also available
+as Open Education Resources (OER) material at https://www.oercommons.org/courseware/lesson/85340 .
 
-\subsection{The test\_interpolation environment}
-\label{subsec_testinterpolation}
+\subsection{regrid\_environment}
+\label{subsec_regrid}
 
-This environment available with the sources in {\tt
-  oasis3-mct/examples/test\_interpolation} allows the user to test the
-quality of the interpolations and transformations between his source
-and target grids by calculating the error of interpolation on the
-target grid. For more details, see also the document {\tt test\_interpolation.pdf} there in.
+The {\tt regrid\_environment} directory offers a scripting environment to
+calculate the regridding weights and the regridding error for specific
+couple of grids and specific regridding algorithms with either the
+SCRIP library, ESMF or XIOS. The document {\tt
+  regrid\_environment\_documentation.pdf} therein contains all
+instructions on how to run this tutorial.
 
-\subsection{The Fortran, C and python equivalent examples}
+\subsection{Fortran, C and python equivalent examples}
 \label{subsec_equivalent}
 
-Different examples implementing the different parts of the API with the Fortran, C and python interfaces are provided as practical illustrations in directory {\tt pyoasis/examples} :
+Different examples implementing the different parts of the API with the Fortran, C and python interfaces are provided as practical illustrations in directory {\tt /pyoasis/examples} :
 
 \begin{itemize}
 
@@ -177,6 +186,10 @@ Different examples implementing the different parts of the API with the Fortran,
 \end{itemize}
 \item{\tt 12-grid-functions}: Graphical version of {{\tt 10-grid}}, i.e. the {\tt pyoa} grid layout is displayed if the same graphical packages than for {{\tt 11-test-interpolation}} are installed.
 \end{itemize}
+
+The different examples can be launched with the {\tt Makefile} in
+directory {\tt /pyoasis} using targets {\tt examples, examples\_f
+  examples\_c} to run respectively python, Fortran and C examples.
 
 \section{Debugging}
 \label{subsec_debug}
