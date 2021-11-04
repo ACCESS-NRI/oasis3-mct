@@ -368,8 +368,8 @@ applied, i.e. DESTARTR, DESTNNTR, FRACARTR, or FRACNNTR (see section
     \begin{itemize}
 
     \item Identical behavior to non-NF options but no nearest non-masked source
-    neighbour fill is done ({\tt ll\_nnei} is set to {\tt .false} in the SCRIP run). Non-masked target grid points that do not
-    receive any interpolated value are set to 0 .
+    neighbour fill is done ({\tt ll\_nnei} is set to {\tt .false} in the SCRIP run).
+    Non-masked target grid points that do not receive any interpolated value are set to 0 .
 
     \end{itemize}   
 
@@ -502,9 +502,9 @@ applied, i.e. DESTARTR, DESTNNTR, FRACARTR, or FRACNNTR (see section
       masks.nc}), OASIS3-MCT must be compiled with the CPP key {\tt
       TREAT\_OVERLAY} which will ensure that these rules are
     respected. This CPP key was introduced in OASIS3.3.
-  
+    
   \item Masked target grid cells are set to 0.
-  
+    
   \item If a target grid cell intersects only masked source cells, or falls outside the source grid domain, it
     will get a zero value unless the {\tt DESTNNEI}, {\tt DESTNNTR}, {\tt FRACNNEI}, or {\tt FRACNNTR}
     normalisation options are used, in which case it will get the source
@@ -768,11 +768,52 @@ If we follow this best practice, the atmospheric cell fractions and mask will be
  
   {\tt BLASNEW} performs a scalar multiply or scalar add to any
   destination field.  This is the equivalent of {\tt BLASOLD} on the
-  destination side.  The prior feature that supported linear
-  combinations of the current coupling field with any other fields
-  after the interpolation has been deprecated.
+  destination side.  In addition, unlike {\tt BLASOLD}, other fields on the
+  destination side can be added with a multiplier and addition weight.
 
-  This analysis requires the same input line(s) as {\tt BLASOLD}.
+  This transformation requires at least one configuring line with two
+  parameters:
+ \begin{verbatim}
+# BLASNEW operation
+     $XMULT   $NBFIELDS 
+\end{verbatim}
+  % \vspace{-0.2cm}
+  where {\tt \$XMULT} is the multiplicative coefficient of the destination
+  field. {\tt
+    \$NBFIELDS} will be 0 if no additional fields or scalars are needed, 1 if a
+  single scalar needs to be added, and greater than 1 if additional fields
+  are to be added. The number of {\tt \$NBFIELDS} indicates the number
+  of additional lines.  If {\tt \$NBFIELDS} is greater than 0, the first
+  additional input line must be the string {\tt CONSTANT} and then
+  a real value, {\tt \$AVALUE}, which will be added to
+  the field.  Even if {\tt \$AVALUE} is zero, this line must still be included
+  if {\tt \$NBFIELDS} is greater than 0.  If {\tt \$NBFIELDS} is greater than 1,
+  then additional input lines have the format {\tt \$FNAME \$XMULT \$AVALUE}
+  where {\tt \$FNAME} is the name of a field received in OASIS3-MCT in the same model
+  and {\tt \$XMULT} and {\tt \$AVALUE} are the multipliers and additive terms
+  to be applied to {\tt \$FNAME} :
+ \begin{verbatim}
+     CONSTANT  $AVALUE
+     $FNAME1 $XMULT1 $AVALUE1
+     $FNAME2 $XMULT2 $AVALUE2
+\end{verbatim} 
+For example :
+\begin{verbatim}
+     2.0  3
+     CONSTANT  0.0
+     FLD001 1.0 0.0
+     FLD002 5.0 -100.
+\end{verbatim}
+  will multiply the destination field by 2.0 and then add (FLD001 + FLD002*5.0 - 100)
+  to that destination field.  All combined fields must be received by the same model
+  component in OASIS3-MCT (either via coupling or input), and the field size and decomposition
+  must be consistent across all fields being combined.  The value of the field being
+  combined is associated with the last valid coupled value.  This allows fields to
+  be combined that are not coupled at the same frequency by using valid lagged values.
+  The order of the receive calls is also important.  If a field to be combined is received
+  after the destination field, then the values used are from an earlier timestep.
+  Note that while this feature is supported in OASIS3-MCT, a more transparent implementation
+  might be to combine fields in the model (not in OASIS3-MCT) after they are received independently.
 
 \item {\bf MASKP}: UNUSED
 
