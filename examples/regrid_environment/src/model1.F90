@@ -472,7 +472,7 @@ PROGRAM model1
       CALL FLUSH(w_unit)
   ENDIF
 
-  ! Gather the whole field on the master process to calculate the error
+  ! Gather the global field and global error on the master process 
   IF (mype == 0) THEN
       ALLOCATE(il_size_all(npes))
       ALLOCATE(il_offset_all(npes))
