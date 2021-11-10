@@ -58,7 +58,7 @@ chemistry (also running on grid {\tt atmo}), and one field SOALBEDO is read from
     432000
 #
  $NLOGPRT
-   2     1
+   2     1    0
 #
  $NCDFTYP
    cdf1
@@ -166,10 +166,11 @@ must be the first non-blank character on the line but can be in any column.
   % number of time occurrences of the field to interpolate from the
   % restart file.
 
-\item {\tt \$NLOGPRT}: The first and second numbers on the line below
-  this keyword refer to the amount of debug and time statistic
-  information written by OASIS3-MCT for each component and process.
-
+\item {\tt \$NLOGPRT}: The first, second and third numbers on the line below
+  this keyword refer to (i) the debug verbosity, (ii) internal timing statistics
+  and (iii) component load balancing analysis. The information is written by OASIS3-MCT
+  for each component and (optionnally) for each process.
+  
   The first number (that can be modified at runtime with the {\tt
     oasis\_set\_debug} routine, see section
   \ref{subsubsec_auxroutines}) may be:
@@ -210,10 +211,13 @@ must be the first non-blank character on the line but can be in any column.
  For more information on the time statistics written out, see section
   \ref{timestat}.
 
-The second number can also be set to -1 to activate the {\it lucia}
-tool that can be used to perform an analysis of the coupled components
-load balance. More information can be found in the README file in {\tt
-  oasis3-mct/util/lucia} directory and report mentioned therein.
+The third number (new in OASIS3-MCT\_5.0) can be set to 1 to activate a load balancing diagnostic.
+ An efficient use of the allocated computing resources in a coupled system requires the harmonisation of the components speed. This operation, called load balancing, is often neglected, either because of the apparent resource abundance and practical difficulties.
+ To facilitates this work, we output the full timeline of all OASIS related events, for any of the allocated resources. This timeline is saved in one netCDF file per coupled component ( {\tt timeline\_XXX\_component.nc}. It provides the comprehensive sequence of any operations related to the coupling (field exchange through MPI, fields output on disk, field interpolation and mapping, field reading on disk, restart writing, initialisation and termination phase of the OASIS setup) so that any simulation slow down in link with the use of the OASIS library can be identified.
+ The analysis of the coupling field exchanges, amongst all the coupling events, allows to not only identify the resources waste of components which are recurrently waiting for their coupling fields but it also reveals other bottlenecks such as disk access, OS interruptions or model internal load imbalance. The full picture of these events makes possible an optimum load balancing, even for the most complex configurations.
+  For a detailed information on load balancing analysis and timeline visualisation see respectively \cite{maisonnave20} and in \cite{piacentini20}.
+  In addition to the timeline, computing information (time to solution, speed, cost) and a synthesis of the time spent on MPI routines for each coupled component can also help, in the simpler cases, to allocate resources in a balanced way ( see file {\tt load\_balancing\_info.txt} ).
+
 
 \item {\tt \$NCDFTYP}: Optional (new in Oasis3-MCT\_5.0); on the line below
   this keyword is a character string that indicates the NetCDF file type
