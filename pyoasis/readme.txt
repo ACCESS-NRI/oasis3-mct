@@ -1,13 +1,12 @@
 pyOASIS - A Python wrapper for OASIS
 
-Authors: Philippe Gambron, Rupert Ford
-Copyright (C) 2019 UKRI - STFC
+Authors: Philippe Gambron, Rupert Ford, Andrea Piacentini, Anthony Craig and Sophie Valcke
 
-See the documentation of OASIS
-<http://www.cerfacs.fr/oa4web/oasis3-mct_4.0/oasis3mct_UserGuide.pdf>
-for instructions about how to obtain the software.
+Copyright (C) 2021 UKRI - STFC for contributions from Philippe Gambron and Rupert Ford
+Copyright (C) 2021 CERFACS for contributions from Andrea Piacentini, Anthony Craig and Sophie Valcke 
 
-
+See the OASIS web site at https://oasis.cerfacs.fr/en/
+for  documentaiton and instructions about how to obtain and run the software.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 
