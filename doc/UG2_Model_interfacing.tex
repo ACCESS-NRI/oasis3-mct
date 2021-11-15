@@ -3,7 +3,7 @@
 \label{sec_modelinterfacing}
 
 At run-time, OASIS3-MCT performs parallel exchange of coupling data between parallel
-components and sub-components and allows remapping (interpolation), time integration or accumulation and other transformations of these coupling fields. 
+components and sub-components and allows regridding (also called remapping or interpolation), time integration or accumulation and other transformations of these coupling fields. 
 
 This chapter describes how to adapt the component codes to couple them through OASIS3-MCT. 
 
@@ -13,15 +13,15 @@ configurations; the different possibilities and how to use
 the OASIS3-MCT library accordingly are described in section
 \ref{sec_deploy}. 
 
-The OASIS3-MCT Application Programming Interface (API) includes different classes of modules or routines that are described in details in sections \ref{API}, \ref{APIC} and \ref{APIpython} for Fortran, C and python codes respectively.
+The OASIS3-MCT Application Programming Interface (API) includes different classes of modules or routines that are described in detail in sections \ref{API}, \ref{APIC} and \ref{APIpython} for Fortran, C and python codes respectively.
 In section \ref{sec_notes}, the reader will also find an overview of the MCT library (see \ref{subsec_MCT}) and additional notes on how to exchange scalars (see \ref{subsec_scalar}), how to to reproduce different coupling
 algorithms with OASIS3-MCT using the {\tt LAG} index (see \ref{subsec_lag}), and on the {\tt
   SEQ} index (see \ref{subsec_sec}).
 
 \section{Configurations of components supported}
 \label{sec_deploy}
-
-Since OASIS3-MCT\_3.0 release, coupling exchanges between components and
+ICICICICI
+Since OASIS3-MCT\_3.0 version, coupling exchanges between components and
 sub-components deployed in a much larger diversity of configurations
 are supported. This is illustrated on figure
 \ref{Fig_coupling_layouts_a} and how to use the OASIS3-MCT library
