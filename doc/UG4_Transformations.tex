@@ -369,6 +369,7 @@ applied, i.e. DESTARTR, DESTNNTR, FRACARTR, or FRACNNTR (see section
 
     \item Identical behavior to non-NF options but no nearest non-masked source
     neighbour fill is done ({\tt ll\_nnei} is set to {\tt .false} in the SCRIP run).
+    Non-masked target grid points that do not receive any interpolated value are set to 0 .
 
     \end{itemize}   
 
@@ -501,6 +502,8 @@ applied, i.e. DESTARTR, DESTNNTR, FRACARTR, or FRACNNTR (see section
       masks.nc}), OASIS3-MCT must be compiled with the CPP key {\tt
       TREAT\_OVERLAY} which will ensure that these rules are
     respected. This CPP key was introduced in OASIS3.3.
+    
+  \item Masked target grid cells are set to 0.
     
   \item If a target grid cell intersects only masked source cells, or falls outside the source grid domain, it
     will get a zero value unless the {\tt DESTNNEI}, {\tt DESTNNTR}, {\tt FRACNNEI}, or {\tt FRACNNTR}
