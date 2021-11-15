@@ -1,0 +1,25 @@
+1_1_1
+bggd   nogt   conserv1st  :  0.1595
+bggd   nogt   conserv2nd  :  0.0149
+bggd   torc   conserv1st  :  0.0570
+bggd   torc   conserv2nd  :  0.0147
+icos   nogt   conserv1st  :  0.1524
+icos   nogt   conserv2nd  :  0.0151
+icos   torc   conserv1st  :  0.0573
+icos   torc   conserv2nd  :  0.0146
+nogt   bggd   conserv1st  :  0.0432
+nogt   bggd   conserv2nd  :  0.0333
+nogt   icos   conserv1st  :  0.0366
+nogt   icos   conserv2nd  :  0.0262
+nogt   sse7   conserv1st  :  0.0391
+nogt   sse7   conserv2nd  :  0.0184
+sse7   nogt   conserv1st  :  0.1013
+sse7   nogt   conserv2nd  :  0.0098
+sse7   torc   conserv1st  :  0.0437
+sse7   torc   conserv2nd  :  0.0098
+torc   bggd   conserv1st  :  0.0761
+torc   bggd   conserv2nd  :  0.0322
+torc   icos   conserv1st  :  0.0761
+torc   icos   conserv2nd  :  0.0269
+torc   sse7   conserv1st  :  0.0860
+torc   sse7   conserv2nd  :  0.0174

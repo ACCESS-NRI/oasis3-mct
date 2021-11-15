@@ -1,4 +1,0 @@
-use FRECVATM_model2_01.nc
-shade FRECVATM[l=1,d=1]
-
-
