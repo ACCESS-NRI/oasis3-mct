@@ -40,24 +40,24 @@ nproces=`echo $(($nnode*$mpiprocs))`
 
 ## - Check grids
 ## bggd is an atmosphere structured (LR) grid ; sse7 is an atmosphere gaussian reduced (D) grid
-## icos/icoh is an atmosphere unstructured (U) grid ; nogt/torc/t12e is an ocean structured (LR) grid
-if [ ${SGRID} != "bggd" ] && [ ${SGRID} != "sse7" ] && [ ${SGRID} != "icos" ] && [ ${SGRID} != "icoh" ] && [ ${SGRID} != "nogt" ] && [ ${SGRID} != "torc" ] && [ ${SGRID} != "t12e" ]; then
-    echo "Source grid must be either bggd, sse7, icos, icoh, nogt, torc or t12e "
+## icos/icoh is an atmosphere unstructured (U) grid ; nogt/torc is an ocean structured (LR) grid
+if [ ${SGRID} != "bggd" ] && [ ${SGRID} != "sse7" ] && [ ${SGRID} != "icos" ] && [ ${SGRID} != "icoh" ] && [ ${SGRID} != "nogt" ] && [ ${SGRID} != "torc" ]; then
+    echo "Source grid must be either bggd, sse7, icos, icoh, nogt or torc"
     exit
 fi
-if [ ${TGRID} != "bggd" ] && [ ${TGRID} != "sse7" ] && [ ${TGRID} != "icos" ] && [ ${TGRID} != "icoh" ] && [ ${TGRID} != "nogt" ] && [ ${TGRID} != "torc" ] && [ ${TGRID} != "t12e" ]; then
-    echo "Target grid must be either bggd, sse7, icos, icoh, nogt, torc or t12e "
+if [ ${TGRID} != "bggd" ] && [ ${TGRID} != "sse7" ] && [ ${TGRID} != "icos" ] && [ ${TGRID} != "icoh" ] && [ ${TGRID} != "nogt" ] && [ ${TGRID} != "torc" ]; then
+    echo "Target grid must be either bggd, sse7, icos, icoh, nogt, torc"
     exit
 fi
 if [ ${SGRID} == "bggd" ] && [ ${SGRID} == "sse7" ] && [ ${SGRID} == "icos" ] && [ ${SGRID} == "icoh" ]; then
-    if [ ${TGRID} != "nogt" ] && [ ${TGRID} != "torc" ] && [ ${TGRID} != "t12e" ]; then
-	echo "You have to match an atmospheric grid (bggd, sse7, icos or icoh) with an ocean grid (nogt, torc, t12e)"
+    if [ ${TGRID} != "nogt" ] && [ ${TGRID} != "torc" ]; then
+	echo "You have to match an atmospheric grid (bggd, sse7, icos or icoh) with an ocean grid (nogt, torc)"
 	exit
     fi
 fi	
 if [ ${TGRID} == "bggd" ] && [ ${TGRID} == "sse7" ] && [ ${TGRID} == "icos" ] && [ ${TGRID} == "icoh" ]; then
-    if [ ${SGRID} != "nogt" ] && [ ${SGRID} != "torc" ] && [ ${SGRID} != "t12e" ]; then
-	echo "You have to match an an ocean grid (nogt, torc, t12e) with an atmospheric grid (bggd, sse7, icos or icoh)" 
+    if [ ${SGRID} != "nogt" ] && [ ${SGRID} != "torc" ]; then
+	echo "You have to match an an ocean grid (nogt, torc) with an atmospheric grid (bggd, sse7, icos or icoh)" 
 	exit
     fi
 fi
@@ -110,7 +110,7 @@ elif [ ${SGRID} == sse7 ]; then
     STYPE=D ; SRCP=P ; SRCPN=0
 elif [ ${SGRID} == icos ] || [ ${SGRID} == icoh ]; then
     STYPE=U ; SRCP=P ; SRCPN=0
-elif [ ${SGRID} == nogt ] || [ ${SGRID} == torc ] || [ ${SGRID} == t12e ]; then
+elif [ ${SGRID} == nogt ] || [ ${SGRID} == torc ]; then
     STYPE=LR ; SRCP=P ; SRCPN=2
 fi
 ## - Target grid characteristics 
@@ -120,7 +120,7 @@ elif [ ${TGRID} == sse7 ]; then
     TTYPE=D ; TGTP=P
 elif [ ${TGRID} == icos ] || [ ${TGRID} == icoh ]; then
     TTYPE=U ; TGTP=P
-elif [ ${TGRID} == nogt ] || [ ${TGRID} == torc ] || [ ${TGRID} == t12e ]; then
+elif [ ${TGRID} == nogt ] || [ ${TGRID} == torc ]; then
     TTYPE=LR ; TGTP=P
 fi
 
@@ -154,8 +154,7 @@ echo $exe1' runs on '$nproces 'processes'
 echo ''
 
 ### - Define mask name which depends on ocean grid
-###   except for t12e for which we don't follow the best practice and use the masks calculated with nogt
-if [ ${SGRID} == "nogt" ] || [ ${TGRID} == "nogt" ] || [ ${SGRID} == "t12e" ] || [ ${TGRID} == "t12e" ]; then
+if [ ${SGRID} == "nogt" ] || [ ${TGRID} == "nogt" ]; then
     maskname=$oasisdir/${library}_masks/masks_nogt_${library}.nc
 elif [ ${SGRID} == "torc" ] || [ ${TGRID} == "torc" ]; then
     maskname=$oasisdir/${library}_masks/masks_torc_${library}.nc
