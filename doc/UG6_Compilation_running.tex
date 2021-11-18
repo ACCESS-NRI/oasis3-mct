@@ -1,7 +1,7 @@
 \newpage
 %
 
-\chapter{Compiling, running and debugging}
+\chapter{Compiling, running, debugging, load balancing}
 \label{sec_compilationrunning}
 
 \section{Compiling OASIS3-MCT}
@@ -210,11 +210,6 @@ depending on TIMER\_Debug value :
   and the max times over all processes and also writes in its file
   all the results for each process.
 \end{itemize}
-
-Note that TIMER\_Debug can also be set to -1 to activate the {\it lucia}
-tool that can be used to perform an analysis of the coupled components
-load balance. More information can be found in the README file in {\tt
-  oasis3-mct/util/lucia} directory and report mentioned therein.
  
 The time given for each timer is calculated by the difference between
 calls to {\tt oasis\_timer\_start()} and {\tt oasis\_timer\_stop()}
@@ -269,4 +264,19 @@ implementing other timers. Of course, OASIS3\_MCT and the model code then have t
   to write fields to
   restart files (see section \ref{subsec_restartdata} for details).
 \end{itemize}
+
+\section{Load balancing analysis of coupled model components}
+\label{lucia}
+  
+  An efficient use of the allocated computing resources in a coupled system requires the harmonisation of the component execution speed. This operation, called load balancing, is often neglected, either because of the apparent resource abundance or practical difficulties. 
+ To facilitate this work, a load balancing analysis functionality is included in OASIS3-MCT and can be activated by setting to 1 the third number under {\tt \$NLOGPRT} in the  {\it namcouple} configuration file (see section \ref{subsec_namcouplefirst}). Some details on this functionality are provided here and more information can be found in the {\tt balancing\_documentation.pdf} file in {\tt
+  oasis3-mct/util/load\_balancing} directory.
+  
+  When activated, the load balancing analysis functionality outputs the full timeline of all OASIS3-MCT related events, for any of the allocated resources. This timeline is saved in one NetCDF file per coupled component, {\tt timeline\_XXX\_component.nc} where {\tt XXX} is the component name. It provides the comprehensive sequence of all operations related to the coupling (field send and receive through MPI, field output on disk, field interpolation and mapping, field reading on disk, restart writing, initialisation and termination phase of the OASIS3-MCT setup) so that any simulation slow down in link with the use of the OASIS3-MCT library can be identified. 
+  
+ The analysis of the coupling field exchanges, amongst all coupling events, allows to not only identify the waste of resources by components which are recurrently waiting for their coupling fields but it also reveals other bottlenecks such as disk access or model internal load imbalance. The full picture of these events makes possible an optimal load balancing, even for the most complex configurations.
+ 
+ In addition to the detailed timeline saved in the NetCDF file, more general computing information (simulation time, speed, waiting time, etc.) is also provided in a text file {\tt load\_balancing\_info.txt}  for the coupled model and for each component. In simple cases, this global information can help to allocate resources in a balanced way. 
+
+
 
