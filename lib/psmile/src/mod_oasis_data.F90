@@ -32,6 +32,10 @@ MODULE mod_oasis_data
 
   ! These are identical on all MPI tasks
   INTEGER(kind=ip_i4_p),parameter :: prism_mmodels = 20
+  ! Prime number definition for MPI intercommunicator tag generation
+  INTEGER(kind=ip_i4_p),parameter :: prime_nbs(prism_mmodels) = (/ 2,  3,  5, 7, 11, 13, 17, &
+                                                                & 19, 23, 29, 31, 37, 41, 43, &
+                                                                & 47, 53, 59, 61, 67, 71 /)
   INTEGER(kind=ip_i4_p)           :: prism_nmodels    ! number of models
   INTEGER(kind=ip_i4_p)           :: prism_amodels    ! number of active models
   character(len=ic_lvar)          :: prism_modnam(prism_mmodels)  ! model names
