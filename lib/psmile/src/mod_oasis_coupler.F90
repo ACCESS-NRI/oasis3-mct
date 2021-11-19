@@ -1936,7 +1936,7 @@ CONTAINS
               ltrn = .TRUE.
 
            CALL oasis_lb_define(nc, imain_kind_lb, prism_coupler_put(nc)%namID, &
-                                prism_coupler_put(nc)%comp, nb_cpl_ts, &
+                                prism_coupler_put(nc)%comp, prism_coupler_put(nc)%ctime, nb_cpl_ts, &
                                 lmap = lmap, lout = lout, lrst = lrst, ltrn = ltrn )
         ENDIF
         IF (prism_coupler_get(nc)%valid) THEN
@@ -1960,7 +1960,7 @@ CONTAINS
            IF ( prism_coupler_get(nc)%output ) lout = .TRUE.
 
            CALL oasis_lb_define(nc, imain_kind_lb, prism_coupler_get(nc)%namID, &
-                                prism_coupler_get(nc)%comp, nb_cpl_ts, &
+                                prism_coupler_get(nc)%comp, prism_coupler_get(nc)%ctime, nb_cpl_ts, &
                                 lmap = lmap, lout = lout )
 
         ENDIF
