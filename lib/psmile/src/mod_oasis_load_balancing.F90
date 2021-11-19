@@ -1050,7 +1050,7 @@ module mod_oasis_load_balancing
                write(nulet,'(a46,f8.3)') ' Total Netcdf output (OUTPUT+EXPOUT+restart): ', g_lb_diag_buff(8,n)
                write(nulet,'(a19,f8.3)') '     with spread : ', g_lb_diag_buff(9,n)
                WRITE(nulet,*) ' '
-               WRITE(nulet,'(a21,f8.3)') ' including restart : ', g_lb_diag_buff(10,n)
+               WRITE(nulet,'(a40,f8.3)') ' Total Netcdf output for restart  only: ', g_lb_diag_buff(10,n)
                write(nulet,'(a19,f8.3)') '     with spread : ', g_lb_diag_buff(11,n)
                WRITE(nulet,*) ' '
 
