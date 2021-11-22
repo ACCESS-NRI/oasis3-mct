@@ -20,9 +20,10 @@ algorithms with OASIS3-MCT using the {\tt LAG} index (see \ref{subsec_lag}), and
 
 \section{Configurations of components supported}
 \label{sec_deploy}
-ICICICICI
-Since OASIS3-MCT\_3.0 version, coupling exchanges between components and
+
+Since OASIS3-MCT\_3.0 release, coupling exchanges between components and
 sub-components deployed in a much larger diversity of configurations
+than before 
 are supported. This is illustrated on figure
 \ref{Fig_coupling_layouts_a} and how to use the OASIS3-MCT library
 accordingly is detailed on figure \ref{Fig_coupling_layouts_b}. All
@@ -30,8 +31,7 @@ OASIS3-MCT API routines are also described in details in sections
 \ref{API}, \ref{APIC} and \ref{APIpython}. 
 
 We call here an ``executable'' a compiled code
-  forming a part of or the whole coupled system (started with the
-  mpirun or mpiexec command). A ``component'' is the ensemble of
+  forming a part of or the whole coupled system. A ``component'' is the ensemble of
   processes, or tasks, within the coupled system calling {\tt oasis\_init\_comp}
   with the same {\tt comp\_name} argument (see section
   \ref{init_comp}). A ``sub-component'' is the subset of tasks within a
@@ -39,21 +39,32 @@ We call here an ``executable'' a compiled code
   of course, a component may have only one sub-component
   that gathers all its tasks.
 
-Practical examples of how to use the OASIS3-MCT library are also given
-in {\tt examples/tutoria\_communication},  and {\tt examples/regrid\_environment} (see sections \ref{subsec_tutorial} and \ref{subsec_regrid}). 
+In {\tt examples/tutoria\_communication} and {\tt
+  examples/regrid\_environment} one finds practical examples of how to use the OASIS3-MCT library 
+(see sections \ref{subsec_tutorial} and \ref{subsec_regrid}). 
 
-Since OASIS3-MCT\_3.0, it is possible to (the text between [ and ] refers to figure \ref{Fig_coupling_layouts_a}) :
+With OASIS3-MCT, it is currently possible to (the text between [ and ] refers to figure \ref{Fig_coupling_layouts_a}) :
 
 \begin{figure}
   \includegraphics[scale=.6]{figures/coupling_layouts_a}
-  \caption{The different configuration of components supported by OASIS3-MCT\_3.0. Two executables {\tt exe1} and {\tt exe2} are running concurrently on separate sets of MPI tasks (0-5 for {\tt exe1} and 6-37 for {\tt exe2}). Executable {\tt exe1} includes only one component {\tt comp1} that has coupling fields defined on only one grid {\tt grid1} (decomposed on all its 6 tasks). Executable {\tt exe2} includes 3 components, {\tt comp2}, {\tt comp3}, and {\tt comp4} running concurrently respectively on tasks 6-11, 12-33 and 34-37. Component {\tt comp2} participates in the coupling with fields defined on only one coupling grid {\tt grid2} (decomposed on all its 5 tasks) while {\tt comp4} does not participate at all in the coupling. 
+  \caption{The different configuration of components supported by
+    OASIS3-MCT. Two executables {\tt exe1} and {\tt exe2} are running
+    concurrently on separate sets of MPI tasks (0-5 for {\tt exe1} and
+    6-37 for {\tt exe2}). Executable {\tt exe1} includes only one
+    component {\tt comp1} that has coupling fields defined on only one
+    grid {\tt grid1} (decomposed on all of its 6 tasks). Executable
+    {\tt exe2} includes 3 components, {\tt comp2}, {\tt comp3}, and
+    {\tt comp4} running concurrently respectively on tasks 6-11, 12-33
+    and 34-37. Component {\tt comp2} participates in the coupling with
+    fields defined on only one coupling grid {\tt grid2} (decomposed
+    on all of its 5 tasks) while {\tt comp4} does not participate at all in the coupling. 
 Component {\tt comp3} has 3 sub-components, respectively exchanging
 coupling fields defined on {\tt grid3} (tasks 12-21), {\tt grid4}
 (tasks 22-30) and {\tt grid5} (tasks 12-26, therefore overlaping with both {\tt
   grid3} and {\tt grid4}); finally, {\tt comp3} has 3 tasks (31-33)
-not involved in the coupling. Sub-components exe2-comp3-grid3 and
-exe2-comp3-grid5, or sub-components exe2-comp3-grid4 and
-exe2-comp3-grid5 are examples of coupling between sub-components running sequentially on overlapping sets of tasks.}
+not involved in the coupling. Sub-components{\tt  exe2-comp3-grid3} and
+{\tt exe2-comp3-grid5}, or sub-components {\tt exe2-comp3-grid4} and
+{\tt exe2-comp3-grid5} are examples of coupling between sub-components running sequentially on overlapping sets of tasks.}
   \label{Fig_coupling_layouts_a}
 \end{figure}
 
@@ -83,7 +94,7 @@ coupling fields have to call {\tt oasis\_put} and {\tt oasis\_get} accordingly.
 \begin{itemize}
 
 \item to implement coupling exchanges between two components or
-  sub-components running concurrently on separate sets of tasks within two different executables  (as before) [A, D, E, J];
+  sub-components running concurrently on separate sets of tasks within two different executables [A, D, E, J];
 \item to implement coupling exchanges between two components or
   sub-components running concurrently on separate sets of tasks within one same executable [B, F, I];
 \item to implement coupling exchanges within one executable between
@@ -180,9 +191,9 @@ for this component tasks; in this case, {\tt oasis\_init\_comp} is the
 only API routine that needs to be called by the component tasks. If at
 least one tasks of a component is participating to the coupling, all
 component tasks have to call {\tt oasis\_init\_comp} with {\tt
-  coupled=.true.} (by default); in this case, the component tasks not
-participating to the coupling will also have to call
-{\tt oasis\_get\_localcomm}, {\tt oasis\_create\_couplcomm}, {\tt oasis\_enddef} and {\tt oasis\_terminate}.
+  coupled=.true.} (which is the default); in this case, the component tasks not
+participating to the coupling will also have to call {\tt oasis\_get\_localcomm}, {\tt oasis\_create\_couplcomm}, {\tt
+  oasis\_enddef} and {\tt oasis\_terminate}.
 \end{itemize}
 
 \subsubsection{Communicator for internal parallelisation}
@@ -240,10 +251,10 @@ argument.
   the component processes participate in the coupling (e.g. {\tt comp3} in figure
     \ref{Fig_coupling_layouts_b}); in that case, the processes
     involved in the coupling have to call it with icpl=1 while the
-    other have to call it with icpl = MPI UNDEFINED. Argument
-    local\_comm is the MPI communicator associated with all processes
-    of the component returned by oasis\_get\_localcomm. The new coupling 
-    communicator is returned in coupl\_comm.
+    other have to call it with icpl = {\tt MPI\_UNDEFINED}. Argument
+   {\tt  local\_comm} is the MPI communicator associated with all processes
+    of the component returned by {\tt oasis\_get\_localcomm}. The new coupling 
+    communicator is returned in {\tt coupl\_comm}.
 
 \end{itemize}
 If this communicator already exists in the code, the component should
@@ -271,7 +282,7 @@ simply provide it to OASIS3-MCT with:
 
 The coupling fields sent or received by a component are usually
 scattered among the different component processes. With OASIS3-MCT,
-all processes exchanging coupling data have to express in a global index space the local
+all processes exchanging coupling data have to describe, in a global index space, the local
 partitioning of the different grids onto which the data is expressed (see \ref{subsubsec_griddef} for the grid definition).
 The processes not implied in the
 coupling do not have to call this routine (for backward compatibility with OASIS3-MCT\_2.0,
@@ -297,11 +308,11 @@ they may still call it describing a null partition, i.e. with {\tt ig\_paral(:)=
     if the coupling data is exchanged for only a subdomain of the
     global grid; in this case, {\tt ig\_size} must give the total number of grid points.  
   \item {\tt name [CHARACTER, OPTIONAL, IN]}: Optional argument associating a name to the partition,
-    mandatory if oasis\_def\_partition is called either for a grid
+    mandatory if {\tt oasis\_def\_partition} is called either for a grid
     decomposed not across all the processes of a component or if the related
     oasis\_def\_partition are not
     called in the same order on the different component processes;
-    this argument is new since OASIS3-MCT\_3.0 and is linked to the
+    this argument is new since OASIS3-MCT\_3.0 release and is linked to the
     greater flexibility in the configuration of components supported
     (see \ref{sec_deploy}); it has a maximum length of 120 characters. 
   \end{itemize}
@@ -430,9 +441,11 @@ Grid data files (see section \ref{subsec_griddata}) are required by OASIS3-MCT f
 user before the run or can be written directly at run time by the components with the following routines.
 If a grid data files does not exist, the corresponding routine will create it; if the grid data file exists, the routine can be used to {\bf add} grid definition fields but it will not {\bf overwrite} grid definition fields already existing in the file with the same grid name. 
 
-These routines can be called only by one component process to write the whole grid or by each process holding a part of a grid. In the former case, optional argument {\tt il\_part\_id} is not needed and the arrays (see below) handling the longitudes of the grid points or corners ({\tt lon}, {\tt clon}), the latitudes of the grid points or corners ({\tt lat}, {\tt clat}), the masks ({\tt mask}), fracs ({\tt frac}), and areas ({\tt area}) of the grid cells need to cover the whole grid; in the later case, the {\tt il\_part\_id} returned by {\tt oasis\_def\_partition} needs to be provided as input argument and the arrays need to cover only the local partition of the grid.
+These routines can be called only by one component process to write the whole grid or by each process holding a part of a grid. In the former case, optional argument {\tt il\_part\_id} is not needed and the arrays handling the longitudes of the grid points or corners ({\tt lon}, {\tt clon}), the latitudes of the grid points or corners ({\tt lat}, {\tt clat}), the masks ({\tt mask}), fracs ({\tt frac}), and areas ({\tt area}) of the grid cells need to cover the whole grid; in the later case, the {\tt il\_part\_id} returned by {\tt oasis\_def\_partition} needs to be provided as input argument and the arrays need to cover only the local partition of the grid.
 
-The field names in the {\em grids.nc}, {\em masks.nc}, and {\em areas.nc} follow a well-defined convention.  The fields are normally two-dimensional, and each field name consists of the gridname followed by a string that identifies the field.  For instance, the center latitudes for the grid torc will be called torc.lat and the center longitudes will be called torc.lon in the netcdf file.  The {\em grids.nc} file contains the center latitudes (.lat) and longitudes (.lat) as well as the corner latitudes (.cla) and corner longitudes (.clo).  The corner fields have a third dimension associated with the number of corners per gridcell.  The {\em area.nc} file constains the area field (.srf).  The {\em masks.nc} file contains the mask (.msk) and frac (.frc) fields.
+The field names in the {\em grids.nc}, {\em masks.nc}, and {\em
+  areas.nc} follow a well-defined convention.  The fields are normally
+two-dimensional, and each field name consists of a grid acronym followed by a string that identifies the field.  For instance, the center latitudes for the grid torc will be called torc.lat and the center longitudes will be called torc.lon in the netcdf file.  The {\em grids.nc} file contains the center latitudes (.lat) and longitudes (.lat) as well as the corner latitudes (.cla) and corner longitudes (.clo).  The corner fields have a third dimension associated with the number of corners per gridcell.  The {\em area.nc} file constains the area field (.srf).  The {\em masks.nc} file contains the mask (.msk) and frac (.frc) fields.
 
 \begin{itemize}
 
@@ -496,10 +509,16 @@ Must be called to start the grid writing process.
   \begin{itemize}
   \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
   \item {\tt mask [INTEGER, DIMENSION(nx,ny) ;IN]} : mask array covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition. Be careful about the OASIS historical convention (!): 0 = not masked (active), 1 = masked (not active).
-  \item {\tt companion [CHARACTER ;IN; OPTIONAL]} : the character string value associated with the mask field attribute ``coherent\_with\_grid''.  This will be written to the {\em masks.nc} netcdf file with the mask field.  It is purely informational and used in cases where the mask field is derived from or consistent with another grid.
+  \item {\tt companion [CHARACTER ;IN; OPTIONAL]} : the character
+    string value associated with the mask field attribute {\tt coherent\_with\_grid}'.  This will be written to the {\em masks.nc} netcdf file with the mask field.  It is purely informational and used in cases where the mask field is derived from or consistent with another grid.
   \end{itemize}
-  Writes the component grid mask.  The mask field should be consistent with the frac field and will define the 0/1 mask of the grid cell.  The mask field is used by both the {\tt SCRIPR} map generation function and in the {\tt CONSERV} operations if defined.  The mask field is written to the {\em masks.nc} file.
-
+  Writes the component grid mask.  The mask field should be consistent
+  with the frac field (see below) and will define the 0/1 mask of the
+  grid cell.  The mask field is used by both the {\tt SCRIPR} map
+  generation function and in the {\tt CONSERV} operations if defined.
+  The mask field is written to the {\em masks.nc} file.
+  
+ICICICI
   \vspace{0.2cm}
 \item {\tt CALL oasis\_write\_frac (cgrid, nx\_global, ny\_global, frac, il\_part\_id, companion)}
 \item {\tt CALL prism\_write\_frac (cgrid, nx\_global, ny\_global, frac, il\_part\_id, companion)}
