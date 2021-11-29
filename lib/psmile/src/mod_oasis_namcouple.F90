@@ -78,8 +78,11 @@ MODULE mod_oasis_namcouple
   LOGICAL                 ,public,pointer :: namchecko(:)  !< checkout flag
   REAL (kind=ip_realwp_p) ,public,pointer :: namfldsmu(:)  !< src multiplier term
   REAL (kind=ip_realwp_p) ,public,pointer :: namfldsad(:)  !< src additive term
-  REAL (kind=ip_realwp_p) ,public,pointer :: namflddmu(:)  !< dst multipler term
-  REAL (kind=ip_realwp_p) ,public,pointer :: namflddad(:)  !< dst additive term
+  ! for blasnew, combining fields, first index is number of flds, second index is number of namcouple
+  INTEGER(kind=ip_i4_p)   ,public,pointer :: namflddno(:)  !< dst number of flds
+  CHARACTER(len=jpeighty) ,public,pointer :: namflddna(:,:)!< dst name of flds
+  REAL (kind=ip_realwp_p) ,public,pointer :: namflddmu(:,:)!< dst multipler term
+  REAL (kind=ip_realwp_p) ,public,pointer :: namflddad(:,:)!< dst additive term
 
   CHARACTER(len=ic_med)   ,public,pointer :: namscrmet(:)  !< scrip method (CONSERV, DISTWGT, DISTWGTNF, BILINEAR, BILINEARNF, BICUBIC, BICUBICNF, GAUSWGT, GAUSWGTNF, LOCCUNIF, LOCCDIST and LOCCGAUS)
   character(len=ic_med)   ,public,pointer :: namscrnor(:)  !< scrip conserv normalization (FRACAREA, DESTAREA, FRACNNEI, DESTNNEI, FRACARTR, DESTARTR, FRACNNTR, DESTNNTR)
@@ -229,7 +232,7 @@ MODULE mod_oasis_namcouple
   REAL (kind=ip_realwp_p), DIMENSION(:,:), ALLOCATABLE :: abncoef
   REAL (kind=ip_realwp_p), DIMENSION(:), ALLOCATABLE :: afldcoef
   REAL (kind=ip_realwp_p), DIMENSION(:), ALLOCATABLE :: afldcobo
-  REAL (kind=ip_realwp_p), DIMENSION(:), ALLOCATABLE :: afldcobn
+  REAL (kind=ip_realwp_p), DIMENSION(:,:), ALLOCATABLE :: afldcobn
   REAL (kind=ip_realwp_p), DIMENSION(:),ALLOCATABLE :: anthresh
   REAL (kind=ip_realwp_p), DIMENSION(:),ALLOCATABLE :: asthresh
   CHARACTER(len=32), DIMENSION(:),ALLOCATABLE :: cxordbf
@@ -324,7 +327,7 @@ SUBROUTINE oasis_namcouple_init()
 
   !-----------------------------------------------------------
   INTEGER(kind=ip_i4_p) :: n, nv, n1, n2, loc
-  INTEGER(kind=ip_i4_p) :: ja, jf, jc
+  INTEGER(kind=ip_i4_p) :: ja, jf, jc, jc1
   INTEGER(kind=ip_i4_p) :: il_iost
   INTEGER(kind=ip_i4_p) :: maxunit
   CHARACTER(len=*),parameter :: subname='(oasis_namcouple_init)'
@@ -434,10 +437,16 @@ SUBROUTINE oasis_namcouple_init()
   allocate(namfldsad(ig_final_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "namfldsad" allocation of experiment module',il_err,1)
 
-  allocate(namflddmu(ig_final_nfield), stat=il_err)
+  allocate(namflddno(ig_final_nfield), stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "namflddno" allocation of experiment module',il_err,1)
+
+  allocate(namflddna(ig_maxcomb,ig_final_nfield), stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "namflddna" allocation of experiment module',il_err,1)
+
+  allocate(namflddmu(ig_maxcomb,ig_final_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "namflddmu" allocation of experiment module',il_err,1)
 
-  allocate(namflddad(ig_final_nfield), stat=il_err)
+  allocate(namflddad(ig_maxcomb,ig_final_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "namflddad" allocation of experiment module',il_err,1)
 
   allocate(namscrmet(ig_final_nfield), stat=il_err)
@@ -494,8 +503,10 @@ SUBROUTINE oasis_namcouple_init()
   namchecko(:) = .false.
   namfldsmu(:) = 1.0_ip_realwp_p
   namfldsad(:) = 0.0_ip_realwp_p
-  namflddmu(:) = 1.0_ip_realwp_p
-  namflddad(:) = 0.0_ip_realwp_p
+  namflddno(:) = 1
+  namflddna(:,:) = ' '
+  namflddmu(:,:) = 1.0_ip_realwp_p
+  namflddad(:,:) = 0.0_ip_realwp_p
 
   namscrmet(:) = TRIM(cspval)
   namscrnor(:) = TRIM(cspval)
@@ -621,15 +632,25 @@ SUBROUTINE oasis_namcouple_init()
               ENDDO
 
            ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'BLASNEW') THEN
-              namflddmu(jf) = afldcobn(ig_number_field(jf))
-              DO jc = 1, nbnfld(ig_number_field(jf))
-                 IF (TRIM(cbnfld(jc,ig_number_field(jf))) == 'CONSTANT') THEN
-                    namflddad(jf) = abncoef(jc,ig_number_field(jf))
-                 ELSE
-                    WRITE(tmpstr1,*) subname,jf,'ERROR: BLASNEW only supports CONSTANTS: '//&
-                                     &TRIM(cbofld(jc,ig_number_field(jf)))
-                    CALL namcouple_abort(subname,__LINE__,tmpstr1)
-                 ENDIF
+              namflddno(jf) = nbnfld(ig_number_field(jf))
+              namflddna(1,jf) = namdstfld(jf)
+              namflddmu(1,jf) = afldcobn(1,ig_number_field(jf))
+              jc = 1
+              IF (TRIM(cbnfld(jc,ig_number_field(jf))) == 'CONSTANT') THEN
+                 namflddad(1,jf) = abncoef(jc,ig_number_field(jf))
+              ELSE
+                 WRITE(tmpstr1,*) subname,jf,'ERROR: BLASNEW only supports CONSTANTS: '//&
+                                  &TRIM(cbnfld(jc,ig_number_field(jf)))
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1)
+              ENDIF
+              DO jc = 2, nbnfld(ig_number_field(jf))
+                 namflddna(jc,jf) = trim(cbnfld(jc,ig_number_field(jf)))
+                 do jc1 = 1,jc-1
+                    if (namflddna(jc,jf) == namflddna(jc1,jf)) &
+                       CALL namcouple_abort(subname,__LINE__,'ERROR: BLASNEW field repeated')
+                 enddo
+                 namflddmu(jc,jf) = afldcobn(jc,ig_number_field(jf))
+                 namflddad(jc,jf) = abncoef(jc,ig_number_field(jf))
               ENDDO
 
            ENDIF  ! canal
@@ -671,11 +692,13 @@ SUBROUTINE oasis_namcouple_init()
         WRITE(nulprt1,*) subname,n,'namchecki ',namchecki(n)
         WRITE(nulprt1,*) subname,n,'namchecko ',namchecko(n)
         WRITE(nulprt1,*) subname,n,'namfldsmu ',namfldsmu(n)
-!        WRITE(nulprt1,*) subname,n,'nbofld    ',nbofld(n)
         WRITE(nulprt1,*) subname,n,'namfldsad ',namfldsad(n)
-        WRITE(nulprt1,*) subname,n,'namflddmu ',namflddmu(n)
-!        WRITE(nulprt1,*) subname,n,'nbnfld    ',nbnfld(n)
-        WRITE(nulprt1,*) subname,n,'namflddad ',namflddad(n)
+        WRITE(nulprt1,*) subname,n,'namflddno ',namflddno(n)
+       do n2 = 1,namflddno(n)
+        WRITE(nulprt1,*) subname,n,'namflddna ',TRIM(namflddna(n2,n))
+        WRITE(nulprt1,*) subname,n,'namflddmu ',namflddmu(n2,n)
+        WRITE(nulprt1,*) subname,n,'namflddad ',namflddad(n2,n)
+       enddo
         WRITE(nulprt1,*) subname,n,'namscrmet ',TRIM(namscrmet(n))
         WRITE(nulprt1,*) subname,n,'namscrnor ',TRIM(namscrnor(n))
         WRITE(nulprt1,*) subname,n,'namscrtyp ',TRIM(namscrtyp(n))
@@ -1620,7 +1643,7 @@ SUBROUTINE inipar
   CHARACTER*3 clinfo, clind
   CHARACTER*1 clequa
   CHARACTER*64 cl_cfname,cl_cfunit
-  CHARACTER(len=15) :: cvarmul,cafldcobo,cabocoef,cafldcobn,cabncoef
+  CHARACTER(len=15) :: cvarmul,cafldtmp
   INTEGER (kind=ip_intwp_p) iind, il_aux
   INTEGER (kind=ip_intwp_p) il_file_unit, id_error
   INTEGER (kind=ip_intwp_p) il_max_entry_id, il_no_of_entries
@@ -1631,7 +1654,7 @@ SUBROUTINE inipar
   INTEGER (kind=ip_intwp_p) :: ja,jf,jfn,jz,jm,ilen,idum
   INTEGER (kind=ip_intwp_p) :: ifca,ifcb,ilab,jff,jc
   INTEGER (kind=ip_intwp_p) :: icofld,imodel, ios
-  INTEGER (kind=ip_intwp_p) :: ivarmul,iafldcobo,iabocoef,iafldcobn,iabncoef
+  INTEGER (kind=ip_intwp_p) :: ivarmul,iafldtmp
   CHARACTER(len=32) :: keyword
   LOGICAL :: found
   CHARACTER(len=*),parameter :: subname='(mod_oasis_namcouple:inipar)'
@@ -2591,13 +2614,13 @@ SUBROUTINE inipar
 !     * Get linear combination parameters for initial fields
               CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
 !     * Get main field multiplicative coefficient
-              READ(clvari, FMT=2012) cafldcobo
+              READ(clvari, FMT=2012) cafldtmp
               ! and convert it accordingly
-              IF ( INDEX(cafldcobo,'.') == 0 ) then
-                  READ(cafldcobo,FMT=2013) iafldcobo
-                  afldcobo(ig_number_field(jf)) = REAL(iafldcobo)
+              IF ( INDEX(cafldtmp,'.') == 0 ) then
+                  READ(cafldtmp,FMT=2013) iafldtmp
+                  afldcobo(ig_number_field(jf)) = REAL(iafldtmp)
                ELSE
-                  READ(cafldcobo,FMT=2006) afldcobo(ig_number_field(jf))
+                  READ(cafldtmp,FMT=2006) afldcobo(ig_number_field(jf))
                ENDIF
               DO jc = 1, nbofld(ig_number_field(jf))
                  READ(nulin, FMT=rform) clline
@@ -2607,41 +2630,65 @@ SUBROUTINE inipar
                  cbofld(jc,ig_number_field(jf)) = clvari
                  CALL parse(clline, clvari, 2, jpeighty, ilen, __LINE__)
 !     * Get multiplicative coefficients for  additional fields
-                 READ(clvari, FMT=2012) cabocoef
-                 IF ( INDEX(cabocoef,'.') == 0 ) THEN
-                  READ(cabocoef,FMT=2013) iabocoef
-                  abocoef(jc,ig_number_field(jf)) = REAL(iabocoef)
+                 READ(clvari, FMT=2012) cafldtmp
+                 IF ( INDEX(cafldtmp,'.') == 0 ) THEN
+                  READ(cafldtmp,FMT=2013) iafldtmp
+                  abocoef(jc,ig_number_field(jf)) = REAL(iafldtmp)
                ELSE
-                  READ(cabocoef,FMT=2006) abocoef(jc,ig_number_field(jf))
+                  READ(cafldtmp,FMT=2006) abocoef(jc,ig_number_field(jf))
                ENDIF
               ENDDO  ! DO jc
            ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'BLASNEW')THEN
+! BLASNEW syntax is
+!     c_mult f_number
+!        CONSTANT c_add
+!        FLD c_mult c_add
+!        FLD c_mult c_add
+!  where c_mult, c_add are multiplicative and addition constants
+!  f_number is the number of extra lines.  If f_number > 0 then 
+!  the first line MUST be CONSTANT c_add (even if c_add = 0.0)
+!  FLD is the field name for lines f_number > 1.
 !     * Get linear combination parameters for final fields
               CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
+              if (ilen <= 0) CALL namcouple_abort(subname,__LINE__,'BLASNEW parse error0')
 !     * Get main field multiplicative coefficient
-              READ(clvari, FMT=2012) cafldcobn
+              READ(clvari, FMT=2012) cafldtmp
               ! and convert it accordingly
-              IF ( INDEX(cafldcobn,'.') == 0 ) then
-                  READ(cafldcobn,FMT=2013) iafldcobn
-                  afldcobn(ig_number_field(jf)) = REAL(iafldcobn)
-               ELSE
-                  READ(cafldcobn,FMT=2006) afldcobn(ig_number_field(jf))
-               ENDIF
+              IF ( INDEX(cafldtmp,'.') == 0 ) then
+                 READ(cafldtmp,FMT=2013) iafldtmp
+                 afldcobn(1,ig_number_field(jf)) = REAL(iafldtmp)
+              ELSE
+                 READ(cafldtmp,FMT=2006) afldcobn(1,ig_number_field(jf))
+              ENDIF
               DO jc = 1, nbnfld(ig_number_field(jf))
                  READ(nulin, FMT=rform) clline
                  CALL skip(clline, jpeighty)
                  CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
+                 if (ilen <= 0) CALL namcouple_abort(subname,__LINE__,'BLASNEW parse error1')
 !     * Get symbolic names for additional fields
                  cbnfld(jc,ig_number_field(jf)) = clvari
                  CALL parse(clline, clvari, 2, jpeighty, ilen, __LINE__)
+                 if (ilen <= 0) CALL namcouple_abort(subname,__LINE__,'BLASNEW parse error2')
+                 IF (jc > 1) then
 !     * Get multiplicative coefficients for  additional fields
-                 READ(clvari, FMT=2012) cabncoef
-                 IF ( INDEX(cabncoef,'.') == 0 ) THEN
-                  READ(cabncoef,FMT=2013) iabncoef
-                  abncoef(jc,ig_number_field(jf)) = REAL(iabncoef)
-               ELSE
-                  READ(cabncoef,FMT=2006) abncoef(jc,ig_number_field(jf))
-               ENDIF
+                    READ(clvari, FMT=2012) cafldtmp
+                    IF ( INDEX(cafldtmp,'.') == 0 ) THEN
+                       READ(cafldtmp,FMT=2013) iafldtmp
+                       afldcobn(jc,ig_number_field(jf)) = REAL(iafldtmp)
+                    ELSE
+                       READ(cafldtmp,FMT=2006) afldcobn(jc,ig_number_field(jf))
+                    ENDIF
+                    CALL parse(clline, clvari, 3, jpeighty, ilen, __LINE__)
+                    if (ilen <= 0) CALL namcouple_abort(subname,__LINE__,'BLASNEW parse error3')
+                 ENDIF
+!     * Get additive coefficients for  additional fields
+                 READ(clvari, FMT=2012) cafldtmp
+                 IF ( INDEX(cafldtmp,'.') == 0 ) THEN
+                    READ(cafldtmp,FMT=2013) iafldtmp
+                    abncoef(jc,ig_number_field(jf)) = REAL(iafldtmp)
+                 ELSE
+                    READ(cafldtmp,FMT=2006) abncoef(jc,ig_number_field(jf))
+                 ENDIF
               ENDDO  ! DO jc
            ELSE
               WRITE(tmpstr1,*) ' Type of analysis not implemented yet '
@@ -2808,12 +2855,14 @@ SUBROUTINE inipar
                           abocoef (jc,ig_number_field(jf))
                     ENDDO
                  ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'BLASNEW') THEN
-                    WRITE(nulprt1, FMT=3027)  &
-                       TRIM(cnamout(ig_number_field(jf))),  &
-                       afldcobn(ig_number_field(jf))
-                    WRITE(nulprt1, FMT=3028) nbnfld(ig_number_field(jf))
+                    WRITE(nulprt1, FMT=3037)  &
+                       TRIM(cnamout(ig_number_field(jf)))
+                    WRITE(nulprt1, FMT=3038) nbnfld(ig_number_field(jf))
                     DO jc = 1, nbnfld(ig_number_field(jf))
-                       WRITE(nulprt1, FMT=3030)  &
+                       WRITE(nulprt1, FMT=3039)  &
+                          TRIM(cbnfld(jc,ig_number_field(jf))),  &
+                          afldcobn(jc,ig_number_field(jf))
+                       WRITE(nulprt1, FMT=3040)  &
                           TRIM(cbnfld(jc,ig_number_field(jf))),  &
                           abncoef (jc,ig_number_field(jf))
                     ENDDO
@@ -2902,6 +2951,10 @@ SUBROUTINE inipar
  3027 FORMAT(5X,' Field ',A,' is multiplied by Cst = ',E15.6)
  3028 FORMAT(5X,' It is combined with N fields    N = ',I2)
  3030 FORMAT(5X,'   With field ',A,'   coefficient = ',E15.6)
+ 3037 FORMAT(5X,' Field ',A,' is ')
+ 3038 FORMAT(5X,' combined with N fields    N = ',I2)
+ 3039 FORMAT(5X,'   With field ',A,'   mult coefficient = ',E15.6)
+ 3040 FORMAT(5X,'   With field ',A,'    add coefficient = ',E15.6)
  3043 FORMAT(/,5X,'No lag in namcouple for the field', I3, &
           /,5X,' Default value LAG=0 will be used ')
  3044 FORMAT(/,5X,'The lag for the field ',I3,3X,'is : ',I8)
@@ -2988,16 +3041,16 @@ SUBROUTINE alloc()
   abocoef(:,:)=0
   ALLOCATE (abncoef(ig_maxcomb,ig_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "abncoef"allocation of analysis module',il_err,1)
-  abncoef(:,:)=0
+  abncoef(:,:)=0.0
   ALLOCATE (afldcoef(ig_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "afldcoef"allocation of analysis module',il_err,1)
   afldcoef(:)=0
   ALLOCATE (afldcobo(ig_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "afldcobo"allocation of analysis module',il_err,1)
   afldcobo(:)=0
-  ALLOCATE (afldcobn(ig_nfield), stat=il_err)
+  ALLOCATE (afldcobn(ig_maxcomb,ig_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "afldcobn"allocation of analysis module',il_err,1)
-  afldcobn(:)=0
+  afldcobn(:,:)=0.0
   ALLOCATE (cxordbf(ig_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "cxordbf"allocation of analysis module',il_err,1)
   cxordbf(:)=' '

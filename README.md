@@ -1,6 +1,7 @@
 This version is the master branch of the OASIS3-MCT climate coupler. It will contain the future developments for OASIS3-MCT_5.0
 
 Since the first developments of OASIS3-MCT, it includes:
+- Update BLASNEW implementation to support combining multiple fields on the destination model
 - Update CHECKIN CHECKOUT diagnostics, add masked + weighted means and sum
 - Add $NCDFTYP namcouple control of NetCDF file types. Options are cdf1, cdf2, and cdf5. Default is cdf1, "classic" mode. cdf2 was tested on nemo and successfully changed the format of the output, restart, and mapping files. cdf5 requires a CPP CDF_64BIT_DATA to be set.
 - A bug fix when generating the remapping files with SCRIP : if we have fields which require BICUBIC weights followed by fields which require BILINEAR weights, then the BILINEAR weights are corrupted. However if we do things in a different order: BILINEAR first followed by BICUBIC, then things are OK. This problem was solved (ticket 2725)
