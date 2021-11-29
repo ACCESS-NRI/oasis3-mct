@@ -35,10 +35,10 @@ supports compilation of both static and shared libraries.
 
 \begin{itemize}
 \item  {\tt oasis3-psmile       =} static-libs-fortran (for backwards compatibility)
-\item  {\tt static-libs-fortran =} static oasis libraries for fortran only (default)
-\item  {\tt shared-libs-fortran =} shared (dynamic) oasis libraries for fortran only
-\item  {\tt static-libs         =} static oasis libraries including fortran and c-bindings
-\item  {\tt shared-libs         =} shared (dynamic) oasis libraries including fortran and c-bindings
+\item  {\tt static-libs-fortran =} static OASIS3-MCT libraries for fortran only (default)
+\item  {\tt shared-libs-fortran =} shared (dynamic) OASIS3-MCT libraries for fortran only
+\item  {\tt static-libs         =} static OASIS3-MCT libraries including fortran and c-bindings
+\item  {\tt shared-libs         =} shared (dynamic) OASIS3-MCT libraries including fortran and c-bindings
 \item  {\tt pyoasis             =} builds and installs shared-libs plus higher and intermediate python classes
 \item  {\tt realclean           =} cleans and resets the build
 \end{itemize}
@@ -47,7 +47,8 @@ The names of the libraries produced
 are {\it mct}, {\it mpeu},  {\it scrip}, {\it psmile.MPI1}, and {\it oasis.cbind}
 with standard prefixes ({\it lib}) and suffixes ({\it .a} or {\it .so}).
 
-The following targets have been used historically to compile oasis for Fortran 
+The following targets have been used historically to compile
+OASIS3-MCT for Fortran 
 codes and they are all still supported:
 
 \begin{itemize}

@@ -11,20 +11,22 @@ addresses.
 \label{subsec_griddata}
 
 With OASIS3-MCT, the grid data files {\em grids.nc, masks.nc} and {\em
-  areas.nc} are required only for certain operations, i.e.  {\em
-  grids.nc}, and {\em masks.nc} for {\tt SCRIPR} (see section
-\ref{subsec_interp}), {\em areas.nc} for conservative remapping
+  areas.nc} are required for certain operations:
+\begin{itemize}
+  \item{\em grids.nc} and {\em masks.nc} for all {\tt SCRIPR} regriddings (see
+    section \ref{subsec_interp})
+  \item in addition, {\em areas.nc} for {\tt SCRIPR} conservative remapping
 for which the normalisation by the true area of the cells is 
-applied, i.e. DESTARTR, DESTNNTR, FRACARTR, or FRACNNTR (see section
-\ref{subsec_interp})
-and {\em masks.nc} and {\em areas.nc} for {\tt
-  CONSERV} (see section \ref{subsec_cooking}). These NetCDF files can
+activated, i.e. {\tt DESTARTR}, {\tt DESTNNTR}, {\tt FRACARTR}, or
+{\tt FRACNNTR}
+\item {\em masks.nc} and {\em areas.nc} for global {\tt
+    CONSERV} (see section \ref{subsec_cooking}).
+\end{itemize}
+
+These NetCDF files can
 be created by the user before the run or can be written directly at
 run time by the processes of each component model using the grid
-data definition routines (see section \ref{subsubsec_griddef}).  These
-routines can be used by the component models to add grid fields to the
-grid files but grid fields are {\bf never} overwritten in the grid
-files.
+data definition routines (see section \ref{subsubsec_griddef}).
 
 The arrays containing the grid information are dimensioned {\tt (nx,
   ny)}, where {\tt nx} and {\tt ny} are the grid first and second
@@ -38,20 +40,20 @@ points and {\tt ny} to 1.
   in double precision {\tt REAL} arrays. The array names must be
   composed of a prefix (4 characters), given by the user in the {\it
     namcouple} on the second line of each field (see section
-  \ref{subsec_namcouplesecond}), and of a suffix,``.lon'' or ``.lat'', for respectively the grid point
+  \ref{subsec_namcouplesecond}), and of a suffix,{\tt .lon} or {\tt .lat}, for respectively the grid point
   longitudes or latitudes.
 
   If the {\tt SCRIPR/CONSERV} remapping is specified, longitudes and
   latitudes for the source and target grid {\bf corners} must also be
   available in the {\em grids.nc} file as double precision {\tt
-    REAL} arrays dimensioned {\tt (nx,ny,nc)} or {\tt (nbr\_pts,1,nc)}
+    REAL} arrays dimensioned {\tt (nx,ny,nc)}
   where {\tt nc} is is the maximum number of corners 
   (in the counterclockwize sense, starting by any corner) over all cells; 
-  nc can be any number. For cells that do not have the maximum 
+   {\tt nc} can be any number. For cells that do not have the maximum 
   number of distinct corners, we recommend to repeat the last corner 
-  as many times as needed to describe nc corners.
+  as many times as needed to describe  {\tt nc} corners.
   The names of the arrays must be composed of the grid prefix
-  and the suffix ``.clo'' or ``.cla'' for respectively the grid corner
+  and the suffix {\tt .clo} or {\tt .cla} for respectively the grid corner
   longitudes or latitudes.  As for the other grid information, the
   corners can be provided in {\em grids.nc} before the run by the user
   or directly by the component code through specific calls (see section
@@ -83,16 +85,29 @@ points and {\tt ny} to 1.
  
 \item {\em masks.nc}: contains the masks for all component model grids
   in {\tt INTEGER} arrays. {\bf Be careful to use the historical
-    OASIS convention: 0 = not masked i.e. active, 1 = masked
+    OASIS3-MCT convention: 0 = not masked i.e. active, 1 = masked
     i.e. not active, for each grid point}. The array names must be
   composed of the grid prefix and the suffix ``.msk''. Mask can be defined through the {\tt oasis\_write\_mask} API routine, see section \ref{subsubsec_griddef}.
   
- File {\em masks.nc} may also contain the grid cell fractions that defines the active (i.e. not masked) part of the cells.  Fractions should be consistent with the mask field. The fraction field is only used in the global {\tt CONSERV} operations. If both a mask and fractions are defined for a grid, they must be consistent; OASIS3-MCT will abort if they are not coherent or if both are missing.  Note that by OASIS conventions for the mask, a gridcell with mask=0 (active) should have a fractions greater than 0 and a gridcell with mask=1 (inactive) should have a fractions equal to 0.   The fraction array name must be composed of the grid prefix and the suffix ``.frc''. Fractions can be defined through the {\tt oasis\_write\_frac} API routine, see section \ref{subsubsec_griddef}.
+ File {\em masks.nc} may also contain the grid cell fractions that
+ defines the active (i.e. not masked) part of the cells.  Fractions
+ should be consistent with the mask field. The fraction fields, if present, are only
+ used in the global {\tt CONSERV}, {\tt CHECKIN} and {\tt CHECKOUT} operations. If both a
+ mask and fractions are defined for a grid, they must be consistent;
+ OASIS3-MCT will abort if they are not coherent or if both are
+ missing.  Note that by OASIS3-MCT convention for the mask, a gridcell
+ with mask=0 (active) should have a fractions greater than 0 and a
+ gridcell with mask=1 (inactive) should have a fractions equal to 0.
+ The fraction array name must be composed of the grid prefix and the
+ suffix {\tt .frc}. Fractions can be defined through the {\tt
+   oasis\_write\_frac} API routine, see section
+ \ref{subsubsec_griddef}.
+ 
   
 \item {\em areas.nc}: this file contains mesh surfaces for the
   component model grids in double precision {\tt REAL} arrays. The
   array names must be composed of the grid prefix and the suffix
-  ``.srf''.  The surfaces may be given in any units but they must be
+  {\tt .srf}.  The surfaces may be given in any units but they must be
   the same on the source and target sides; furthermore they must be in square radians if the True Area (TR) correction is activated, see section \ref{subsec_interp}.
 
   Surfaces can be defined through the {\tt oasis\_write\_area} API routine, see section \ref{subsubsec_griddef}.
@@ -168,7 +183,9 @@ configuring line in the {\it namcouple} (see section
 double precision REAL array named with the same field symbolic name as in the
 {\it namcouple} and dimensioned {\tt (nx,ny,time)}.  The time variable
 has to be an array {\tt time(time)} expressed in ``seconds since
-beginning of run''. The ``time'' dimension has to be the unlimited
+beginning of run'' (or any other time
+    units as long as the same are used in all components and in the {\it
+      namcouple}) . The ``time'' dimension has to be the unlimited
 dimension.
 % For a practical example, see the file SOALBEDO.nc in {\tt
 %   oasis3/examples/toyoasis3/data}.

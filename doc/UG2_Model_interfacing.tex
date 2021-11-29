@@ -181,7 +181,7 @@ a single description of the interface arguments is provided.
 
   \end{itemize}
  
-  This routine must called by all tasks of all components whether of not they are involved in the coupling \footnote{The component may also call MPI\_Init explicitly, but if so, has to call it before calling {\tt oasis\_init\_comp}; in this case, the component also has to call MPI\_Finalize explicitly, but only after calling {\tt oasis\_terminate}.}. 
+  This routine must called by all tasks of all components whether or not they are involved in the coupling \footnote{The component may also call MPI\_Init explicitly, but if so, has to call it before calling {\tt oasis\_init\_comp}; in this case, the component also has to call MPI\_Finalize explicitly, but only after calling {\tt oasis\_terminate}.}. 
 
 A component is defined as the ensemble of tasks  calling {\tt
   oasis\_init\_comp} with the same {\tt comp} {\tt \_name}
@@ -434,10 +434,9 @@ this case, we have {\tt ig\_paral(1:N)} where {\tt N = 2 + number of
 \subsection{Grid data file definition}
 \label{subsubsec_griddef}
 
-Grid data files (see section \ref{subsec_griddata}) are required by OASIS3-MCT for specific operations , i.e.  {\em grids.nc} and {\em masks.nc} for
-{\tt SCRIPR} (see section \ref{subsec_interp}), and {\em masks.nc} and
-{\em areas.nc} for {\tt CONSERV} (see section
-\ref{subsec_cooking}). These grid data files can be created by the
+Grid data files are required by OASIS3-MCT for specific
+operations, see sections \ref{sec_transformations} and \ref{subsec_griddata} and 
+These grid data files can be created by the
 user before the run or can be written directly at run time by the components with the following routines.
 If a grid data files does not exist, the corresponding routine will create it; if the grid data file exists, the routine can be used to {\bf add} grid definition fields but it will not {\bf overwrite} grid definition fields already existing in the file with the same grid name. 
 
@@ -508,17 +507,16 @@ Must be called to start the grid writing process.
 
   \begin{itemize}
   \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
-  \item {\tt mask [INTEGER, DIMENSION(nx,ny) ;IN]} : mask array covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition. Be careful about the OASIS historical convention (!): 0 = not masked (active), 1 = masked (not active).
+  \item {\tt mask [INTEGER, DIMENSION(nx,ny) ;IN]} : mask array covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition. Be careful about OASIS3-MCT historical convention (!): 0 = not masked (active), 1 = masked (not active).
   \item {\tt companion [CHARACTER ;IN; OPTIONAL]} : the character
     string value associated with the mask field attribute {\tt coherent\_with\_grid}'.  This will be written to the {\em masks.nc} netcdf file with the mask field.  It is purely informational and used in cases where the mask field is derived from or consistent with another grid.
   \end{itemize}
   Writes the component grid mask.  The mask field should be consistent
   with the frac field (see below) and will define the 0/1 mask of the
   grid cell.  The mask field is used by both the {\tt SCRIPR} map
-  generation function and in the {\tt CONSERV} operations if defined.
+  generation function and in the global {\tt CONSERV} operations if defined.
   The mask field is written to the {\em masks.nc} file.
   
-ICICICI
   \vspace{0.2cm}
 \item {\tt CALL oasis\_write\_frac (cgrid, nx\_global, ny\_global, frac, il\_part\_id, companion)}
 \item {\tt CALL prism\_write\_frac (cgrid, nx\_global, ny\_global, frac, il\_part\_id, companion)}
@@ -526,9 +524,20 @@ ICICICI
   \begin{itemize}
   \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
   \item {\tt frac [REAL, DIMENSION(nx,ny) ;IN]} : single or double real frac array covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition.  
-  \item {\tt companion [CHARACTER ;IN; OPTIONAL]} : the character string value associated with the frac field attribute ``coherent\_with\_grid''.  This will be written to the {\em masks.nc} netcdf file with the fraction field.  It is purely informational and used in cases where the frac field is derived from or consistent with another grid.
+  \item {\tt companion [CHARACTER ;IN; OPTIONAL]} : the character
+    string value associated with the frac field attribute
+    ``coherent\_with\_grid''.  It should refer to the acronym of
+    the grid which mask was used to define the fraction of the current
+    grid (see section \ref{subsec_cooking}). This will be written to the {\em
+      masks.nc} NetCDF file with the fraction field.  It is purely
+    informational and used in cases where the frac field is derived
+    from or consistent with another grid mask.
+    
   \end{itemize}
-  Writes the component grid cell fractions.  This should be consistent with the mask field and defines the fraction of the grid cell that is active (i.e. not masked).  The fraction field is only used in the {\tt CONSERV} operations. Either the mask or fractions must be defined for that operation.  If both are defined, they must be consistent; OASIS3-MCT will abort if they are not coherent or if both are missing.  Note that by OASIS conventions for the mask, a gridcell with mask=0 (active) should have a fractions greater than 0 and a gridcell with mask=1 (inactive) should have a fractions equal to 0.  The fraction field is written to the {\em masks.nc} file.
+  Writes the component grid cell fractions.  This should be consistent
+  with the mask field and defines the fraction of the grid cell that
+  is active (i.e. not masked).  The fraction field is only used in the
+  global {\tt CONSERV} operations. Either the mask or fractions must be defined for that operation.  If both are defined, they must be consistent; OASIS3-MCT will abort if they are not coherent or if both are missing.  Note that by OASIS3-MCT conventions for the mask, a gridcell with mask=0 (active) should have a fractions greater than 0 and a gridcell with mask=1 (inactive) should have a fractions equal to 0.  The fraction field is written to the {\em masks.nc} file.
 
   \vspace{0.2cm}
 \item {\tt CALL oasis\_write\_area (cgrid, nx\_global, ny\_global, area, il\_part\_id)}
@@ -541,7 +550,8 @@ ICICICI
   \end{itemize}
   Writes of the component grid cell areas. Needed for some {\tt SCRIPR} options and for the {\tt CONSERV}
   operation (see section \ref{subsec_cooking}).    The area field is written to the {\em areas.nc} file.
-  The surfaces may be given in any units but they must be the same on the source and target sides; furthermore they must be in square radians if the True Area (TR) correction is activated, see section 4.3.
+  The surfaces may be given in any units but they must be the same on
+  the source and target sides. Furthermore they must be in square radians if the True Area (TR) correction is activated, see section 4.3.
 
   \vspace{0.2cm}
 \item {\tt CALL oasis\_write\_angle (cgrid, nx\_global, ny\_global, angle, il\_part\_id)}
@@ -562,7 +572,7 @@ ICICICI
 \end{itemize}
 
 The creation of the different grid data files is completed in the routine
-oasis\_enddef.
+{\tt oasis\_enddef}.
 
 \subsection{Coupling field declaration}
 \label{subsubsec_Declaration}
@@ -607,7 +617,7 @@ compatibility with OASIS3-MCT\_2.0, they may still call it with any {\tt name} a
   \item {\tt var\_nodims [INTEGER, DIMENSION(2); IN]}: is an integer array of size two.  
     The first element, var\_nodims(1), is not used anymore in OASIS3-MCT, so 
     its value can be anything; The second element, var\_nodims(2),
-    is the number of fields in a bundle (this will be 1 for unbundled
+    is the number of fields in a bundle (this will be 1 for unbundle
     fields or greater than 1 for fields that are bundled; note that
     if var\_nodims(2)=0, it will be automatically reset to 1 in the
     routine, to ensure backward compatibility).
@@ -649,14 +659,15 @@ All processes of components at least partly involved in the coupling (e.g. {\tt 
 \label{subsubsec_sendingreceiving}
 
 This section describes how to send (put) and receive (get) fields through
-the coupling interface.  This interface supports several ranks and
-types of coupling fields.  First, the fields passed into the interface can be 
+OASIS-MCT API.  This coupling interface supports several ranks and
+types of coupling fields.  First, the fields passed to the interface can be 
 4 byte or 8 byte reals. The field decomposition must be 
-consistent with the decomposition defined in the grid partition (see \ref{subsubsec_Partition})\footnote{But the decomposition of each field can be either one
-dimensional or two dimensional and does not
-have to match the rank of the grid partition.}  Third, the fields
-can be bundled, i.e. have an extra (non-spatial) dimension like for a field covering different ice categories.  The bundled dimension is always the last dimension in any
-field passed into the get and put routines.  And the size of the bundle dimension
+consistent with the decomposition defined by the grid partition (see
+\ref{subsubsec_Partition})\footnote{But the decomposition of a
+  field does not necesseraly have to match the rank of the grid
+  partition description, i.e. it can be expressed in either 1D or 2D.}  Third, the fields
+can be bundled, i.e. have an extra (non-spatial) dimension (e.g. for a field covering different ice categories).  The bundle dimension is always the last dimension in the
+field passed to the get and put routines.  And the size of the bundle dimension
 must match the value defined for the variable in var\_nodims(2) in the
 {\tt oasis\_def\_var} interface (see section \ref{subsubsec_Declaration}).
 
@@ -665,34 +676,34 @@ So in general, the fields passed into the get and put interface can have rank
 byte or 8 byte real array.
 
 \begin{itemize}
-\item 1D, fld(:) = an single, unbundled field of decomposition rank 1.
-\item 2D, fld(:,:) = a single, unbundled field of decomposition rank 2.
-\item 1D bundled, fld(:,:) = a bundled set of fields of decomposition rank 1.
+\item 1D, fld(:) = an single, unbundle field of decomposition rank 1.
+\item 2D, fld(:,:) = a single, unbundle field of decomposition rank 2.
+\item 1D bundle, fld(:,:) = a bundle set of fields of decomposition rank 1.
   The size of the second dimension must equal the number of fields in the 
   bundle, defined by var\_nodims(2) in the {\tt oasis\_def\_var} interface.
-\item 2D bundled, fld(:,:,:) = a bundled set of fields of decomposition rank 2.
+\item 2D bundle, fld(:,:,:) = a bundle set of fields of decomposition rank 2.
   The size of the third dimension must equal the number of fields in the 
   bundle, defined by var\_nodims(2) in the {\tt oasis\_def\_var} interface.
 \end{itemize}
 
-%With bundled fields, it is important that the number of fields in the bundle match
+%With bundle fields, it is important that the number of fields in the bundle match
 %in the two models being coupled.  This requires that the var\_nodims(2) values
-%in the send and receive model match the bundle dimension of that bundled coupling field.
-Different bundled fields
-can have different numbers of fields, but for a given bundled field, the
+%in the send and receive model match the bundle dimension of that bundle coupling field.
+Different bundle fields
+can have different numbers of fields, but for a given bundle field, the
 number of fields must match on the send and receive side.  This is explicitly
 checked within the coupling layer and will lead to an abort if not done correctly.
-It is possible to define a 1D bundled or 2D bundled field  with a bundle dimension of 1, i.e. for a bundle that contains only one single field.
+It is possible to define a 1D bundle or 2D bundle field  with a bundle dimension of 1, i.e. for a bundle that contains only one single field.
 
-Finally, the bundled field option can be used to
+Finally, the bundle field option can be used to
 bundle together multi-level variables, multiple related fields, and other types
 of fields.  The fields must share a common partition and common namcouple settings (e.g. interpolation)
-to be bundled.  While this is a useful feature for multi-level fields, {\bf this does not mean
+to be bundle.  While this is a useful feature for multi-level fields, {\bf this does not mean
 that 3D interpolation is supported}.
 Each field in the bundle is
 treated internally as a separate field in the coupling layer without
 any information about the relationship between the fields in the bundle.  In fact,
-the bundled field variables are internally renamed and a field number is appended
+the bundle field variables are internally renamed and a field number is appended
 to the variable name to keep track of the distinct fields in the bundle.  That
 updated variable name will appear in restart and output files.
 
@@ -704,8 +715,7 @@ In the component time step loop, each process sends its part of the
 coupling (or I/O) field.
 
 \begin{itemize}
-\item {\tt CALL oasis\_put (var\_id, date, fld1, info, fld2, fld3,
-    fld4, fld5, write\_restart)}
+\item {\tt CALL oasis\_put (var\_id,date,fld1,info,fld2,fld3,fld4, fld5,write\_restart)}
 \item {\tt CALL prism\_put\_proto(var\_id, date, fld1, info, fld2,
     fld3, fld4, fld5, write\_restart)}
   \begin{itemize}
@@ -716,7 +726,7 @@ coupling (or I/O) field.
       namcouple}) at the time of the call (by convention at the
     beginning of the timestep)
   \item {\tt fld1 [REAL, IN]}: coupling (or I/O) field array; can be
-    1D, 2D, bundled 1D, or bundled 2D, see baove. 
+    1D, 2D, bundle 1D, or bundle 2D, see above. 
   \item {\tt info [INTEGER; OUT]}: returned info code:
     \begin{itemize}
     \item {\tt OASIS\_Sent} (=4) if the field was sent to another component
@@ -735,16 +745,16 @@ coupling (or I/O) field.
     \item {\tt OASIS\_Ok} (=0) otherwise and no error occurred.
     \end{itemize}
   \item {\tt fld2 [REAL, IN, OPTIONAL]}: optional $2^{nd}$ coupling
-    field array; can be 1D, 2D, bundled 1D, or bundled 2D.  Rank and size
+    field array; can be 1D, 2D, bundle 1D, or bundle 2D.  Rank and size
     must match {\tt fld1}.
   \item {\tt fld3 [REAL, IN, OPTIONAL]}: optional $3^{rd}$ coupling
-    field array; can be 1D, 2D, bundled 1D, or bundled 2D.  Rank and size
+    field array; can be 1D, 2D, bundle 1D, or bundle 2D.  Rank and size
     must match {\tt fld1}.
   \item {\tt fld4 [REAL, IN, OPTIONAL]}: optional $4^{th}$ coupling
-    field array; can be 1D, 2D, bundled 1D, or bundled 2D.  Rank and size
+    field array; can be 1D, 2D, bundle 1D, or bundle 2D.  Rank and size
     must match {\tt fld1}.
   \item {\tt fld5 [REAL, IN, OPTIONAL]}: optional $5^{th}$ coupling
-    field array; can be 1D, 2D, bundled 1D, or bundled 2D.  Rank and size
+    field array; can be 1D, 2D, bundle 1D, or bundle 2D.  Rank and size
     must match {\tt fld1}.
   \item {\tt write\_restart [LOGICAL, IN, OPTIONAL]}: optional argument to write an 
     intermediate restart file associated with the variable {\tt
@@ -779,10 +789,10 @@ of the following aspects:
   that if {\tt fld3}, or {\tt fld4}, or {\tt fld5} are passed, {\tt fld2}, or {\tt fld3} and 
   {\tt fld2}, or {\tt fld4} and {\tt fld3} and {\tt fld2} must also be passed respectively.
   
-\item {\bf Note that from OASIS3-MCT\_4.0 onwards, 
+\item Note that from OASIS3-MCT\_4.0 onwards, 
 the number of weights in the remapping file and the number of fields in the coupling restart file 
 (when such a file is needed) must strictly match the number of source fields passed to the 
-oasis\_put .}
+oasis\_put .
 
 %\item Trying to send with {\tt oasis\_put} a field declared with a
 %  {\tt oasis\_def\_var} but not defined in the configuration file {\it
@@ -799,10 +809,7 @@ oasis\_put .}
   the user in the {\it namcouple} (see section \ref{sec_namcouple}).
 
 \item By convention, the first coupling
-  of a run occurs at {\tt date=0} and the final coupling occurs
-  at {\tt date = runtime-cpl\_period}, where {\tt runtime} is the total time of
-  the run and {\tt cpl\_period} is the coupling period of the field indicated by
-  the user in the {\it namcouple} (see section \ref{sec_namcouple}).
+  of a run occurs at {\tt date=0}.
 
 \item For a coupling
   field with a positive lag, the coupling restart file (see section
@@ -820,7 +827,7 @@ oasis\_put .}
   user in the {\it namcouple} (INSTANT, AVERAGE, ACCUMUL, T\_MIN or
   T\_MAX, see section \ref{sec_transformations}), it is automatically
   performed and the resulting field is finally sent at the coupling or
-  I/O frequency.  For non-instant transformations, partially
+  I/O frequency.  For non-instantaneous transformations, partially
   transformed fields will be written to the restart file at the end of
   the run for use on the next component startup, when needed.
 
@@ -841,13 +848,11 @@ oasis\_put .}
 returned by the {\tt oasis\_def\_var} is equal to -1 and the
 corresponding {\tt oasis\_put} should not be called. 
 
-\item Support to couple multiple fields via a single communication.
-This is supported through colon delimited field lists in the namcouple (see \ref{subsubsec_secondEXPORTED}). 
+\item Coupling multiple fields via a single communication is supported through colon delimited field lists in the namcouple (see \ref{subsubsec_secondEXPORTED}). 
 All fields will use the namcouple settings for that entry. In the component
 model codes, these fields are still sent ({\bf “put”}) one at a time. Inside
 OASIS3-MCT, the fields are stored and a single mapping and send instruction is executed
-for all fields. This is useful in cases where multiple fields have the same coupling transformations
-and to reduce communication costs by aggregating multiple fields into a single communication.
+for all fields. This is useful to reduce communication costs by aggregating multiple fields into a single communication when multiple fields have the same coupling transformations.
 
 This option does not put any constraint
 on the order of the related {\tt oasis\_put} and {\tt oasis\_get} in the codes.
@@ -856,21 +861,21 @@ As they appear in one single entry line, these fields must share the same coupli
 but this restart file may contain other fields.
 
 \item The optional argument, {\tt write\_restart}, in the {\tt oasis\_put} routine is {\bf false} by default. 
-If a user sets that argument to true, a restart file will be written for that field {\bf only for that timestep}. The {\tt write\_restart} 
-will just save the data that exists at the time of the call, taking into account lags and LOCTRANS operations. In 
+If a user sets that argument to true, a ``intermediate'' restart is written for that field {\bf only for that timestep}. The {\tt write\_restart} 
+saves the data that exists at the time of the call, taking into account LOCTRANS operations. In 
 cases where multiple fields are coupled as a single operation in the model (indicated via a list of colon delimited 
 fields in the {\it namcouple}, see \ref{subsubsec_secondEXPORTED}), users are encouraged to specify 
 the {\tt write\_restart} flag on ALL {\tt oasis\_put} calls at a given
 time for this set of fields.
-Intermediate restarts will be created with a timestamp prepended to
-their filename, like TA000003600\_rst4.nc or TC000014400\_rst4.nc. 
-A restart file that starts with TA will be a restart file associated
-with LOCTRANS operations. A restart 
-file that starts with TC will be a restart file associated with
-coupling operations. The 9 digit timestamp in 
-the filename is the date in seconds at the time of the oasis\_put
-call. The restart filename (ie. rst4.nc) 
-defined in the namcouple for variables will be used to generate a filename for intermediate restart files.
+Restarts are created with a 9 digit timestamp in
+their filename, corresponding to the time in seconds of the oasis\_put
+call, e.g. TA000003600\_rst4.nc or TC000014400\_rst4.nc. 
+A restart file that starts with TA is a restart file associated
+with LOCTRANS operations; a restart 
+file that starts with TC is a restart file associated with
+coupling operations. The coupling restart filename
+defined in the namcouple (e.g. rst4.nc) is used to generate the
+filename of these intermediate restart files.
 \end{itemize}
 
 \subsubsection{Receiving a coupling (or I/O) field}
@@ -890,7 +895,7 @@ coupling field.
       namcouple}) at the time of the call (by convention at the
     beginning of the timestep)
   \item {\tt fld [REAL, OUT]}: I/O or coupling field array;  
-    can be 1D, 2D, bundled 1D, or bundled 2D.
+    can be 1D, 2D, bundle 1D, or bundle 2D.
   \item {\tt info [INTEGER; OUT]}: returned info code:
     \begin{itemize}
     \item OASIS\_Recvd(=3) if the field was received from another
@@ -926,12 +931,13 @@ returned by the {\tt oasis\_def\_var} is equal to -1 and the
 corresponding {\tt oasis\_get} should not be called. 
 
 \item If a coupling field has a positive lag, the coupling field that
-  matches the {\tt oasis\_get} at time=0 will come from a coupling
-  restart file written by the last active {\tt oasis\_put} of the
-  previous run (see section \ref{subsec_lag}). 
+  matches the {\tt oasis\_get} at time=0 is automatically read in from a coupling
+  restart file and sent to match that  {\tt oasis\_get} under the {\tt
+    oasis\_enddef} of the source model (see section \ref{subsec_lag}). 
 
-\item Support to couple multiple fields via a single communication.
-This is supported through colon delimited field lists in the namcouple (see \ref{subsubsec_secondEXPORTED}). 
+\item Coupling multiple fields via a single communication is supported
+  through colon delimited field lists in the namcouple (see
+  \ref{subsubsec_secondEXPORTED}).
 All fields will use the namcouple settings for that entry. In the component
 model codes, these fields are still received (via an {\tt oasis\_get}) one at a time. Inside
 OASIS3-MCT, the fields are stored and a single mapping and receive instruction is executed
@@ -980,7 +986,7 @@ The following auxiliary routines are currently available.
   \item {\tt abort\_message [CHARACTER*; IN]}: message to be written out
   \item {\tt file [CHARACTER*; OPTIONAL; IN]}: file from which oasis\_abort is called from
   \item {\tt line [INTEGER, OPTIONAL; IN]}: line in file from which oasis\_abort is called from
-  \item {\tt rcode [INTEGER, OPTIONAL; IN]}: Optional argument. When OASIS 
+  \item {\tt rcode [INTEGER, OPTIONAL; IN]}: Optional argument. When OASIS3-MCT 
     aborts, it returns rcode if it is present, else it returns 1
   \end{itemize}
 
@@ -1120,9 +1126,8 @@ The following auxiliary routines are currently available.
   \end{itemize}
 
 This routine may be called at any time to
-inquire what would happen to the corresponding field (i.e. with same
-{\tt var\_id} and at same {\tt date}) below the corresponding {\tt
-  oasis\_put}. This maybe useful if, for example, the calculation of
+inquire what would happen to the field corresponding to that
+{\tt var\_id} if it was sent with an {\tt oasis\_put} at that same {\tt date}). This maybe useful if, for example, the calculation of
 a coupling field is costly and if one wants to compute it only when it is
 really sent out.
 
@@ -1136,7 +1141,8 @@ really sent out.
   \item {\tt kinfo [INTEGER; OUT]}: returned info code
   \end{itemize}
 
-This routine returns the number of coupling exchanges in which the field var\_id is
+This routine returns the number of coupling exchanges in which the
+field with that {\tt var\_id} is
 involved. This number is needed to get the coupling frequencies with the
 routine oasis\_get\_freqs, see below.
 
@@ -1145,7 +1151,7 @@ routine oasis\_get\_freqs, see below.
   \begin{itemize}
   \item {\tt var\_id [INTEGER; IN]}: field ID (from
   corresponding oasis\_def\_var)
-  \item {\tt mop [INTEGER; IN]}: OASIS\_Out or OASIS\_In type
+  \item {\tt mop [INTEGER; IN]}: OASIS\_Out or OASIS\_In 
   \item {\tt ncpl [INTEGER; IN]}: number of couplings in which the field
   is involved (i.e. when a field is sent to multiple targets)
    \item {\tt cpl\_freqs [INTEGER; DIMENSION(ncpl); OUT]}: coupling period(s) 
@@ -1179,7 +1185,7 @@ The {\tt OASIS\_CHECK\_ERR} macro aborts
 OASIS3-MCT with a meaningful message in the debug files in case of failure.
 For most of the functions,
 the return code is consistent with the {\tt
-  kinfo} argument in the Fortran interfaces. However, for the put and get communication functions, the return error code only indicates
+  kinfo} argument in the Fortran interfaces (see section \ref{API}). However, for the put and get communication functions, the return error code only indicates
 success or failure, while the detailed status is returned by the {\tt
   kinfo} argument (equivalent to the returned value of {\tt
   info} argument for the Fortran {\tt oasis\_put} and {\tt oasis\_get} routines, see section \ref{prismput}).
@@ -1204,8 +1210,7 @@ defined for testing the return code of any MPI function against {\tt
   MPI\_SUCCESS} and cleanly aborting OASIS3-MCT in case of failure.
 
 \vspace{0.2cm}
-More information about all these interfaces can be found in the
-Fortran interface section (see \ref{API}). Use of these C bindings are illustrated in practical examples in
+Use of these C bindings are illustrated in practical examples in
 directories {\tt /C} in the different subdirectories in {\tt pyoasis/examples/}. Notes and deviations from
 the Fortran standard are noted below.
 
@@ -1223,8 +1228,9 @@ interfaces are defined there.
 \item {\tt int oasis\_c\_init\_comp(int* compid, const char* comp\_name, const bool coupled)}
   \begin{itemize}
   \item This {\tt oasis\_c\_init\_comp} interface includes the {\tt coupled} flag but
-    NO communicator argument ({\tt commworld}); to indicate a
-    communicator argument, see {\tt oasis\_c\_init\_comp\_with\_comm} below.
+    NO communicator argument; use  {\tt
+      oasis\_c\_init\_comp\_with\_comm} below to indicate a
+    communicator argument.
     \item The {\tt coupled} argument can receive the predefined mnemonic boolean constants {\tt
       OASIS\_Coupled} and {\tt OASIS\_Not\_Coupled}
   \end{itemize}
@@ -1244,6 +1250,8 @@ interfaces are defined there.
 \vspace{0.2cm}
 \item {\tt int oasis\_c\_create\_couplcomm(const int icpl, const MPI\_Comm local\_comm, MPI\_Comm* coupl\_comm)}
   \begin{itemize}
+  \item {\tt icpl} is a C {\tt int} type input argument (see {\tt
+      oasis\_create\_couplcomm} in section \ref{subsubsec_Initialisation})
   \item {\tt loca\_comm} is a C {\tt MPI\_Comm} type input argument (by value)
 
   \item {\tt coupl\_comm} is a C {\tt MPI\_Comm*} type output argument (by reference)
@@ -1297,15 +1305,15 @@ interfaces are defined there.
 
 \vspace{0.2cm}
 \item {\tt int oasis\_c\_write\_grid(const char* cgrid, const int nx\_global, const int ny\_global, const int nx\_loc, const int ny\_loc, const double* lon, const double* lat, const int il\_partid)}
-  \begin{itemize}
+  \begin{itemize}/local
     \item {\tt nx\_global} and {\tt ny\_global} are the first and second dimensions
       of the global grid
     \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
       of the local arrays {\tt lon} and {\tt lat}
-    \item {\tt lon} and {\tt lat} are stored with a fortran compatible
+    \item {\tt lon} and {\tt lat} are stored with a Fortran compatible
       (column major) ordering. For example, if they are declared as double
       pointers, they have to be {\tt lon[ny\_loc][nx\_loc]}
-    \item {\tt il\_partid} is relevant only for parallel writing. In case
+    \item {\tt il\_partid} is relevant only for parallel writing; in case
       of single proc invocations, the constant {\tt OASIS\_No\_Part}
       can be passed as a placeholder
   \end{itemize}
@@ -1416,7 +1424,7 @@ interfaces are defined there.
   write\_restart, int* kinfo)}
   \begin{itemize}
   \item This interface does not support higher order mapping through optional fields at this time.
-  \item {\tt x\_size}, {\tt y\_size}, are the dimensions of the local
+  \item {\tt x\_size} and {\tt y\_size} are the dimensions of the local
     portion of the domain, i.e. fld1. The order of these dimensions must be the same than the order of the dimensions of the arrays in the {\tt
       grids.nc} file, which corresponds to the storage order in the
     corresponding internal OASIS3-MCT Fortran work arrays. \\
@@ -1549,7 +1557,7 @@ To create a coupling communicator for a subset of processes, one can
 use the method {\tt create\_couplcomm}, with a flag being {\tt True} for all these
 processes; see {\tt pyoasis/examples/4-orange/python} for a practical example.
 
-If such a communicator already exists in the code, it should simply
+If such a communicator already exists in the code, it should simply be
 provided to OASIS3\_MCT with the method {\tt set\_couplcomm}; 
 as in {\tt pyoasis/examples/6-apple\_and\_orange/python}. 
 
@@ -1654,11 +1662,11 @@ pyOASIS expects data to be provided as a {\tt pyoasis.asarray} object:
    ____________________________________________________________
 \end{verbatim}
 
-This is a Numpy array but ordered in the Fortran way.
+This is a numpy array but ordered in the Fortran way.
 In C, multidimensional arrays store data in row\_major order where
 contiguous elements are accessed by incrementing the rightmost index
 while varying the other indices will correspond to increasing strides in
-memory as we use indices further towards the left. By default, Numpy arrays
+memory as we use indices further towards the left. By default, numpy arrays
 use that ordering as well. Fortran, on the other hand, uses column\_major
 order. In that case, contiguous elements are accessed by incrementing
 the leftmost index. {\tt pyoasis.asarray} objects use the same ordering as
@@ -1769,7 +1777,7 @@ Figures \ref{python_corresp_init} , \ref{python_corresp_grid} and \ref{python_co
 \subsection{A brief overview of MCT}
 \label{subsec_MCT}
 
-As described elsewhere, OASIS3-MCT leverages the MCT coupling infrastructure
+As described elsewhere, OASIS3-MCT leverages the MCT 2.11 coupling infrastructure
 developed at Argonne National Laboratory.  That infrastructure is designed
 to couple fields on static grids between model components.  The fields
 can be decomposed using MPI across mutiple processes, and the decomposition
@@ -1779,10 +1787,10 @@ communicators and
 within a single MPI communicator, although these two operations are functionally
 independent within MCT.  
 
-MCT also provides the ability to map (aka interpolate or
+MCT also provides the ability to map (i.e. interpolate or
 regrid) data between grids as long as the interpolation is linear and can
 be computed by a linear sparse matrix multiply.  
-MCT does not compute inteporlation weights, but
+MCT does not compute interpolation weights, but
 it has interfaces that allow those weights to be passed into MCT.  Within
 MCT, mapping and communication are also treated as independent features.
 
@@ -1821,7 +1829,7 @@ present time.  Users are discouraged from calling OASIS3-MCT {\tt oasis\_put} an
 from a threaded region.  And it is not possible to define a partition (decomposition)
 across multiple active threads.  Most of the work that OASIS3-MCT does related to decomposition rearrangement for communication or mapping per se is MPI-based.  There
 are some floating point operations in the sparse matrix multiple as well as in
-some of the OASIS transforms; but generally, these are highly parallel and
+some of the OASIS3-MCT transforms; but generally, these are highly parallel and
 would often not benefit from use of OpenMP.  OASIS3-MCT is designed primarily to
 support large memory parallel applications that require efficient and scalable
 coupling and mapping capabilities.
