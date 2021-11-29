@@ -514,7 +514,7 @@
           \parbox{15cm}{
             {\PRISMDOCFont{T1}{ptm}{b}{n}{12pt}{14pt}Copyright Notice\\[0.5ex]}
             \PRISMDOCFont{T1}{ptm}{m}{n}{11pt}{13pt}
-            \copyright\ Copyright 2018 by CERFACS \\
+            \copyright\ Copyright 2021 by CERFACS \\
             All rights reserved.\\
             No parts of this document should be either reproduced or 
             commercially used without prior agreement 
@@ -529,7 +529,7 @@
               How to get documentation ?\\[0.5ex]}
             \PRISMDOCFont{T1}{ptm}{m}{n}{11pt}{13pt}
             The documentation can be downloaded from the OASIS web site under the URL : \\
-            http://oasis.enes.org \\
+            https://oasis.cerfacs.fr/en/ \\
             }}}
 
       \PRISMDOCDebugBox{\put(0,16.2){\dashbox{0.1}(15,5.2)[t]{}}}
@@ -538,40 +538,8 @@
             {\PRISMDOCFont{T1}{ptm}{b}{n}{12pt}{14pt}
               How to get assistance?\\[0.5ex]}
             \PRISMDOCFont{T1}{ptm}{m}{n}{11pt}{13pt}
-            Assistance can be obtained as listed below. 
-            }}}
-
-      \PRISMDOCDebugBox{\put(0,14.4){\dashbox{0.1}(15,2.2)[t]{}}}
-      \put(0,16.6){\makebox(15,2.2)[t]{
-          \parbox{15cm}{
-            {\PRISMDOCFont{T1}{ptm}{b}{n}{12pt}{14pt}
-              Phone Numbers and Electronic Mail Adresses
-              \\[0.5ex]}
-%            \PRISMDOCFont{T1}{ptm}{m}{n}{11pt}{13pt}
-%            Electronic mail adresses of the individual work packages are composed as follows :\\
-%            \textbf{prism\_ \textit{work package} @prism.enes.org}
-            }}}
-
-      \PRISMDOCDebugBox{\put(0,4.1){\dashbox{0.1}(15,11.0)[t]{}}}
-      \put(0,7.1){\makebox(15,11.0)[t]{
-          \parbox{15cm}{
-            \newcommand{\PRISMDOCtblbf}{\PRISMDOCFont{T1}{ptm}{b}{n}{9.8pt}{11pt}}
-            \newcommand{\PRISMDOCtblit}{\PRISMDOCFont{T1}{ptm}{m}{it}{9.8pt}{11pt}}
-            \newcommand{\PRISMDOCtblbi}{\PRISMDOCFont{T1}{ptm}{b}{it}{9.8pt}{11pt}}
-            \PRISMDOCFont{T1}{ptm}{m}{n}{9.8pt}{11pt}
-            \renewcommand{\arraystretch}{1.11}
-            \setlength{\tabcolsep}{4pt}
-            \begin{tabular}[t]{|p{4.6cm}|p{3.1cm}|p{2.2cm}|p{3.1cm}|}
-              \hline%\rowcolor[gray]{0.2}
-              \PRISMDOCtblbf Name&
-              \PRISMDOCtblbf Phone &
-              \PRISMDOCtblbf Affiliation & 
-              \PRISMDOCtblbf e-mail \\ 
-              \hline\hline
-              \PRISMDOCfname\par & \PRISMDOCfphone\par & \PRISMDOCfaff\par & \PRISMDOCfem\par \\
-              \PRISMDOCsname\par & \PRISMDOCsphone\par & \PRISMDOCsaff\par & \par \\
-              \hline
-            \end{tabular}
+            Assistance can be obtained by sending a mail to  
+oasishelp(at)cerfacs.fr
             }}}
 
      \PRISMDOCDebugBox{\put(0,-0.5){\dashbox{0.1}(15,4.0)[b]{}}}
