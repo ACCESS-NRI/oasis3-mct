@@ -15,96 +15,94 @@ oasishelp@cerfacs.fr if you wish to be added to that list.
 
 \section{Changes between OASIS3-MCT\_5.0 and OASIS3-MCT\_4.0}
 
-ICICICI
+The last version of the coupler, OASIS3-MCT\_5.0, comes with the
+following novelties:
 
 \begin{itemize}
 
-\item Update examples, add SPOC
+\item Python, C and C++ bindings, see sections \ref{APIC},
+  \ref{APIpython} and \ref{subsec_equivalent}
 
-\item No interfacing with other regridding library but deep
-  analysis and environment on how to use SCRIP or ESMF or XIOS to
-  generate and reuse weights ticket 2349
+\item A new  load balancing analysis tool, see section \ref{lucia}
 
-\item New load balancing tool
+\item An environment to use either SCRIP, ESMF or XIOS to
+  generate regridding weights and to analyse the quality of the
+  regridding, see directory {\tt
+    examples/regrid\_environment} and section \ref{subsec_regrid}
 
-\item locally conservative remapping / runoffs
+ \item A new locally conservative remapping, to be used in particular
+   for runoffs, see {\tt LOCCUNIF}, {\tt LOCCDIST} and {\tt LOCCGAUS} in section \ref{subsec_interp}
 
-\item python , C and C++ interface
+ \item Extension of {\tt BLASNEW} operation to support combination of
+   coupling fields, see section \ref{subsec_cooking}
 
-\item Migration from SVN to GIT for source management, C3, IS3,
-  ticket 2352
+\item Improved and additional diagnostics in {\tt CHECKIN} and {\tt
+    CHECKOUT}, see sections \ref{subsec_preproc}
+  and \ref{subsec_cooking}
+
+\item {\tt SCRIPR/CONSERV} option for normalisation by the true area of the grid cells,
+  see {\tt DESTARTR}, {\tt FRACARTR} or {\tt FRACNNTR} in section
+  \ref{subsec_interp}
+
+\item New {\tt GSSPOS} and {\tt BSSPOS} options for global CONSERV (as
+  {\tt GLBPOS} and {\tt BASPOS} options respectively except that the
+  multiplicative term is computed separately for positive 
+  and negative values of the field), see section \ref{subsec_cooking}
+
+  \item Extension of {\tt oasis\_get\_intracomm} to support
+  multiple components, see {\tt oasis\_get\_multi\_intracomm} in  section \ref{subsubsec_auxroutines} 
+
+\item Communication/exchange of simple scalars, see section \ref{subsec_scalar}
+
+\item Update examples in {\tt oasis3-mct/examples} directory, see
+  section \ref{subsec_running}
+
+\item Update to MCT 2.11
+
+\item Update of compiling environment, see \ref{subsec_compile}
+
+\item Migration from SVN to GIT for source management 
 
 \item Migration of the OASIS3-MCT web site from DKRZ (content
-  manager Plone) to Cerfacs (content manager Wordpress) ticket 2697
+  manager Plone) to Cerfacs (content manager Wordpress), see the new
+  site at {\tt https://oasis.cerfacs.fr/en/}
 
-\item Update to MCT2.11
-
-\item Update of compiling environment / Support of gnu 10 compilers for MCT (ticket 2689 + Makefile update to generate Oasis libraries, ticket 2509
-
-\item Extension of the oasis\_get\_intracomm API routine to support
-  multiple components, C2, ES2, ticket 2687 (closed)
-  
-  The API routine oasis\_get\_intracomm merges two MPI communicators from two different components to form a new communicator. It is proposed to extend this to more than 2 components by overloading the interface. This is needed in coupled models involving both OASIS3-MCT and XIOS when XIOS manages ensemble simulations.
+\item For {\tt DISTWGT}, {\tt DISTWGTNF}, {\tt GAUSWGT},
+  {\tt GAUSWGTNF}  {\tt LOCCUNIF}, {\tt LOCCDIST} or {\tt LOCCGAUS},
+  inclusion of the number of neighbours used in the remapping file
+  name
     
-\item Minor issues
-  \begin{itemize}
-  \item Adding the number of neighbours used in the remapping file
-    name
-  \item Easy detection of the target grid point that do not
-    receive any value ticket 731
-  \item Allow the definition of north\_thresh and south\_thresh values
-    (Lambert projection) through the namcouple, IS3, ticket 2459
-  \item Sending/receiving simple scalars ticket 1937
-  \item Systematic tests of NetCDF returned error code, C2, IS3, ticket 550 
-  \end{itemize}
-    
-\item The {\tt oasis\_def\_var} interface was overloaded to support excluding the argument, {\tt id\_var\_shape}, from the argument list.  This argument is no longer used.  For backwards compatibility, it can still be passed.
+\item  For {\tt SCRIPR/CONSERV}, specification through the {\it namcouple} of North thresh
+  {\tt \$NTHRESH} and South thresh {\tt \$STHRESH} values, above
+  which a Lambert projection is activated
 
-\item The {\tt BLASNEW} operation was extended to support combining fields together.
+\item New {\tt \$NCDFTYP} NetCDF file format setting through the
+    {\it namcouple}, see section \ref{subsec_namcouplefirst}
 
-\item The {\tt CHECKIN} and {\tt CHECKOUT} log file output was updated
-  to include more diagnostics as well as mask, area, and fraction
-  weighted means and sums. ticket 2356 et 1761
+\item Overload {\tt oasis\_def\_var} interface to support excluding the argument {\tt id\_var\_shape} from the argument list
 
-\item  {\tt DESTARTR}, {\tt FRACARTR} or {\tt FRACNNTR} options : the ``True Area'' (TR) correction
+\item Systematic tests of NetCDF returned error code
 
-  New options for {\tt SCRIPR CONSERV} to have an exact conservation of the field surface-integrated values, based on the "TRue" (TR) area of the cells. Details can be found in section \ref{subsec_interp} and in \cite{valcke19}. Note that to activate these TR options, the true area of the cell must be provided in the auxiliary file {\it areas.nc} in {\bf square radians}.
-
-\item New {\tt GSSPOS} and {\tt BSSPOS} for global CONSERV / Option GLBPOS of CONSERV redistribution ticket 2327
-
-  These new options operate as {\tt GLBPOS} and {\tt BASPOS} except that the multiplicative term is computed separately for positive
-  and negative values of the field. More details can be found in section \ref{subsec_cooking} and in \cite{craig19}.
-
-\item New {\tt \$NCDFTYP} netcdf file format setting
-
-  This new option, {\tt \$NCDFTYP}, allows the user to set the netcdf file format type for all NetCDF output files written by OASIS3.  See {\tt \$NCDFTYP} in section \ref{subsec_namcouplefirst}.
+\item Update oasis\_abort to also write to unit 0 (stderr) 
 
 \item Bugfixes
 
   \begin{enumerate}
-
-  \item component name argument in oasis\_get\_intercomm ticket 2776
-
-  \item BICUBIC/BILINEAR sequence in weights generation ticket 2725
-  \item Update oasis\_abort, write to unit 0, ticket 2678
-  \item cplfind array bounds check, ticket 2655
+  \item Component name argument in oasis\_get\_intercomm (ticket \#2776)
+  \item BICUBIC/BILINEAR sequence in weights generation (ticket \# 2725)
+  \item Array bounds check for cplfind (ticket \# 2655)
   \item Fix error in maxloops/kfac computation in
-    oasis\_mpi\_reducelists, ticket 2654
-  \item Local distance in GAUSWGT interpolation ticket 2500
-  \item LUCIA compatibility with CRAY compiler ticket 2473 
-  \item Abort with NOINTERP when only a subdomain of the global grid is coupled, ticket 2472
-  \item Problem with BILINEAR remapping from COSMO to NEMO, ticket 2419
-  \item Problem in m\_MCTWorld.F90 in the routine "initm, ticket 1321
-
-
-  \item Argument {\tt id\_var\_nodim} defined as IN in {\tt mod\_oasis\_var.F90} to compile again with NEMO\_4.0 and NEMO trunk (git commit 28f4fe59)
-
-  \item Fix the treatment of the periodicity of the grids (git commits 20127fd9, 68021b13, facc08c1)
-
-  \item GAUSWGT remapping: exact calculation of average distance (commit 1df003a1) ; see details in https://cerfacs.fr/wp-content/uploads/2019/08/GlobC-TR-maisonnave-gaussian\_interpolation-2\_2019.pdf
-
-  \item Bugfix ``lcoinc''  : ensures that a condition on coincidence of segments is reinitialised to .false. for each cell. A detailed analysis of the bug that lead to this bugfix condition can be found at the end of the page https://inle.cerfacs.fr/projects/oasis3-mct/wiki/Discussion\_about\_specific\_treatments\_of\_polar\_cells\_in\_scrip\_CONSERV\_interpolation.
-
+    oasis\_mpi\_reducelists (ticket \# 2654)
+  \item Exact calculation of local distance in {\tt GAUSWGT}
+    interpolation (ticket \#2500)
+  \item Compatibility of load balancing analysis tool with CRAY
+    compiler (ticket \# 2473)
+  \item Problem with {\tt SCRIPR/BILINEAR} periodicity (ticket \# 2419)
+  \item Problem in {\tt m\_MCTWorld.F90} in the routine {\tt initm} (ticket \# 1321)
+  \item Argument {\tt id\_var\_nodim} defined as IN in {\tt
+      mod\_oasis\_var.F90} to compile with NEMO\_4.0 and NEMO trunk (git commit 28f4fe59)
+  \item In {\tt SCRIPR/CONSERV} , condition on coincidence
+    of segments is reinitialised to false for each cell (bugfix ``lcoinc''  ; see \cite{valcke19})
   \end{enumerate}
 
 \end{itemize}
