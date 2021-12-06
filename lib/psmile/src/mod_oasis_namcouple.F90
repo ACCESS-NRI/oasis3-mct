@@ -45,6 +45,7 @@ MODULE mod_oasis_namcouple
   INTEGER(kind=ip_i4_p)   ,public :: namruntim     !< namcouple runtime
   INTEGER(kind=ip_i4_p)   ,public :: namlogprt     !< namcouple nlogprt value
   INTEGER(kind=ip_i4_p)   ,public :: namtlogprt    !< namcouple ntlogprt value
+  INTEGER(kind=ip_i4_p)   ,public :: namlblogprt   !< namcouple nlblogprt value
   CHARACTER(len=ic_med)   ,public :: namcdftyp     !< namcouple netcdf file type
   INTEGER(kind=ip_i4_p)   ,public :: namuntmin     !< namcouple min IO unit value
   INTEGER(kind=ip_i4_p)   ,public :: namuntmax     !< namcouple max IO unit value
@@ -147,6 +148,8 @@ MODULE mod_oasis_namcouple
   INTEGER(kind=ip_intwp_p) :: nlogprt
 !---- Time statistics level printing
   INTEGER(kind=ip_intwp_p) :: ntlogprt
+!---- Load balancing analysis level printing
+  INTEGER(kind=ip_intwp_p) :: nlblogprt
 !---- netcdf file type
   CHARACTER(len=ic_med) :: ncdftyp
 !---- min and max unit numbers
@@ -528,6 +531,7 @@ SUBROUTINE oasis_namcouple_init()
   namruntim = ntime
   namlogprt = nlogprt
   namtlogprt = ntlogprt
+  namlblogprt = nlblogprt
   namcdftyp = ncdftyp
   namuntmin = nuntmin
   namuntmax = nuntmax
@@ -656,7 +660,7 @@ SUBROUTINE oasis_namcouple_init()
 
   IF (mpi_rank_global == 0) THEN
      WRITE(nulprt1,*) ' '
-     WRITE(nulprt1,*) subname,'namlogprt,t   ',namlogprt, namtlogprt
+     WRITE(nulprt1,*) subname,'namlogprt,t,lb',namlogprt, namtlogprt, namlblogprt
      WRITE(nulprt1,*) subname,'namcdftyp     ',TRIM(namcdftyp)
      WRITE(nulprt1,*) subname,'namuntmin,max ',namuntmin, namuntmax
      WRITE(nulprt1,*) subname,'namnorest     ',namnorest
@@ -1764,6 +1768,7 @@ SUBROUTINE inipar
   REWIND nulin
   nlogprt = 2
   ntlogprt=0
+  nlblogprt=0
   keyword = clprint
   CALL findkeyword (keyword, clline, found)
   IF (found) THEN
@@ -1783,9 +1788,34 @@ SUBROUTINE inipar
         CALL parse (clline, clvari, 2, jpeighty, ilen, __LINE__)
         IF (ILEN > 0) THEN
            READ(clvari, FMT=1004) ntlogprt
+           IF ( ntlogprt < 0 ) THEN
+              ntlogprt=0
+              IF (mpi_rank_global == 0) THEN
+                 WRITE(nulprt1,*) '        ***WARNING*** load balancing analysis : '
+                 WRITE(nulprt1,*) '        Since v5.0, a third parameter is required '
+                 WRITE(nulprt1,*) '        Default value 0 used for time statistic and land balancing analysis '
+                 WRITE(nulprt1,*) ' '
+                 CALL oasis_flush(nulprt1)
+              ENDIF
+           ELSE
+              CALL parse (clline, clvari, 3, jpeighty, ilen, __LINE__)
+              IF (ILEN > 0) THEN
+                 READ(clvari, FMT=1004) nlblogprt
+              ELSE
+                 IF (mpi_rank_global == 0) THEN
+                    WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for load balancing analysis for '//TRIM(keyword)
+                    WRITE(nulprt1,*) ' Default value 0 will be used '
+                    WRITE(nulprt1,*) ' '
+                    CALL oasis_flush(nulprt1)
+                 ENDIF
+              ENDIF
+           ENDIF
         ELSE
            IF (mpi_rank_global == 0) THEN
               WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for time statistic for '//TRIM(keyword)
+              WRITE(nulprt1,*) ' Default value 0 will be used '
+              WRITE(nulprt1,*) ' '
+              WRITE(nulprt1,*) '        ***WARNING*** Nothing on input for load balancing analysis for '//TRIM(keyword)
               WRITE(nulprt1,*) ' Default value 0 will be used '
               WRITE(nulprt1,*) ' '
               CALL oasis_flush(nulprt1)
@@ -1796,6 +1826,7 @@ SUBROUTINE inipar
 
   CALL prtout('The printing level is nlogprt =', nlogprt, 1)
   CALL prtout('The time statistics level is ntlogprt =', ntlogprt, 1)
+  CALL prtout('The load balancing analysis level is nlblogprt =', nlblogprt, 1)
 
   !* Get the calendar type for this simulation
 
