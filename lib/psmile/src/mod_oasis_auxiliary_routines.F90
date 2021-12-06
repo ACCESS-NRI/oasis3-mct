@@ -215,8 +215,9 @@ MODULE mod_oasis_auxiliary_routines
     CHARACTER(len=*),intent(in) :: cdnam               !< other model name to link with
     INTEGER (kind=ip_intwp_p),intent(out),optional :: kinfo  !< return code
 
-    INTEGER (kind=ip_intwp_p) :: n, il, ierr, tag
-    LOGICAL :: found
+    INTEGER (kind=ip_intwp_p) :: n, il, ierr, tag, i_me
+    INTEGER (KIND=MPI_ADDRESS_KIND) :: imax_tag_mpi
+    LOGICAL :: found, ferr
 !   ---------------------------------------------------------
     character(len=*),parameter :: subname = '(oasis_get_intercomm)'
 !   ---------------------------------------------------------
@@ -236,6 +237,9 @@ MODULE mod_oasis_auxiliary_routines
           il = n
           found = .true.
        endif
+       if (trim(compnm) == trim(prism_modnam(n))) then
+          i_me = n
+       endif
     enddo
 
     if (.not. found) then
@@ -250,9 +254,43 @@ MODULE mod_oasis_auxiliary_routines
        CALL oasis_flush(nulprt)
     ENDIF
 
-    tag=ICHAR(TRIM(compnm))+ICHAR(TRIM(cdnam))
+    ! Definition of a MPI tag that must be unique for each
+    ! intercommunicator
+    !
+    ! Note: this is not the case if the oasis_get_intercomm routine
+    ! is called twice with the same component couple
+
+    tag = prime_nbs(il) * prime_nbs(i_me)
+
+    ! The MPI standard guarantees that the tag upper bound value (MPI_TAG_UB) 
+    ! must be at least 32767, which is the case in this implementation, 
+    ! given that the maximum tag value is equal to 
+    !   prime_nbs(prism_nmodels-1) * prime_nbs(prism_nmodels) = 67x71 = 4757
+    !
+    ! For that reason, the test below is not mandatory and can be commented in
+    ! case of portability issues
+
+    CALL mpi_comm_get_attr(mpi_comm_local, MPI_TAG_UB, imax_tag_mpi, ferr, ierr)
+
+    IF ( ierr == 0 .and. ferr ) THEN
+       IF ( tag >= imax_tag_mpi ) THEN
+          WRITE(nulprt,*) subname, ' Incorrect value of MPI tag (', tag, &
+                                 ') bigger than max value : ', imax_tag_mpi
+          CALL oasis_abort(file=__FILE__,line=__LINE__)
+       ELSEIF ( OASIS_debug >= 2 ) THEN
+          WRITE(nulprt,*) subname, ' MPI tag value and limit : ', tag, imax_tag_mpi
+          CALL oasis_flush(nulprt)
+       ENDIF
+    ENDIF
+
+    IF ( OASIS_debug >= 2 ) THEN
+       WRITE(nulprt,*) subname, 'Tag intercomm :', tag
+       CALL oasis_flush(nulprt)
+    ENDIF
+
     CALL mpi_intercomm_create(mpi_comm_local, 0, mpi_comm_global, &
                               mpi_root_global(il), tag, new_comm, ierr)
+
     call oasis_mpi_chkerr(ierr,trim(subname)//' intercomm_create')
 
     call oasis_debug_exit(subname)

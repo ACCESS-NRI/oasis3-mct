@@ -111,8 +111,7 @@ CONTAINS
 
    call oasis_timer_start('part_definition')
 
-   if (ABS(LUCIA_debug) > 0 ) &
-      CALL oasis_lb_measure(-1,LB_PART)
+   if (ET_debug) CALL oasis_lb_measure(-1,LB_PART)
 
    prism_npart = prism_npart + 1
    if (prism_npart > mpart) then
@@ -142,8 +141,7 @@ CONTAINS
    allocate(prism_part(prism_npart)%kparal(size(kparal)))
    prism_part(prism_npart)%kparal = kparal
 
-   if (ABS(LUCIA_debug) > 0 ) &
-      CALL oasis_lb_measure(-1,LB_PART)
+   if (ET_debug) CALL oasis_lb_measure(-1,LB_PART)
 
    call oasis_timer_stop('part_definition')
 
