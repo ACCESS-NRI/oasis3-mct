@@ -17,13 +17,13 @@ MODULE mod_oasis_data
 
 ! GENERAL
 
-  INTEGER(kind=ip_intwp_p)  :: nulprt, nulprt1, nullucia  ! unit numbers for log files
+  INTEGER(kind=ip_intwp_p)  :: nulprt, nulprt1, nulet  ! unit numbers for log files
   INTEGER(kind=ip_i4_p)	    :: OASIS_debug
   INTEGER(kind=ip_i4_p)     :: TIMER_debug
-  INTEGER(kind=ip_i4_p)     :: LUCIA_debug
   character(len=ic_med)     :: cdf_filetype
 
   logical                   :: enddef_called   ! true when enddef is called, for error checking
+  logical                   :: ET_debug
 
   INTEGER(kind=ip_i4_p)     :: size_namfld
   CHARACTER(len=ic_lvar), POINTER :: total_namsrcfld(:), total_namdstfld(:)
@@ -32,6 +32,10 @@ MODULE mod_oasis_data
 
   ! These are identical on all MPI tasks
   INTEGER(kind=ip_i4_p),parameter :: prism_mmodels = 20
+  ! Prime number definition for MPI intercommunicator tag generation
+  INTEGER(kind=ip_i4_p),parameter :: prime_nbs(prism_mmodels) = (/ 2,  3,  5, 7, 11, 13, 17, &
+                                                                & 19, 23, 29, 31, 37, 41, 43, &
+                                                                & 47, 53, 59, 61, 67, 71 /)
   INTEGER(kind=ip_i4_p)           :: prism_nmodels    ! number of models
   INTEGER(kind=ip_i4_p)           :: prism_amodels    ! number of active models
   character(len=ic_lvar)          :: prism_modnam(prism_mmodels)  ! model names
@@ -89,10 +93,10 @@ CONTAINS
 
   nulprt = 6
   nulprt1 = 6
-  nullucia = 60
+  nulet = 60
   OASIS_debug = 0
   TIMER_debug = 0
-  LUCIA_debug = 0
+  ET_debug = .FALSE.
   compid = -1
   compnm = trim(cspval)
   oasis_coupled = .false.
