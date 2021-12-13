@@ -1978,17 +1978,7 @@ CONTAINS
      CALL oasis_flush(nulprt)
   endif
 
-  IF ( LUCIA_debug == 1) THEN
-     DO nc = 1, prism_mcoupler
-        IF (prism_coupler_put(nc)%valid) &
-           WRITE(nullucia, '(A12,I4.4,1X,A)') 'Balance: SN ', prism_coupler_put(nc)%namID, TRIM(prism_coupler_put(nc)%fldlist)
-        IF (prism_coupler_get(nc)%valid) &
-           WRITE(nullucia, '(A12,I4.4,1X,A)') 'Balance: RC ', prism_coupler_get(nc)%namID, TRIM(prism_coupler_get(nc)%fldlist)
-     ENDDO
-  ENDIF
-
-!EM modif to add new LB analysis
-  IF ( ABS(LUCIA_debug) > 0 ) THEN
+  IF (ET_debug) THEN
 
      ! How much event to measure should we expect
      ! number of get/put
@@ -2023,7 +2013,7 @@ CONTAINS
               ltrn = .TRUE.
 
            CALL oasis_lb_define(nc, imain_kind_lb, prism_coupler_put(nc)%namID, &
-                                prism_coupler_put(nc)%comp, nb_cpl_ts, &
+                                prism_coupler_put(nc)%comp, prism_coupler_put(nc)%ctime, nb_cpl_ts, &
                                 lmap = lmap, lout = lout, lrst = lrst, ltrn = ltrn )
         ENDIF
         IF (prism_coupler_get(nc)%valid) THEN
@@ -2047,7 +2037,7 @@ CONTAINS
            IF ( prism_coupler_get(nc)%output ) lout = .TRUE.
 
            CALL oasis_lb_define(nc, imain_kind_lb, prism_coupler_get(nc)%namID, &
-                                prism_coupler_get(nc)%comp, nb_cpl_ts, &
+                                prism_coupler_get(nc)%comp, prism_coupler_get(nc)%ctime, nb_cpl_ts, &
                                 lmap = lmap, lout = lout )
 
         ENDIF
