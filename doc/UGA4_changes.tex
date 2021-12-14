@@ -142,7 +142,7 @@ An optional argument {\tt write\_restart} was added to the {\tt oasis\_put} rout
 
 \item Exact consistency between the number of weights and fields
 
-Exact consistency is now required between number of weights fields in the coupling restart file and the arrays passed as arguments to the {\tt oasis\_put} routine. For example, for a 2nd order conservative remapping (CONSERV SECOND), 3 weights are needed and 3 fields must be provided as arguments i.e. the value of the field, its gradient with respect to the longitude and its gradient with respect to the latitude. For a first order conservative remapping (CONSERV FIRST), only one weight and one field are needed. Using a weight file with 3 weights for a first order conservative remapping is no longer allowed.
+Exact consistency is now required between number of weights fields in the coupling restart file and the arrays passed as arguments to the {\tt oasis\_put} routine. For example, for a 2nd order conservative remapping (CONSERV SECOND), 3 weights are needed and 3 fields must be provided as arguments: the value of the field, its gradient with respect to the longitude and its gradient with respect to the latitude. For a first order conservative remapping (CONSERV FIRST), only one weight and one field are needed. Using a weight file with 3 weights for a first order conservative remapping is no longer allowed.
 
 \item Upgrade in the namcouple configuration file
 
@@ -500,7 +500,7 @@ as they are defined in the corresponding single entry of the namcouple
 %  coupling field can be sent to the same destination model using
 %  multiple transforms as long as the destination field name is
 %  unique.
-The inverse feature is not allowed, i.e. a single target (get) field
+The inverse feature is not allowed: a single target (get) field
 CANNOT be associated with multiple source (put) fields.
 
 \item The debug files

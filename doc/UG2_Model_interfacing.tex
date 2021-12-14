@@ -76,7 +76,7 @@ of its component as $2^{nd}$ argument. As none of {\tt comp4} tasks is
 participating to the coupling, {\tt comp4} tasks calls {\tt
   oasis\_init\_comp} with {\tt coupled=.false.”} as $4^{th}$ argument
 and does not call any other OASIS3-MCT routine. As some of {\tt comp3}
-tasks are participating to the coupling, all {\tt comp3} tasks have to
+tasks are participating in the coupling, all {\tt comp3} tasks have to
 call {\tt oasis\_init\_comp}, {\tt oasis\_get\_localcomm}, {\tt
   oasis\_create\_couplcomm}, {\tt oasis\_enddef} and {\tt
   oasis\_terminate} (these are the only routine to be called by {\tt
@@ -209,9 +209,9 @@ participating to the coupling will also have to call {\tt oasis\_get\_localcomm}
   \end{itemize}
 
   This routine returns the value of a local communicator gathering
-  only the tasks of the component, i.e. the tasks that called {\tt
+  only the tasks of the component (i.e. the tasks that called {\tt
   oasis\_init\_comp} with the same {\tt comp\_name}
-argument.
+argument).
 
   This may be needed as all executables of the coupled system are started in a pseudo-MPMD
   mode with MPI1 and therefore share automatically the same MPI\_COMM\_WORLD
@@ -269,7 +269,7 @@ simply provide it to OASIS3-MCT with:
   \item {\tt kinfo [INTEGER; OUT; OPTIONAL]}: returned error code
   \end{itemize}
 
-  This routine allows to provide a local coupling communicator to
+  This routine allows users to provide a local coupling communicator to
   OASIS3-MCT, given that it already exists in the code. The value of
   {\tt coupl\_comm} must be the value of this local coupling
   communicator for the processes participating to the coupling and it
@@ -435,7 +435,7 @@ this case, we have {\tt ig\_paral(1:N)} where {\tt N = 2 + number of
 \label{subsubsec_griddef}
 
 Grid data files are required by OASIS3-MCT for specific
-operations, see sections \ref{sec_transformations} and \ref{subsec_griddata} and 
+operations, see sections \ref{sec_transformations} and \ref{subsec_griddata}.
 These grid data files can be created by the
 user before the run or can be written directly at run time by the components with the following routines.
 If a grid data files does not exist, the corresponding routine will create it; if the grid data file exists, the routine can be used to {\bf add} grid definition fields but it will not {\bf overwrite} grid definition fields already existing in the file with the same grid name. 
@@ -507,7 +507,11 @@ Must be called to start the grid writing process.
 
   \begin{itemize}
   \item {\tt cgrid }, {\tt nx\_global }, {\tt ny\_global }, {\tt il\_part\_id }: as for {\tt oasis\_write\_grid}
-  \item {\tt mask [INTEGER, DIMENSION(nx,ny) ;IN]} : mask array covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global}) or only the local partition. Be careful about OASIS3-MCT historical convention (!): 0 = not masked (active), 1 = masked (not active).
+  \item {\tt mask [INTEGER, DIMENSION(nx,ny) ;IN]} : mask array
+    covering the whole grid ({\tt nx=nx\_global}, {\tt ny=ny\_global})
+    or only the local partition. Be careful about OASIS3-MCT
+    historical convention (!): 0 = not masked (i.e. active), 1 =
+    masked (i.e. not active).
   \item {\tt companion [CHARACTER ;IN; OPTIONAL]} : the character
     string value associated with the mask field attribute {\tt coherent\_with\_grid}'.  This will be written to the {\em masks.nc} netcdf file with the mask field.  It is purely informational and used in cases where the mask field is derived from or consistent with another grid.
   \end{itemize}
@@ -665,8 +669,9 @@ types of coupling fields.  First, the fields passed to the interface can be
 consistent with the decomposition defined by the grid partition (see
 \ref{subsubsec_Partition})\footnote{But the decomposition of a
   field does not necesseraly have to match the rank of the grid
-  partition description, i.e. it can be expressed in either 1D or 2D.}  Third, the fields
-can be bundled, i.e. have an extra (non-spatial) dimension (e.g. for a field covering different ice categories).  The bundle dimension is always the last dimension in the
+  partition description (i.e. it can be expressed in either 1D or 2D).} and the fields
+can be bundled (i.e. have an extra non-spatial dimension for something
+like different ice categories).  The bundle dimension is always the last dimension in the
 field passed to the get and put routines.  And the size of the bundle dimension
 must match the value defined for the variable in var\_nodims(2) in the
 {\tt oasis\_def\_var} interface (see section \ref{subsubsec_Declaration}).
@@ -676,7 +681,7 @@ So in general, the fields passed into the get and put interface can have rank
 byte or 8 byte real array.
 
 \begin{itemize}
-\item 1D, fld(:) = an single, unbundle field of decomposition rank 1.
+\item 1D, fld(:) = a single, unbundle field of decomposition rank 1.
 \item 2D, fld(:,:) = a single, unbundle field of decomposition rank 2.
 \item 1D bundle, fld(:,:) = a bundle set of fields of decomposition rank 1.
   The size of the second dimension must equal the number of fields in the 
@@ -693,7 +698,7 @@ Different bundle fields
 can have different numbers of fields, but for a given bundle field, the
 number of fields must match on the send and receive side.  This is explicitly
 checked within the coupling layer and will lead to an abort if not done correctly.
-It is possible to define a 1D bundle or 2D bundle field  with a bundle dimension of 1, i.e. for a bundle that contains only one single field.
+It is possible to define a 1D bundle or 2D bundle field  with a bundle dimension of 1, for a bundle that contains only one single field.
 
 Finally, the bundle field option can be used to
 bundle together multi-level variables, multiple related fields, and other types
@@ -775,13 +780,16 @@ of the following aspects:
     SCRIPR/BICUBIC} remapping for which a $1^{st}$, $2^{nd}$,
   $3^{rd}$, $4^{th}$ set of weights should be respectively applied to
   the field value, its gradient in the first dimension, its gradient
-  in the second dimension, and its cross-gradient in that order. 
+  in the second dimension, and its cross-gradient in that order. For  {\tt
+    SCRIPR/BICUBIC},  {\tt fld2}, {\tt fld3} and {\tt fld4} are
+  therefore mandatory.
 
-  This will be used also for the CONSERV/SECOND for which a 1st, 2nd, 3rd 
+  This will be used also for the {\tt CONSERV/SECOND} for which a 1st, 2nd, 3rd 
   set of weights should be respectively applied to the field value, its 
   gradient with respect to the latitude ($\theta$) $\frac{\delta f}{\delta \theta}$
   and its gradient with respect to the longitude ($\phi$) $\frac{1}{cos \theta}\frac{\delta f}{\delta \phi}$ 
-  in that order.
+  in that order. For  {\tt CONSERV/SECOND},  {\tt fld2} and {\tt fld3} are
+  therefore mandatory.
 
   Bicubic and higher order
   remapping are therefore supported given that the higher order fields
@@ -832,8 +840,7 @@ oasis\_put .
   the run for use on the next component startup, when needed.
 
 \item A coupling field sent by a source component can be
-  associated with more than one target field and component, if specified
-  as so with different entries in the {\it namcouple} configuration
+  associated with more than one target field and component, with different entries in the {\it namcouple} configuration
   file. In that case, the source component needs to send the field only
   once and the corresponding data will arrive at multiple targets as
   specified in the {\it namcouple}. Different coupling frequencies and
@@ -861,7 +868,7 @@ As they appear in one single entry line, these fields must share the same coupli
 but this restart file may contain other fields.
 
 \item The optional argument, {\tt write\_restart}, in the {\tt oasis\_put} routine is {\bf false} by default. 
-If a user sets that argument to true, a ``intermediate'' restart is written for that field {\bf only for that timestep}. The {\tt write\_restart} 
+If a user sets that argument to true, an ``intermediate'' restart is written for that field {\bf only for that timestep}. The {\tt write\_restart} 
 saves the data that exists at the time of the call, taking into account LOCTRANS operations. In 
 cases where multiple fields are coupled as a single operation in the model (indicated via a list of colon delimited 
 fields in the {\it namcouple}, see \ref{subsubsec_secondEXPORTED}), users are encouraged to specify 
@@ -1326,7 +1333,7 @@ interfaces are defined there.
     \item {\tt nc} is the maximum number of corners per cell
     \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
       of the local arrays {\tt clon} and {\tt clat}
-    \item {\tt clon} and {\tt clat} are stored with a fortran compatible
+    \item {\tt clon} and {\tt clat} are stored with a Fortran compatible
       (column major) ordering. If they are declared as triple
       pointers, they have to be {\tt clon[nc][ny\_loc][nx\_loc]}
     \item {\tt il\_partid} is relevant only for parallel writing. In case
@@ -1341,7 +1348,7 @@ interfaces are defined there.
       of the global grid
     \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
       of the local array {\tt mask}
-    \item {\tt mask} is stored with a fortran compatible
+    \item {\tt mask} is stored with a Fortran compatible
       (column major) ordering. If it is  declared as a double
       pointer, it has to be {\tt mask[ny\_loc][nx\_loc]}
     \item {\tt il\_partid} is relevant only for parallel writing. In case
@@ -1358,7 +1365,7 @@ interfaces are defined there.
       of the global grid
     \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
       of the local array {\tt frac}
-    \item {\tt frac} is stored with a fortran compatible
+    \item {\tt frac} is stored with a Fortran compatible
       (column major) ordering. If it is  declared as a double
       pointer, it has to be {\tt frac[ny\_loc][nx\_loc]}
     \item {\tt il\_partid} is relevant only for parallel writing. In case
@@ -1375,7 +1382,7 @@ interfaces are defined there.
       of the global grid
     \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
       of the local array {\tt area}
-    \item {\tt area} is stored with a fortran compatible
+    \item {\tt area} is stored with a Fortran compatible
       (column major) ordering. If it is  declared as a double
       pointer, it has to be {\tt area[ny\_loc][nx\_loc]}
     \item {\tt il\_partid} is relevant only for parallel writing. In case
@@ -1390,7 +1397,7 @@ interfaces are defined there.
       of the global grid
     \item {\tt nx\_loc} and {\tt ny\_loc} are the two dimensions
       of the local array {\tt angle}
-    \item {\tt angle} is stored with a fortran compatible
+    \item {\tt angle} is stored with a Fortran compatible
       (column major) ordering. If it is  declared as a double
       pointer, it has to be {\tt angle[ny\_loc][nx\_loc]}
     \item {\tt il\_partid} is relevant only for parallel writing. In case
@@ -1405,7 +1412,7 @@ interfaces are defined there.
 \item {\tt int oasis\_c\_def\_var(int* var\_id, const char* name, const int il\_part\_id, const bundle\_size, const int kinout, const int var\_type)}
   \begin{itemize}
   \item {\tt bundle\_size} is a scalar integer, corresponding to the
-    second entry of the fortran {\tt var\_nodims} array
+    second entry of the Fortran {\tt var\_nodims} array
   \item {\tt kinout} can receive one of the two predefined constants
     {\tt OASIS\_In} or {\tt OASIS\_Out} (also in the form
     {\tt OASIS\_IN} or {\tt OASIS\_OUT})
@@ -1425,7 +1432,7 @@ interfaces are defined there.
   \begin{itemize}
   \item This interface does not support higher order mapping through optional fields at this time.
   \item {\tt x\_size} and {\tt y\_size} are the dimensions of the local
-    portion of the domain, i.e. fld1. The order of these dimensions must be the same than the order of the dimensions of the arrays in the {\tt
+    portion of the domain (i.e. fld1). The order of these dimensions must be the same than the order of the dimensions of the arrays in the {\tt
       grids.nc} file, which corresponds to the storage order in the
     corresponding internal OASIS3-MCT Fortran work arrays. \\
     Notice that for
@@ -1516,13 +1523,18 @@ interfaces are defined there.
 \end{itemize}
 
 \section{OASIS3-MCT python API}
-\label{APIpython} 
+\label{APIpython}
 
-The source code of pyOASIS is in the directory {\tt pyoasis/src}. A complete documentation is available in {\tt pyoasis/pyoasis.pdf} and examples on how to use pyOASIS are provided in {\tt pyoasis/examples}. 
-
-First, the OASIS3-MCT Fortran code is wrapped in Fortran using ISO-C bindings. The corresponding source files are in the subdirectory {\tt lib/cbindings/fortran\_isoc}. The file names are the same as the corresponding ones in the original source code but ending in {\tt \_iso.F90}. Subsequently, the Fortran with ISO-C bindings is wrapped in C, see the source code in {\tt lib/cbindings/c\_src}. The names of the files are the same as the corresponding Fortran ones, but ending in {\tt \_c.c}. Finally, the C is wrapped in Python in the directory {\tt pyoasis/src}; a low-level wrapper is made using the same file names as the Fortran ones but ending with {\tt .py}. 
-The python wrapper functions are briefly described hereafer.
-To run all tests including python, C and fortran examples from {\tt pyoasis/examples}, use {\tt make test}.
+The source code of pyOASIS is in the directory  {\tt pyoasis/src}. Complete 
+documentation is available in  {\tt pyoasis/pyoasis.pdf}. The pyoasis interface 
+ultimately call the Fortran version.  This is done by wrapping the 
+Fortran in ISO-C bindings (see  {\tt lib/cbindings/fortran\_isoc}), then 
+wrapping the Fortran ISO-C bindings in C (see  {\tt lib/cbindings/c}), then 
+wrapping the C bindings in python (see  {\tt pyoasis/src}).  This method 
+provides both the C and python bindings.  Examples on how 
+to use pyOASIS are provided in  {\tt pyoasis/examples}. To run all tests including python, C, and 
+Fortran examples, use {\tt make test}. The python wrapper functions 
+are briefly described next.
 
 \begin{itemize}
 \item{Creating a component using MPI}
@@ -1533,9 +1545,11 @@ initialise a component, its name has to be supplied.
 It is also possible to provide an optional  {\tt coupling\_flag} argument which
 defaults to “True”, which means the component is coupled through OASIS3\_MCT. 
 
-OASIS3\_MCT couples models which communicate using MPI. 
-If the global communicator gathering at start all components of the coupled model is different from the default {\tt MPI\_COMM\_WORLD}, the global communicator has to be passed to the {\tt Component} class through the third
-optional argument. By default, the
+OASIS3\_MCT couples models which communicate using MPI.
+If the global communicator at the start of the run is different from
+the default  {\tt MPI\_COMM\_WORLD} communicator, the global
+communicator has to be passed to the {\tt Component} class through the
+third optional argument. By default, the
 {\tt Component} class will set up MPI internally and provides methods
 to get access to information such as rank and number of processes in
 the local communicator gathering only the component processes.
