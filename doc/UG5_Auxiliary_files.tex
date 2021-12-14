@@ -17,10 +17,10 @@ With OASIS3-MCT, the grid data files {\em grids.nc, masks.nc} and {\em
     section \ref{subsec_interp})
   \item in addition, {\em areas.nc} for {\tt SCRIPR} conservative remapping
 for which the normalisation by the true area of the cells is 
-activated, i.e. {\tt DESTARTR}, {\tt DESTNNTR}, {\tt FRACARTR}, or
+activated (i.e. {\tt DESTARTR}, {\tt DESTNNTR}, {\tt FRACARTR}, or
 {\tt FRACNNTR}
 \item {\em masks.nc} and {\em areas.nc} for global {\tt
-    CONSERV} (see section \ref{subsec_cooking}).
+    CONSERV}, see section \ref{subsec_cooking}).
 \end{itemize}
 
 These NetCDF files can
@@ -85,8 +85,8 @@ points and {\tt ny} to 1.
  
 \item {\em masks.nc}: contains the masks for all component model grids
   in {\tt INTEGER} arrays. {\bf Be careful to use the historical
-    OASIS3-MCT convention: 0 = not masked i.e. active, 1 = masked
-    i.e. not active, for each grid point}. The array names must be
+    OASIS3-MCT convention: 0 = not masked (i.e. active), 1 = masked
+    (i.e. not active) for each grid point}. The array names must be
   composed of the grid prefix and the suffix ``.msk''. Mask can be defined through the {\tt oasis\_write\_mask} API routine, see section \ref{subsubsec_griddef}.
   
  File {\em masks.nc} may also contain the grid cell fractions that

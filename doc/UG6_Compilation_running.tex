@@ -35,10 +35,10 @@ supports compilation of both static and shared libraries.
 
 \begin{itemize}
 \item  {\tt oasis3-psmile       =} static-libs-fortran (for backwards compatibility)
-\item  {\tt static-libs-fortran =} static OASIS3-MCT libraries for fortran only (default)
-\item  {\tt shared-libs-fortran =} shared (dynamic) OASIS3-MCT libraries for fortran only
-\item  {\tt static-libs         =} static OASIS3-MCT libraries including fortran and c-bindings
-\item  {\tt shared-libs         =} shared (dynamic) OASIS3-MCT libraries including fortran and c-bindings
+\item  {\tt static-libs-fortran =} static OASIS3-MCT libraries for Fortran only (default)
+\item  {\tt shared-libs-fortran =} shared (dynamic) OASIS3-MCT libraries for Fortran only
+\item  {\tt static-libs         =} static OASIS3-MCT libraries including Fortran and c-bindings
+\item  {\tt shared-libs         =} shared (dynamic) OASIS3-MCT libraries including Fortran and c-bindings
 \item  {\tt pyoasis             =} builds and installs shared-libs plus higher and intermediate python classes
 \item  {\tt realclean           =} cleans and resets the build
 \end{itemize}
@@ -185,7 +185,7 @@ Different examples implementing the different parts of the API with the Fortran,
 \item pip3 uninstall shapely
 \item pip3 install shapely --no-binary shapely
 \end{itemize}
-\item{\tt 12-grid-functions}: Graphical version of {{\tt 10-grid}}, i.e. the {\tt pyoa} grid layout is displayed if the same graphical packages than for {{\tt 11-test-interpolation}} are installed.
+\item{\tt 12-grid-functions}: Graphical version of {{\tt 10-grid}} (i.e. the {\tt pyoa} grid layout is displayed if the same graphical packages than for {{\tt 11-test-interpolation}} are installed).
 \end{itemize}
 
 The different examples can be launched with the {\tt Makefile} from
@@ -237,9 +237,9 @@ implementing other timers. Of course, OASIS3\_MCT and the model code then have t
 \begin{itemize}
 
 \item {'total'} : total time of the simulation, implemented
-  in {\tt mod\_oasis\_method}, i.e. between the end of {\tt
+  in {\tt mod\_oasis\_method} (i.e. between the end of {\tt
     oasis\_init\_comp} and the {\tt
-    mpi\_finalize} in routine {\tt oasis\_terminate}.
+    mpi\_finalize} in routine {\tt oasis\_terminate}).
 
 \item {'init\_thru\_enddef'} : time between the end of {\tt
     oasis\_init\_comp} and the end of {\tt oasis\_enddef}, implemented

@@ -202,7 +202,7 @@ noted with the string UNUSED and not described.
   
  Since OASIS3-MCT\_4.0 release, a hybrid MPI+OpenMP parallel version
  of the SCRIP library is available. It relies on the MPI parallel
- layout of the calling model but only enrols one MPI process per
+ layout of the calling model but only uses one MPI process per
  node. The number of OpenMP threads per MPI process used by SCRIP is
  set by a dedicated environment variable OASIS\_OMP\_NUM\_THREADS,
  which can be different from the default number of threads per MPI
@@ -277,15 +277,15 @@ SCRIP parallelisation can be found in \cite{piacentini08} and
     \item {\tt \$CFTYP} is the field type: {\tt SCALAR}. The option
       {\tt VECTOR}, which in fact leads to a scalar treatment of the
       field (as in the previous versions), is still accepted. {\bf
-        VECTOR\_I or VECTOR\_J, i.e. vector fields, are not supported
+        VECTOR\_I or VECTOR\_J (i.e. vector fields) are not supported
         anymore in OASIS3-MCT}. See ``Support of vector fields with
       the SCRIPR remappings'' below.
 
     \item {\tt \$REST} is a bin search restriction type: {\tt LATLON} or
       {\tt LATITUDE}, see SCRIP 1.4 documentation SCRIPusers.pdf.
       
-    \item {\tt \$NBIN} the number of restriction bins that must be equal to 1 for {\tt DISTWGT, DISTWGTNF, GAUSWGT, GAUSWGTNF, BILINEAR, BILINEARNF, BICUBIC} or {\tt BICUBICNF} i.e. the
-      bin restriction is not allowed\footnote{The only exceptions are for Gaussian Reduced ({\tt D}) grids for ( {\tt BILINEAR, BILINEARNF, BICUBIC} and {\tt BICUBICNF}; in that case, {\bf if the Gaussian-reduced grid is stored from North to South} the number of bins is the number of latitude circles of the grid (minus one, to be precise), independently of {\tt \$NBIN}; {\bf for Gaussian-reduced grid stored from South to North to South, the bin definition will not work and the interpolation will become a 4 distance-weighted nearest-neighbour for all target points.}}; for details, see \newline \citep{piacentini08}.
+    \item {\tt \$NBIN} the number of restriction bins that must be equal to 1 for {\tt DISTWGT, DISTWGTNF, GAUSWGT, GAUSWGTNF, BILINEAR, BILINEARNF, BICUBIC} or {\tt BICUBICNF} (i.e. the
+      bin restriction is not allowed\footnote{The only exceptions are for Gaussian Reduced ({\tt D}) grids for ( {\tt BILINEAR, BILINEARNF, BICUBIC} and {\tt BICUBICNF}; in that case, {\bf if the Gaussian-reduced grid is stored from North to South} the number of bins is the number of latitude circles of the grid (minus one, to be precise), independently of {\tt \$NBIN}; {\bf for Gaussian-reduced grid stored from South to North to South, the bin definition will not work and the interpolation will become a 4 distance-weighted nearest-neighbour for all target points.}}; for details, see \newline \citep{piacentini08}).
       
     \item {\tt \$NV} is the number of neighbours used.
     
@@ -525,7 +525,7 @@ $CMETH $CGRS $CFTYP $REST $NBIN $NV $VAR
     \cite{valcke19} analyses the impact of the Lambert projection for specific grids.
   
   \item Another limitation of the SCRIP 1st order conservative
-    remapping algorithm is that is supposes, for line integral
+    remapping algorithm is that it assumes, for line integral
     calculation, that $sin(latitude)$ is linear in longitude on the
     cell borders which again is in general not valid close to the
     pole.
@@ -549,7 +549,7 @@ $CMETH $CGRS $CFTYP $REST $NBIN $NV $VAR
       TREAT\_OVERLAY} which will ensure that these rules are
     respected. This CPP key was introduced in OASIS3.3.
     
-  \item Masked target grid cells are set to 0.
+  \item Masked (non-active) target grid cells are set to 0.
     
   \item If a target grid cell intersects only masked source cells, or falls outside the source grid domain, it
     will get a zero value unless the {\tt DESTNNEI}, {\tt DESTNNTR}, {\tt FRACNNEI}, or {\tt FRACNNTR}
@@ -622,7 +622,7 @@ More details can be found in section 6 of \cite{valcke19}. A full validation of 
   OASIS3-MCT. For proper treatment of vector fields, the source 
   code has to send the 3 components of the vector projected in a
   Cartesian coordinate system as separate fields. The target 
-  code has to received the 3 interpolated Cartesian components and
+  code has to receive the 3 interpolated Cartesian components and
   recombine them to get the proper vector field.
 
 \item {\bf INTERP}: UNUSED
@@ -648,7 +648,9 @@ More details can be found in section 6 of \cite{valcke19}. A full validation of 
  % This option is often used when conservation is desired between mapped fields
  % but non conservative interpolation (i.e. bilinear) is carried out.
  
-  This analysis requires to define the source and target grid mesh areas in file {\it areas.nc} file and the source and target grid mask in file {\it masks.nc}.
+  This analysis requires the source and target grid mesh areas be
+  defined in file {\it areas.nc} file and the source and target grid
+  mask be defined in file {\it masks.nc}.
 
   {\bf The areas must be expressed in matching units
   on the source and destination sides. Futhermore, these must be square radians if the TR correction is activated} (see paragraph The ``True Area'' (TR) correction in section \ref{subsec_interp}). 
@@ -664,7 +666,7 @@ More details can be found in section 6 of \cite{valcke19}. A full validation of 
  {\bf Best practice for fraction definition in ocean-atmosphere coupling}
  
  In principle, the fractions can be defined for both the source and target grids. But for ocean-atmosphere coupling, we strongly encourage the following best practice for a consistent ocean-atmosphere coupled system. Indeed, to have a well-posed coupled problem, the ocean and the atmospheric total surfaces must be the same allowing global conservation of integrated quantities. To do so, the original ocean mask should be taken as it is from the ocean model. For the atmosphere, cell fractions should be defined by the conservative remapping of [1 - ocean mask] on the atmospheric grid, retaining fractions above a certain threshold, to be fixed by the user. These atmospheric cell fractions should be used in the atmospheric model to define the \% of ocean (water) subsurface to be considered. Then the atmospheric coupling mask should be adapted associating a non-masked index (i.e. 0) to all cells with a water fraction above the chosen threshold. The global water surface as seen by the atmosphere model is then the sum of its cell areas multiplied by its respective cell fractions. Note that invalid masked atmospheric cells should have null ocean fractions.
-If we follow this best practice, the atmospheric cell fractions and mask will be specific to the coupling with each particular ocean grid. As specific attribute named {\tt coherent\_with\_grid} indicating the grid prefix of the {\tt companion} grid may be defined for mask and fractions. If the OASIS API is used to define the mask and fractions, this can be done via the optional argument {\tt companion} indicating the grid prefix of the companion grid (see section \ref{subsubsec_griddef}).
+If we follow this best practice, the atmospheric cell fractions and mask will be specific to the coupling with each particular ocean grid. A specific attribute named {\tt coherent\_with\_grid} indicating the grid prefix of the {\tt companion} grid may be defined for mask and fractions. If the OASIS API is used to define the mask and fractions, this can be done via the optional argument {\tt companion} indicating the grid prefix of the companion grid (see section \ref{subsubsec_griddef}).
   
   In the {\it namcouple}, {\tt CONSERV} requires one input line with one argument and one optional argument:
 
