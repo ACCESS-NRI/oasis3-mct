@@ -32,6 +32,8 @@ f           = $(F90)
 CC          = mpicc
 # Linker (needed for shared libraries)
 LD          = $(F90)
+# Static libraries compilation options
+STATOPT     =
 # Shared libraries options
 DYNOPT      = -fPIC -Wl,-commons,use_dylibs
 LDDYNOPT    = -shared -L/usr/local/opt/libevent/lib -lm

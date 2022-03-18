@@ -43,6 +43,8 @@ f90         = $(F90)
 f           = $(F90)
 CC          = $(MPIBIN)/mpiicc -I$(MPI_INCLUDE)
 LD          = $(MPIBIN)/mpiifort $(MPILIB)
+# Static libraries compilation options
+STATOPT     =
 # Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
