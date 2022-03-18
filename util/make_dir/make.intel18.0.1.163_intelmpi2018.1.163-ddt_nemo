@@ -42,6 +42,9 @@ CC          = mpiicc
 LD          = mpiifort
 AR          = ar
 ARFLAGS     = -ruv
+# Static libraries compilation options
+STATOPT     =
+# Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared ${NETCDF_LIBRARY}
 # Fortran libraries for C linking
