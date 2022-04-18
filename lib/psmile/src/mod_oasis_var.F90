@@ -21,7 +21,8 @@
 
   !> Overloaded interface into oasis_def_var to support old and new interface
   interface oasis_def_var ; module procedure &
-    oasis_def_var_v1, &
+    oasis_def_var_v1s1, &
+    oasis_def_var_v1s2, &
     oasis_def_var_v2
   end interface
 
@@ -51,9 +52,10 @@
 !---------------------------------------------------------------
 
 !> The original OASIS user interface to define variables
+!> id_var_shape is 1d array (not used)
 !> Called via oasis_def_var
 
-  SUBROUTINE oasis_def_var_v1(id_nports, cdport, id_part, &
+  SUBROUTINE oasis_def_var_v1s1(id_nports, cdport, id_part, &
          id_var_nodims, kinout, id_var_shape, ktype, kinfo)
      !---------------------------------------------------------------
      INTEGER(kind=ip_i4_p),intent(out) :: id_nports    !< coupling field ID
@@ -61,11 +63,11 @@
      INTEGER(kind=ip_i4_p),intent(in)  :: id_part      !< partition ID
      INTEGER(kind=ip_i4_p),intent(in)  :: id_var_nodims(2)  !< rank and number of bundles
      INTEGER(kind=ip_i4_p),intent(in)  :: kinout       !< input or output flag
-     INTEGER(kind=ip_i4_p),intent(in)  :: id_var_shape(2*id_var_nodims(1)) !< size of field (no longer used)
+     INTEGER(kind=ip_i4_p),intent(in)  :: id_var_shape(:) !< size of field (no longer used)
      INTEGER(kind=ip_i4_p),intent(in)  :: ktype        !< type of coupling field
      INTEGER(kind=ip_i4_p),intent(out),optional :: kinfo    !< return code
      !---------------------------------------------------------------
-     character(len=*),parameter :: subname = '(oasis_def_var_v1)'
+     character(len=*),parameter :: subname = '(oasis_def_var_v1s1)'
      !---------------------------------------------------------------
 
      call oasis_debug_enter(subname)
@@ -80,7 +82,42 @@
 
      call oasis_debug_exit(subname)
 
-   END SUBROUTINE oasis_def_var_v1
+   END SUBROUTINE oasis_def_var_v1s1
+
+!---------------------------------------------------------------
+
+!> The original OASIS user interface to define variables
+!> id_var_shape is 2d array (not used)
+!> Called via oasis_def_var
+
+  SUBROUTINE oasis_def_var_v1s2(id_nports, cdport, id_part, &
+         id_var_nodims, kinout, id_var_shape, ktype, kinfo)
+     !---------------------------------------------------------------
+     INTEGER(kind=ip_i4_p),intent(out) :: id_nports    !< coupling field ID
+     CHARACTER(len=*)     ,intent(in)  :: cdport       !< field name as in namcouple
+     INTEGER(kind=ip_i4_p),intent(in)  :: id_part      !< partition ID
+     INTEGER(kind=ip_i4_p),intent(in)  :: id_var_nodims(2)  !< rank and number of bundles
+     INTEGER(kind=ip_i4_p),intent(in)  :: kinout       !< input or output flag
+     INTEGER(kind=ip_i4_p),intent(in)  :: id_var_shape(:,:) !< size of field (no longer used)
+     INTEGER(kind=ip_i4_p),intent(in)  :: ktype        !< type of coupling field
+     INTEGER(kind=ip_i4_p),intent(out),optional :: kinfo    !< return code
+     !---------------------------------------------------------------
+     character(len=*),parameter :: subname = '(oasis_def_var_v1s2)'
+     !---------------------------------------------------------------
+
+     call oasis_debug_enter(subname)
+
+     if (present(kinfo)) then
+       call oasis_def_var_v2(id_nports, cdport, id_part, &
+         id_var_nodims, kinout, ktype, kinfo)
+     else
+       call oasis_def_var_v2(id_nports, cdport, id_part, &
+         id_var_nodims, kinout, ktype)
+     endif
+
+     call oasis_debug_exit(subname)
+
+   END SUBROUTINE oasis_def_var_v1s2
 
 !---------------------------------------------------------------
 
