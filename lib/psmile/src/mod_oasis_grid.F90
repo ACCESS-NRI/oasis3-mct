@@ -1140,6 +1140,7 @@ CONTAINS
          nc = prism_grid(n)%nc
 
          allocate(rglo(nx,ny))
+         rglo = 0._ip_realwp_p
 
          !-------------------------------------
          !>   * Check that array sizes match for all fields
