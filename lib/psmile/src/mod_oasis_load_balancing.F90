@@ -456,6 +456,8 @@ module mod_oasis_load_balancing
          real(kind=ip_single_p), allocatable :: tl_sum_kind (:,:,:) 
 
          logical :: lcontinue
+
+         IF ( mpi_comm_global == MPI_COMM_NULL ) return
 !
 ! 
          ! Make measurement of the time spend waiting the beginning of the
