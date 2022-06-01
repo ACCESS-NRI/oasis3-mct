@@ -6,3 +6,9 @@ Please keep us informed of your progress with OASIS3-MCT and do not forget to ci
 A. Craig, S. Valcke, L. Coquart, 2017: Development and performance of a new version of the OASIS coupler, OASIS3-MCT_3.0, Geosci. Model Dev., 10, 3297-3308,https://doi.org/10.5194/gmd-10-3297-2017, 2017.   
 
 If you have problems or questions, please check the forum on the OASIS3-MCT web site (https://www.cerfacs.fr/site-oasis/forum/oa_main.php) or contact us at oasishelp@cerfacs.fr .
+
+- Bugfix for load balacing analysis freezing when all processes are not involved in the coupling observed and solved by Eric
+- Fix use of uninitialized rglo for mask in grid writing.
+- Add oasis_def_var interface with 2d id_var_shape.  id_var_shape is not
+used anymore, but we provide an interface with a 1d and 2d argument
+for backwards compatibility.
