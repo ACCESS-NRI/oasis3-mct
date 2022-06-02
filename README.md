@@ -1,4 +1,6 @@
-This version is the master branch of the OASIS3-MCT climate coupler. It will contain the future developments for OASIS3-MCT_6.0
+This is the branch of the OASIS3-MCT climate coupler currently recommended for users. It corresponds to the official OASIS3-MCT_5.0 released in December 2022 + important bugfixes since then.
+
+Developments for the future OASIS3-MCT_6.0 will be done in other branches and then merged to the master branch.
 
 For changes between the different versions of OASIS3-MCT, please refer to Appendix B of the User Guide (in oasis3-mct/doc/oasis3mct_UserGuide.pdf).
 
@@ -7,6 +9,8 @@ A. Craig, S. Valcke, L. Coquart, 2017: Development and performance of a new vers
 
 If you have problems or questions, please check the forum on the OASIS3-MCT web site (https://www.cerfacs.fr/site-oasis/forum/oa_main.php) or contact us at oasishelp@cerfacs.fr .
 
-- Bugfix for load balacing analysis freezing when all processes are not involved in the coupling observed and solved by Eric
-- Fix use of uninitialized rglo for mask in grid writing.
-- Add oasis_def_var interface with 2d id_var_shape.  id_var_shape is not used anymore, but we provide an interface with a 1d and 2d argument for backwards compatibility.
+Bugfixes since OASIS3-MCT_5.0 official release:
+
+- 01/06/2022: Bugfix for load balacing analysis freezing when all processes are not involved in the coupling observed and solved by Eric
+- 01/06/2022: Fix use of uninitialized rglo for mask in grid writing.
+- 01/06/2022: Add oasis_def_var interface with 2d id_var_shape.  id_var_shape is not used anymore, but we provide an interface with a 1d and 2d argument for backwards compatibility.
