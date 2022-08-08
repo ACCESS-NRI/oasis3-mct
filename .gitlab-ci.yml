@@ -1,6 +1,6 @@
 test:
      tags:
-     - sshdastci.spike
+     - sshcoquartci.spike
      variables:
           GIT_STRATEGY: clone
      script:
