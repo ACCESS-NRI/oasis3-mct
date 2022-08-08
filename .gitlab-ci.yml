@@ -1,16 +1,4 @@
-test:
-     tags:
-     - sshcoquartci.spike
-     variables:
-          GIT_STRATEGY: clone
-     script:
-     - which git;git --version
-     - id
-     - hostname
-     - who
-     - env
-     - /bin/sh Test
-     after_script:
-     - echo  Terminus please !!!
+
+ 
      
 
