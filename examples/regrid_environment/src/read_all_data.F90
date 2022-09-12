@@ -40,13 +40,13 @@ SUBROUTINE read_dimgrid (nlon,nlat,cl_grd,w_unit,file_debug)
 
   CALL hdlerr(NF90_OPEN('grids.nc', NF90_NOWRITE, il_file_id), w_unit, subname, __FILE__,__LINE__ )
   !
-  cl_nam=cl_grd//".lon" 
+  cl_nam=TRIM(cl_grd)//".lon" 
   IF (file_debug) THEN
       WRITE(w_unit,*) 'Longitudes :',cl_nam
       CALL FLUSH(w_unit)
   ENDIF
   CALL hdlerr( NF90_INQ_VARID(il_file_id, cl_nam,  il_lon_id), w_unit, subname, __FILE__, __LINE__ )
-  cl_nam=cl_grd//".lat" 
+  cl_nam=TRIM(cl_grd)//".lat" 
   IF (file_debug) THEN
       WRITE(w_unit,*) 'Latitudes :',cl_nam
       CALL FLUSH(w_unit)
@@ -118,14 +118,14 @@ END SUBROUTINE read_dimgrid
   !
   !**************************************************************************************
   !
-  cl_nam=cl_grd//".lon"
+  cl_nam=TRIM(cl_grd)//".lon"
   IF (file_debug) THEN
       WRITE(w_unit,*) 'Longitudes :',cl_nam
       CALL FLUSH(w_unit)
   ENDIF
   CALL hdlerr( NF90_INQ_VARID(il_grids_id, cl_nam, il_lon_id), w_unit, subname, __FILE__, __LINE__ )
   !
-  cl_nam=cl_grd//".lat"
+  cl_nam=TRIM(cl_grd)//".lat"
   IF (file_debug) THEN
       WRITE(w_unit,*) 'Latitudes :',cl_nam
       CALL FLUSH(w_unit)
@@ -196,13 +196,13 @@ END SUBROUTINE read_grid
   !
   !**************************************************************************************
   !
-  cl_nam=cl_grd//".clo"
+  cl_nam=TRIM(cl_grd)//".clo"
   IF (file_debug) THEN
       WRITE(w_unit,*) 'Corner longitudes :',cl_nam
       CALL FLUSH(w_unit)
   ENDIF
   CALL hdlerr( NF90_INQ_VARID(il_grids_id, cl_nam, il_clo_id),  w_unit, subname, __FILE__, __LINE__ )
-  cl_nam=cl_grd//".cla"
+  cl_nam=TRIM(cl_grd)//".cla"
   IF (file_debug) THEN
       WRITE(w_unit,*) 'Corner latitudes :',cl_nam
       CALL FLUSH(w_unit)
@@ -263,7 +263,7 @@ END SUBROUTINE read_corner
   !
   !**************************************************************************************
   !
-  cl_nam=cl_grd//".msk"
+  cl_nam=TRIM(cl_grd)//".msk"
   IF (file_debug) THEN
       WRITE(w_unit,*) 'Mask :',cl_nam
       CALL FLUSH(w_unit)
@@ -322,7 +322,7 @@ END SUBROUTINE read_corner
   !
   !**************************************************************************************
   !
-  cl_nam=cl_grd//".srf"
+  cl_nam=TRIM(cl_grd)//".srf"
   IF (file_debug) THEN
       WRITE(w_unit,*) 'Areas :',cl_nam
       CALL FLUSH(w_unit)
