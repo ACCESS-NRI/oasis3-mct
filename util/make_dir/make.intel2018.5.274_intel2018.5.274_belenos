@@ -35,12 +35,15 @@ NETCDF_LIBRARY  = -L/opt/softs/libraries/ICC_2018.5.274/netcdf_par-4.7.1_V2/lib 
 # Compiling and other commands
 # You may have to load the corresponding intel module to compile
 MAKE        = gmake
-F90         = $(MPIBIN)/mpiifort -march=core-avx2 
+F90         = $(MPIBIN)/mpiifort
 F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
 CC          = $(MPIBIN)/mpiicc 
 LD          = $(MPIBIN)/mpiifort
+# Static libraries compilation options
+STATOPT     = -march=core-avx2
+# Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
 AR          = ar

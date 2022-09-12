@@ -636,23 +636,28 @@ SUBROUTINE oasis_namcouple_init()
               namflddna(1,jf) = namdstfld(jf)
               namflddmu(1,jf) = afldcobn(1,ig_number_field(jf))
               jc = 1
-              IF (TRIM(cbnfld(jc,ig_number_field(jf))) == 'CONSTANT') THEN
-                 namflddad(1,jf) = abncoef(jc,ig_number_field(jf))
+              IF ( namflddno(jf) > 0 ) THEN
+                 IF (TRIM(cbnfld(jc,ig_number_field(jf))) == 'CONSTANT') THEN
+                    namflddad(1,jf) = abncoef(jc,ig_number_field(jf))
+                    WRITE(nulprt1,*) 'BLASNEW : adding constant '
+                 ELSE
+                    WRITE(tmpstr1,*) subname,jf,'ERROR: BLASNEW only supports CONSTANTS: '//&
+                                     &TRIM(cbnfld(jc,ig_number_field(jf)))
+                    CALL namcouple_abort(subname,__LINE__,tmpstr1)
+                 ENDIF
+                 DO jc = 2, nbnfld(ig_number_field(jf))
+                    namflddna(jc,jf) = trim(cbnfld(jc,ig_number_field(jf)))
+                    do jc1 = 1,jc-1
+                       if (namflddna(jc,jf) == namflddna(jc1,jf)) &
+                          CALL namcouple_abort(subname,__LINE__,'ERROR: BLASNEW field repeated')
+                    enddo
+                    namflddmu(jc,jf) = afldcobn(jc,ig_number_field(jf))
+                    namflddad(jc,jf) = abncoef(jc,ig_number_field(jf))
+                    WRITE(nulprt1,*) 'BLASNEW : combining field ', trim(namflddna(jc,jf))
+                 ENDDO
               ELSE
-                 WRITE(tmpstr1,*) subname,jf,'ERROR: BLASNEW only supports CONSTANTS: '//&
-                                  &TRIM(cbnfld(jc,ig_number_field(jf)))
-                 CALL namcouple_abort(subname,__LINE__,tmpstr1)
-              ENDIF
-              DO jc = 2, nbnfld(ig_number_field(jf))
-                 namflddna(jc,jf) = trim(cbnfld(jc,ig_number_field(jf)))
-                 do jc1 = 1,jc-1
-                    if (namflddna(jc,jf) == namflddna(jc1,jf)) &
-                       CALL namcouple_abort(subname,__LINE__,'ERROR: BLASNEW field repeated')
-                 enddo
-                 namflddmu(jc,jf) = afldcobn(jc,ig_number_field(jf))
-                 namflddad(jc,jf) = abncoef(jc,ig_number_field(jf))
-              ENDDO
-
+                 WRITE(nulprt1,*) 'BLASNEW : multiplication factor '
+              ENDIF  ! nb of additional operations
            ENDIF  ! canal
         ENDDO  ! ig_ntrans
      ENDIF   ! ig_number_field

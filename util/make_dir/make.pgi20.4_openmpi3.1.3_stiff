@@ -38,6 +38,9 @@ f90         = $(F90)
 f           = $(F90)
 CC          = $(MPIBIN)/mpicc -I$(MPI_INCLUDE) -pgf90libs
 LD          = $(MPIBIN)/mpif90 $(MPILIB) 
+# Static libraries compilation options
+STATOPT     =
+# Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
 AR          = ar

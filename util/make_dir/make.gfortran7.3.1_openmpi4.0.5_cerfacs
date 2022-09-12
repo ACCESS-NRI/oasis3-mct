@@ -38,6 +38,8 @@ f           = $(F90)
 CC          = mpicc
 # Linker (needed for shared libraries)
 LD          = $(F90)
+# Static libraries compilation options
+STATOPT     =
 # Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
