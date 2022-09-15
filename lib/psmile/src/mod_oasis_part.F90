@@ -20,6 +20,7 @@ MODULE mod_oasis_part
    !--- interfaces ---
    public :: oasis_def_partition
    public :: oasis_part_setup
+   public :: oasis_part_copy
    public :: oasis_part_readgrid
    public :: oasis_part_create
 
@@ -371,6 +372,7 @@ CONTAINS
    call oasis_debug_exit(subname)
 
  END SUBROUTINE oasis_part_setup
+
 !------------------------------------------------------------
 
 !> Zero partition information
@@ -404,6 +406,7 @@ CONTAINS
    call oasis_debug_exit(subname)
 
  END SUBROUTINE oasis_part_zero
+
 !------------------------------------------------------------
 
 !> Print parition information
@@ -549,6 +552,78 @@ CONTAINS
    call oasis_debug_exit(subname)
 
  END SUBROUTINE oasis_part_readgrid
+
+!------------------------------------------------------------
+
+!> Copy base partition to new partition
+
+  SUBROUTINE oasis_part_copy(partbase,partnew)
+
+  IMPLICIT NONE
+
+  integer(ip_i4_p),intent(in)  :: partbase !< base partition id
+  integer(ip_i4_p),intent(out) :: partnew  !<  new partition id
+  !--------------------------------------------------------
+  integer(ip_i4_p) :: lsize
+  character(len=*),parameter :: subname = '(oasis_part_copy)'
+  !--------------------------------------------------------
+
+  call oasis_debug_enter(subname)
+
+  prism_npart = prism_npart + 1
+  call oasis_part_zero(prism_part(prism_npart))
+  
+  part_name_cnt = part_name_cnt + 1
+  write(prism_part(prism_npart)%partname,'(a,i6.6)') trim(compnm)//'_part',part_name_cnt
+  prism_part(prism_npart)%gsize    = prism_part(partbase)%gsize
+  prism_part(prism_npart)%lsize    = prism_part(partbase)%lsize
+  prism_part(prism_npart)%mpicom   = prism_part(partbase)%mpicom
+  prism_part(prism_npart)%npes     = prism_part(partbase)%npes
+  prism_part(prism_npart)%rank     = prism_part(partbase)%rank
+  prism_part(prism_npart)%indxflag = prism_part(partbase)%indxflag
+  prism_part(prism_npart)%maskflag = prism_part(partbase)%maskflag
+  prism_part(prism_npart)%areaflag = prism_part(partbase)%areaflag
+  prism_part(prism_npart)%fracflag = prism_part(partbase)%fracflag
+  prism_part(prism_npart)%ig_size  = prism_part(partbase)%ig_size
+
+  if (prism_part(prism_npart)%mpicom /= MPI_COMM_NULL) then
+     lsize = mct_gsmap_lsize(prism_part(prism_npart)%pgsmap, prism_part(prism_npart)%mpicom)
+  else
+     lsize = 0
+  endif
+  if (prism_part(partbase)%indxflag) then
+     allocate(prism_part(prism_npart)%indx(lsize))
+     prism_part(prism_npart)%indx(:) = prism_part(partbase)%indx(:)
+  endif
+  if (prism_part(partbase)%maskflag) then
+     allocate(prism_part(prism_npart)%mask(lsize))
+     prism_part(prism_npart)%mask(:) = prism_part(partbase)%mask(:)
+  endif
+  if (prism_part(partbase)%areaflag) then
+     allocate(prism_part(prism_npart)%area(lsize))
+     prism_part(prism_npart)%area(:) = prism_part(partbase)%area(:)
+  endif
+  if (prism_part(partbase)%fracflag) then
+     allocate(prism_part(prism_npart)%frac(lsize))
+     prism_part(prism_npart)%frac(:) = prism_part(partbase)%frac(:)
+  endif
+
+  if (associated(prism_part(partbase)%kparal)) then
+     allocate(prism_part(prism_npart)%kparal(size(prism_part(partbase)%kparal)))
+     prism_part(prism_npart)%kparal(:) = prism_part(partbase)%kparal(:)
+  endif
+
+  if (prism_part(partbase)%gsize > 0) then
+     ! if test is proxy for testing initialized gsmap
+     call mct_gsMap_copy(prism_part(partbase)%gsmap , prism_part(prism_npart)%gsmap)
+     call mct_gsMap_copy(prism_part(partbase)%pgsmap, prism_part(prism_npart)%pgsmap)
+  endif
+
+  partnew = prism_npart
+
+  call oasis_debug_exit(subname)
+
+END SUBROUTINE oasis_part_copy
 
 !------------------------------------------------------------
 
@@ -752,6 +827,7 @@ CONTAINS
   call oasis_debug_exit(subname)
 
 END SUBROUTINE oasis_part_create
+
 !------------------------------------------------------------
 
 END MODULE mod_oasis_part
