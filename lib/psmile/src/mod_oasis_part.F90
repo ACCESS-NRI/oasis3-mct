@@ -21,6 +21,7 @@ MODULE mod_oasis_part
    public :: oasis_def_partition
    public :: oasis_part_setup
    public :: oasis_part_copy
+   public :: oasis_part_find
    public :: oasis_part_readgrid
    public :: oasis_part_create
 
@@ -33,6 +34,7 @@ MODULE mod_oasis_part
    type prism_part_type
       character(len=ic_lvar2):: partname !< partition name
       type(mct_gsmap)        :: gsmap    !< gsmap on mpi_comm_local
+      integer(kind=ip_i4_p)  :: part0    !< if copied, from this part
       integer(kind=ip_i4_p)  :: gsize    !< global size of grid
       integer(kind=ip_i4_p)  :: lsize    !< local size of grid
       integer(kind=ip_i4_p)  :: nx       !< global nx size
@@ -389,6 +391,7 @@ CONTAINS
    call oasis_debug_enter(subname)
 
    s_prism_part%partname = trim(cspval)
+   s_prism_part%part0    = -1
    s_prism_part%gsize    = -1
    s_prism_part%lsize    = -1
    s_prism_part%nx       = -1
@@ -426,6 +429,7 @@ CONTAINS
    write(nulprt,*) ' '
    write(nulprt,*) subname,' partnm = ',trim(s_prism_part%partname)
    write(nulprt,*) subname,' npart  = ',npart
+   write(nulprt,*) subname,' part0  = ',s_prism_part%part0
    write(nulprt,*) subname,' mpicom = ',s_prism_part%mpicom
    write(nulprt,*) subname,' npes   = ',s_prism_part%npes
    write(nulprt,*) subname,' rank   = ',s_prism_part%rank
@@ -575,6 +579,7 @@ CONTAINS
   
   part_name_cnt = part_name_cnt + 1
   write(prism_part(prism_npart)%partname,'(a,i6.6)') trim(compnm)//'_part',part_name_cnt
+  prism_part(prism_npart)%part0    = partbase
   prism_part(prism_npart)%gsize    = prism_part(partbase)%gsize
   prism_part(prism_npart)%lsize    = prism_part(partbase)%lsize
   prism_part(prism_npart)%mpicom   = prism_part(partbase)%mpicom
@@ -624,6 +629,44 @@ CONTAINS
   call oasis_debug_exit(subname)
 
 END SUBROUTINE oasis_part_copy
+
+!------------------------------------------------------------
+
+!> Find matching base partition to new partition
+
+  SUBROUTINE oasis_part_find(partbase,partnew,nx,ny,gridname)
+
+  IMPLICIT NONE
+
+  integer(ip_i4_p),intent(in)    :: partbase !< base partition id
+  integer(ip_i4_p),intent(inout) :: partnew  !<  new partition id
+  integer(ip_i4_p),intent(in)    :: nx       !<  new partition nx
+  integer(ip_i4_p),intent(in)    :: ny       !<  new partition ny
+  character(len=*),intent(in)    :: gridname !<  new partition gridname
+  !--------------------------------------------------------
+  integer(ip_i4_p) :: n
+  character(len=*),parameter :: subname = '(oasis_part_find)'
+  !--------------------------------------------------------
+
+  call oasis_debug_enter(subname)
+
+  ! Find a duplicated part that matches the "base" partid and grid
+
+  partnew = -1
+  n = 0
+  do while (partnew < 0 .and. n < prism_npart)
+     n = n + 1
+     if (prism_part(n)%part0 == partbase .and. &
+         prism_part(n)%nx    == nx       .and. &
+         prism_part(n)%ny    == ny       .and. &
+         trim(prism_part(n)%gridname) == trim(gridname)) then
+        partnew = n
+     endif
+  enddo
+
+  call oasis_debug_exit(subname)
+
+END SUBROUTINE oasis_part_find
 
 !------------------------------------------------------------
 
