@@ -16,19 +16,19 @@ casename=`basename $srcdir`
 
 ## - Define case
 if [ $# -eq 0 ] ; then
-    echo "By default, i.e. without arguments, the source grid is bggd,"
+    echo -e "\nBy default, i.e. without arguments, the source grid is bggd,"
     echo "the target grid is nogt and the remapping is 1st order conservative with SCRIP;"
     echo "1 node, 1 MPI task per node and 1 OpenMP thread per MPI task are used for the run,"
-    echo "and no suffixe is used in the rundir name."
+    echo -e "and no suffixe is used in the rundir name.\n"
     SGRID=bggd ; TGRID=nogt ; remap=conserv1st ; n_p_t=1_1_1 ; nnode=1 ; mpiprocs=1 ; threads=1 ; library=SCRP ; ext=""
 elif [ $# -ne 6 ] ; then
-    echo "If you don't want to run the default case without arguments, "
-    echo "you must run the script with 6 arguments i.e. './run_testinterp.sh src tgt remap nnodes_nprocs_nthreads library ext'"
+    echo -e "\nIf you don't want to run the default case without arguments, "
+    echo "you must run the script with 6 arguments i.e. './run_regrid.sh src tgt remap nnodes_nprocs_nthreads library ext'"
     echo "where 'src' is the source grid, 'tgt' the target grid and 'remap' the remapping,"
     echo "'nnodes' the total number of nodes for the run, 'nprocs' the number of MPI tasks per node"
     echo "'nthreads' the number of OpenMP threads per MPI task"
     echo "'library' is the regridder used (either SCRP, ESMF or XIOS)"
-    echo "'ext' is suffixe is used in the rundir name."
+    echo -e "'ext' is suffixe used in the rundir name.\n"
     exit
 else
     SGRID=$1 ; TGRID=$2 ; remap=$3 ; n_p_t=$4 ; library=$5 ; ext=$6
@@ -71,7 +71,7 @@ fi
 
 ## - Check library
 if [ ${library} != "SCRP" ] && [ ${library} != "ESMF" ] && [ ${library} != "XIOS" ]; then
-    echo "Remapping library must be either SCRP (for SCRIP), ESMF or XIOS"
+    echo -e "\nRemapping library must be either SCRP (for SCRIP), ESMF or XIOS\n"
     exit
 fi
 
@@ -153,55 +153,64 @@ echo ''
 echo $exe1' runs on '$nproces 'processes'
 echo ''
 
-### - Define mask name which depends on ocean grid
-if [ ${SGRID} == "nogt" ] || [ ${TGRID} == "nogt" ]; then
-    maskname=$oasisdir/${library}_masks/masks_nogt_${library}.nc
-elif [ ${SGRID} == "torc" ] || [ ${TGRID} == "torc" ]; then
-    maskname=$oasisdir/${library}_masks/masks_torc_${library}.nc
+## - Define mask name which depends on ocean grid or if the run creates atmospheric masks
+if [ ${ext} != "createMasks" ]; then
+    if [ ${SGRID} == "nogt" ] || [ ${TGRID} == "nogt" ]; then
+        maskname=$oasisdir/${library}_masks/masks_nogt_${library}.nc
+    elif [ ${SGRID} == "torc" ] || [ ${TGRID} == "torc" ]; then
+        maskname=$oasisdir/${library}_masks/masks_torc_${library}.nc
+    fi
+else
+    maskname=$oasisdir/masks_no_atm.nc
 fi
 
-###
+##
 if [ ${library} == "ESMF" ]; then
-    ## With ESMF, nogt should be transformed to an unstructured grid 
-    OasisGridsToESMF="OasisGridsToESMF.py"
-    if [ ${SGRID} == "nogt" ]; then
-        if [ ${remap} == "conserv1st" ] || [ ${remap} == "conserv2nd" ]; then
-            OasisGridsToESMF="OasisGridsToESMF_nogtunstruct.py"
-        fi
-    fi
-    cp -f $esmfdir/$OasisGridsToESMF  $rundir/.
+#GJ Useless since esmf_8_2_0_beta_snapshot_08
+#GJ    ## With ESMF, nogt should be transformed to an unstructured grid
+#GJ    OasisGridsToESMF="OasisGridsToESMF.py"
+#GJ    if [ ${SGRID} == "nogt" ]; then
+#GJ        if [ ${remap} == "conserv1st" ] || [ ${remap} == "conserv2nd" ]; then
+#GJ            OasisGridsToESMF="OasisGridsToESMF_nogtunstruct.py"
+#GJ        fi
+#GJ    fi
+    cp -f $esmfdir/OasisGridsToESMF.py  $rundir/.
     cp -f $esmfdir/ESMFWeightsToOasis.sh  $rundir/.
     ### Define regridding options
     case $remap in
-	bili)             meth_esmfname="bilinear" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
-	bicu)             meth_esmfname="patch" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
-	distwgt)          meth_esmfname="neareststod" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
-	conserv1st)       meth_esmfname="conserve" ; options="--ignore_unmapped --norm_type fracarea" ;;
-	conserv2nd)      meth_esmfname="conserve2nd" ; options="--ignore_unmapped --norm_type fracarea" ;;
-	*)  echo "Method $remap unknown in ESMF."
-	    exit ;;
-    esac      
+        bili)             meth_esmfname="bilinear" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
+        bicu)             meth_esmfname="patch" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
+        distwgt)          meth_esmfname="neareststod" ; options="--extrap_method neareststod --src_loc center --dst_loc center" ;;
+        conserv1st)
+            meth_esmfname="conserve" 
+            if [ ${ext} != "createMasks" ]; then
+                normalization="_fracarea" ; options="--ignore_unmapped --norm_type fracarea"
+            else
+                normalization="_destarea" ; options="--ignore_unmapped" # default normalization is destarea in ESMF
+            fi ;;
+        conserv2nd)       meth_esmfname="conserve2nd" ; normalization="_fracarea" ; options="--ignore_unmapped --norm_type fracarea" ;;
+        *)  echo "Method $remap unknown in ESMF."
+        exit ;;
+    esac
 ## 
 elif [ ${library} == "XIOS" ]; then
     exexios=oasis_testcase.exe    
-    cat <<EOF > param.def
+    cat <<EOF > $rundir/param.def
 &params_run
 nb_proc_toy=$nproces
 /
 EOF
-    cp -f param.def $rundir/param.def
-    cat <<EOF > sed.sh
-#!/bin/ksh
-sed -e 's:SGRID:$SGRID:' -e 's:TGRID:$TGRID:' -e 's:GRIDS:$rundir/grids.nc:' -e 's:MASKS:$rundir/masks.nc:' $xiosdir/iodef.xml_template > ${rundir}/iodef.xml
-sed -e 's:ORDER:$order:' $xiosdir/context_toy.xml_template > ${rundir}/context_toy.xml
-EOF
-    chmod u+x sed.sh
-    ./sed.sh
-    cp -f $xiosdir/$exexios $rundir/$exexios
+    sed "s#SGRID#$SGRID#; s#TGRID#$TGRID#; s#GRIDS#$rundir/grids.nc#; s#MASKS#$rundir/masks.nc#" $xiosdir/iodef.xml_template > ${rundir}/iodef.xml
+    sed "s#ORDER#$order#" $xiosdir/context_toy.xml_template > ${rundir}/context_toy.xml
+    if [ ${ext} == "createMasks" ]; then
+        sed -i 's#renormalize="true"#renormalize="false"#' ${rundir}/context_toy.xml
+	xiosmethod=CONSERV_DESTAREA
+    fi
+    cp -f $xiosdir/$exexios $rundir/.
     #
 fi
 
-### - Link everything needed into rundir
+## - Link everything needed into rundir
 ln -sf $oasisdir/grids.nc $rundir/grids.nc
 ln -sf ${maskname} $rundir/masks.nc
 ln -sf $srcdir/src/$exe1 $rundir/.
@@ -234,11 +243,10 @@ cd $rundir
 ###---------------------------------------------------------------------
 if [ ${arch} == kraken_intel_impi_openmp ]; then
     timreq=00:30:00
-    if [ ${library} == "SCRP" ]; then
-	cat <<EOF > $rundir/run_$casename.$arch
+    cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash -l
 #Partition
-#SBATCH --partition prod
+#SBATCH --partition debug
 # Nom du job
 #SBATCH --job-name ${n_p_t}
 # Time limit for the job
@@ -249,6 +257,10 @@ if [ ${arch} == kraken_intel_impi_openmp ]; then
 #SBATCH --nodes=$nnode
 # Number of MPI tasks per node
 #SBATCH --ntasks-per-node=$mpiprocs
+EOF
+
+    if [ ${library} == "SCRP" ]; then
+	cat <<EOF >> $rundir/run_$casename.$arch
 
 cd $rundir
 
@@ -262,22 +274,7 @@ time mpirun -np $nproces ./$exe1
 EOF
       
     elif [ ${library} == "ESMF" ]; then
-	
-
-  cat <<EOF > $rundir/run_$casename.$arch
-#!/bin/bash -l
-#Partition
-#SBATCH --partition prod
-# Nom du job
-#SBATCH --job-name ${n_p_t}
-# Time limit for the job
-#SBATCH --time=$timreq
-#SBATCH --output=$rundir/$casename.o
-#SBATCH --error=$rundir/$casename.e
-# Number of nodes
-#SBATCH --nodes=$nnode
-# Number of MPI tasks per node
-#SBATCH --ntasks-per-node=$mpiprocs
+        cat <<EOF >> $rundir/run_$casename.$arch
 # Number of OpenMP threads per MPI task
 #SBATCH --cpus-per-task=$threads
 
@@ -289,31 +286,19 @@ export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
 export OMP_NUM_THREADS=$threads
 
-python ./$OasisGridsToESMF $SGRID $rundir
-python ./$OasisGridsToESMF $TGRID $rundir
+python ./OasisGridsToESMF.py $SGRID $rundir
+python ./OasisGridsToESMF.py $TGRID $rundir
 # Generate ESMF weights
 time mpirun -np $nproces ESMF_RegridWeightGen -s ${SGRID}_ESMF.nc -d ${TGRID}_ESMF.nc -m ${meth_esmfname} -w ESMFweights.nc --ignore_degenerate ${options}
 
 # Convert ESMF weight file in OASIS format
-./ESMFWeightsToOasis.sh ${SGRID} ${TGRID} ${remap}
+./ESMFWeightsToOasis.sh ${SGRID} ${TGRID} ${meth_esmfname}${normalization}
 
 time mpirun -np $nproces ./$exe1
 EOF
+
     elif [ ${library} == "XIOS" ]; then
-  cat <<EOF > $rundir/run_$casename.$arch
-#!/bin/bash -l
-#Partition
-#SBATCH --partition prod
-# Nom du job
-#SBATCH --job-name ${n_p_t}
-# Time limit for the job
-#SBATCH --time=$timreq
-#SBATCH --output=$rundir/$casename.o
-#SBATCH --error=$rundir/$casename.e
-# Number of nodes
-#SBATCH --nodes=$nnode
-# Number of MPI tasks per node
-#SBATCH --ntasks-per-node=$mpiprocs
+        cat <<EOF >> $rundir/run_$casename.$arch
 # Number of OpenMP threads per MPI task
 #SBATCH --cpus-per-task=$threads
 
@@ -335,14 +320,15 @@ time mpirun -np $nproces ./$exe1
 EOF
     fi
 
+
 elif [ $arch == belenos ] ; then
-    if [ ${library} == "SCRP" ]; then   
-  cat <<EOF > $rundir/run_$casename.$arch
+    timreq=02:00:00
+    cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash
 #SBATCH --exclusive
 #SBATCH --partition=normal256
 #SBATCH --job-name ${remap}_${nthreads}
-#SBATCH --time=02:00:00
+#SBATCH --time=$timreq
 #SBATCH -o $rundir/$casename.o
 #SBATCH -e $rundir/$casename.e
 #SBATCH -N $nnode
@@ -354,6 +340,11 @@ cd $rundir
 export KMP_STACKSIZE=1GB
 export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
+#
+EOF
+
+    if [ ${library} == "SCRP" ]; then   
+        cat <<EOF >> $rundir/run_$casename.$arch
 export OASIS_OMP_NUM_THREADS=$threads
 export OMP_NUM_THREADS=$threads
 #
@@ -362,28 +353,11 @@ time mpirun -np ${nproces} ./$exe1
 EOF
 
     elif [ ${library} == "ESMF" ]; then
-	  cat <<EOF > $rundir/run_$casename.$arch
-#!/bin/bash -l
-#SBATCH --exclusive
-#SBATCH --partition=normal256
-#SBATCH --job-name ${remap}_${nthreads}
-#SBATCH --time=02:00:00
-#SBATCH -o $rundir/$casename.o
-#SBATCH -e $rundir/$casename.e
-#SBATCH -N $nnode
-#SBATCH --ntasks-per-node=$mpiprocs
-#
-ulimit -s unlimited
+	cat <<EOF >> $rundir/run_$casename.$arch
+# Convert OASIS grid file in ESMF format
+python ./OasisGridsToESMF.py $SGRID $rundir
+python ./OasisGridsToESMF.py $TGRID $rundir
 
-cd $rundir
-
-#
-export KMP_STACKSIZE=1GB
-export I_MPI_WAIT_MODE=enable
-export KMP_AFFINITY=verbose,granularity=fine,compact
-
-python ./$OasisGridsToESMF $SGRID $rundir
-python ./$OasisGridsToESMF $TGRID $rundir
 # Generate ESMF weights
 time mpirun -np $nproces ESMF_RegridWeightGen -s ${SGRID}_ESMF.nc -d ${TGRID}_ESMF.nc -m ${meth_esmfname} -w ESMFweights.nc --ignore_degenerate ${options}
 
@@ -394,32 +368,14 @@ time mpirun -np $nproces ./$exe1
 EOF
 	  
     elif [ ${library} == "XIOS" ]; then
-	cat <<EOF > $rundir/run_$casename.$arch
-#!/bin/bash -l
-#SBATCH --exclusive
-#SBATCH --partition=normal256
-#SBATCH --job-name ${remap}_${nthreads}
-#SBATCH --time=02:00:00
-#SBATCH -o $rundir/$casename.o
-#SBATCH -e $rundir/$casename.e
-#SBATCH -N $nnode
-#SBATCH --ntasks-per-node=$mpiprocs
-#
-ulimit -s unlimited
-
-cd $rundir
-
-#
-export KMP_STACKSIZE=1GB
-export I_MPI_WAIT_MODE=enable
-export KMP_AFFINITY=verbose,granularity=fine,compact
-# 
+        cat <<EOF >> $rundir/run_$casename.$arch
 # Generate XIOS weights
 time mpirun -np $nproces ./$exexios 
-# Convert ESMF weight file in OASIS format
+
+# Convert XIOS weight file in OASIS format
 python $srcdir/XIOS/XiosWeightsToOasis.py
 ln -sf rmp_${SGRID}_to_${TGRID}_xios_${xiosmethod}.nc rmp_${SGRID}_${TGRID}.nc
-#
+
 time mpirun -np $nproces ./$exe1
 EOF
     fi

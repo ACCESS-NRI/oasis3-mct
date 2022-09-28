@@ -66,8 +66,13 @@ if [ ${library} == "SCRP" ]; then
 	scripmethod=BICUBIC	
     elif [ ${remap} == "conserv1st" ] ; then
 	scripmethod=CONSERV ; scriporder=FIRST
+        if [ ${ext} == "createMasks" ]; then
+            normalization=DESTAREA
+        else
+            normalization=FRACAREA
+        fi
     elif [ ${remap} == "conserv2nd" ] ; then
-	scripmethod=CONSERV ; scriporder=SECOND
+	scripmethod=CONSERV ; normalization=FRACAREA ; scriporder=SECOND
     fi
 fi
 
@@ -103,15 +108,10 @@ EOF
 	cat <<EOF >> $nname
 ${scripmethod} ${STYPE} SCALAR LATITUDE 1
 EOF
-    elif [ ${remap} == "conserv1st" ]; then
+    elif [ ${remap} == "conserv1st" ] || [ ${remap} == "conserv2nd" ]; then
 	cat <<EOF >> $nname
-CONSERV ${STYPE} SCALAR LATITUDE 1 FRACAREA FIRST
+${scripmethod} ${STYPE} SCALAR LATITUDE 1 ${normalization} ${scriporder}
 EOF
-    elif [ ${remap} == "conserv2nd" ]; then
-	cat <<EOF >> $nname
-CONSERV ${STYPE} SCALAR LATITUDE 1 FRACAREA SECOND
-EOF
-	
     fi		
 else
     cat	<<EOF >> $nname

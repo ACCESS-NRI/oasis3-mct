@@ -6,7 +6,9 @@ include header_Makefile
 # Case of analytical function:
 # FANA1 for standard analytical function
 # FANA2 for Gulf  stream as analytical function
-CPPKEY_FANA=FANA1 # FANA1 FANA2 FANA3
+# FANA3 for vortex as analytical function
+# Fmask for ocean mask function (used by run_createAtmoMask.sh)
+CPPKEY_FANA=FANA1 # FANA1 FANA2 FANA3 Fmask
 ### End User configurable options ###
 #
 OBJ_M1 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \

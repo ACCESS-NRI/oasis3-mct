@@ -31,6 +31,10 @@ MODULE write_all_fields
   !
   REAL (kind=wp) :: dl_missing_value, dl_FillValue
   character(len=*),parameter :: subname = '(write_field)'
+  character(len=5)           :: filetype
+  character(len=4)           :: agrid, ogrid
+  !
+  filetype = data_filename(1:5)
   !
   ! Dimensions
   !
@@ -44,8 +48,15 @@ MODULE write_all_fields
       CALL FLUSH(w_unit)
   ENDIF
   !
-  CALL hdlerr( NF90_DEF_DIM(il_file_id, "lon", nlon, LONID), w_unit, subname, __FILE__, __LINE__ )
-  CALL hdlerr( NF90_DEF_DIM(il_file_id, "lat", nlat, LATID), w_unit, subname, __FILE__, __LINE__ )
+  SELECT CASE (filetype)
+  CASE ("frac_")
+      agrid = data_filename(6:9)
+      CALL hdlerr( NF90_DEF_DIM(il_file_id, "x_"//agrid, nlon, LONID), w_unit, subname, __FILE__, __LINE__ )
+      CALL hdlerr( NF90_DEF_DIM(il_file_id, "y_"//agrid, nlat, LATID), w_unit, subname, __FILE__, __LINE__ )
+  CASE DEFAULT
+      CALL hdlerr( NF90_DEF_DIM(il_file_id, "lon", nlon, LONID), w_unit, subname, __FILE__, __LINE__ )
+      CALL hdlerr( NF90_DEF_DIM(il_file_id, "lat", nlat, LATID), w_unit, subname, __FILE__, __LINE__ )
+  END SELECT
   !
   CALL hdlerr( NF90_DEF_VAR(il_file_id, "lon", NF90_DOUBLE, (/LONID, LATID/), il_lon_id), w_unit, subname, __FILE__, __LINE__ )
   CALL hdlerr( NF90_PUT_ATT(il_file_id, il_lon_id, "units", "degrees_east"), w_unit, subname, __FILE__, __LINE__ )
@@ -69,6 +80,11 @@ MODULE write_all_fields
   END SELECT
   !gjoffCALL hdlerr( NF90_PUT_ATT(il_file_id, il_array_id, "missing_value", dl_missing_value),__LINE__ )
   !gjoffCALL hdlerr( NF90_PUT_ATT(il_file_id, il_array_id, "_FillValue", dl_FillValue),__LINE__ )
+  SELECT CASE (filetype)
+  CASE ("frac_")
+      ogrid = data_filename(12:15)
+      CALL hdlerr( NF90_PUT_ATT(il_file_id, il_array_id, "coherent_with_grid", ogrid), w_unit, subname, __FILE__, __LINE__ )
+  END SELECT
   !
   CALL hdlerr( NF90_ENDDEF(il_file_id), w_unit, subname, __FILE__, __LINE__ )
   IF (file_debug) THEN
@@ -107,7 +123,7 @@ END SUBROUTINE write_field
  !****************************************************************************************
   SUBROUTINE write_field_i2 (nlon,nlat, &
                           data_filename, field_name, w_unit, file_debug, &
-                          gridlon, gridlat, array)
+                          gridlon, gridlat, array, water_thresh)
   !**************************************************************************************
   !
   INTEGER, PARAMETER :: wp = SELECTED_REAL_KIND(12,307) ! double
@@ -125,15 +141,28 @@ END SUBROUTINE write_field
   INTEGER,  DIMENSION(2)   :: ila_what
   !
   REAL (kind=wp), DIMENSION(nlon,nlat)  :: gridlon,gridlat
-  INTEGER, DIMENSION(nlon,nlat)  :: array
+  INTEGER, DIMENSION(nlon,nlat)         :: array
+  REAL, OPTIONAL                        :: water_thresh ! fractional threshold of water to create atmospheric mask
+  !
   character(len=*),parameter :: subname = '(write_field_i2)'
+  character(len=5)           :: filetype
+  character(len=4)           :: agrid, ogrid
+  !
+  filetype = data_filename(1:5)
   !
   ! Dimensions
   !
   CALL hdlerr(NF90_CREATE(data_filename, NF90_CLOBBER, il_file_id), w_unit, subname, __FILE__, __LINE__ )
   !
-  CALL hdlerr( NF90_DEF_DIM(il_file_id, "lon", nlon, LONID), w_unit, subname, __FILE__, __LINE__ )
-  CALL hdlerr( NF90_DEF_DIM(il_file_id, "lat", nlat, LATID), w_unit, subname, __FILE__, __LINE__ )
+  SELECT CASE (filetype)
+  CASE ("mask_")
+      agrid = data_filename(6:9)
+      CALL hdlerr( NF90_DEF_DIM(il_file_id, "x_"//agrid, nlon, LONID), w_unit, subname, __FILE__, __LINE__ )
+      CALL hdlerr( NF90_DEF_DIM(il_file_id, "y_"//agrid, nlat, LATID), w_unit, subname, __FILE__, __LINE__ )
+  CASE DEFAULT
+      CALL hdlerr( NF90_DEF_DIM(il_file_id, "lon", nlon, LONID), w_unit, subname, __FILE__, __LINE__ )
+      CALL hdlerr( NF90_DEF_DIM(il_file_id, "lat", nlat, LATID), w_unit, subname, __FILE__, __LINE__ )
+  END SELECT
   !
   CALL hdlerr( NF90_DEF_VAR(il_file_id, "lon", NF90_DOUBLE, (/LONID, LATID/),il_lon_id), w_unit, subname, __FILE__, __LINE__ )
   CALL hdlerr( NF90_PUT_ATT(il_file_id, il_lon_id, "units", "degrees_east"), w_unit, subname, __FILE__, __LINE__ )
@@ -143,6 +172,13 @@ END SUBROUTINE write_field
   CALL hdlerr( NF90_PUT_ATT(il_file_id, il_lat_id, "standard_name", "latitude"), w_unit, subname, __FILE__, __LINE__ )
   !
   CALL hdlerr( NF90_DEF_VAR(il_file_id, TRIM(field_name), NF90_INT, (/LONID,LATID/), il_array_id), w_unit, subname, __FILE__, __LINE__ )
+  SELECT CASE (filetype)
+  CASE ("mask_")
+      ogrid = data_filename(12:15)
+      CALL hdlerr( NF90_PUT_ATT(il_file_id, il_array_id, "coherent_with_grid", ogrid), w_unit, subname, __FILE__, __LINE__ )
+      IF (PRESENT(water_thresh)) &
+      & CALL hdlerr( NF90_PUT_ATT(il_file_id, il_array_id, "water_threshold", water_thresh), w_unit, subname, __FILE__, __LINE__ )
+  END SELECT
   !
   CALL hdlerr( NF90_ENDDEF(il_file_id), w_unit, subname, __FILE__, __LINE__ )
   !
