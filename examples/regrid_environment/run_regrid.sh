@@ -362,7 +362,7 @@ python ./OasisGridsToESMF.py $TGRID $rundir
 time mpirun -np $nproces ESMF_RegridWeightGen -s ${SGRID}_ESMF.nc -d ${TGRID}_ESMF.nc -m ${meth_esmfname} -w ESMFweights.nc --ignore_degenerate ${options}
 
 # Convert ESMF weight file in OASIS format
-./ESMFWeightsToOasis.sh ${SGRID} ${TGRID} ${remap}
+./ESMFWeightsToOasis.sh ${SGRID} ${TGRID} ${meth_esmfname}${normalization}
 
 time mpirun -np $nproces ./$exe1
 EOF
