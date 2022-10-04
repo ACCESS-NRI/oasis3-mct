@@ -5,7 +5,7 @@ MODULE function_ana
   CONTAINS
 !
 !****************************************************************************************
-SUBROUTINE function_ana1(ni, nj, xcoor, ycoor, fnc_ana)
+SUBROUTINE function_sinusoid(ni, nj, xcoor, ycoor, fnc_ana)
 !****************************************************************************************
 
 !**** *function ana*  - calculate analytical function
@@ -43,11 +43,11 @@ SUBROUTINE function_ana1(ni, nj, xcoor, ycoor, fnc_ana)
     ENDDO
   ENDDO
 
-END SUBROUTINE function_ana1
+END SUBROUTINE function_sinusoid
 
 !!****************************************************************************************
-!SUBROUTINE function_ana2(lon, lat, mask, fnc_ana)
-SUBROUTINE function_ana2(ni, nj, lon, lat, fnc_ana)
+!SUBROUTINE function_gulfstream(lon, lat, mask, fnc_ana)
+SUBROUTINE function_gulfstream(ni, nj, lon, lat, fnc_ana)
 !!****************************************************************************************
 
 !**** *function ana*  - calculate analytical function
@@ -109,7 +109,7 @@ SUBROUTINE function_ana2(ni, nj, lon, lat, fnc_ana)
     ENDDO
   ENDDO
 
-END SUBROUTINE function_ana2
+END SUBROUTINE function_gulfstream
 
 !****************************************************************************************
 SUBROUTINE function_vortex(ni, nj, xcoor, ycoor, fnc_ana)
@@ -172,5 +172,30 @@ SUBROUTINE function_vortex(ni, nj, xcoor, ycoor, fnc_ana)
   END DO
   !
 END SUBROUTINE function_vortex
+
+!****************************************************************************************
+SUBROUTINE function_harmonic(ni, nj, xcoor, ycoor, fnc_ana)
+!****************************************************************************************
+!!! HARMONIC FROM TEMPEST-REMAP
+  !
+  IMPLICIT NONE
+  !
+  INTEGER, PARAMETER :: wp = SELECTED_REAL_KIND(12,307) ! double
+  !
+  INTEGER, INTENT(IN) :: ni, nj
+  REAL(kind=wp), DIMENSION(ni,nj), INTENT(IN)  :: xcoor, ycoor
+  REAL(kind=wp), DIMENSION(ni,nj), INTENT(OUT) :: fnc_ana
+  !
+  REAL (kind=wp), PARAMETER    :: dp_pi=3.14159265359
+  REAL (kind=wp), PARAMETER    :: dp_conv = dp_pi/180.
+  !
+  INTEGER             :: i,j
+  !
+  DO j=1,nj
+     DO i=1,ni
+        fnc_ana(i,j) = 2.0 + SIN( 2.0 * ycoor(i,j)*dp_conv ) ** 16.0  * COS( 16.0 * xcoor(i,j)*dp_conv )
+    ENDDO
+ ENDDO
+END SUBROUTINE function_harmonic
 
 END MODULE function_ana

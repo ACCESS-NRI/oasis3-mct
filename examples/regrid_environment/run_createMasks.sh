@@ -70,14 +70,6 @@ fi
 masksdir="${oasisdir}/${library^^}_createdMasks"
 mkdir -p $masksdir
 
-## - Select ocean mask function "Fmask" (if not already the case) and rebuild model1
-cd $srcdir/src
-grep "^CPPKEY_FANA=Fmask" Makefile > /dev/null
-if [ $? != 0 ]; then
-    sed -i "s/^CPPKEY_FANA=.*/CPPKEY_FANA=Fmask # FANA1 FANA2 FANA3 Fmask/" Makefile
-fi
-make ; cd $srcdir
-
 #++++++++++++++++++++++++++++++++++++++
 
 ## - Possibly manual selection of suites of ocean source grids and atmospheric target grids
@@ -110,13 +102,9 @@ for ogrid in ${ogrids} ; do
           exit
       fi
 
-      if [ ${library} == "SCRP" ] || [ ${library} == "ESMF" ] || [ ${library} == "XIOS" ]; then
-
-          # Compute library weights $ogrid-$agrid conserve_destarea.
-          # Build the atmospheric mask by an OASIS remapping of binary ocean mask function from ocean grid to unmasked atmospheric grid
-          ./run_regrid.sh $ogrid $agrid $remap $n_p_t $library $ext
-
-      fi
+      # Compute library weights $ogrid-$agrid conserve_destarea.
+      # Build the atmospheric mask by an OASIS remapping of binary ocean mask function from ocean grid to unmasked atmospheric grid
+      ./run_regrid.sh $ogrid $agrid $remap mask $n_p_t $library $ext
 
       rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${ogrid}_${agrid}_${remap}_${nnode}_${mpiprocs}_${threads}_${library}_${ext}
 

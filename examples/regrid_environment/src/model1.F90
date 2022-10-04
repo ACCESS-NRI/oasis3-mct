@@ -318,12 +318,14 @@ PROGRAM model1
   ALLOCATE(field_send(il_extentx_s, il_extenty_s), STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field1_send'
   !
-#ifdef FANA1
-  CALL function_ana1(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
-#elif defined FANA2
-  CALL function_ana2(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
-#elif defined FANA3
+#ifdef Fsinusoid
+  CALL function_sinusoid(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
+#elif defined Fgulfstream
+  CALL function_gulfstream(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
+#elif defined Fvortex
   CALL function_vortex(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
+#elif defined Fharmonic
+  CALL function_harmonic(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
 #elif defined Fmask
   field_send(:,:) = 1.0 - grid_msk_s(:,:)
 #endif
@@ -423,12 +425,14 @@ PROGRAM model1
   ALLOCATE(mask_error(il_extentx_t, il_extenty_t),STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating mask_error'  
   !
-#ifdef FANA1
-  CALL function_ana1(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
-#elif defined FANA2
-  CALL function_ana2(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
-#elif defined FANA3
+#ifdef Fsinusoid
+  CALL function_sinusoid(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
+#elif defined Fgulfstream
+  CALL function_gulfstream(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
+#elif defined Fvortex
   CALL function_vortex(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
+#elif defined Fharmonic
+  CALL function_harmonic(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
 #elif defined Fmask
   field_ana(:,:) = 1.0 - grid_msk_t(:,:) ! the fractional part of water on ocean grid
 #endif

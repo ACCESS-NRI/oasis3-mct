@@ -18,20 +18,21 @@ casename=`basename $srcdir`
 if [ $# -eq 0 ] ; then
     echo -e "\nBy default, i.e. without arguments, the source grid is bggd,"
     echo "the target grid is nogt and the remapping is 1st order conservative with SCRIP;"
+    echo "the interpolated analytical function is sinusoid;"
     echo "1 node, 1 MPI task per node and 1 OpenMP thread per MPI task are used for the run,"
     echo -e "and no suffixe is used in the rundir name.\n"
-    SGRID=bggd ; TGRID=nogt ; remap=conserv1st ; n_p_t=1_1_1 ; nnode=1 ; mpiprocs=1 ; threads=1 ; library=SCRP ; ext=""
-elif [ $# -ne 6 ] ; then
+    SGRID=bggd ; TGRID=nogt ; remap=conserv1st ; fana=sinusoid ; n_p_t=1_1_1 ; nnode=1 ; mpiprocs=1 ; threads=1 ; library=SCRP ; ext=""
+elif [ $# -ne 7 ] ; then
     echo -e "\nIf you don't want to run the default case without arguments, "
-    echo "you must run the script with 6 arguments i.e. './run_regrid.sh src tgt remap nnodes_nprocs_nthreads library ext'"
-    echo "where 'src' is the source grid, 'tgt' the target grid and 'remap' the remapping,"
+    echo "you must run the script with 7 arguments i.e. './run_regrid.sh src tgt remap fana nnodes_nprocs_nthreads library ext'"
+    echo "where 'src' is the source grid, 'tgt' the target grid, 'remap' the remapping and 'fana' the analytical function"
     echo "'nnodes' the total number of nodes for the run, 'nprocs' the number of MPI tasks per node"
     echo "'nthreads' the number of OpenMP threads per MPI task"
     echo "'library' is the regridder used (either SCRP, ESMF or XIOS)"
     echo -e "'ext' is suffixe used in the rundir name.\n"
     exit
 else
-    SGRID=$1 ; TGRID=$2 ; remap=$3 ; n_p_t=$4 ; library=$5 ; ext=$6
+    SGRID=$1 ; TGRID=$2 ; remap=$3 ; fana=$4 ; n_p_t=$5 ; library=$6 ; ext=$7
     nnode=`echo $n_p_t | awk -F _ '{print $1}'`
     mpiprocs=`echo $n_p_t | awk -F _ '{print $2}'`
     threads=`echo $n_p_t | awk -F _ '{print $3}'`
@@ -69,6 +70,12 @@ if [ ${remap} != "distwgt" ] && [ ${remap} != "bili" ] && [ ${remap} != "bicu" ]
     exit
 fi
 
+## - Check fana
+if [ ${fana} != "sinusoid" ] && [ ${fana} != "vortex" ] && [ ${fana} != "gulfstream" ] && [ ${fana} != "harmonic" ] && [ ${fana} != "mask" ]; then
+    echo "Analytical function must be either sinusoid, gulfstream, vortex, harmonic"
+    exit
+fi
+
 ## - Check library
 if [ ${library} != "SCRP" ] && [ ${library} != "ESMF" ] && [ ${library} != "XIOS" ]; then
     echo -e "\nRemapping library must be either SCRP (for SCRIP), ESMF or XIOS\n"
@@ -103,6 +110,15 @@ if [ ${library} == "XIOS" ]; then
 	exit
     fi
 fi    
+
+## - Set analytical function in Makefile (if not already the case) and rebuild model1
+cd $srcdir/src
+grep "^CPPKEY_FANA=F$fana" Makefile > /dev/null
+if [ $? != 0 ]; then
+    sed -i "s/^CPPKEY_FANA=.*/CPPKEY_FANA=F$fana/" Makefile
+fi
+make ; cd $srcdir
+
 ## - Source grid characteristics 
 if [ ${SGRID} == bggd ]; then
     STYPE=LR ; SRCP=P ; SRCPN=0   
