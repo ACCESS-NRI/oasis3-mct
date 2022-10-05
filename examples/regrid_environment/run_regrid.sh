@@ -182,14 +182,6 @@ fi
 
 ##
 if [ ${library} == "ESMF" ]; then
-#GJ Useless since esmf_8_2_0_beta_snapshot_08
-#GJ    ## With ESMF, nogt should be transformed to an unstructured grid
-#GJ    OasisGridsToESMF="OasisGridsToESMF.py"
-#GJ    if [ ${SGRID} == "nogt" ]; then
-#GJ        if [ ${remap} == "conserv1st" ] || [ ${remap} == "conserv2nd" ]; then
-#GJ            OasisGridsToESMF="OasisGridsToESMF_nogtunstruct.py"
-#GJ        fi
-#GJ    fi
     cp -f $esmfdir/OasisGridsToESMF.py  $rundir/.
     cp -f $esmfdir/ESMFWeightsToOasis.sh  $rundir/.
     ### Define regridding options
