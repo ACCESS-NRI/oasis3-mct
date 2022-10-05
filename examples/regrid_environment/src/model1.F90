@@ -458,14 +458,16 @@ PROGRAM model1
   field_error=0.
   mask_error=1
   WHERE (grid_msk_t == 1)     ! masked points
-!GJ     field_recv=10000.
+     field_recv=10000.
      mask_error=0
   ELSEWHERE                     ! non-masked points
      WHERE (field_recv /= 0.)   ! non-masked points that received an interpolated value (works only if function is not 0 anywhere)
         field_error = ABS(((field_ana - field_recv)/field_ana))*100
      ELSEWHERE   ! non-masked points that did not receive an interpolated value
         field_error=-1.e20
-!GJ        field_recv=1.e20
+#ifndef Fmask
+        field_recv=1.e20
+#endif
         mask_error=0
      END WHERE
   END WHERE   
@@ -594,15 +596,15 @@ PROGRAM model1
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating mask_atmo'  
   mask_atmo=0   ! OASIS convention (0=valid cell)
 
-  !GJ Special treatement with nogt for SCRIP. Useless for ESMF. Useless for XIOS.
+  !GJ for bug correction of SCRIP destarea when nogt is source grid. Useless for ESMF and XIOS.
   IF (TRIM(cl_grd_src) == 'nogt' .AND. &
    & (TRIM(cl_grd_tgt) == 'bggd' .OR. TRIM(cl_grd_tgt) == 'sse7')) THEN
-      WHERE(field_recv < 0.0) field_recv = 1.0 ! North pole
+      WHERE(field_recv < 0.0) field_recv = 1.0 ! At the North Pole
   ENDIF
-  !GJ Special treatement with torc for SCRIP. Useless for ESMF. Useless for XIOS. 
+  !GJ for bug correction of SCRIP destarea when torc is source grid. Useless for ESMF and XIOS. 
   IF (TRIM(cl_grd_src) == 'torc' .AND. &
    & (TRIM(cl_grd_tgt) == 'bggd' .OR. TRIM(cl_grd_tgt) == 'icos' .OR. TRIM(cl_grd_tgt) == 'sse7')) THEN
-      WHERE(field_recv < 0.0) field_recv = 1.0  ! North of the Red Sea
+      WHERE(field_recv < 0.0) field_recv = 1.0  ! At the North Pole or at the north of the Red Sea (for icos)
   ENDIF
 
   WHERE(field_recv <= rp_water_thresh)
