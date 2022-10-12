@@ -6,30 +6,32 @@ ext=$2
 fana=sinusoid
 library=SCRP
 casename=`basename $srcdir`
+remaps="distwgt bili bicu conserv_1st_fracarea conserv_2nd_fracarea"
+
 for SGRID in bggd ; do
    for TGRID in nogt torc ; do
-       for remap in distwgt bili bicu conserv1st conserv2nd ; do
+       for remap in $remaps ; do
 	   ./run_regrid.sh $SGRID $TGRID $remap $fana $n_p_t $library $ext
        done
    done
 done
 for SGRID in sse7 ; do
    for TGRID in nogt torc ; do
-       for remap in distwgt bili bicu conserv1st ; do
+       for remap in distwgt bili bicu conserv_1st_fracarea ; do
 	   ./run_regrid.sh $SGRID $TGRID $remap $fana $n_p_t $library $ext
        done
    done
 done
 for SGRID in icos ; do
    for TGRID in nogt torc ; do
-       for remap in distwgt conserv1st ; do
+       for remap in distwgt conserv_1st_fracarea ; do
            ./run_regrid.sh $SGRID $TGRID $remap $fana $n_p_t $library $ext
        done
    done
 done
 for SGRID in nogt torc ; do
    for TGRID in bggd sse7 icos ; do
-       for remap in distwgt bili bicu conserv1st conserv2nd ; do
+       for remap in $remaps ; do
            ./run_regrid.sh $SGRID $TGRID $remap $fana $n_p_t $library $ext
        done
    done

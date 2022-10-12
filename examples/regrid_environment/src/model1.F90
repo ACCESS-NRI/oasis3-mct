@@ -27,7 +27,7 @@ PROGRAM model1
   CHARACTER(len=128) :: comp_out       ! name of the output log file
   CHARACTER(len=3)   :: chout
   CHARACTER(len=4)   :: cl_grd_src, cl_grd_tgt     ! name of the source grid
-  CHARACTER(len=11)  :: cl_remap       ! type of remapping
+  CHARACTER(len=20)  :: cl_remap       ! type of remapping
   CHARACTER(len=2)   :: cl_type_src    ! type of the source grid
   CHARACTER(len=2)   :: cl_type_tgt    ! type of the target grid
   CHARACTER(len=8)   :: cl_period_src  ! periodicity of the source grid (P=periodic or R=regional)
@@ -53,6 +53,7 @@ PROGRAM model1
   REAL (kind=wp), ALLOCATABLE   :: grid_lon_t(:,:), grid_lat_t(:,:) ! lon, lat of the cell centers
   INTEGER, ALLOCATABLE          :: grid_msk_s(:,:) ! mask, 0 == valid point, 1 == masked point
   INTEGER, ALLOCATABLE          :: grid_msk_t(:,:), grid_msk_t_global(:,:) ! mask, 0 == valid point, 1 == masked point
+  REAL (kind=wp), ALLOCATABLE   :: grid_frc_t(:,:), grid_frc_t_global(:,:) ! fractional mask
   !
   INTEGER :: mype, npes ! MPI task rank and number
   INTEGER :: local_comm  ! local MPI communicator
@@ -250,6 +251,7 @@ PROGRAM model1
   ALLOCATE(grid_lon_t(il_extentx_t, il_extenty_t), STAT=ierror )
   ALLOCATE(grid_lat_t(il_extentx_t, il_extenty_t), STAT=ierror )
   ALLOCATE(grid_msk_t(il_extentx_t, il_extenty_t), STAT=ierror )
+  ALLOCATE(grid_frc_t(il_extentx_t, il_extenty_t), STAT=ierror )
   !
   ! Reading local grid arrays from input file ocean_mesh.nc
   WRITE(w_unit,*) 'Before read_grid, nlon_t, nlat_t', nlon_t, nlat_t
@@ -258,10 +260,19 @@ PROGRAM model1
   CALL read_grid(nlon_t, nlat_t, il_offsetx_t+1, il_offsety_t+1, il_extentx_t, il_extenty_t, &
                 cl_grd_tgt, w_unit, grid_lon_t, grid_lat_t, file_debug) 
   WRITE(w_unit,*) 'After read_grid, nlon_t, nlat_t', nlon_t, nlat_t
+  call flush(w_unit)
   CALL read_mask(nlon_t, nlat_t, il_offsetx_t+1, il_offsety_t+1, il_extentx_t, il_extenty_t, &
                 cl_grd_tgt, w_unit, grid_msk_t, file_debug) 
   WRITE(w_unit,*) 'After read_mask, nlon_t, nlat_t', nlon_t, nlat_t
   call flush(w_unit)
+  IF (inquire_frac(cl_grd_tgt, w_unit, file_debug)) THEN
+      CALL read_frac(nlon_t, nlat_t, il_offsetx_t+1, il_offsety_t+1, il_extentx_t, il_extenty_t, &
+                cl_grd_tgt, w_unit, grid_frc_t, file_debug)
+      WRITE(w_unit,*) 'After read_frac, nlon_t, nlat_t', nlon_t, nlat_t
+      call flush(w_unit)
+  ELSE
+      grid_frc_t=1.
+  ENDIF
   !
   IF (file_debug) THEN
       WRITE(w_unit,*) 'After grid and mask reading'
@@ -373,7 +384,7 @@ PROGRAM model1
           ENDIF
           !
           ! Special treament for 2nd order conservative remapping
-      ELSE IF (cl_remap == 'conserv2nd') THEN
+      ELSE IF (cl_remap(1:11) == 'conserv_2nd') THEN
           IF ( trim(cl_type_src) == 'LR') THEN
               ! Calculate the gradients in lat and lon directions needed for 2nd order
               ! conservative remapping for LR grids
@@ -472,13 +483,11 @@ PROGRAM model1
      END WHERE
   END WHERE   
   !
-  !! Only for eventual use of destarea option (currently only for SCRIP),
-  !! to exclude coast cells (when gridname.frc exists) in the error calculation.
-  !! (requires writing bl_normaliz beforehand in namelist grid_source_characteristics and reading it)
-  !IF (TRIM(cl_remap(1:7)) == 'conserv' .AND. (bl_normaliz .eqv. .FALSE.)) THEN
-  !   WHERE (gg_frac<0.99) mask_error=0
-  !ENDIF
-  !!
+  ! For conserv destarea remapping, to exclude coast cells (when gridname.frc exists) in the error calculation
+  IF (TRIM(cl_remap(1:7)) == 'conserv' .AND. TRIM(cl_remap(13:20)) == 'destarea') THEN
+     WHERE (grid_frc_t<0.99) mask_error=0
+  ENDIF
+  !
   IF (file_debug) THEN
       WRITE (w_unit,*) 'After calculating the interpolation error'
       CALL FLUSH(w_unit)
@@ -502,6 +511,7 @@ PROGRAM model1
       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_recv_global'
       ALLOCATE(mask_error_global(nlon_t, nlat_t),STAT=ierror )
       ALLOCATE(grid_msk_t_global(nlon_t, nlat_t),STAT=ierror )
+      ALLOCATE(grid_frc_t_global(nlon_t, nlat_t),STAT=ierror )
       ALLOCATE(grid_lon_global_t(nlon_t, nlat_t),STAT=ierror )
       ALLOCATE(grid_lat_global_t(nlon_t, nlat_t),STAT=ierror )
       field_recv_global(:,:) = 0.0
@@ -525,6 +535,9 @@ PROGRAM model1
   CALL FLUSH(w_unit)  
   CALL MPI_Gatherv(grid_msk_t, il_size_t, MPI_INTEGER, grid_msk_t_global, il_size_all , il_offset_all, MPI_INTEGER, 0, local_comm, ierror)
   WRITE (w_unit,*) 'After MPI_GATHERv grid_msk_t_global'
+  CALL FLUSH(w_unit)  
+  CALL MPI_Gatherv(grid_frc_t, il_size_t, MPI_INTEGER, grid_frc_t_global, il_size_all , il_offset_all, MPI_INTEGER, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHERv grid_frc_t_global'
   CALL FLUSH(w_unit)  
   CALL MPI_Gatherv(grid_lon_t, il_size_t, MPI_DOUBLE_PRECISION, grid_lon_global_t, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
   WRITE (w_unit,*) 'After MPI_GATHERv grid_lon_global_t'

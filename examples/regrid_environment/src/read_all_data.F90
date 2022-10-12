@@ -351,42 +351,105 @@ END SUBROUTINE read_corner
 #endif
   END SUBROUTINE read_area
   !
-!****************************************************************************************
-LOGICAL FUNCTION inquire_frac (data_filename, cl_grd, w_unit, file_debug)
-!**************************************************************************************
-   !
-   INTEGER                    :: w_unit
-   LOGICAL                    :: file_debug
-   !
-   INTEGER                    :: il_file_id, il_indice_id
-   !
-   logical                    :: exists               
-   CHARACTER(len=30)          :: data_filename
-   CHARACTER(len=*)           :: cl_grd ! name of the source grid
-   CHARACTER(len=8)           :: cl_nam ! cl_grd+.frc
-   character(len=*),parameter :: subname = '(inquire_frac)'
-   !
-   ! Check if file exists before open it
-   inquire(file=trim(data_filename),exist=exists)
-   if (exists .eqv. .FALSE. ) then
-      write(w_unit,*) 'File ',trim(data_filename),' does not exists'
-      call routine_model_abort(w_unit,__FILE__,__LINE__,subname)
-   endif
-
-   CALL hdlerr(NF90_OPEN(data_filename, NF90_NOWRITE, il_file_id), w_unit, subname, __FILE__,__LINE__ )
-   !
-   !
-   cl_nam=TRIM(cl_grd)//".frc" 
-   inquire_frac =  NF90_INQ_VARID(il_file_id, TRIM(cl_nam),  il_indice_id)  == NF90_NOERR
-   !
-   CALL hdlerr( NF90_CLOSE(il_file_id),  w_unit, subname, __FILE__, __LINE__ )
-   !
-   IF (file_debug) THEN
-      WRITE(w_unit,*) 'End of function inquire_frac for ',TRIM(cl_grd)
+  !****************************************************************************************
+  LOGICAL FUNCTION inquire_frac (cl_grd, w_unit, file_debug)
+  !**************************************************************************************
+  !
+  USE netcdf
+  IMPLICIT NONE
+  !
+  CHARACTER(len=4)           :: cl_grd ! name of the grid
+  CHARACTER(len=8)           :: cl_nam ! cl_grd+.frc
+  INTEGER, INTENT(in)        :: w_unit
+  LOGICAL, INTENT(in)        :: file_debug
+  !
+  INTEGER :: il_masks_id
+  INTEGER :: il_frc_id
+  !
+  CHARACTER(len=*),PARAMETER :: subname = '(inquire_frac)'
+  !
+#ifdef _DEBUG
+  WRITE(w_unit,*) 'Starting inquire_frac'
+  CALL flush(w_unit)
+#endif
+  CALL hdlerr (NF90_OPEN('masks.nc', NF90_NOWRITE, il_masks_id),  w_unit, subname, __FILE__, __LINE__ )
+  !
+  !**************************************************************************************
+  !
+  cl_nam=TRIM(cl_grd)//".frc"
+  IF (file_debug) THEN
+      WRITE(w_unit,*) 'Frac :',cl_nam
       CALL FLUSH(w_unit)
-   ENDIF
-   !
-END FUNCTION inquire_frac
-
+  ENDIF
+  inquire_frac =  NF90_INQ_VARID(il_masks_id, TRIM(cl_nam),  il_frc_id)  == NF90_NOERR
+  !
+  CALL flush(w_unit)
+  CALL hdlerr( NF90_CLOSE(il_masks_id),  w_unit, subname, __FILE__, __LINE__ )
+  !
+#ifdef _DEBUG
+  WRITE(w_unit,*) 'End of function inquire_frac'
+  CALL flush(w_unit)
+#endif
+  !
+  END FUNCTION inquire_frac
+  !
+  !****************************************************************************************
+  SUBROUTINE read_frac (nlon, nlat, id_begi, id_begj, id_lon, id_lat, &
+                              cl_grd, w_unit, dda_frac, file_debug)
+  !**************************************************************************************
+  !
+  USE netcdf
+  IMPLICIT NONE
+  !
+  INTEGER, INTENT(in)             :: nlon, nlat, id_begi, id_begj, id_lon, id_lat
+  CHARACTER(len=4)                :: cl_grd ! name of the grid
+  CHARACTER(len=8)                :: cl_nam ! cl_grd+.lon,+.lat ... 
+  INTEGER, INTENT(in)             :: w_unit
+  DOUBLE PRECISION, DIMENSION(id_lon, id_lat), INTENT(out)    :: dda_frac
+  LOGICAL, INTENT(in)             :: file_debug
+  !
+  INTEGER :: il_masks_id
+  INTEGER :: il_frc_id
+  !
+  INTEGER,  DIMENSION(2)          :: ila_dim, ila_st
+  CHARACTER(len=*),PARAMETER :: subname = '(read_frac)'
+  !
+#ifdef _DEBUG
+  WRITE(w_unit,*) 'Starting read_frac'
+  CALL flush(w_unit)
+#endif
+  CALL hdlerr (NF90_OPEN('masks.nc', NF90_NOWRITE, il_masks_id),  w_unit, subname, __FILE__, __LINE__ )
+  !
+  !**************************************************************************************
+  !
+  cl_nam=TRIM(cl_grd)//".frc"
+  IF (file_debug) THEN
+      WRITE(w_unit,*) 'Frac :',cl_nam
+      CALL FLUSH(w_unit)
+  ENDIF
+  CALL hdlerr( NF90_INQ_VARID(il_masks_id, cl_nam, il_frc_id),  w_unit, subname, __FILE__, __LINE__ )
+  !
+  CALL flush(w_unit)
+  ila_st(1) = id_begi
+  ila_st(2) = id_begj
+  !
+  ila_dim(1) = id_lon
+  ila_dim(2) = id_lat
+  !
+  CALL hdlerr( NF90_GET_VAR (il_masks_id, il_frc_id, dda_frac, ila_st, ila_dim), w_unit, subname, __FILE__, __LINE__ )
+  !
+#ifdef _DEBUG
+  WRITE(w_unit,*) 'Local frac read from file'
+  CALL flush(w_unit)
+#endif
+  !
+  CALL hdlerr( NF90_CLOSE(il_masks_id),  w_unit, subname, __FILE__, __LINE__ )
+  !
+#ifdef _DEBUG
+  WRITE(w_unit,*) 'End of routine read_frac'
+  CALL flush(w_unit)
+#endif
+  END SUBROUTINE read_frac
+  !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 END MODULE read_all_data

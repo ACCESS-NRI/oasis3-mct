@@ -13,19 +13,23 @@ casename=`basename $srcdir`
 SGRID=$1
 TGRID=$2
 remap=$3
-n_p_t=$4
+method=`echo $remap | awk -F _ '{print $1}'`
+order=`echo $remap | awk -F _ '{print $2}'`
+normalization=`echo $remap | awk -F _ '{print $3}'`
+fana=$4
+n_p_t=$5
 nnode=`echo $n_p_t | awk -F _ '{print $1}'`
 mpiprocs=`echo $n_p_t | awk -F _ '{print $2}'`
 threads=`echo $n_p_t | awk -F _ '{print $3}'`
-library=$5
-ext=$6
+library=$6
+ext=$7
 
 ## - Define rundir
-rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${SGRID}_${TGRID}_${remap}_${nnode}_${mpiprocs}_${threads}_${library}_${ext}
+rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${SGRID}_${TGRID}_${remap}_${fana}_${n_p_t}_${library}_${ext}
 
 ## - Create namcouple
 if [ ${library} == "SCRP" ]; then
-    nname=${rundir}/namcouple_${SGRID}_${TGRID}_${remap}
+    nname=${rundir}/namcouple_${SGRID}_${TGRID}_${method}${order}
 else
     nname=${rundir}/namcouple_${SGRID}_${TGRID}
 fi
@@ -58,21 +62,19 @@ elif [ ${TGRID} == "torc" ]; then
 fi
 ##
 if [ ${library} == "SCRP" ]; then
-    if [ ${remap} == "distwgt" ]; then
+    if [ ${method} == "distwgt" ]; then
 	scripmethod=DISTWGT
-    elif [ ${remap} == "bili" ]; then
+    elif [ ${method} == "bili" ]; then
 	scripmethod=BILINEAR
-    elif [ ${remap} == "bicu" ]; then
+    elif [ ${method} == "bicu" ]; then
 	scripmethod=BICUBIC	
-    elif [ ${remap} == "conserv1st" ] ; then
-	scripmethod=CONSERV ; scriporder=FIRST
-        if [ ${ext} == "createMasks" ]; then
-            normalization=DESTAREA
-        else
-            normalization=FRACAREA
-        fi
-    elif [ ${remap} == "conserv2nd" ] ; then
-	scripmethod=CONSERV ; normalization=FRACAREA ; scriporder=SECOND
+    elif [ ${method} == "conserv" ] ; then
+	scripmethod=CONSERV
+        case $order in
+            1st) scriporder=FIRST ;;
+            2nd) scriporder=SECOND ;;
+        esac
+        scripnorm=`echo ${normalization} | tr '[:lower:]' '[:upper:]'`
     fi
 fi
 
@@ -100,17 +102,17 @@ if [ ${library} == "SCRP" ]; then
     cat <<EOF >> $nname
 SCRIPR
 EOF
-    if [ ${remap} == "distwgt" ]; then
+    if [ ${method} == "distwgt" ]; then
 	cat <<EOF >> $nname
 ${scripmethod} ${STYPE} SCALAR LATITUDE 1 1
 EOF
-    elif [ ${remap} == "bili" ] || [ ${remap} == "bicu" ]; then
+    elif [ ${method} == "bili" ] || [ ${method} == "bicu" ]; then
 	cat <<EOF >> $nname
 ${scripmethod} ${STYPE} SCALAR LATITUDE 1
 EOF
-    elif [ ${remap} == "conserv1st" ] || [ ${remap} == "conserv2nd" ]; then
+    elif [ ${method} == "conserv" ]; then
 	cat <<EOF >> $nname
-${scripmethod} ${STYPE} SCALAR LATITUDE 1 ${normalization} ${scriporder}
+${scripmethod} ${STYPE} SCALAR LATITUDE 1 ${scripnorm} ${scriporder}
 EOF
     fi		
 else

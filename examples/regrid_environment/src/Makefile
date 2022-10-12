@@ -8,8 +8,8 @@ include header_Makefile
 #   Fgulfstream for Gulf  stream as analytical function
 #   Fvortex for vortex as analytical function
 #   Fharmonic for harmonic as analytical function
-#   Fmask for ocean mask function (used only by run_createAtmoMask.sh)
-CPPKEY_FANA=Fmask
+#   Fmask for ocean mask function (used only by run_createMasks.sh)
+CPPKEY_FANA=Fsinusoid
 ### End User configurable options ###
 #
 OBJ_M1 =  routine_hdlerr.o routine_model_abort.o read_all_data.o \

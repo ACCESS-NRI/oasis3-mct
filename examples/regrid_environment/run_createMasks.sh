@@ -58,8 +58,9 @@ else
     threads=`echo $n_p_t | awk -F _ '{print $3}'`
 fi
 nproces=`echo $(($nnode*$mpiprocs))`
-remap=conserv1st # => remapping method will be conservative 1st order destarea
-ext=createMasks
+remap=conserv_1st_destarea # remapping method to get the fractional mask
+fana=mask                  # ocean mask function
+ext=Masks                  # special suffixe
 
 ## - Check library
 if [ ${library} != "SCRP" ] && [ ${library} != "ESMF" ] && [ ${library} != "XIOS" ]; then
@@ -104,9 +105,9 @@ for ogrid in ${ogrids} ; do
 
       # Compute library weights $ogrid-$agrid conserve_destarea.
       # Build the atmospheric mask by an OASIS remapping of binary ocean mask function from ocean grid to unmasked atmospheric grid
-      ./run_regrid.sh $ogrid $agrid $remap mask $n_p_t $library $ext
+      ./run_regrid.sh $ogrid $agrid $remap $fana $n_p_t $library $ext
 
-      rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${ogrid}_${agrid}_${remap}_${nnode}_${mpiprocs}_${threads}_${library}_${ext}
+      rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${ogrid}_${agrid}_${remap}_${fana}_${n_p_t}_${library}_${ext}
 
       ## - Waiting for the atmospheric mask file to continue
       while [ ! -f $rundir/mask_${agrid}_w${ogrid}.nc ]; do sleep 1; done
