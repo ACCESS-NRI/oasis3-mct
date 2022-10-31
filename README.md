@@ -11,6 +11,7 @@ If you have problems or questions, please check the forum on the OASIS3-MCT web 
 
 Bugfixes since OASIS3-MCT_5.0 official release:
 
+- 31/10/2022: Add support for multiple grids per partition
 - 01/06/2022: Bugfix for load balacing analysis freezing when all processes are not involved in the coupling observed and solved by Eric
 - 01/06/2022: Fix use of uninitialized rglo for mask in grid writing.
 - 01/06/2022: Add oasis_def_var interface with 2d id_var_shape.  id_var_shape is not used anymore, but we provide an interface with a 1d and 2d argument for backwards compatibility.
