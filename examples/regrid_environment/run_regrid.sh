@@ -201,10 +201,11 @@ EOF
     #
 fi
 
-### - Link everything needed into rundir
-ln -sf $oasisdir/grids.nc $rundir/grids.nc
-ln -sf ${maskname} $rundir/masks.nc
-ln -sf $srcdir/src/$exe1 $rundir/.
+### - Link and get everything needed into rundir
+cd $rundir
+curl -O https://mercure.cerfacs.fr/oasis3-mct/examples/regrid_environment/OASIS/grids.nc
+ln -sf ${maskname} ./masks.nc
+ln -sf $srcdir/src/$exe1 ./$exe1
 
 ## - Create name_grids.dat, that will be read by the models, from namcouple informations
 cat <<EOF >> $rundir/name_grids.dat
