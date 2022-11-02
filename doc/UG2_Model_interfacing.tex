@@ -287,6 +287,8 @@ partitioning of the different grids onto which the data is expressed (see \ref{s
 The processes not implied in the
 coupling do not have to call this routine (for backward compatibility with OASIS3-MCT\_2.0,
 they may still call it describing a null partition, i.e. with {\tt ig\_paral(:)=0}).
+Note that with releases earlier than OASIS3-MCT\_5.2 (2022/11/02), it was not allowed to associate more than one grid to one
+partition (this could cause problems with the global {\tt CONSERV} operation).
 
 \begin{itemize}
 
