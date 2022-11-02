@@ -1,0 +1,16 @@
+####################################################
+## PARAMETERS for test 1 for tutorial_communication
+####################################################
+export USER_EXE1=atmos
+export USER_EXE2=ocean
+export USER_NPEXE1=1
+export USER_NPEXE2=1
+export USER_NAMCOUPLE=namcouple
+export USER_MAKEFILE=Makefile
+export USER_RUNDIR=${OASIS_COUPLE}/examples/tutorial_communication
+export USER_RMPLOC=${OASIS_COUPLE}/examples/tutorial_communication/data_tutorial
+export USER_AUXLOC=""
+export USER_RSTLOC=${OASIS_COUPLE}/examples/tutorial_communication/data_tutorial
+export USER_MESHLOC=${OASIS_COUPLE}/examples/tutorial_communication/data_tutorial
+export USER_NAMLOC=${OASIS_COUPLE}/examples/tutorial_communication/data_tutorial
+export USER_MAKELOC=${OASIS_COUPLE}/examples/tutorial_communication
