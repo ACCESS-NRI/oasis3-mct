@@ -1,6 +1,12 @@
 #
 # Include file for OASIS3 Makefile for a Linux system using 
 # Intel compilers and MPI
+# Works on tioman with the following modules loaded
+# module load intel/18.0.1.163
+# module load intelmpi/2018.1.163
+# module load lib/phdf5/1.10.4_impi
+# module load lib/netcdf-fortran/4.4.4_phdf5_1.10.4
+# module load python/3.7.7
 #
 ###############################################################################
 #
@@ -10,13 +16,13 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3-mct main directory
-COUPLE          = $(HOME)/oasis3-mct
+COUPLE          = $(OASIS_COUPLE)
 #
 # ARCHDIR       : directory created when compiling
-ARCHDIR         = $(COUPLE)/compile_intelmpi_training
+ARCHDIR         = $(COUPLE)/INSTALL_OASIS.$(OASIS_ENV)
 #
 # MPI library ((see the file /etc/modulefiles/mpi/openmpi-x86_64)
-MPIDIR      = /usr/local/intel/impi/2018.1.163
+MPIDIR      = /softs/intel/impi/2018.1.163
 MPIBIN      = $(MPIDIR)/bin64
 MPI_INCLUDE = $(MPIDIR)/include64 
 MPILIB      = -L$(MPIDIR)/lib64
@@ -37,44 +43,61 @@ f90         = $(F90)
 f           = $(F90)
 CC          = $(MPIBIN)/mpiicc -I$(MPI_INCLUDE)
 LD          = $(MPIBIN)/mpiifort $(MPILIB)
+# Static libraries compilation options
+ifeq ($(OASIS_DEBUG), )
+        STATOPT =  -xAVX
+else
+        STATOPT =
+endif
 # Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
 # Static archiver
 AR          = ar
 ARFLAGS     = -ruv
+# Fortran libraries for C linking
+F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 # CPP keys and compiler options
 #  
 CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
-# 
-#F90FLAGS_1  = -g -ffree-line-length-0 -fbounds-check -fopenmp
-F90FLAGS_1  = -g -traceback -O2 -xAVX -I. -assume byterecl -mt_mpi -qopenmp
-f90FLAGS_1  = $(F90FLAGS_1)
-FFLAGS_1    = $(F90FLAGS_1)
-fFLAGS_1    = $(F90FLAGS_1)
-CCFLAGS_1   = 
-LDFLAGS     = $(F90FLAGS_1)
+FCBASEFLAGS := -I. -assume byterecl 
+CCBASEFLAGS :=
+ifeq ($(OASIS_DEBUG), )
+	ifeq ($(OASIS_OPENMP), )
+		FCBASEFLAGS += -O2 -xAVX
+                CCBASEFLAGS += -O2 
+	else
+		FCBASEFLAGS += -O2 -xAVX -mt_mpi -qopenmp
+                CCBASEFLAGS += -O2 -qopenmp
+	endif
+else
+	ifeq ($(OASIS_OPENMP), )
+		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created
+	else
+		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created -mt_mpi -qop
+enmp
+                CCBASEFLAGS += -qopenmp
+	endif
+endif 
 #
 #
 ###################
 #
 # Additional definitions that should not be changed
 #
-FLIBS		= $(NETCDF_LIBRARY)
-# BINDIR        : directory for executables
-BINDIR          = $(ARCHDIR)/bin
-# LIBBUILD      : contains a directory for each library
-LIBBUILD        = $(ARCHDIR)/build/lib
-# INCPSMILE     : includes all *o and *mod for each library
-INCPSMILE       = -I$(ARCHDIR)/include
+# INC_DIR : includes all *mod for each library
+ INC_DIR = -I$(ARCHDIR)/include
+# FLIBS : for toys when linking in local Makefile
+ FLIBS=${NETCDF_LIBRARY}
 
-F90FLAGS  = $(F90FLAGS_1) $(CPPDEF) $(INCPSMILE) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
-f90FLAGS  = $(f90FLAGS_1) $(CPPDEF) $(INCPSMILE) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
-FFLAGS    = $(FFLAGS_1) $(CPPDEF) $(INCPSMILE) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
-fFLAGS    = $(fFLAGS_1) $(CPPDEF) $(INCPSMILE) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
-CCFLAGS   = $(CCFLAGS_1) $(CPPDEF) $(INCPSMILE) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
-LDFLAGS   = $(F90FLAGS_1)
+F90FLAGS  = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
+f90FLAGS  = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
+FFLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
+fFLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
+CCFLAGS   = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2)
+LDFLAGS   = $(FCBASEFLAGS)
+F2C_LDFLAGS = $(F2C_LIBS)
 #
 #############################################################################
