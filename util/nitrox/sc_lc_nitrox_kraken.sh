@@ -2,6 +2,7 @@
 set -e
 
 export nitrox_env=$1 
+export debug=$2
 
 declare -a StringArrayv1=("compile" "toy_1f1grd_to_2f2grd" "toy_auxiliary_routines" \
                           "toy_bundle" "toy_CHECKIN_BLASOLD_BLASNEW_CHECKOUT" \
@@ -21,7 +22,7 @@ for nitrox_example in ${StringArrayv1[@]}; do
 echo '-------------------------------------------------'
 echo 'TOY TESTED     : '${nitrox_example}
 echo '-------------------------------------------------'
-       cp lc_nitrox_${nitrox_env}/env_tests_param_${nitrox_env}_${nitrox_example} env_tests_param_${nitrox_env}
+       cp lc_nitrox_${nitrox_env}_${debug}/env_tests_param_${nitrox_env}_${nitrox_example} env_tests_param_${nitrox_env}
        cp ../env_tests/sc_top.sh sc_top.sh
        cp ../env_tests/sc_compile_oasis.sh sc_compile_oasis.sh
        cp ../env_tests/oasis_test_build.sh oasis_test_build.sh

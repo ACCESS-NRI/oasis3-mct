@@ -2,6 +2,7 @@
 set -e
 
 export nitrox_env=$1 
+export debug=$2
 export oasis_belenos=/scratch/work/coquartl/oasis3-mct/util/nitrox
 export envtests_belenos=/scratch/work/coquartl/oasis3-mct/util/env_tests
 
@@ -24,7 +25,7 @@ echo '-------------------------------------------------'
 echo 'TOY TESTED     : '${nitrox_example}
 echo '-------------------------------------------------'
        cd ${oasis_belenos}
-       cp ${oasis_belenos}/lc_nitrox_${nitrox_env}/env_tests_param_${nitrox_env}_${nitrox_example} ${oasis_belenos}/env_tests_param_${nitrox_env}
+       cp ${oasis_belenos}/lc_nitrox_${nitrox_env}_${debug}/env_tests_param_${nitrox_env}_${nitrox_example} ${oasis_belenos}/env_tests_param_${nitrox_env}
        ln -sf ${oasis_belenos}/env_tests_param_${nitrox_env} ${oasis_belenos}/env_tests_param
        cp ${envtests_belenos}/sc_top.sh ${oasis_belenos}/sc_top.sh
        cp ${envtests_belenos}/sc_compile_oasis.sh ${oasis_belenos}/sc_compile_oasis.sh
