@@ -41,4 +41,4 @@ tests_toys_oasis_kraken:
      - ssh kraken "rm -rf /scratch/globc/coquart/OA3_MCT_RES ; mkdir /scratch/globc/coquart/OA3_MCT_RES"
      - ssh kraken "rm -rf /scratch/globc/coquart/oasis3-mct"
      - ssh kraken "cd /scratch/globc/coquart; git clone -b new_header_Makefiles_final git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
-     - ssh kraken "cd /scratch/globc/coquart/oasis3-mct/util/nitrox;./sc_lc_nitrox_kraken.sh kraken_intel18.0.1.163_intelmpi2018.1.163 DEBUGF"
+     - ssh kraken "cd /scratch/globc/coquart/oasis3-mct/util/nitrox;./sc_lc_nitrox_kraken.sh kraken_intel18.0.1.163_intelmpi2018.1.163 DEBUGT"
