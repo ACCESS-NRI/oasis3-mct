@@ -1,6 +1,5 @@
 #!/bin/bash
 #set -e
-
 export nitrox_env=$1 
 export debug=$2
 export oasis_belenos=/scratch/work/coquartl/oasis3-mct/util/nitrox
