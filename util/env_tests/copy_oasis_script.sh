@@ -12,7 +12,7 @@ declare -a StringArrayv1=("toy_1f1grd_to_2f2grd" "toy_auxiliary_routines" \
 		          "toy_NLOGPRT" "toy_NMATXRD_options" "toy_NTHRESH_STHRESH" \
 		          "toy_restart_ACCUMUL_1_LAG" "toy_restart_ACCUMUL_1_NOLAG" \
 		          "toy_restart_ACCUMUL_2_LAG" "toy_restart_ACCUMUL_2_NOLAG" \
-		          "toy_runoff" "toy_scalar_coupling" "toy_test_grids_for_xesmf" \
+		          "toy_runoff" "toy_scalar_coupling" \
 		          "toy_time_transformations" "toy_interpolation")
 
 for var in ${StringArrayv1[@]}; do

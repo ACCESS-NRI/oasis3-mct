@@ -5,7 +5,7 @@
 #
 # For all the toys
 # export OASIS_COUPLE=
-# export OASIS_ARCH=
+# export OASIS_ENV=
 #
 # Then
 # ./oasis_test_build.sh
