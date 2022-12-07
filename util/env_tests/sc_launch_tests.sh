@@ -150,7 +150,7 @@ echo ''
 
 ######################################################################
 ### 3. Copy binaries and data into rundir
-export rmrundir=false
+export rmrundir=true
 
 if [ "${rmrundir:-unset}" != "unset" ]; then
   if [ "${rmrundir}" == "true" ]; then

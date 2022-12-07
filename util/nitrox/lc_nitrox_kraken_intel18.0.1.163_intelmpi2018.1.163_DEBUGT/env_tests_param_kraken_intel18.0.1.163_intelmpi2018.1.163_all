@@ -91,6 +91,7 @@ export USER_PARAMLOC=("${OASIS_TESTS}/oasis3-mct_tests/toy_1f1grd_to_2f2grd" \
                       "${OASIS_TESTS}/oasis3-mct_tests/toy_restart_ACCUMUL_2_LAG" \
                       "${OASIS_TESTS}/oasis3-mct_tests/toy_restart_ACCUMUL_2_NOLAG" \
                       "${OASIS_TESTS}/oasis3-mct_tests/toy_interpolation")
+export USER_RUNDIR=${OASIS_TESTS}/OA3_MCT_RES
 # For NITROX tests: use script sc_lc_nitrox.sh which calls sc_top.sh
 # and compile OASIS (OASIS_COMPILE=TRUE)
 export DIR_RES_REF=${OASIS_TESTS}/OA3_MCT_RES_REF
