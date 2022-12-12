@@ -46,6 +46,7 @@ for toy in ${USER_TOY[@]}; do
 	echo "+++++++++++++++++++++++++++++++++++++++"
 	echo "+++++++++++++++++++++++++++++++++++++++"
 	echo "toy :" $toy
+	export OASIS_TOYDIR=${toy}
 	export casename=`basename $toy`
 	echo "casename :" $casename
 	echo "+++++++++++++++++++++++++++++++++++++++"
@@ -64,7 +65,6 @@ for toy in ${USER_TOY[@]}; do
 			. ./param_${casename}_test${nb_tests}
 		fi
                 # Compilation of the toy for this test
-		export OASIS_TOYDIR=${toy}
 		echo "OASIS_TOYDIR : ${OASIS_TOYDIR}, USER_MAKELOC : ${USER_MAKELOC}"
 	        cd ${OASIS_TOYDIR}
 		cp -f ${USER_MAKELOC}/${USER_MAKEFILE} ${OASIS_TOYDIR}/Makefile
