@@ -65,6 +65,7 @@ for toy in ${USER_TOY[@]}; do
 		fi
                 # Compilation of the toy for this test
 		export OASIS_TOYDIR=${toy}
+		echo "OASIS_TOYDIR : ${OASIS_TOYDIR}, USER_MAKELOC : ${USER_MAKELOC}"
 	        cd ${OASIS_TOYDIR}
 		cp -f ${USER_MAKELOC}/${USER_MAKEFILE} ${OASIS_TOYDIR}/Makefile
                 echo "Compile $casename on ${OASIS_ENV}"
