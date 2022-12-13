@@ -13,7 +13,7 @@ declare -a StringArrayv1=("toy_1f1grd_to_2f2grd" "toy_auxiliary_routines" \
 		          "toy_restart_ACCUMUL_1_LAG" "toy_restart_ACCUMUL_1_NOLAG" \
 		          "toy_restart_ACCUMUL_2_LAG" "toy_restart_ACCUMUL_2_NOLAG" \
 		          "toy_runoff" "toy_scalar_coupling" "toy_maphot_1field" \
-		          "toy_time_transformations" "toy_interpolation")
+		          "toy_maphot_2field" "toy_time_transformations" "toy_interpolation")
 
 for var in ${StringArrayv1[@]}; do
 	cp oasis_test_build.sh /space/coquart/oasis3-mct_tests/$var/.

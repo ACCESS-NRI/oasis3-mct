@@ -30,6 +30,7 @@ export USER_TOY=("${OASIS_TESTS}/oasis3-mct_tests/toy_configuration_components_B
 export USER_TEST=("1")
 # Localization of the file paramater for each toy
 export USER_PARAMLOC=("${OASIS_TESTS}/oasis3-mct_tests/toy_configuration_components_B")
+export USER_RUNDIR=${OASIS_TESTS}/OA3_MCT_RES
 # For NITROX tests: use script sc_lc_nitrox.sh which calls sc_top.sh
 # and compile OASIS (OASIS_COMPILE=TRUE)
 export DIR_RES_REF=${OASIS_TESTS}/OA3_MCT_RES_REF
