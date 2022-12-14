@@ -18,6 +18,7 @@ ln -sf env_tests_param_${envcomp} env_tests_param
 # Loop over the toys: 
 # Verification of the results
 ###############################################
+echo "sc_verif_fields_lc_nitrox.sh script"
 nbtoy=0
 for toy in ${USER_TOY[@]}; do
 	echo "+++++++++++++++++++++++++++++++++++++++"
