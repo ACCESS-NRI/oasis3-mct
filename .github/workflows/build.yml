@@ -1,7 +1,6 @@
 name: Build
 
 on:
-  push:
   pull_request:
 
 jobs:
@@ -9,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/access-nri/oasis3-mct-build-image:main
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - name: Build oasis3-mct via spack
