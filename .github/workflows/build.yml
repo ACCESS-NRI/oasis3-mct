@@ -18,4 +18,4 @@ jobs:
 
     steps:
     - name: Build oasis3-mct via spack
-      run: spack -v install --only package access.nri.oasis3-mct@${GITHUB_SHA}
+      run: spack -v install --only package access.nri.oasis3-mct@${GITHUB_REF}
