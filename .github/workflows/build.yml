@@ -6,6 +6,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    permissions:
+      packages: read
+
     container:
       image: ghcr.io/access-nri/oasis3-mct-build-image:pr-10
       credentials:
