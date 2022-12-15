@@ -17,5 +17,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+    - name: Print action context for debugging
+      run: echo '${{ toJSON(github) }}'
+
     - name: Build oasis3-mct via spack
       run: spack -v install --only package access.nri.oasis3-mct@${GITHUB_REF}
