@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/access-nri/oasis3-mct-build-image:main
+      image: ghcr.io/access-nri/oasis3-mct-build-image:pr-10
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
