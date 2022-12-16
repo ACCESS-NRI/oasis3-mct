@@ -14,7 +14,7 @@ jobs:
     container:
       image: ghcr.io/access-nri/oasis3-mct-build-image:latest
       credentials:
-        username: ${{ github.actor }}
+        username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
