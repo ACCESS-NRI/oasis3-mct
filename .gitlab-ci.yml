@@ -1,0 +1,53 @@
+variables:
+      GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/oasis3-mct
+
+tests_toys_oasis_tioman:
+     tags:
+     - sshcoquartci.spike
+     only:        
+     - new_header_Makefiles_final
+               
+     script:
+     - ssh tioman "rm -rf /space/coquart/OA3_MCT_RES ; mkdir /space/coquart/OA3_MCT_RES"
+     - ssh tioman "cd $CI_PROJECT_DIR/util/nitrox;./sc_lc_nitrox.sh tioman_intel21.1.1_intelmpi2021.1.1 DEBUGT $CI_PROJECT_DIR"
+
+tests_toys_oasis_stiff:
+     tags:
+     - sshcoquartci.spike
+     only:
+     - new_header_Makefiles_final
+
+     script:
+     - ssh stiff "rm -rf /space/coquart/OA3_MCT_RES ; mkdir /space/coquart/OA3_MCT_RES"
+     - ssh stiff "cd $CI_PROJECT_DIR/util/nitrox;./sc_lc_nitrox.sh stiff_pgi20.4_openmpi3.1.3 DEBUGT $CI_PROJECT_DIR" 
+
+tests_toys_oasis_fundy:
+     tags:
+     - sshcoquartci.spike
+     only:
+     - new_header_Makefiles_final
+
+     script:
+     - ssh fundy "rm -rf /space/coquart/OA3_MCT_RES ; mkdir /space/coquart/OA3_MCT_RES"
+     - ssh fundy "cd $CI_PROJECT_DIR/util/nitrox;./sc_lc_nitrox.sh fundy_gfortran10.2.0_openmpi4.1.0 DEBUGT $CI_PROJECT_DIR"
+
+tests_toys_oasis_kraken:
+     tags:
+     - sshcoquartci.spike
+     only:
+     - new_header_Makefiles_final
+
+     script:
+     - ssh kraken "rm -rf /scratch/globc/coquart/OA3_MCT_RES ; mkdir /scratch/globc/coquart/OA3_MCT_RES"
+     - ssh kraken "rm -rf /scratch/globc/coquart/oasis3-mct"
+     - ssh kraken "cd /scratch/globc/coquart; git clone -b new_header_Makefiles_final git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
+     - ssh kraken "cd /scratch/globc/coquart/oasis3-mct/util/nitrox;./sc_lc_nitrox_kraken.sh kraken_intel18.0.1.163_intelmpi2018.1.163 DEBUGT"
+
+tests_toys_oasis_belenos:
+     tags:
+     - sshcoquartci.spike
+     only:
+     - new_header_Makefiles_final
+
+     script:
+     - ssh elnino "/home/globc/coquart/bin/nitrox_belenos_oas3mct_run belenos_intel2018.5.274_intelmpi2018.5.274 DEBUGF" 

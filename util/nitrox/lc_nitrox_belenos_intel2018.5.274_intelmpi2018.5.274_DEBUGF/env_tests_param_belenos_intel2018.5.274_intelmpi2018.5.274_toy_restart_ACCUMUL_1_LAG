@@ -1,0 +1,36 @@
+###########################################
+## USER SECTION 
+###########################################
+# OASIS VARIABLES DEFINITION   
+# + NAMES OF THE DIFFERENT TOYS
+# We need at least grids.nc for each toy to calculate the analytical function
+###########################################
+# OASIS_ROOT
+export OASIS_ROOT=/scratch/work/coquartl
+# Repository with OASIS3-MCT sources
+export OASIS_COUPLE=${OASIS_ROOT}/oasis3-mct
+# Repository with OASIS3-MCT nitrox toys
+export OASIS_TESTS=/scratch/work/coquartl
+# OASIS_ENV used to launch the environment to test on different machines 
+# (see sc_launch_tests.sh)
+export OASIS_ENV=belenos_intel2018.5.274_intelmpi2018.5.274
+# Variables to defined the compilation options of OASIS3-MCT and the toys
+# TRUE or nothing
+export OASIS_DEBUG=
+export OPENMP=TRUE
+# Compile oasis (default) or pyoasis
+#export OASIS_TARGET=pyoasis
+export OASIS_COMPILE=FALSE
+export OASIS_TARGET=
+# put OASIS_SUBMITWAIT=1 for nitrox tests
+export OASIS_SUBMITWAIT=1
+# Localisation and name of the toys
+export USER_TOY=("${OASIS_TESTS}/oasis3-mct_tests/toy_restart_ACCUMUL_1_LAG")
+# Number of tests for each toy		  
+export USER_TEST=("1")
+# Localization of the file paramater for each toy
+export USER_PARAMLOC=("${OASIS_TESTS}/oasis3-mct_tests/toy_restart_ACCUMUL_1_LAG")
+export USER_RUNDIR=${OASIS_TESTS}/OA3_MCT_RES
+# For NITROX tests: use script sc_lc_nitrox.sh which calls sc_top.sh
+# and compile OASIS (OASIS_COMPILE=TRUE)
+export DIR_RES_REF=${OASIS_TESTS}/OA3_MCT_RES_REF
