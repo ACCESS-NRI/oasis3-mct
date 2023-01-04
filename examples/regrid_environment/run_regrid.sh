@@ -122,13 +122,23 @@ if [ ${library} == "XIOS" ]; then
     fi
 fi    
 
-## - Set analytical function in Makefile (if not already the case) and rebuild model1
+## - Compilation if the analytical function has changed compared to the CPP key or if executable model1 does not exist 
+exe1=model1
 cd $srcdir/src
 grep "^CPPKEY_FANA=F$fana" Makefile > /dev/null
 if [ $? != 0 ]; then
+    echo "Compiling model1 as CPP key in Makefile is not the one corresponding to the analytical function chosen" 
     sed -i "s/^CPPKEY_FANA=.*/CPPKEY_FANA=F$fana/" Makefile
+    make
+else
+    if [[ -e ${exe1} ]]; then
+       echo "Not compiling model1 as it exists and CPP key in Makefile corresponds to the analytical function chosen" 
+    else
+       echo "Compiling model1 even if CPP key in Makefile corresponds to the analytical function chosen as model1 does not exist"
+       make
+    fi
 fi
-make ; cd $srcdir
+cd $srcdir
 
 ## - Source grid characteristics 
 if [ ${SGRID} == bggd ]; then
@@ -157,9 +167,6 @@ rundir=$srcdir/RUNDIR_${library}_${ext}/${casename}_${SGRID}_${TGRID}_${remap}_$
 
 ## - Create namcouple
 ./namcouple_create.sh ${SGRID} ${TGRID} ${remap} ${fana} ${n_p_t} ${library} ${ext}
-
-## - Name of the executables
-exe1=model1
 ##
 echo ''
 echo '**************************************************************************************************************'
@@ -180,14 +187,14 @@ echo ''
 echo $exe1' runs on '$nproces 'processes'
 echo ''
 
-## - Define mask name which depends on ocean grid or if the run creates atmospheric masks
-if [ ${fana} != "mask" ]; then
-    if [ ${SGRID} == "nogt" ] || [ ${TGRID} == "nogt" ]; then
-        maskname=$oasisdir/${library}_masks/masks_nogt_${library}.nc
-    elif [ ${SGRID} == "torc" ] || [ ${TGRID} == "torc" ]; then
-        maskname=$oasisdir/${library}_masks/masks_torc_${library}.nc
-    fi
-else
+## - Define mask name which depends on ocean grid 
+if [ ${SGRID} == "nogt" ] || [ ${TGRID} == "nogt" ]; then
+    maskname=$oasisdir/${library}_masks/masks_nogt_${library}.nc
+elif [ ${SGRID} == "torc" ] || [ ${TGRID} == "torc" ]; then
+    maskname=$oasisdir/${library}_masks/masks_torc_${library}.nc
+fi
+## - If the script is used by run_createMasks.sh to create an atmospheric mask
+if [ ${fana} == "mask" ]; then
     maskname=$oasisdir/masks_no_atm.nc # blank atmospheric masks
 fi
 
