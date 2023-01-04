@@ -1,9 +1,9 @@
 #!/bin/ksh
 #set -x
 srcdir=`pwd`
-n_p_t=$1
-ext=$2
-fana=sinusoid
+fana=$1
+n_p_t=$2
+ext=$3
 library=XIOS
 casename=`basename $srcdir`
 remaps="conserv_1st_fracarea conserv_2nd_fracarea"
