@@ -25,11 +25,13 @@ MODULE mod_oasis_getput_interface
   interface oasis_put
 #ifndef __NO_4BYTE_REALS
      module procedure oasis_put_r14
-     module procedure oasis_put_r24
+     module procedure oasis_put_r24f1
+     module procedure oasis_put_r24f2
      module procedure oasis_put_r34
 #endif
      module procedure oasis_put_r18
-     module procedure oasis_put_r28
+     module procedure oasis_put_r28f1
+     module procedure oasis_put_r28f2
      module procedure oasis_put_r38
   end interface
 
@@ -53,7 +55,7 @@ contains
 !> Send 4 byte real 1D data
 
   SUBROUTINE oasis_put_r14(var_id,kstep,fld1,kinfo, &
-    fld2, fld3, fld4, fld5, write_restart)
+    fld2, fld3, fld4, fld5, write_restart, fracwgt)
 
     IMPLICIT none
     !-------------------------------------
@@ -66,8 +68,8 @@ contains
     real(kind=ip_single_p), optional :: fld4(:)       !< higher order field data
     real(kind=ip_single_p), optional :: fld5(:)       !< higher order field data
     logical               , optional :: write_restart !< write restart now
+    real(kind=ip_single_p), optional :: fracwgt(:)    !< dynamic fraction weight
     !-------------------------------------
-    logical :: lwrst
     character(len=*),parameter :: subname = '(oasis_put_r14)'
     !-------------------------------------
 
@@ -84,29 +86,54 @@ contains
        call oasis_abort(file=__FILE__,line=__LINE__)
     endif
 
-    if (present(write_restart)) then
-       lwrst = write_restart
+    if (present(fracwgt)) then
+       if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, DBLE(fld1), kinfo, &
+               DBLE(fld2), DBLE(fld3), DBLE(fld4), DBLE(fld5),    &
+               write_restart=write_restart, fracwgt=DBLE(fracwgt))
+       elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, DBLE(fld1), kinfo, &
+               DBLE(fld2), DBLE(fld3), DBLE(fld4),                &
+               write_restart=write_restart, fracwgt=DBLE(fracwgt))
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, DBLE(fld1), kinfo, &
+               DBLE(fld2), DBLE(fld3),                            &
+               write_restart=write_restart, fracwgt=DBLE(fracwgt))
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, DBLE(fld1), kinfo, &
+               DBLE(fld2),                                        &
+               write_restart=write_restart, fracwgt=DBLE(fracwgt))
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, DBLE(fld1), kinfo, &
+               write_restart=write_restart, fracwgt=DBLE(fracwgt))
+       else
+          WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
     else
-       lwrst = .false.
-    endif
-
-    if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-       CALL oasis_put_worker(var_id,kstep,DBLE(fld1),kinfo,DBLE(fld2), &
-            DBLE(fld3),DBLE(fld4),DBLE(fld5),write_restart=lwrst)
-    elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-       CALL oasis_put_worker(var_id,kstep,DBLE(fld1),kinfo,DBLE(fld2), &
-            DBLE(fld3),DBLE(fld4),write_restart=lwrst)
-    elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
-       CALL oasis_put_worker(var_id,kstep,DBLE(fld1),kinfo,DBLE(fld2), &
-            DBLE(fld3),write_restart=lwrst)
-    elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
-       CALL oasis_put_worker(var_id,kstep,DBLE(fld1),kinfo,DBLE(fld2), &
-            write_restart=lwrst)
-    elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
-       CALL oasis_put_worker(var_id,kstep,DBLE(fld1),kinfo,write_restart=lwrst)
-    else
-       WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
-       call oasis_abort(file=__FILE__,line=__LINE__)
+       if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, DBLE(fld1), kinfo, &
+               DBLE(fld2), DBLE(fld3), DBLE(fld4), DBLE(fld5),    &
+               write_restart=write_restart)
+       elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, DBLE(fld1), kinfo, &
+               DBLE(fld2), DBLE(fld3), DBLE(fld4),                &
+               write_restart=write_restart)
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, DBLE(fld1), kinfo, &
+               DBLE(fld2), DBLE(fld3),                            &
+               write_restart=write_restart)
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, DBLE(fld1), kinfo, &
+               DBLE(fld2),                                        &
+               write_restart=write_restart)
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, DBLE(fld1), kinfo, &
+               write_restart=write_restart)
+       else
+          WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
     endif
 
     call oasis_debug_exit(subname)
@@ -119,7 +146,7 @@ contains
 !> Send 4 byte real 1D data
 
   SUBROUTINE oasis_put_r18(var_id,kstep,fld1,kinfo, &
-    fld2, fld3, fld4, fld5, write_restart)
+    fld2, fld3, fld4, fld5, write_restart, fracwgt)
 
     IMPLICIT none
     !-------------------------------------
@@ -132,8 +159,8 @@ contains
     real(kind=ip_double_p), optional :: fld4(:)       !< higher order field data
     real(kind=ip_double_p), optional :: fld5(:)       !< higher order field data
     logical               , optional :: write_restart !< write restart now
+    real(kind=ip_double_p), optional :: fracwgt(:)    !< dynamic fraction weight
     !-------------------------------------
-    logical :: lwrst
     character(len=*),parameter :: subname = '(oasis_put_r18)'
     !-------------------------------------
 
@@ -150,29 +177,54 @@ contains
        call oasis_abort(file=__FILE__,line=__LINE__)
     endif
 
-    if (present(write_restart)) then
-       lwrst = write_restart
+    if (present(fracwgt)) then
+       if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, fld1, kinfo, &
+               fld2, fld3, fld4, fld5,                      &
+               write_restart=write_restart, fracwgt=fracwgt)
+       elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, fld1, kinfo, &
+               fld2, fld3, fld4,                            &
+               write_restart=write_restart, fracwgt=fracwgt)
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, fld1, kinfo, &
+               fld2, fld3,                                  &
+               write_restart=write_restart, fracwgt=fracwgt)
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, fld1, kinfo, &
+               fld2,                                        &
+               write_restart=write_restart, fracwgt=fracwgt)
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, fld1, kinfo, &
+               write_restart=write_restart, fracwgt=fracwgt)
+       else
+          WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
     else
-       lwrst = .false.
-    endif
-
-    if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-       CALL oasis_put_worker(var_id,kstep,fld1,kinfo,fld2, &
-            fld3,fld4,fld5,write_restart=lwrst)
-    elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-       CALL oasis_put_worker(var_id,kstep,fld1,kinfo,fld2, &
-            fld3,fld4,write_restart=lwrst)
-    elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
-       CALL oasis_put_worker(var_id,kstep,fld1,kinfo,fld2, &
-            fld3,write_restart=lwrst)
-    elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
-       CALL oasis_put_worker(var_id,kstep,fld1,kinfo,fld2, &
-            write_restart=lwrst)
-    elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
-       CALL oasis_put_worker(var_id,kstep,fld1,kinfo,write_restart=lwrst)
-    else
-       WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
-       call oasis_abort(file=__FILE__,line=__LINE__)
+       if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, fld1, kinfo, &
+               fld2, fld3, fld4, fld5,                      &
+               write_restart=write_restart)
+       elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, fld1, kinfo, &
+               fld2, fld3, fld4,                            &
+               write_restart=write_restart)
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, fld1, kinfo, &
+               fld2, fld3,                                  &
+               write_restart=write_restart)
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, fld1, kinfo, &
+               fld2,                                        &
+               write_restart=write_restart)
+       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+          CALL oasis_put_worker(var_id, kstep, fld1, kinfo, &
+               write_restart=write_restart)
+       else
+          WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
     endif
 
     call oasis_debug_exit(subname)
@@ -184,8 +236,8 @@ contains
 
 !> Send 4 byte real 2D data
 
-  SUBROUTINE oasis_put_r24(var_id,kstep,fld1,kinfo, &
-    fld2, fld3, fld4, fld5, write_restart)
+  SUBROUTINE oasis_put_r24f1(var_id,kstep,fld1,kinfo, &
+    fld2, fld3, fld4, fld5, write_restart, fracwgt)
 
     IMPLICIT none
     !-------------------------------------
@@ -198,10 +250,10 @@ contains
     real(kind=ip_single_p), optional :: fld4(:,:)     !< higher order field data
     real(kind=ip_single_p), optional :: fld5(:,:)     !< higher order field data
     logical               , optional :: write_restart !< write restart now
+    real(kind=ip_single_p), optional :: fracwgt(:)    !< dynamic fraction weight
     !-------------------------------------
-    logical :: lwrst
     integer(kind=ip_i4_p) :: n, size_fld1
-    character(len=*),parameter :: subname = '(oasis_put_r24)'
+    character(len=*),parameter :: subname = '(oasis_put_r24f1)'
     !-------------------------------------
 
     call oasis_debug_enter(subname)
@@ -209,12 +261,6 @@ contains
     if (.not. oasis_coupled) then
        call oasis_debug_exit(subname)
        return
-    endif
-
-    if (present(write_restart)) then
-       lwrst = write_restart
-    else
-       lwrst = .false.
     endif
 
     if (prism_var(var_id)%num > 1) then
@@ -253,54 +299,179 @@ contains
           endif
        endif
 
-       do n = 1,prism_var(var_id)%num
-          if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,DBLE(fld1(:,n)),kinfo,DBLE(fld2(:,n)), &
-                  DBLE(fld3(:,n)),DBLE(fld4(:,n)),DBLE(fld5(:,n)),write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,DBLE(fld1(:,n)),kinfo,DBLE(fld2(:,n)), &
-                  DBLE(fld3(:,n)),DBLE(fld4(:,n)),write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,DBLE(fld1(:,n)),kinfo,DBLE(fld2(:,n)), &
-                  DBLE(fld3(:,n)),write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,DBLE(fld1(:,n)),kinfo,DBLE(fld2(:,n)), &
-                  write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,DBLE(fld1(:,n)),kinfo,write_restart=lwrst,varnum=n)
-          else
-             WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
-             call oasis_abort(file=__FILE__,line=__LINE__)
-          endif
-       enddo
+       if (present(fracwgt)) then
+
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)), DBLE(fld4(:,n)), DBLE(fld5(:,n)), &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(fracwgt(:)))
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)), DBLE(fld4(:,n)),      &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(fracwgt(:)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)),                       &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(fracwgt(:)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)),                                        &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(fracwgt(:)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(fracwgt(:)))
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+
+       else
+
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)), DBLE(fld4(:,n)), DBLE(fld5(:,n)), &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)), DBLE(fld4(:,n)),      &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)),                       &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)), DBLE(fld4(:,n)),      &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     write_restart=write_restart, varnum=n)
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+
+       endif
 
     else
     ! treat data as 2d unbundled data
 
-       if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-          CALL oasis_put_worker(var_id,kstep,DBLE(PACK(fld1,mask=.true.)),kinfo,DBLE(PACK(fld2,mask=.true.)), &
-               DBLE(PACK(fld3,mask=.true.)),DBLE(PACK(fld4,mask=.true.)),DBLE(PACK(fld5,mask=.true.)),write_restart=lwrst)
-       elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-          CALL oasis_put_worker(var_id,kstep,DBLE(PACK(fld1,mask=.true.)),kinfo,DBLE(PACK(fld2,mask=.true.)), &
-               DBLE(PACK(fld3,mask=.true.)),DBLE(PACK(fld4,mask=.true.)),write_restart=lwrst)
-       elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
-          CALL oasis_put_worker(var_id,kstep,DBLE(PACK(fld1,mask=.true.)),kinfo,DBLE(PACK(fld2,mask=.true.)), &
-               DBLE(PACK(fld3,mask=.true.)),write_restart=lwrst)
-       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
-          CALL oasis_put_worker(var_id,kstep,DBLE(PACK(fld1,mask=.true.)),kinfo,DBLE(PACK(fld2,mask=.true.)), &
-               write_restart=lwrst)
-       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
-          CALL oasis_put_worker(var_id,kstep,DBLE(PACK(fld1,mask=.true.)),kinfo,write_restart=lwrst)
-       else
-          WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+       if (present(fracwgt)) then
+          WRITE(nulprt,*) subname,estr,' fracwgt shape incorrect in oasis_put'
           call oasis_abort(file=__FILE__,line=__LINE__)
+       else
+          if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1,mask=.true.)), kinfo, &
+                  DBLE(PACK(fld2,mask=.true.)), DBLE(PACK(fld3,mask=.true.)),          &
+                  DBLE(PACK(fld4,mask=.true.)), DBLE(PACK(fld5,mask=.true.)),          &
+                  write_restart=write_restart)
+          elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1,mask=.true.)), kinfo, &
+                  DBLE(PACK(fld2,mask=.true.)), DBLE(PACK(fld3,mask=.true.)),          &
+                  DBLE(PACK(fld4,mask=.true.)),                                        &
+                  write_restart=write_restart)
+          elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1,mask=.true.)), kinfo, &
+                  DBLE(PACK(fld2,mask=.true.)), DBLE(PACK(fld3,mask=.true.)),          &
+                  write_restart=write_restart)
+          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1,mask=.true.)), kinfo, &
+                  DBLE(PACK(fld2,mask=.true.)),                                        &
+                  write_restart=write_restart)
+          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1,mask=.true.)), kinfo, &
+                  write_restart=write_restart)
+          else
+             WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
        endif
 
     endif
 
     call oasis_debug_exit(subname)
 
-  END SUBROUTINE oasis_put_r24
+  END SUBROUTINE oasis_put_r24f1
+#endif
+
+!---------------------------------------------------------------------
+#ifndef __NO_4BYTE_REALS
+
+!> Send 4 byte real 2D data, complements r24f1, used when fracwgt is 2d passed array
+
+  SUBROUTINE oasis_put_r24f2(var_id,kstep,fld1,kinfo, &
+    fld2, fld3, fld4, fld5, write_restart, fracwgt)
+
+    IMPLICIT none
+    !-------------------------------------
+    integer(kind=ip_i4_p) , intent(in) :: var_id      !< variable id
+    integer(kind=ip_i4_p) , intent(in) :: kstep       !< model time in seconds
+    real(kind=ip_single_p) :: fld1(:,:)               !< field data
+    integer(kind=ip_i4_p) , intent(out):: kinfo       !< return code
+    real(kind=ip_single_p), optional :: fld2(:,:)     !< higher order field data
+    real(kind=ip_single_p), optional :: fld3(:,:)     !< higher order field data
+    real(kind=ip_single_p), optional :: fld4(:,:)     !< higher order field data
+    real(kind=ip_single_p), optional :: fld5(:,:)     !< higher order field data
+    logical               , optional :: write_restart !< write restart now
+    real(kind=ip_single_p)           :: fracwgt(:,:)  !< dynamic fraction weight
+    !-------------------------------------
+    integer(kind=ip_i4_p) :: n, size_fld1
+    character(len=*),parameter :: subname = '(oasis_put_r24f2)'
+    !-------------------------------------
+
+    call oasis_debug_enter(subname)
+    kinfo = OASIS_OK
+    if (.not. oasis_coupled) then
+       call oasis_debug_exit(subname)
+       return
+    endif
+
+    if (prism_var(var_id)%num > 1) then
+    ! treat data as 1d bundled data, should not happen with this interface, fracwgt is 2d
+
+       WRITE(nulprt,*) subname,estr,' Passing 2d fracwgt'
+       call oasis_abort(file=__FILE__,line=__LINE__)
+
+    else
+    ! treat data as 2d unbundled data, must be the case, fracwgt is 2d and passed
+
+!       if (present(fracwgt)) then
+          if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1,mask=.true.)), kinfo, &
+                  DBLE(PACK(fld2,mask=.true.)), DBLE(PACK(fld3,mask=.true.)),          &
+                  DBLE(PACK(fld4,mask=.true.)), DBLE(PACK(fld5,mask=.true.)),          &
+                  write_restart=write_restart,fracwgt=DBLE(PACK(fracwgt,mask=.true.)))
+          elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1,mask=.true.)), kinfo, &
+                  DBLE(PACK(fld2,mask=.true.)), DBLE(PACK(fld3,mask=.true.)),          &
+                  DBLE(PACK(fld4,mask=.true.)),                                        &
+                  write_restart=write_restart,fracwgt=DBLE(PACK(fracwgt,mask=.true.)))
+          elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1,mask=.true.)), kinfo, &
+                  DBLE(PACK(fld2,mask=.true.)), DBLE(PACK(fld3,mask=.true.)),          &
+                  write_restart=write_restart,fracwgt=DBLE(PACK(fracwgt,mask=.true.)))
+          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1,mask=.true.)), kinfo, &
+                  DBLE(PACK(fld2,mask=.true.)),                                        &
+                  write_restart=write_restart,fracwgt=DBLE(PACK(fracwgt,mask=.true.)))
+          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1,mask=.true.)), kinfo, &
+                  write_restart=write_restart,fracwgt=DBLE(PACK(fracwgt,mask=.true.)))
+          else
+             WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+!       endif
+
+    endif
+
+    call oasis_debug_exit(subname)
+
+  END SUBROUTINE oasis_put_r24f2
 #endif
 
 !---------------------------------------------------------------------
@@ -309,7 +480,7 @@ contains
 !> Send 4 byte real 2D bundled data
 
   SUBROUTINE oasis_put_r34(var_id,kstep,fld1,kinfo, &
-    fld2, fld3, fld4, fld5, write_restart)
+    fld2, fld3, fld4, fld5, write_restart, fracwgt)
 
     IMPLICIT none
     !-------------------------------------
@@ -322,8 +493,8 @@ contains
     real(kind=ip_single_p), optional :: fld4(:,:,:)   !< higher order field data
     real(kind=ip_single_p), optional :: fld5(:,:,:)   !< higher order field data
     logical               , optional :: write_restart !< write restart now
+    real(kind=ip_single_p), optional :: fracwgt(:,:)  !< dynamic fraction weight
     !-------------------------------------
-    logical :: lwrst
     integer(kind=ip_i4_p) :: n, size_fld1
     character(len=*),parameter :: subname = '(oasis_put_r34)'
     !-------------------------------------
@@ -333,12 +504,6 @@ contains
     if (.not. oasis_coupled) then
        call oasis_debug_exit(subname)
        return
-    endif
-
-    if (present(write_restart)) then
-       lwrst = write_restart
-    else
-       lwrst = .false.
     endif
 
     if (prism_var(var_id)%num > 1) then
@@ -377,27 +542,67 @@ contains
           endif
        endif
 
-       do n = 1,prism_var(var_id)%num
-          if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,DBLE(PACK(fld1(:,:,n),mask=.true.)),kinfo,DBLE(PACK(fld2(:,:,n),mask=.true.)), &
-                  DBLE(PACK(fld3(:,:,n),mask=.true.)),DBLE(PACK(fld4(:,:,n),mask=.true.)),DBLE(PACK(fld5(:,:,n),mask=.true.)), &
-                  write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,DBLE(PACK(fld1(:,:,n),mask=.true.)),kinfo,DBLE(PACK(fld2(:,:,n),mask=.true.)), &
-                  DBLE(PACK(fld3(:,:,n),mask=.true.)),DBLE(PACK(fld4(:,:,n),mask=.true.)),write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,DBLE(PACK(fld1(:,:,n),mask=.true.)),kinfo,DBLE(PACK(fld2(:,:,n),mask=.true.)), &
-                  DBLE(PACK(fld3(:,:,n),mask=.true.)),write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,DBLE(PACK(fld1(:,:,n),mask=.true.)),kinfo,DBLE(PACK(fld2(:,:,n),mask=.true.)), &
-                  write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,DBLE(PACK(fld1(:,:,n),mask=.true.)),kinfo,write_restart=lwrst,varnum=n)
-          else
-             WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
-             call oasis_abort(file=__FILE__,line=__LINE__)
-          endif
-       enddo
+       if (present(fracwgt)) then
+
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)), DBLE(PACK(fld3(:,:,n),mask=.true.)),   &
+                     DBLE(PACK(fld4(:,:,n),mask=.true.)), DBLE(PACK(fld5(:,:,n),mask=.true.)),   &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(PACK(fracwgt(:,:),mask=.true.)))
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)), DBLE(PACK(fld3(:,:,n),mask=.true.)),   &
+                     DBLE(PACK(fld4(:,:,n),mask=.true.)),                                        &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(PACK(fracwgt(:,:),mask=.true.)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)), DBLE(PACK(fld3(:,:,n),mask=.true.)),   &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(PACK(fracwgt(:,:),mask=.true.)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)),                                        &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(PACK(fracwgt(:,:),mask=.true.)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(PACK(fracwgt(:,:),mask=.true.)))
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+
+       else
+
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)), DBLE(PACK(fld3(:,:,n),mask=.true.)),   &
+                     DBLE(PACK(fld4(:,:,n),mask=.true.)), DBLE(PACK(fld5(:,:,n),mask=.true.)),   &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)), DBLE(PACK(fld3(:,:,n),mask=.true.)),   &
+                     DBLE(PACK(fld4(:,:,n),mask=.true.)),                                        &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)), DBLE(PACK(fld3(:,:,n),mask=.true.)),   &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)),                                        &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     write_restart=write_restart, varnum=n)
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+
+       endif
 
     else
        WRITE(nulprt,*) subname,estr,' Dimension sizes incorrect'
@@ -414,8 +619,8 @@ contains
 
 !> Send 8 byte real 2D data
 
-  SUBROUTINE oasis_put_r28(var_id,kstep,fld1,kinfo, &
-    fld2, fld3, fld4, fld5, write_restart)
+  SUBROUTINE oasis_put_r28f1(var_id,kstep,fld1,kinfo, &
+    fld2, fld3, fld4, fld5, write_restart, fracwgt)
 
     IMPLICIT none
     !-------------------------------------
@@ -428,10 +633,10 @@ contains
     real(kind=ip_double_p), optional :: fld4(:,:)     !< higher order field data
     real(kind=ip_double_p), optional :: fld5(:,:)     !< higher order field data
     logical               , optional :: write_restart !< write restart now
+    real(kind=ip_double_p), optional :: fracwgt(:)    !< dynamic fraction weight
     !-------------------------------------
-    logical :: lwrst
     integer(kind=ip_i4_p) :: n, size_fld1
-    character(len=*),parameter :: subname = '(oasis_put_r28)'
+    character(len=*),parameter :: subname = '(oasis_put_r28f1)'
     !-------------------------------------
 
     call oasis_debug_enter(subname)
@@ -439,12 +644,6 @@ contains
     if (.not. oasis_coupled) then
        call oasis_debug_exit(subname)
        return
-    endif
-
-    if (present(write_restart)) then
-       lwrst = write_restart
-    else
-       lwrst = .false.
     endif
 
     if (prism_var(var_id)%num > 1) then
@@ -483,54 +682,178 @@ contains
           endif
        endif
 
-       do n = 1,prism_var(var_id)%num
+       if (present(fracwgt)) then
+
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n), fld3(:,n), fld4(:,n), fld5(:,n),       &
+                     write_restart=write_restart, varnum=n, fracwgt=fracwgt(:))
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n), fld3(:,n), fld4(:,n),                  &
+                     write_restart=write_restart, varnum=n, fracwgt=fracwgt(:))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n), fld3(:,n),                             &
+                     write_restart=write_restart, varnum=n, fracwgt=fracwgt(:))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n),                                        &
+                     write_restart=write_restart, varnum=n, fracwgt=fracwgt(:))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     write_restart=write_restart, varnum=n, fracwgt=fracwgt(:))
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+              endif
+          enddo
+
+       else
+
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n), fld3(:,n), fld4(:,n), fld5(:,n),       &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n), fld3(:,n), fld4(:,n),                  &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n), fld3(:,n),                             &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n),                                        &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     write_restart=write_restart, varnum=n)
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+              endif
+          enddo
+
+       endif
+    else
+    ! treat data as 2d unbundled data
+
+       if (present(fracwgt)) then
+          WRITE(nulprt,*) subname,estr,' fracwgt shape incorrect in oasis_put'
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       else
           if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,(fld1(:,n)),kinfo,(fld2(:,n)), &
-                  (fld3(:,n)),(fld4(:,n)),(fld5(:,n)),write_restart=lwrst,varnum=n)
+             CALL oasis_put_worker(var_id, kstep, PACK(fld1,mask=.true.), kinfo, &
+                  PACK(fld2,mask=.true.), PACK(fld3,mask=.true.),                &
+                  PACK(fld4,mask=.true.), PACK(fld5,mask=.true.),                &
+                  write_restart=write_restart)
           elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,(fld1(:,n)),kinfo,(fld2(:,n)), &
-                  (fld3(:,n)),(fld4(:,n)),write_restart=lwrst,varnum=n)
+             CALL oasis_put_worker(var_id, kstep, PACK(fld1,mask=.true.), kinfo, &
+                  PACK(fld2,mask=.true.), PACK(fld3,mask=.true.),                &
+                  PACK(fld4,mask=.true.),                                        &
+                  write_restart=write_restart)
           elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,(fld1(:,n)),kinfo,(fld2(:,n)), &
-                  (fld3(:,n)),write_restart=lwrst,varnum=n)
+             CALL oasis_put_worker(var_id, kstep, PACK(fld1,mask=.true.), kinfo, &
+                  PACK(fld2,mask=.true.), PACK(fld3,mask=.true.),                &
+                  write_restart=write_restart)
           elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,(fld1(:,n)),kinfo,(fld2(:,n)), &
-                  write_restart=lwrst,varnum=n)
+             CALL oasis_put_worker(var_id, kstep, PACK(fld1,mask=.true.), kinfo, &
+                  PACK(fld2,mask=.true.),                         &
+                  write_restart=write_restart)
           elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,(fld1(:,n)),kinfo,write_restart=lwrst,varnum=n)
+             CALL oasis_put_worker(var_id, kstep, PACK(fld1,mask=.true.), kinfo, &
+                  write_restart=write_restart)
           else
              WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
              call oasis_abort(file=__FILE__,line=__LINE__)
           endif
-       enddo
-
-    else
-    ! treat data as 2d unbundled data
-
-       if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-          CALL oasis_put_worker(var_id,kstep,PACK(fld1,mask=.true.),kinfo,PACK(fld2,mask=.true.), &
-               PACK(fld3,mask=.true.),PACK(fld4,mask=.true.),PACK(fld5,mask=.true.),write_restart=lwrst)
-       elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-          CALL oasis_put_worker(var_id,kstep,PACK(fld1,mask=.true.),kinfo,PACK(fld2,mask=.true.), &
-               PACK(fld3,mask=.true.),PACK(fld4,mask=.true.),write_restart=lwrst)
-       elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
-          CALL oasis_put_worker(var_id,kstep,PACK(fld1,mask=.true.),kinfo,PACK(fld2,mask=.true.), &
-               PACK(fld3,mask=.true.),write_restart=lwrst)
-       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
-          CALL oasis_put_worker(var_id,kstep,PACK(fld1,mask=.true.),kinfo,PACK(fld2,mask=.true.), &
-               write_restart=lwrst)
-       elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
-          CALL oasis_put_worker(var_id,kstep,PACK(fld1,mask=.true.),kinfo,write_restart=lwrst)
-       else
-          WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
-          call oasis_abort(file=__FILE__,line=__LINE__)
        endif
 
     endif
 
     call oasis_debug_exit(subname)
 
-  END SUBROUTINE oasis_put_r28
+  END SUBROUTINE oasis_put_r28f1
+
+!---------------------------------------------------------------------
+#ifndef __NO_4BYTE_REALS
+
+!> Send 4 byte real 2D data, complements r28f1, used when fracwgt is 2d passed array
+
+  SUBROUTINE oasis_put_r28f2(var_id,kstep,fld1,kinfo, &
+    fld2, fld3, fld4, fld5, write_restart, fracwgt)
+
+    IMPLICIT none
+    !-------------------------------------
+    integer(kind=ip_i4_p) , intent(in) :: var_id      !< variable id
+    integer(kind=ip_i4_p) , intent(in) :: kstep       !< model time in seconds
+    real(kind=ip_double_p) :: fld1(:,:)               !< field data
+    integer(kind=ip_i4_p) , intent(out):: kinfo       !< return code
+    real(kind=ip_double_p), optional :: fld2(:,:)     !< higher order field data
+    real(kind=ip_double_p), optional :: fld3(:,:)     !< higher order field data
+    real(kind=ip_double_p), optional :: fld4(:,:)     !< higher order field data
+    real(kind=ip_double_p), optional :: fld5(:,:)     !< higher order field data
+    logical               , optional :: write_restart !< write restart now
+    real(kind=ip_double_p)           :: fracwgt(:,:)  !< dynamic fraction weight
+    !-------------------------------------
+    integer(kind=ip_i4_p) :: n, size_fld1
+    character(len=*),parameter :: subname = '(oasis_put_r28f2)'
+    !-------------------------------------
+
+    call oasis_debug_enter(subname)
+    kinfo = OASIS_OK
+    if (.not. oasis_coupled) then
+       call oasis_debug_exit(subname)
+       return
+    endif
+
+    if (prism_var(var_id)%num > 1) then
+    ! treat data as 1d bundled data, should not happen with this interface, fracwgt is 2d
+
+       WRITE(nulprt,*) subname,estr,' Passing 2d fracwgt'
+       call oasis_abort(file=__FILE__,line=__LINE__)
+
+    else
+    ! treat data as 2d unbundled data, must be the case, fracwgt is 2d and passed
+
+!       if (present(fracwgt)) then
+          if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, PACK(fld1,mask=.true.), kinfo, &
+                  PACK(fld2,mask=.true.), PACK(fld3,mask=.true.),                &
+                  PACK(fld4,mask=.true.), PACK(fld5,mask=.true.),                &
+                  write_restart=write_restart,fracwgt=PACK(fracwgt,mask=.true.))
+          elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, PACK(fld1,mask=.true.), kinfo, &
+                  PACK(fld2,mask=.true.), PACK(fld3,mask=.true.),                &
+                  PACK(fld4,mask=.true.),                                        &
+                  write_restart=write_restart,fracwgt=PACK(fracwgt,mask=.true.))
+          elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, PACK(fld1,mask=.true.), kinfo, &
+                  PACK(fld2,mask=.true.), PACK(fld3,mask=.true.),                &
+                  write_restart=write_restart,fracwgt=PACK(fracwgt,mask=.true.))
+          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, PACK(fld1,mask=.true.), kinfo, &
+                  PACK(fld2,mask=.true.),                                        &
+                  write_restart=write_restart,fracwgt=PACK(fracwgt,mask=.true.))
+          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+             CALL oasis_put_worker(var_id, kstep, PACK(fld1,mask=.true.), kinfo, &
+                  write_restart=write_restart,fracwgt=PACK(fracwgt,mask=.true.))
+          else
+             WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+!       endif
+
+    endif
+
+    call oasis_debug_exit(subname)
+
+  END SUBROUTINE oasis_put_r28f2
+#endif
 
 !-------------------------------------------------------------------
 !---------------------------------------------------------------------
@@ -538,7 +861,7 @@ contains
 !> Send 8 byte real 2D bundled data
 
   SUBROUTINE oasis_put_r38(var_id,kstep,fld1,kinfo, &
-    fld2, fld3, fld4, fld5, write_restart)
+    fld2, fld3, fld4, fld5, write_restart, fracwgt)
 
     IMPLICIT none
     !-------------------------------------
@@ -551,8 +874,8 @@ contains
     real(kind=ip_double_p), optional :: fld4(:,:,:)   !< higher order field data
     real(kind=ip_double_p), optional :: fld5(:,:,:)   !< higher order field data
     logical               , optional :: write_restart !< write restart now
+    real(kind=ip_double_p), optional :: fracwgt(:,:)  !< dynamic fraction weight
     !-------------------------------------
-    logical :: lwrst
     integer(kind=ip_i4_p) :: n, size_fld1
     character(len=*),parameter :: subname = '(oasis_put_r38)'
     !-------------------------------------
@@ -562,12 +885,6 @@ contains
     if (.not. oasis_coupled) then
        call oasis_debug_exit(subname)
        return
-    endif
-
-    if (present(write_restart)) then
-       lwrst = write_restart
-    else
-       lwrst = .false.
     endif
 
     if (prism_var(var_id)%num > 1) then
@@ -606,27 +923,63 @@ contains
           endif
        endif
 
-       do n = 1,prism_var(var_id)%num
-          if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,PACK(fld1(:,:,n),mask=.true.),kinfo,PACK(fld2(:,:,n),mask=.true.), &
-                  PACK(fld3(:,:,n),mask=.true.),PACK(fld4(:,:,n),mask=.true.),PACK(fld5(:,:,n),mask=.true.), &
-                  write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,PACK(fld1(:,:,n),mask=.true.),kinfo,PACK(fld2(:,:,n),mask=.true.), &
-                  PACK(fld3(:,:,n),mask=.true.),PACK(fld4(:,:,n),mask=.true.),write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,PACK(fld1(:,:,n),mask=.true.),kinfo,PACK(fld2(:,:,n),mask=.true.), &
-                  PACK(fld3(:,:,n),mask=.true.),write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,PACK(fld1(:,:,n),mask=.true.),kinfo,PACK(fld2(:,:,n),mask=.true.), &
-                  write_restart=lwrst,varnum=n)
-          elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
-             CALL oasis_put_worker(var_id,kstep,PACK(fld1(:,:,n),mask=.true.),kinfo,write_restart=lwrst,varnum=n)
-          else
-             WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
-             call oasis_abort(file=__FILE__,line=__LINE__)
-          endif
-       enddo
+       if (present(fracwgt)) then
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),  PACK(fld3(:,:,n),mask=.true.),        &
+                     PACK(fld4(:,:,n),mask=.true.),  PACK(fld5(:,:,n),mask=.true.),        &
+                     write_restart=write_restart, varnum=n, fracwgt=PACK(fracwgt(:,:),mask=.true.))
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),  PACK(fld3(:,:,n),mask=.true.),        &
+                     PACK(fld4(:,:,n),mask=.true.),                                        &
+                     write_restart=write_restart, varnum=n, fracwgt=PACK(fracwgt(:,:),mask=.true.))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),  PACK(fld3(:,:,n),mask=.true.),        &
+                     write_restart=write_restart, varnum=n, fracwgt=PACK(fracwgt(:,:),mask=.true.))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),                                        &
+                     write_restart=write_restart, varnum=n, fracwgt=PACK(fracwgt(:,:),mask=.true.))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     write_restart=write_restart, varnum=n, fracwgt=PACK(fracwgt(:,:),mask=.true.))
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+       else
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),  PACK(fld3(:,:,n),mask=.true.),        &
+                     PACK(fld4(:,:,n),mask=.true.),  PACK(fld5(:,:,n),mask=.true.),        &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),  PACK(fld3(:,:,n),mask=.true.),        &
+                     PACK(fld4(:,:,n),mask=.true.),                                        &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),  PACK(fld3(:,:,n),mask=.true.),        &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),                                        &
+                     write_restart=write_restart, varnum=n)
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     write_restart=write_restart, varnum=n)
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+       endif
 
     else
        WRITE(nulprt,*) subname,estr,' Dimension sizes incorrect'
@@ -643,7 +996,7 @@ contains
 !> Send worker routine puts 8 byte real 1D data
 
   SUBROUTINE oasis_put_worker(var_id,kstep,fld1,kinfo, &
-    fld2, fld3, fld4, fld5, write_restart, varnum)
+    fld2, fld3, fld4, fld5, write_restart, varnum, fracwgt)
 
     IMPLICIT none
     !-------------------------------------
@@ -657,12 +1010,13 @@ contains
     real(kind=ip_double_p), optional :: fld5(:)       !< higher order field data
     logical               , optional :: write_restart !< write restart now
     integer(kind=ip_i4_p) , optional :: varnum        !< varnum in bundled field
+    real(kind=ip_double_p), optional :: fracwgt(:)    !< dynamic fraction weight
     !-------------------------------------
     integer(kind=ip_i4_p) :: nfld,ncpl
     integer(kind=ip_i4_p) :: ns,nsx
     integer(kind=ip_i4_p) :: n
     integer(kind=ip_i4_p) :: lvarnum
-    logical :: a2on, a3on, a4on, a5on
+    logical :: a2on, a3on, a4on, a5on, fwon
     logical :: lwrst
     character(len=*),parameter :: subname = '(oasis_put_worker)'
     !-------------------------------------
@@ -721,6 +1075,7 @@ contains
     a3on = .false.
     a4on = .false.
     a5on = .false.
+    fwon = .false.
 
     if (present(fld2)) then
        a2on = .true.
@@ -762,6 +1117,18 @@ contains
        endif
     endif
 
+    if (present(fracwgt)) then
+       fwon = .true.
+       nsx = size(fracwgt,dim=1)
+       if (nsx /= ns) then
+          write(nulprt,*) subname,estr,'fracwgt size does not match fld ', &
+                          trim(prism_var(nfld)%name)
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+    endif
+
+!tcx
+#if (1 == 0)
     IF ((.NOT. a2on) .AND. (.NOT. a3on) .AND. (.NOT. a4on) .AND. (.NOT. a5on)) THEN
         CALL oasis_advance_run(OASIS_Out,nfld,kstep,kinfo,&
                                array1din=fld1,readrest=.FALSE.,writrest=lwrst,varnum=lvarnum)
@@ -788,9 +1155,23 @@ contains
                                a4on=a4on,array4=fld4,&
                                a5on=a5on,array5=fld5,writrest=lwrst,varnum=lvarnum)
     ELSE
-        WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+#else
+    ! check that arguments 2-5 passed are OK, cannot have 3 without 2, etc
+    IF (((.NOT. a2on) .AND. ((a3on) .OR. (a4on) .OR. (a5on))) .or. &
+        ((.NOT. a3on) .AND. ((a4on) .OR. (a5on)            )) .or. &
+        ((.NOT. a4on) .AND. ((a5on)                        ))) then
+#endif
+        WRITE(nulprt,*) subname,estr,' Incorrect field array 2-5 argument list in oasis_put'
         call oasis_abort(file=__FILE__,line=__LINE__)
     ENDIF
+
+    CALL oasis_advance_run(OASIS_Out,nfld,kstep,kinfo,&
+                           array1din=fld1,readrest=.FALSE.,&
+                           a2on=a2on,array2=fld2,&
+                           a3on=a3on,array3=fld3,&
+                           a4on=a4on,array4=fld4,&
+                           a5on=a5on,array5=fld5,&
+                           fwon=fwon,fracwgt=fracwgt,writrest=lwrst,varnum=lvarnum)
 
     call oasis_debug_exit(subname)
 

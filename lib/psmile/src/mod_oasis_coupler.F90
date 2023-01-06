@@ -54,7 +54,9 @@ MODULE mod_oasis_coupler
      type(mct_aVect)       :: aVect3   !< higher order mapping data
      type(mct_aVect)       :: aVect4   !< higher order mapping data
      type(mct_aVect)       :: aVect5   !< higher order mapping data
+     type(mct_aVect)       :: aVectfw  !< fraction weight
      logical               :: aVon(prism_coupler_avsmax)  !< flags indicating whether aVects 2-5 are active
+     logical               :: aVonfw   !< flag indicating whether aVfw is active
      character(len=ic_xl)  :: rstfile  !< restart file
      logical               :: writrest !< flag to write a restart file
      character(len=ic_xl)  :: inpfile  !< input file if data is read

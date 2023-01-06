@@ -55,7 +55,8 @@ contains
     real   (kind=ip_r8_p), allocatable :: array3(:) ! data
     real   (kind=ip_r8_p), allocatable :: array4(:) ! data
     real   (kind=ip_r8_p), allocatable :: array5(:) ! data
-    logical               :: a2on,a3on,a4on,a5on    ! data 2-5 logicals
+    real   (kind=ip_r8_p), allocatable :: fracwgt(:) ! data
+    logical               :: a2on,a3on,a4on,a5on,fwon    ! data 2-5,fw logicals
     integer(kind=ip_i4_p) :: mseclag   ! model time + lag
     character(len=ic_xl)  :: rstfile   ! restart filename
     character(len=ic_xxl) :: lstring   ! long temporary string
@@ -142,11 +143,13 @@ contains
           ALLOCATE(array3(lsize))
           ALLOCATE(array4(lsize))
           ALLOCATE(array5(lsize))
+          ALLOCATE(fracwgt(lsize))
 
           a2on=.false.          
           a3on=.false.
           a4on=.false.
           a5on=.false.
+          fwon=.true.
 
           if (mapid > 0) then
              if (prism_mapper(mapid)%nwgts >= 2) a2on=.true.
@@ -166,7 +169,7 @@ contains
                                  readrest=.TRUE., a2on=a2on,array2=array2, &
                                  a3on=a3on,array3=array3, &
                                  a4on=a4on,array4=array4,a5on=a5on,array5=array5, &
-                                 varnum=lvarnum)
+                                 fwon=fwon,fracwgt=fracwgt,varnum=lvarnum)
           ENDDO
           IF (OASIS_Debug >= 2) THEN
              write(nulprt,*) subname,' advance_run ',cplid,TRIM(pcpointer%fldlist)
@@ -177,6 +180,7 @@ contains
           DEALLOCATE(array3)
           DEALLOCATE(array4)
           DEALLOCATE(array5)
+          DEALLOCATE(fracwgt)
        ENDIF  ! put
     ENDIF ! valid
     enddo ! npc
@@ -288,6 +292,17 @@ contains
              call mct_aVect_clean(pcpointer%avect5)
           endif
 
+          call mct_aVect_init(pcpointer%aVectfw,pcpointer%aVect1,lsize)
+          call mct_aVect_zero(pcpointer%aVectfw)
+          write(vstring,'(a,i6.6,a)') 'avfwloc',pcpointer%namID,'_'
+          call oasis_io_read_avfile(rstfile,pcpointer%aVectfw,&
+                                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
+                                    abort=.false.,nampre=trim(vstring),&
+                                    didread=pcpointer%aVonfw)
+          if (.not. pcpointer%aVonfw) then
+             call mct_aVect_clean(pcpointer%aVectfw)
+          endif
+
           if (OASIS_debug >= 20) then
              write(nulprt,*) subname,' DEBUG read loctrans restart',&
                              cplid,pcpointer%avcnt
@@ -315,7 +330,7 @@ contains
   SUBROUTINE oasis_advance_run(mop,varid,msec,kinfo,nff,namid,&
              array1din,array1dout,array2dout,readrest,&
              a2on,array2,a3on,array3,a4on,array4,a5on,array5, &
-             writrest,varnum)
+             fwon,fracwgt,writrest,varnum)
 
     IMPLICIT none
 !   ----------------------------------------------------------------
@@ -340,6 +355,8 @@ contains
     REAL   (kind=ip_r8_p), optional :: array4(:) !< hot put data
     logical              , optional :: a5on      !< logical for array5
     REAL   (kind=ip_r8_p), optional :: array5(:) !< hot put data
+    logical              , optional :: fwon      !< logical for fracwgt
+    REAL   (kind=ip_r8_p), optional :: fracwgt(:)!< fracwgt data
     logical              , optional :: writrest  !< flag to write restart now
     INTEGER(kind=ip_i4_p), optional :: varnum    !< variable bundle number
 !   ----------------------------------------------------------------
@@ -351,7 +368,7 @@ contains
     character(len=ic_med) :: consopt
     logical               :: sndrcv,output,input,unpack
     logical               :: snddiag,rcvdiag
-    logical               :: arrayon(prism_coupler_avsmax)
+    logical               :: arrayon(0:prism_coupler_avsmax)  ! 0 = fracwgt
     LOGICAL               :: didread, readabort
     real(kind=ip_double_p):: sndmult,sndadd,rcvmult,rcvadd
     character(len=ic_xl)  :: rstfile   ! restart filename
@@ -371,6 +388,7 @@ contains
     logical               :: time_now  ! coupling time
     logical               :: lreadrest ! local readrest
     logical               :: runit     ! advance the variable
+    logical               :: sndaddmultdone ! track sndadd/sndmult
     TYPE(mct_avect)       :: avtest    ! temporary
     type(mct_avect)       :: avtmp   ! data read from restart
     type(mct_avect)       :: avtmp2  ! data read from restart
@@ -419,6 +437,8 @@ contains
     endif
     if (lreadrest) kinfo = OASIS_fromrest
 
+    sndaddmultdone = .false.
+
     !------------------------------------------------
     !> * Verify field (var) is either In or Out
     !------------------------------------------------
@@ -456,12 +476,13 @@ contains
     ! Set arrayon
     !------------------------------------------------
 
-    arrayon = .false.
+    arrayon(:) = .false.
     arrayon(1) = .true.
     if (present(a2on)) arrayon(2) = a2on
     if (present(a3on)) arrayon(3) = a3on
     if (present(a4on)) arrayon(4) = a4on
     if (present(a5on)) arrayon(5) = a5on
+    if (present(fwon)) arrayon(0) = fwon
 
     if (OASIS_debug >= 10) then
        write(nulprt,*) subname,' lreadrest :',lreadrest,' arrayon = ',arrayon
@@ -597,12 +618,15 @@ contains
           ENDIF
 
           CALL mct_aVect_init(avtmp,rlist=pcpointer%fldlist,lsize=lsize)
-          readabort = .true.
-          if (allow_no_restart) readabort = .false.
 
-          do n = 1,5
+          do n = 0,5
+             readabort = .true.
+             if (allow_no_restart) readabort = .false.
              if (n == 1) then
                 vstring = ""
+             elseif (n == 0) then
+                vstring = "avfw"
+                readabort = .false.  ! allow avfw not on restart because it's new feature
              else
                 write(vstring,'(a2,i1.1,a1)') 'av',n,'_'
              endif
@@ -611,10 +635,15 @@ contains
              !  if readabort = T and didread = T then will copy values into array*
              !  if readabort = T and didread = F then will abort in io_read_avfile
              !  if readabort = F and didread = T then will copy values into array*
-             !  if readabort = F and didread = F then will 0s into array*
+             !  if readabort = F and didread = F then will copy 0s into array*
 
              if (arrayon(n)) then
-                avtmp%rAttr(nff,1:lsize) = 0.0
+                if (n == 0) then
+                   ! default for frac needs to be 1.0 if it doesn't exist
+                   avtmp%rAttr(nff,1:lsize) = 1.0_ip_r8_p
+                else
+                   avtmp%rAttr(nff,1:lsize) = 0.0_ip_r8_p
+                endif
                 CALL oasis_io_read_avfile(TRIM(rstfile),avtmp,prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
                                           abort=readabort,nampre=vstring,didread=didread)
                 if (n == 1) array1din(1:lsize) = avtmp%rAttr(nff,1:lsize)
@@ -622,11 +651,12 @@ contains
                 if (n == 3) array3   (1:lsize) = avtmp%rAttr(nff,1:lsize)
                 if (n == 4) array4   (1:lsize) = avtmp%rAttr(nff,1:lsize)
                 if (n == 5) array5   (1:lsize) = avtmp%rAttr(nff,1:lsize)
+                if (n == 0) fracwgt  (1:lsize) = avtmp%rAttr(nff,1:lsize)
 
                 if (.not.readabort .and. .not.didread) then
                    WRITE(nulprt,*) subname,wstr,'restart field missing with readabort = ',readabort
-                   WRITE(nulprt,*) subname,wstr,'restart field missing for file = ',trim(rstfile)
-                   WRITE(nulprt,*) subname,wstr,'restart field missing for hot = ',n
+                   WRITE(nulprt,*) subname,wstr,'restart field missing for file/vstr = ',trim(rstfile),'/',trim(vstring)
+                   WRITE(nulprt,*) subname,wstr,'restart field missing for index = ',n
                    WRITE(nulprt,*) subname,wstr,'restart field missing setting values to zero'
                 endif
              endif
@@ -800,6 +830,14 @@ contains
        ! as someone might be later adding an interface call that would violate the consistency
        endif
 
+       if ((arrayon(0) .and. .not.present(fracwgt))) then
+          write(nulprt,*) subname,estr,'at ',msec,mseclag,' for var = ',trim(vname)
+          write(nulprt,*) subname,estr,'arrayon true but array not sent for fracwgt'
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       ! With the current way of using oasis_advance_run, the above test is useless but we keep the test
+       ! as someone might be later adding an interface call that would violate the consistency
+       endif
+
        ! initialize aVect2-5 here if not already allocated
 
        if (arrayon(2) .and. .not. pcpointer%aVon(2)) then
@@ -842,6 +880,16 @@ contains
           endif
        endif
 
+       if (arrayon(0) .and. .not. pcpointer%aVonfw) then
+          call mct_aVect_init(pcpointer%aVectfw,pcpointer%aVect1,nsav)
+          call mct_aVect_zero(pcpointer%aVectfw)
+          pcpointer%aVonfw = .true.
+          if (OASIS_debug >= 2) then
+             write(nulprt,*) subname,' at ',msec,mseclag,' ALLO: ',&
+                             trim(vname),' ','aVectfw'
+          endif
+       endif
+
        !------------------------------------------------
        !>   * update avect1-5 on put side and apply appropriate transform
        !>   * if its coupling time, set status of this var to ready
@@ -860,143 +908,158 @@ contains
           if (lreadrest .or. pcpointer%trans == ip_instant) then
              if (time_now) then
                 cstring = 'instant'
-                do n = 1,nsav
-                   pcpointer%avect1%rAttr(nfav,n) = array1din(n)
-                   if (pcpointer%aVon(2)) then
-                      if (present(array2)) then
-                         pcpointer%avect2%rAttr(nfav,n) = array2(n)
-                      else
-                         pcpointer%avect2%rAttr(nfav,n) = 0.0
-                      endif
-                   endif
-                   if (pcpointer%aVon(3)) then
-                      if (present(array3)) then
-                         pcpointer%avect3%rAttr(nfav,n) = array3(n)
-                      else
-                         pcpointer%avect3%rAttr(nfav,n) = 0.0
-                      endif
-                   endif
-                   if (pcpointer%aVon(4)) then
-                      if (present(array4)) then
-                         pcpointer%avect4%rAttr(nfav,n) = array4(n)
-                      else
-                         pcpointer%avect4%rAttr(nfav,n) = 0.0
-                      endif
-                   endif
-                   if (pcpointer%aVon(5)) then
-                      if (present(array5)) then
-                         pcpointer%avect5%rAttr(nfav,n) = array5(n)
-                      else
-                         pcpointer%avect5%rAttr(nfav,n) = 0.0
-                      endif
-                   endif
-                enddo
                 pcpointer%avcnt(nfav) = 1
+                if (pcpointer%aVonfw .and. present(fracwgt)) then
+                   if (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p) then
+                      ! need to apply fraction to adjusted src field
+                      call oasis_debug_note(subname//' apply sndmult sndadd fracwgt')
+                      if (OASIS_debug >= 20) then
+                         write(nulprt,*) subname,' DEBUG sndmult,add = ',sndmult,sndadd
+                         write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',cplid,&
+                                   minval(pcpointer%avect1%rAttr),&
+                                   maxval(pcpointer%avect1%rAttr)
+                      endif
+                      pcpointer%avect1%rAttr(nfav,1:nsav) = (array1din(1:nsav)*sndmult+sndadd) * fracwgt(1:nsav)
+                      sndaddmultdone = .true.
+                   else
+                      call oasis_debug_note(subname//' apply fracwgt')
+                      pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav) * fracwgt(1:nsav)
+                   endif
+                   pcpointer%avectfw%rAttr(nfav,1:nsav) = fracwgt(1:nsav)
+                else
+                   pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav)
+                endif
+                if (pcpointer%aVon(2)) then
+                   if (present(array2)) then
+                      pcpointer%avect2%rAttr(nfav,1:nsav) = array2(1:nsav)
+                   else
+                      pcpointer%avect2%rAttr(nfav,1:nsav) = 0.0
+                   endif
+                endif
+                if (pcpointer%aVon(3)) then
+                   if (present(array3)) then
+                      pcpointer%avect3%rAttr(nfav,1:nsav) = array3(1:nsav)
+                   else
+                      pcpointer%avect3%rAttr(nfav,1:nsav) = 0.0
+                   endif
+                endif
+                if (pcpointer%aVon(4)) then
+                   if (present(array4)) then
+                      pcpointer%avect4%rAttr(nfav,1:nsav) = array4(1:nsav)
+                   else
+                      pcpointer%avect4%rAttr(nfav,1:nsav) = 0.0
+                   endif
+                endif
+                if (pcpointer%aVon(5)) then
+                   if (present(array5)) then
+                      pcpointer%avect5%rAttr(nfav,1:nsav) = array5(1:nsav)
+                   else
+                      pcpointer%avect5%rAttr(nfav,1:nsav) = 0.0
+                   endif
+                endif
              endif
 
-          elseif (pcpointer%trans == ip_average) then
-             cstring = 'average'
+          elseif (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul) then
+             if (pcpointer%trans == ip_average) then
+                cstring = 'average'
+                pcpointer%avcnt(nfav) = pcpointer%avcnt(nfav) + 1
+             elseif (pcpointer%trans == ip_accumul) then
+                cstring = 'accumul'
+                pcpointer%avcnt(nfav) = 1
+             else
+                write(nulprt,*) subname,estr,'transform error for var = ',trim(vname),pcpointer%trans
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
-             do n = 1,nsav
-                pcpointer%avect1%rAttr(nfav,n) = &
-                   pcpointer%avect1%rAttr(nfav,n) + array1din(n)
-                if (pcpointer%aVon(2)) then
-                   if (present(array2)) then
-                      pcpointer%avect2%rAttr(nfav,n) = &
-                         pcpointer%avect2%rAttr(nfav,n) + array2(n)
-                   endif
-                endif
-                if (pcpointer%aVon(3)) then
-                   if (present(array3)) then
-                      pcpointer%avect3%rAttr(nfav,n) = &
-                         pcpointer%avect3%rAttr(nfav,n) + array3(n)
-                   endif
-                endif
-                if (pcpointer%aVon(4)) then
-                   if (present(array4)) then
-                      pcpointer%avect4%rAttr(nfav,n) = &
-                         pcpointer%avect4%rAttr(nfav,n) + array4(n)
-                   endif
-                endif
-                if (pcpointer%aVon(5)) then
-                   if (present(array5)) then
-                      pcpointer%avect5%rAttr(nfav,n) = &
-                         pcpointer%avect5%rAttr(nfav,n) + array5(n)
-                   endif
-                endif
-             enddo
-             pcpointer%avcnt(nfav) = pcpointer%avcnt(nfav) + 1
 
-          elseif (pcpointer%trans == ip_accumul) then
-             cstring = 'accumul'
-             if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
-             do n = 1,nsav
-                pcpointer%avect1%rAttr(nfav,n) = &
-                   pcpointer%avect1%rAttr(nfav,n) + array1din(n)
-                if (pcpointer%aVon(2)) then
-                   if (present(array2)) then
-                      pcpointer%avect2%rAttr(nfav,n) = &
-                         pcpointer%avect2%rAttr(nfav,n) + array2(n)
+             if (pcpointer%aVonfw .and. present(fracwgt)) then
+                if (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p) then
+                   ! need to apply fraction to adjusted src field
+                   call oasis_debug_note(subname//' apply sndmult sndadd fracwgt')
+                   if (OASIS_debug >= 20) then
+                      write(nulprt,*) subname,' DEBUG sndmult,add = ',sndmult,sndadd
+                      write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',cplid,&
+                                minval(pcpointer%avect1%rAttr),&
+                                maxval(pcpointer%avect1%rAttr)
                    endif
+                   pcpointer%avect1%rAttr(nfav,1:nsav) = pcpointer%avect1%rAttr(nfav,1:nsav) + &
+                      (array1din(1:nsav)*sndmult+sndadd) * fracwgt(1:nsav)
+                   sndaddmultdone = .true.
+                else
+                   call oasis_debug_note(subname//' apply fracwgt')
+                   pcpointer%avect1%rAttr(nfav,1:nsav) = pcpointer%avect1%rAttr(nfav,1:nsav) + &
+                      array1din(1:nsav) * fracwgt(1:nsav)
                 endif
-                if (pcpointer%aVon(3)) then
-                   if (present(array3)) then
-                      pcpointer%avect3%rAttr(nfav,n) = &
-                         pcpointer%avect3%rAttr(nfav,n) + array3(n)
-                   endif
+                pcpointer%avectfw%rAttr(nfav,1:nsav) = fracwgt(1:nsav)
+             else
+                pcpointer%avect1%rAttr(nfav,1:nsav) =  pcpointer%avect1%rAttr(nfav,1:nsav) + &
+                   array1din(1:nsav)
+             endif
+
+             if (pcpointer%aVon(2)) then
+                if (present(array2)) then
+                   pcpointer%avect2%rAttr(nfav,1:nsav) = &
+                      pcpointer%avect2%rAttr(nfav,1:nsav) + array2(1:nsav)
                 endif
-                if (pcpointer%aVon(4)) then
-                   if (present(array4)) then
-                      pcpointer%avect4%rAttr(nfav,n) = &
-                         pcpointer%avect4%rAttr(nfav,n) + array4(n)
-                   endif
+             endif
+             if (pcpointer%aVon(3)) then
+                if (present(array3)) then
+                   pcpointer%avect3%rAttr(nfav,1:nsav) = &
+                      pcpointer%avect3%rAttr(nfav,1:nsav) + array3(1:nsav)
                 endif
-                if (pcpointer%aVon(5)) then
-                   if (present(array5)) then
-                      pcpointer%avect5%rAttr(nfav,n) = &
-                         pcpointer%avect5%rAttr(nfav,n) + array5(n)
-                   endif
+             endif
+             if (pcpointer%aVon(4)) then
+                if (present(array4)) then
+                   pcpointer%avect4%rAttr(nfav,1:nsav) = &
+                      pcpointer%avect4%rAttr(nfav,1:nsav) + array4(1:nsav)
                 endif
-             enddo
-             pcpointer%avcnt(nfav) = 1
+             endif
+             if (pcpointer%aVon(5)) then
+                if (present(array5)) then
+                   pcpointer%avect5%rAttr(nfav,1:nsav) = &
+                      pcpointer%avect5%rAttr(nfav,1:nsav) + array5(1:nsav)
+                endif
+             endif
+             if (pcpointer%aVonfw) then
+                if (present(fracwgt)) then
+                   pcpointer%avectfw%rAttr(nfav,1:nsav) = &
+                      pcpointer%avectfw%rAttr(nfav,1:nsav) + fracwgt(1:nsav)
+                endif
+             endif
 
           elseif (pcpointer%trans == ip_max) then
              cstring = 'max'
+             pcpointer%avcnt(nfav) = 1
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
              if (pcpointer%aVon(2) .or. pcpointer%aVon(3) .or. &
-                 pcpointer%aVon(4) .or. pcpointer%aVon(5)) then
+                 pcpointer%aVon(4) .or. pcpointer%aVon(5) .or. pcpointer%aVonfw) then
                 write(nulprt,*) subname,estr,'at ',msec,mseclag,' for var = ',trim(vname)
-                write(nulprt,*) subname,estr,'higher order mapping with MAX transform not supported'
+                write(nulprt,*) subname,estr,'higher order or fracwgt mapping with MAX transform not supported'
                 call oasis_abort(file=__FILE__,line=__LINE__)      
              endif
-             do n = 1,nsav
-                if (pcpointer%avcnt(nfav) == 0) then
-                   pcpointer%avect1%rAttr(nfav,n) = array1din(n)
-                else
-                   pcpointer%avect1%rAttr(nfav,n) = &
-                      max(pcpointer%avect1%rAttr(nfav,n),array1din(n))
-                endif
-             enddo
-             pcpointer%avcnt(nfav) = 1
+             if (pcpointer%avcnt(nfav) == 0) then
+                pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav)
+             else
+                pcpointer%avect1%rAttr(nfav,1:nsav) = &
+                   max(pcpointer%avect1%rAttr(nfav,1:nsav),array1din(1:nsav))
+             endif
 
           elseif (pcpointer%trans == ip_min) then
              cstring = 'min'
+             pcpointer%avcnt(nfav) = 1
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
              if (pcpointer%aVon(2) .or. pcpointer%aVon(3) .or. &
-                 pcpointer%aVon(4) .or. pcpointer%aVon(5)) then
+                 pcpointer%aVon(4) .or. pcpointer%aVon(5) .or. pcpointer%aVonfw) then
                 write(nulprt,*) subname,estr,'at ',msec,mseclag,' for var = ',trim(vname)
-                write(nulprt,*) subname,estr,'higher order mapping with MIN transform not supported'
+                write(nulprt,*) subname,estr,'higher order or fracwgt mapping with MIN transform not supported'
                 call oasis_abort(file=__FILE__,line=__LINE__)      
              endif
-             do n = 1,nsav
-                if (pcpointer%avcnt(nfav) == 0) then
-                   pcpointer%avect1%rAttr(nfav,n) = array1din(n)
-                else
-                   pcpointer%avect1%rAttr(nfav,n) = &
-                      min(pcpointer%avect1%rAttr(nfav,n),array1din(n))
-                endif
-             enddo
-             pcpointer%avcnt(nfav) = 1
+             if (pcpointer%avcnt(nfav) == 0) then
+                pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav)
+             else
+                pcpointer%avect1%rAttr(nfav,1:nsav) = &
+                   min(pcpointer%avect1%rAttr(nfav,1:nsav),array1din(1:nsav))
+             endif
 
           else
              write(nulprt,*) subname,estr,'transform not known for var = ',trim(vname),pcpointer%trans
@@ -1078,7 +1141,8 @@ contains
              if (local_timers_on) call oasis_timer_start(tstring)
              do nf = 1,pcpointer%nflds
                 if (pcpointer%avcnt(nf) > 1) then
-                   rcnt = 1.0/pcpointer%avcnt(nf)
+! tcx changed answers here
+                   rcnt = 1.0_ip_r8_p/real(pcpointer%avcnt(nf),kind=ip_r8_p)
                    do n = 1,nsav
                       pcpointer%avect1%rAttr(nf,n) = &
                          pcpointer%avect1%rAttr(nf,n) * rcnt
@@ -1171,6 +1235,9 @@ contains
              if (pcpointer%aVon(5)) &
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre='av5_')
+             if (pcpointer%aVonfw) &
+                call oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
+                   prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre='avfw_')
              if (ET_debug) CALL oasis_lb_measure(cplid,LB_RST,msec)
              if (local_timers_on) call oasis_timer_stop(tstring)
              if (OASIS_debug >= 2) then
@@ -1208,7 +1275,7 @@ contains
                 endif
                 call oasis_flush(nulprt)
              endif
-             if (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p) then
+             if (.not.sndaddmultdone .and. (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p)) then
                 call oasis_debug_note(subname//' apply sndmult sndadd')
                 if (OASIS_debug >= 20) then
                    write(nulprt,*) subname,' DEBUG sndmult,add = ',sndmult,sndadd
@@ -1543,6 +1610,11 @@ contains
           if (pcpointer%aVon(5)) then
              write(vstring,'(a,i6.6,a)') 'av5loc',pcpointer%namID,'_'
              CALL oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
+                prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
+          endif
+          if (pcpointer%aVonfw) then
+             write(vstring,'(a,i6.6,a)') 'avfwloc',pcpointer%namID,'_'
+             CALL oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
           endif
           if (ET_debug) CALL oasis_lb_measure(cplid,LB_TRN,msec)
