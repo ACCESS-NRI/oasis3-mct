@@ -1127,40 +1127,10 @@ contains
        endif
     endif
 
-!tcx
-#if (1 == 0)
-    IF ((.NOT. a2on) .AND. (.NOT. a3on) .AND. (.NOT. a4on) .AND. (.NOT. a5on)) THEN
-        CALL oasis_advance_run(OASIS_Out,nfld,kstep,kinfo,&
-                               array1din=fld1,readrest=.FALSE.,writrest=lwrst,varnum=lvarnum)
-    ELSE IF (a2on .AND. (.NOT. a3on) .AND. (.NOT. a4on) .AND. (.NOT. a5on)) THEN
-        CALL oasis_advance_run(OASIS_Out,nfld,kstep,kinfo,&
-                               array1din=fld1,readrest=.FALSE.,&
-                               a2on=a2on,array2=fld2,writrest=lwrst,varnum=lvarnum)
-    ELSE IF (a2on .AND. a3on .AND. (.NOT. a4on) .AND. (.NOT. a5on)) THEN
-        CALL oasis_advance_run(OASIS_Out,nfld,kstep,kinfo,&
-                               array1din= fld1,readrest=.FALSE.,&
-                               a2on=a2on,array2=fld2,&
-                               a3on=a3on,array3=fld3,writrest=lwrst,varnum=lvarnum)
-    ELSE IF (a2on .AND. a3on .AND. a4on .AND. (.NOT. a5on)) THEN
-        CALL oasis_advance_run(OASIS_Out,nfld,kstep,kinfo,&
-                               array1din=fld1,readrest=.FALSE.,&
-                               a2on=a2on,array2=fld2,&
-                               a3on=a3on,array3=fld3,&
-                               a4on=a4on,array4=fld4,writrest=lwrst,varnum=lvarnum)
-    ELSE IF (a2on .AND. a3on .AND. a4on .AND. a5on) THEN
-        CALL oasis_advance_run(OASIS_Out,nfld,kstep,kinfo,&
-                               array1din=fld1,readrest=.FALSE.,&
-                               a2on=a2on,array2=fld2,&
-                               a3on=a3on,array3=fld3,&
-                               a4on=a4on,array4=fld4,&
-                               a5on=a5on,array5=fld5,writrest=lwrst,varnum=lvarnum)
-    ELSE
-#else
     ! check that arguments 2-5 passed are OK, cannot have 3 without 2, etc
     IF (((.NOT. a2on) .AND. ((a3on) .OR. (a4on) .OR. (a5on))) .or. &
         ((.NOT. a3on) .AND. ((a4on) .OR. (a5on)            )) .or. &
         ((.NOT. a4on) .AND. ((a5on)                        ))) then
-#endif
         WRITE(nulprt,*) subname,estr,' Incorrect field array 2-5 argument list in oasis_put'
         call oasis_abort(file=__FILE__,line=__LINE__)
     ENDIF

@@ -828,7 +828,7 @@ CONTAINS
            endif
 
            IF (OASIS_debug >= 20) THEN
-               WRITE(nulprt,*) subname,' Field : ',trim(prism_var(nn)%name)
+               WRITE(nulprt,*) subname,' Field : ',trim(prism_var(nv1)%name)
                WRITE(nulprt,*) subname,' Grid dst : ',trim(namdstgrd(nn))
                WRITE(nulprt,*) subname,' Grid src : ',trim(namsrcgrd(nn))
 !               WRITE(nulprt,*) subname,' prism_part : ',prism_part(part1)%gridname
