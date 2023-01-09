@@ -50,4 +50,4 @@ tests_toys_oasis_belenos:
      - master
 
      script:
-     - ssh elnino "/home/globc/coquart/bin/nitrox_belenos_oas3mct_run belenos_intel2018.5.274_intelmpi2018.5.274 DEBUGF" 
+     - ssh elnino "/home/globc/coquart/bin/nitrox_belenos_oas3mct_run belenos_intel2018.5.274_intelmpi2018.5.274 DEBUGT" 
