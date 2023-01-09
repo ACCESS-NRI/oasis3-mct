@@ -16,6 +16,7 @@
 # with this program, in the file lgpl-3.0.txt. It is also available at
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
+import pyoasis.exception
 import pyoasis.mod_oasis_grid
 import pyoasis.mod_oasis_part
 import numpy

@@ -17,6 +17,7 @@
 # <https://www.gnu.org/licenses/lgpl-3.0.html>.
 
 
+import pyoasis.exception
 import pyoasis.mod_oasis_auxiliary_routines
 import pyoasis.mod_oasis_getput_interface
 import pyoasis.mod_oasis_method
