@@ -1,0 +1,76 @@
+#
+# Include file for OASIS3 Makefile for a Linux Spack package management system
+#
+###############################################################################
+#
+# CHAN	: communication technique used in OASIS3 (MPI1/MPI2/NONE)
+CHAN            = MPI1
+#
+# Paths for libraries, object files and binaries
+#
+# COUPLE	: path for oasis3-mct main directory
+COUPLE          = $(OASIS_HOME)
+#
+# ARCHDIR       : directory created when compiling
+ARCHDIR         = $(COUPLE)/compile_oa3-mct
+
+#
+# Compiling and other commands
+MAKE        = make
+F90         = DEFINEINSPACK
+F           = $(F90)
+f90         = $(F90)
+f           = $(F90)
+CC          = DEFINEINSPACK
+LD          = $(F90)
+AR          = ar
+ARFLAGS     = -rvD
+#
+# CPP keys and compiler options
+#
+CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
+#
+#
+
+F90FLAGS_1  = -Wall -fallow-argument-mismatch
+f90FLAGS_1  = $(F90FLAGS_1)
+FFLAGS_1    = $(F90FLAGS_1)
+fFLAGS_1    = $(F90FLAGS_1)
+CCFLAGS_1   =
+LDFLAGS     =
+MCT_FCFLAGS = -Wall -fallow-argument-mismatch
+#
+###################
+#
+# Additional definitions that should not be changed
+#
+FLIBS		= $(NETCDF_LIBRARY)
+# BINDIR        : directory for executables
+BINDIR          = $(ARCHDIR)/bin
+# LIBBUILD      : contains a directory for each library
+LIBBUILD        = $(ARCHDIR)/build/lib
+# INCPSMILE     : includes all *o and *mod for each library
+INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/mct
+
+# https://www.gnu.org/software/make/manual/html_node/Conditional-Syntax.html
+ifeq ($(strip $(F90FLAGS)),)
+F90FLAGS  = $(F90FLAGS_1) $(INCPSMILE) $(CPPDEF)
+endif
+
+ifeq ($(strip $(f90FLAGS)),)
+f90FLAGS  = $(f90FLAGS_1) $(INCPSMILE) $(CPPDEF)
+endif
+
+ifeq ($(strip $(FFLAGS)),)
+FFLAGS    = $(FFLAGS_1) $(INCPSMILE) $(CPPDEF)
+endif
+
+ifeq ($(strip $(fFLAGS)),)
+fFLAGS    = $(fFLAGS_1) $(INCPSMILE) $(CPPDEF)
+endif
+
+ifeq ($(strip $(CCFLAGS)),)
+CCFLAGS   = $(CCFLAGS_1) $(INCPSMILE) $(CPPDEF)
+endif
+#
+#############################################################################
