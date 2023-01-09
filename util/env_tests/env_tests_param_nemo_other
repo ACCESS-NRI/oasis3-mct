@@ -1,0 +1,12 @@
+###########################################
+## USER SECTION 
+###########################################
+# OASIS VARIABLES DEFINITION   
+# + NAMES OF THE DIFFERENT TOYS
+###########################################
+# Localisation and name of the toys
+export USER_TOY=("${OASIS_COUPLE}/examples/tutorial_communication")
+# Number of tests for each toy		  
+export USER_TEST=("1")
+# Localization of the file paramater for each toy
+export USER_PARAMLOC=("${USER_TOY}") 
