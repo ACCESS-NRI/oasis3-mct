@@ -723,9 +723,9 @@ In the component time step loop, each process sends its part of the
 coupling (or I/O) field.
 
 \begin{itemize}
-\item {\tt CALL oasis\_put (var\_id,date,fld1,info,fld2,fld3,fld4, fld5,write\_restart)}
+\item {\tt CALL oasis\_put (var\_id,date,fld1,info,fld2,fld3,fld4,fld5,write\_restart,fracwgt)}
 \item {\tt CALL prism\_put\_proto(var\_id, date, fld1, info, fld2,
-    fld3, fld4, fld5, write\_restart)}
+    fld3, fld4, fld5, write\_restart, fracwgt)}
   \begin{itemize}
   \item {\tt var\_id [INTEGER; IN]}: field ID (returned from corresponding {\tt
       oasis\_def\_var}, see section \ref{subsubsec_Declaration})
@@ -767,6 +767,11 @@ coupling (or I/O) field.
   \item {\tt write\_restart [LOGICAL, IN, OPTIONAL]}: optional argument to write an 
     intermediate restart file associated with the variable {\tt
       var\_id} at the current timestep (see below).
+  \item {\tt fracwgt [REAL, IN, OPTIONAL]}: optional fraction weight
+    field array; can be 1D or 2D.  Rank and grid size must match {\tt fld1}.
+    This field multiplies {\tt fld1} on the source side and then is mapped
+    and applied as a normalization term on the destination side.  It will
+    often vary in time and may be associated with a field like ice fraction.
   \end{itemize}
 \end{itemize}
 
@@ -799,7 +804,14 @@ of the following aspects:
   are provided at each time step as {\tt oasis\_put} arguments. Note
   that if {\tt fld3}, or {\tt fld4}, or {\tt fld5} are passed, {\tt fld2}, or {\tt fld3} and 
   {\tt fld2}, or {\tt fld4} and {\tt fld3} and {\tt fld2} must also be passed respectively.
-  
+
+\item   When using higher order remapping weights with a BLASOLD transform, it may
+  be clearer to apply the transform on the receive side via BLASNEW.
+
+\item   Higher order remapping weights and fracwgt can only be carried out with 
+  mapping if the mapping is done on the src model processors, see 
+  section \ref{subsec_interp}.
+
 \item Note that from OASIS3-MCT\_4.0 onwards, 
 the number of weights in the remapping file and the number of fields in the coupling restart file 
 (when such a file is needed) must strictly match the number of source fields passed to the 

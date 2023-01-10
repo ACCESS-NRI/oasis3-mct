@@ -1143,8 +1143,9 @@ contains
              if (local_timers_on) call oasis_timer_start(tstring)
              do nf = 1,pcpointer%nflds
                 if (pcpointer%avcnt(nf) > 1) then
-! tcx changed answers here
-                   rcnt = 1.0_ip_r8_p/real(pcpointer%avcnt(nf),kind=ip_r8_p)
+                   rcnt = 1.0/pcpointer%avcnt(nf)
+!tcx better but changes answers
+!                   rcnt = 1.0_ip_r8_p/real(pcpointer%avcnt(nf),kind=ip_r8_p)
                    do n = 1,nsav
                       pcpointer%avect1%rAttr(nf,n) = &
                          pcpointer%avect1%rAttr(nf,n) * rcnt
@@ -1901,7 +1902,6 @@ contains
           call oasis_abort(file=__FILE__,line=__LINE__)
        endif
        if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_avMultfw')
-!tcx       avdtmp%rAttr(:,:) = 1.0_ip_r8_p
        call mct_sMat_avMult(avfw, mapper%sMatP(1), avdtmp)
        if (present(tstrinp)) call oasis_timer_stop(trim(tstrinp)//'_avMultfw')
        if (present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_normfw')
@@ -1996,10 +1996,11 @@ contains
 
     IF (prism_part(mapper%spart)%mpicom /= MPI_COMM_NULL) then
 
-       ! compute av1 for normalization, just av1in unless fracwgt is included
+       ! compute av1 for normalization, av1=av1in unless fracwgt is included
        ! if fracwgt, normalize av1 by dividing by avfw to compute conservation
        ! want to do it this way to take into account hot in avd properly
        lsizes = mct_avect_lsize(av1in)
+       fsize = mct_avect_nRattr(av1in)
        call mct_aVect_init(av1,av1in,lsizes)
        if (locavonfw) then
           do n = 1,lsizes
