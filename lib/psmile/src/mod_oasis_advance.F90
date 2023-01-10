@@ -921,7 +921,7 @@ contains
              if (time_now) then
                 cstring = 'instant'
                 pcpointer%avcnt(nfav) = 1
-                if (pcpointer%aVonfw .and. present(fracwgt)) then
+                if (mapid > 0 .and. pcpointer%aVonfw .and. present(fracwgt)) then
                    if (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p) then
                       ! need to apply fraction to adjusted src field
                       call oasis_debug_note(subname//' apply sndmult sndadd fracwgt')
@@ -984,7 +984,7 @@ contains
              endif
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
 
-             if (pcpointer%aVonfw .and. present(fracwgt)) then
+             if (mapid > 0 .and. pcpointer%aVonfw .and. present(fracwgt)) then
                 if (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p) then
                    ! need to apply fraction to adjusted src field
                    call oasis_debug_note(subname//' apply sndmult sndadd fracwgt')
@@ -1024,7 +1024,7 @@ contains
                 pcpointer%avect5%rAttr(nfav,1:nsav) = &
                    pcpointer%avect5%rAttr(nfav,1:nsav) + array5(1:nsav)
              endif
-             if (pcpointer%aVonfw .and. present(fracwgt)) then
+             if (mapid > 0 .and. pcpointer%aVonfw .and. present(fracwgt)) then
                 pcpointer%avectfw%rAttr(nfav,1:nsav) = &
                    pcpointer%avectfw%rAttr(nfav,1:nsav) + fracwgt(1:nsav)
              endif
