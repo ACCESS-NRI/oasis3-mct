@@ -7,6 +7,7 @@ A. Craig, S. Valcke, L. Coquart, 2017: Development and performance of a new vers
 
 If you have problems or questions, please check the forum on the OASIS3-MCT web site (https://www.cerfacs.fr/site-oasis/forum/oa_main.php) or contact us at oasishelp@cerfacs.fr .
 
+- Add files to run with the new modular environment and to run tests under nitrox (Cerfacs gitlab server)
 - Add support for multiple grids per partition
 - Bugfix for load balacing analysis freezing when all processes are not involved in the coupling observed and solved by Eric
 - Fix use of uninitialized rglo for mask in grid writing.
