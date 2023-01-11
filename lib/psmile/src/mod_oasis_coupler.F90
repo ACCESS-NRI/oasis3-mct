@@ -136,12 +136,13 @@ CONTAINS
 
   integer(kind=ip_i4_p) :: l,n,n1,n2,nn,nv,nm,nv1,nv1a,nns,lnn,nc,nf,nvf,npc,r1,ierr
   integer(kind=ip_i4_p) :: pe,nflds1,nflds2,ncnt,nc2,nf2
-  integer(kind=ip_i4_p) :: part1, part2
+  integer(kind=ip_i4_p) :: part1, part2, partnew
   integer(kind=ip_i4_p) :: spart,dpart ! src, dst partitions for mapping
         ! part1 = my local part, partID
         ! part2 = other partition for mapping
         ! spart = src part for mapping; put=part1, get=part2
         ! dpart = dst part for mapping; put=part2, get=part1
+        ! partnew = temporary part id
   integer(kind=ip_i4_p) :: mapID,namID
   type(mct_sMat),pointer :: sMati(:)
   integer(kind=ip_i4_p) :: ncid,dimid,status
@@ -736,6 +737,8 @@ CONTAINS
 
            !--------------------------------
            !>     * Migrate namcouple info into part
+           !  Create a new partition if same part but on a different grid
+           !  Ignore grids named cspval
            !--------------------------------
 
            IF (OASIS_debug >= 20) THEN
@@ -744,17 +747,81 @@ CONTAINS
            ENDIF
 
            if (flag == OASIS_In) then
-              if (prism_part(part1)%nx < 1) then
+              if (trim(namdstgrd(nn)) /= cspval) then
+                 if ((prism_part(part1)%nx < 1) .or. &
+                     (prism_part(part1)%nx == namdst_nx(nn) .and. &
+                      prism_part(part1)%ny == namdst_ny(nn) .and. &
+                      prism_part(part1)%gridname == trim(namdstgrd(nn)))) then
+                    ! part1 OK
+                 else
+                    partnew = -1
+                    ! find existing part that matches part1 and has matching grid
+                    call oasis_part_find(part1,partnew,namdst_nx(nn),namdst_ny(nn),namdstgrd(nn))
+                    if (partnew > 0) then
+                       IF (OASIS_debug >= 20) THEN
+                          write(nulprt,*) subname,' part_find1 ',prism_part(partnew)%nx,namdst_nx(nn)
+                          write(nulprt,*) subname,' part_find2 ',prism_part(partnew)%ny,namdst_ny(nn)
+                          write(nulprt,*) subname,' part_find3 ',trim(prism_part(partnew)%gridname),' ',trim(namdstgrd(nn))
+                          write(nulprt,*) subname,' part_find4 ',prism_part(partnew)%part0,part1
+                       ENDIF
+                    else
+                       ! or create new part that matches part1 but has new grid
+                       IF (OASIS_debug >= 20) THEN
+                          write(nulprt,*) subname,' part_copy1 ',prism_part(part1)%nx,namdst_nx(nn)
+                          write(nulprt,*) subname,' part_copy2 ',prism_part(part1)%ny,namdst_ny(nn)
+                          write(nulprt,*) subname,' part_copy3 ',trim(prism_part(part1)%gridname),' ',trim(namdstgrd(nn))
+                       ENDIF
+                       call oasis_part_copy(part1,partnew)
+                    endif
+                    prism_var(nv1)%part = partnew
+                    part1 = prism_var(nv1)%part
+                 endif
                  prism_part(part1)%nx = namdst_nx(nn)
                  prism_part(part1)%ny = namdst_ny(nn)
                  prism_part(part1)%gridname = trim(namdstgrd(nn))
+                 IF (OASIS_debug >= 20) THEN
+                    write(nulprt,*) subname,' part init n+g ',trim(prism_part(part1)%gridname),prism_part(part1)%nx,prism_part(part1)%ny
+                 ENDIF
+                 
               endif
            endif
+
            if (flag == OASIS_Out) then
-              if (prism_part(part1)%nx < 1) then
+              if (trim(namsrcgrd(nn)) /= cspval) then
+                 if ((prism_part(part1)%nx < 1) .or. &
+                     (prism_part(part1)%nx == namsrc_nx(nn) .and. &
+                      prism_part(part1)%ny == namsrc_ny(nn) .and. &
+                      prism_part(part1)%gridname == trim(namsrcgrd(nn)))) then
+                    ! part1 OK
+                 else
+                    partnew = -1
+                    ! find existing part that matches part1 and has matching grid
+                    call oasis_part_find(part1,partnew,namsrc_nx(nn),namsrc_ny(nn),namsrcgrd(nn))
+                    if (partnew > 0) then
+                       IF (OASIS_debug >= 20) THEN
+                          write(nulprt,*) subname,' part_find1 ',prism_part(partnew)%nx,namsrc_nx(nn)
+                          write(nulprt,*) subname,' part_find2 ',prism_part(partnew)%ny,namsrc_ny(nn)
+                          write(nulprt,*) subname,' part_find3 ',trim(prism_part(partnew)%gridname),' ',trim(namsrcgrd(nn))
+                          write(nulprt,*) subname,' part_find4 ',prism_part(partnew)%part0,part1
+                       ENDIF
+                    else
+                       ! or create new part that matches part1 but has new grid
+                       IF (OASIS_debug >= 20) THEN
+                          write(nulprt,*) subname,' part_copy1 ',prism_part(part1)%nx,namsrc_nx(nn)
+                          write(nulprt,*) subname,' part_copy2 ',prism_part(part1)%ny,namsrc_ny(nn)
+                          write(nulprt,*) subname,' part_copy3 ',trim(prism_part(part1)%gridname),' ',trim(namsrcgrd(nn))
+                       ENDIF
+                       call oasis_part_copy(part1,partnew)
+                    endif
+                    prism_var(nv1)%part = partnew
+                    part1 = prism_var(nv1)%part
+                 endif
                  prism_part(part1)%nx = namsrc_nx(nn)
                  prism_part(part1)%ny = namsrc_ny(nn)
                  prism_part(part1)%gridname = trim(namsrcgrd(nn))
+                 IF (OASIS_debug >= 20) THEN
+                    write(nulprt,*) subname,' part init n+g ',trim(prism_part(part1)%gridname),prism_part(part1)%nx,prism_part(part1)%ny
+                 ENDIF
               endif
            endif
 
@@ -979,15 +1046,15 @@ CONTAINS
 
               if (pcpointer%valid) then
                  if (pcpointer%comp /= nm) then
-                    WRITE(nulprt,*) subname,estr,'mismatch in field comp for var = ',trim(myfld)
+                    WRITE(nulprt,*) subname,estr,'mismatch in field comp for var = ',trim(myfld),pcpointer%comp,nm
                     call oasis_abort(file=__FILE__,line=__LINE__)
                  endif
                  if (pcpointer%namID /= nn) then
-                    WRITE(nulprt,*) subname,estr,'mismatch in field namID for var = ',trim(myfld)
+                    WRITE(nulprt,*) subname,estr,'mismatch in field namID for var = ',trim(myfld),pcpointer%namID,nn
                     call oasis_abort(file=__FILE__,line=__LINE__)
                  endif
                  if (pcpointer%partID /= part1) then
-                    WRITE(nulprt,*) subname,estr,'mismatch in field partID for var = ',trim(myfld)
+                    WRITE(nulprt,*) subname,estr,'mismatch in field partID for var = ',trim(myfld),pcpointer%partID,part1
                     call oasis_abort(file=__FILE__,line=__LINE__)
                  endif
 

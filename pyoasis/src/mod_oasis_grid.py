@@ -22,6 +22,7 @@
 import numpy
 import ctypes
 from ctypes import c_int, cdll, CDLL
+import pyoasis.exception
 
 cdll.LoadLibrary("liboasis.cbind.so")
 LIB = CDLL("liboasis.cbind.so")
