@@ -33,7 +33,7 @@
     <domain id="interpolated_domain" domain_ref="tgt_domain">
       <interpolate_domain id="interpolation"
 	                  order="ORDER"
-			  renormalize="true"
+			  renormalize="RENORMALIZE"
 			  use_area="false"
 			  quantity="false"
 			  detect_missing_value="true"

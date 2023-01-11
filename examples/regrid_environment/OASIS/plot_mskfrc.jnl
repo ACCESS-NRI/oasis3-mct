@@ -1,0 +1,74 @@
+!palette caramel_bleu
+
+define symbol grid = ($1)
+define symbol ocea = ($2)
+
+let mask = '($grid).MSK'
+let frac = '($grid).FRC'
+
+
+use mask_($grid)_w($ocea).nc
+
+IF `"($grid)" EQ "bggd"` THEN
+   shade/nokey/palette=caramel_bleu/title="Binary ($grid) mask coherent with ($ocea)" mask, LON, LAT
+   frame/file=plot_($grid)_mask_w($ocea).gif
+!   go land
+!   frame/file=plot_($grid)_mask_w($ocea)_land.gif
+
+ELIF `"($grid)" EQ "sse7"` THEN
+   let perlon = IF (LON LE 180) THEN LON ELSE LON-360
+   go basemap x=-180:180 y=-90:90 20 white
+   go polymark polygon/over/nokey/palette=caramel_bleu/title="Binary ($grid) mask coherent with ($ocea)" perlon LAT mask square .3 
+   frame/file=plot_($grid)_mask_w($ocea).gif
+!   go land
+!   frame/file=plot_($grid)_mask_w($ocea)_land.gif
+
+ELIF `"($grid)" EQ "icos"` THEN
+   go basemap x=-180:180 y=-90:90 20 white
+   go polymark polygon/over/nokey/palette=caramel_bleu/title="Binary ($grid) mask coherent with ($ocea)" LON LAT mask hexagon .4
+   frame/file=plot_($grid)_mask_w($ocea).gif
+!   go land
+!   frame/file=plot_($grid)_mask_w($ocea)_land.gif
+
+ELIF `"($grid)" EQ "icoh"` THEN
+   SET MEMORY/SIZE=300
+   go basemap x=-180:180 y=-90:90 20 white
+   go polymark polygon/over/nokey/palette=caramel_bleu/title="Binary ($grid) mask coherent with ($ocea)" LON LAT mask hexagon .1
+   frame/file=plot_($grid)_mask_w($ocea).gif
+!   go land
+!   frame/file=plot_($grid)_mask_w($ocea)_land.gif
+
+ENDIF
+
+set window/new
+use frac_($grid)_w($ocea).nc
+
+IF `"($grid)" EQ "bggd"` THEN
+   shade/key/palette=caramel_bleu_rev/title="Fractional ($grid) mask coherent with ($ocea)" frac, LON, LAT
+   frame/file=plot_($grid)_frac_w($ocea).gif
+!   go land
+!   frame/file=plot_($grid)_frac_w($ocea)_land.gif
+
+ELIF `"($grid)" EQ "sse7"` THEN
+   go basemap x=-180:180 y=-90:90 20 white
+   go polymark polygon/over/key/palette=caramel_bleu_rev/title="Fractional ($grid) mask coherent with ($ocea)" perlon LAT frac square .3
+   frame/file=plot_($grid)_frac_w($ocea).gif
+!   go land
+!   frame/file=plot_($grid)_frac_w($ocea)_land.gif
+
+ELIF `"($grid)" EQ "icos"` THEN
+   go basemap x=-180:180 y=-90:90 20 white
+   go polymark polygon/over/key/palette=caramel_bleu_rev/title="Fractional ($grid) mask coherent with ($ocea)" LON LAT frac hexagon .4
+   frame/file=plot_($grid)_frac_w($ocea).gif
+!   go land
+!   frame/file=plot_($grid)_frac_w($ocea)_land.gif
+
+ELIF `"($grid)" EQ "icoh"` THEN
+   go basemap x=-180:180 y=-90:90 20 white
+   go polymark polygon/over/key/palette=caramel_bleu_rev/title="Fractional ($grid) mask coherent with ($ocea)" LON LAT frac hexagon .1
+   frame/file=plot_($grid)_frac_w($ocea).gif
+!   go land
+!   frame/file=plot_($grid)_frac_w($ocea)_land.gif
+
+ENDIF
+

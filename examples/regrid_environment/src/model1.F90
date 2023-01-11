@@ -27,7 +27,7 @@ PROGRAM model1
   CHARACTER(len=128) :: comp_out       ! name of the output log file
   CHARACTER(len=3)   :: chout
   CHARACTER(len=4)   :: cl_grd_src, cl_grd_tgt     ! name of the source grid
-  CHARACTER(len=11)  :: cl_remap       ! type of remapping
+  CHARACTER(len=20)  :: cl_remap       ! type of remapping
   CHARACTER(len=2)   :: cl_type_src    ! type of the source grid
   CHARACTER(len=2)   :: cl_type_tgt    ! type of the target grid
   CHARACTER(len=8)   :: cl_period_src  ! periodicity of the source grid (P=periodic or R=regional)
@@ -53,6 +53,7 @@ PROGRAM model1
   REAL (kind=wp), ALLOCATABLE   :: grid_lon_t(:,:), grid_lat_t(:,:) ! lon, lat of the cell centers
   INTEGER, ALLOCATABLE          :: grid_msk_s(:,:) ! mask, 0 == valid point, 1 == masked point
   INTEGER, ALLOCATABLE          :: grid_msk_t(:,:), grid_msk_t_global(:,:) ! mask, 0 == valid point, 1 == masked point
+  REAL (kind=wp), ALLOCATABLE   :: grid_frc_t(:,:), grid_frc_t_global(:,:) ! fractional mask
   !
   INTEGER :: mype, npes ! MPI task rank and number
   INTEGER :: local_comm  ! local MPI communicator
@@ -84,6 +85,10 @@ PROGRAM model1
   REAL (kind=wp), ALLOCATABLE   :: grid_lon_global_t(:,:), grid_lat_global_t(:,:)
   REAL (kind=wp), ALLOCATABLE   :: field_ana(:,:), field_error(:,:), field_error_global(:,:)
   INTEGER, ALLOCATABLE          :: mask_error(:,:), mask_error_global(:,:) ! error mask, 0 == masked point, 1 == valid point
+#ifdef Fmask
+  REAL, PARAMETER               :: rp_water_thresh = 0.001 ! water threshold below which the atmospheric point will be masked
+  INTEGER, ALLOCATABLE          :: mask_atmo(:,:), mask_atmo_global(:,:) ! atmospheric mask, 0 == masked point, 1 ==valid point 
+#endif
   INTEGER, ALLOCATABLE          :: il_size_all(:), il_offset_all(:)
   !
   INTEGER :: ic_nmsk, ic_nmskrv
@@ -246,6 +251,7 @@ PROGRAM model1
   ALLOCATE(grid_lon_t(il_extentx_t, il_extenty_t), STAT=ierror )
   ALLOCATE(grid_lat_t(il_extentx_t, il_extenty_t), STAT=ierror )
   ALLOCATE(grid_msk_t(il_extentx_t, il_extenty_t), STAT=ierror )
+  ALLOCATE(grid_frc_t(il_extentx_t, il_extenty_t), STAT=ierror )
   !
   ! Reading local grid arrays from input file ocean_mesh.nc
   WRITE(w_unit,*) 'Before read_grid, nlon_t, nlat_t', nlon_t, nlat_t
@@ -254,10 +260,19 @@ PROGRAM model1
   CALL read_grid(nlon_t, nlat_t, il_offsetx_t+1, il_offsety_t+1, il_extentx_t, il_extenty_t, &
                 cl_grd_tgt, w_unit, grid_lon_t, grid_lat_t, file_debug) 
   WRITE(w_unit,*) 'After read_grid, nlon_t, nlat_t', nlon_t, nlat_t
+  call flush(w_unit)
   CALL read_mask(nlon_t, nlat_t, il_offsetx_t+1, il_offsety_t+1, il_extentx_t, il_extenty_t, &
                 cl_grd_tgt, w_unit, grid_msk_t, file_debug) 
   WRITE(w_unit,*) 'After read_mask, nlon_t, nlat_t', nlon_t, nlat_t
   call flush(w_unit)
+  IF (inquire_frac(cl_grd_tgt, w_unit, file_debug)) THEN
+      CALL read_frac(nlon_t, nlat_t, il_offsetx_t+1, il_offsety_t+1, il_extentx_t, il_extenty_t, &
+                cl_grd_tgt, w_unit, grid_frc_t, file_debug)
+      WRITE(w_unit,*) 'After read_frac, nlon_t, nlat_t', nlon_t, nlat_t
+      call flush(w_unit)
+  ELSE
+      grid_frc_t=1.
+  ENDIF
   !
   IF (file_debug) THEN
       WRITE(w_unit,*) 'After grid and mask reading'
@@ -314,12 +329,16 @@ PROGRAM model1
   ALLOCATE(field_send(il_extentx_s, il_extenty_s), STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field1_send'
   !
-#ifdef FANA1
-  CALL function_ana1(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
-#elif defined FANA2
-  CALL function_ana2(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
-#elif defined FANA3
+#ifdef Fsinusoid
+  CALL function_sinusoid(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
+#elif defined Fgulfstream
+  CALL function_gulfstream(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
+#elif defined Fvortex
   CALL function_vortex(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
+#elif defined Fharmonic
+  CALL function_harmonic(il_extentx_s, il_extenty_s, grid_lon_s, grid_lat_s, field_send)
+#elif defined Fmask
+  field_send(:,:) = 1.0 - grid_msk_s(:,:)
 #endif
   !
 
@@ -365,7 +384,7 @@ PROGRAM model1
           ENDIF
           !
           ! Special treament for 2nd order conservative remapping
-      ELSE IF (cl_remap == 'conserv2nd') THEN
+      ELSE IF (cl_remap(1:11) == 'conserv_2nd') THEN
           IF ( trim(cl_type_src) == 'LR') THEN
               ! Calculate the gradients in lat and lon directions needed for 2nd order
               ! conservative remapping for LR grids
@@ -417,12 +436,16 @@ PROGRAM model1
   ALLOCATE(mask_error(il_extentx_t, il_extenty_t),STAT=ierror )
   IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating mask_error'  
   !
-#ifdef FANA1
-  CALL function_ana1(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
-#elif defined FANA2
-  CALL function_ana2(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
-#elif defined FANA3
+#ifdef Fsinusoid
+  CALL function_sinusoid(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
+#elif defined Fgulfstream
+  CALL function_gulfstream(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
+#elif defined Fvortex
   CALL function_vortex(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
+#elif defined Fharmonic
+  CALL function_harmonic(il_extentx_t, il_extenty_t, grid_lon_t, grid_lat_t, field_ana)
+#elif defined Fmask
+  field_ana(:,:) = 1.0 - grid_msk_t(:,:) ! the fractional part of water on ocean grid
 #endif
   !
   ! Get the field FRECVANA
@@ -443,20 +466,27 @@ PROGRAM model1
   !   - on non-masked points that did not receive any interpolated value: field value of 1.e20, error of -1.e20
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   ! 
+  field_error=0.
   mask_error=1
   WHERE (grid_msk_t == 1)     ! masked points
-     field_error=0.
      field_recv=10000.
      mask_error=0
   ELSEWHERE                     ! non-masked points
      WHERE (field_recv /= 0.)   ! non-masked points that received an interpolated value (works only if function is not 0 anywhere)
-        field_error = ABS(((field_ana - field_recv)/field_recv))*100
+        field_error = ABS(((field_ana - field_recv)/field_ana))*100
      ELSEWHERE   ! non-masked points that did not receive an interpolated value
         field_error=-1.e20
+#ifndef Fmask
         field_recv=1.e20
+#endif
         mask_error=0
      END WHERE
   END WHERE   
+  !
+  ! For conserv destarea remapping, to exclude coast cells (when gridname.frc exists) in the error calculation
+  IF (TRIM(cl_remap(1:7)) == 'conserv' .AND. TRIM(cl_remap(13:20)) == 'destarea') THEN
+     WHERE (grid_frc_t<0.99) mask_error=0
+  ENDIF
   !
   IF (file_debug) THEN
       WRITE (w_unit,*) 'After calculating the interpolation error'
@@ -481,6 +511,7 @@ PROGRAM model1
       IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating field_recv_global'
       ALLOCATE(mask_error_global(nlon_t, nlat_t),STAT=ierror )
       ALLOCATE(grid_msk_t_global(nlon_t, nlat_t),STAT=ierror )
+      ALLOCATE(grid_frc_t_global(nlon_t, nlat_t),STAT=ierror )
       ALLOCATE(grid_lon_global_t(nlon_t, nlat_t),STAT=ierror )
       ALLOCATE(grid_lat_global_t(nlon_t, nlat_t),STAT=ierror )
       field_recv_global(:,:) = 0.0
@@ -503,7 +534,10 @@ PROGRAM model1
   WRITE (w_unit,*) 'After MPI_GATHERv mask_error_global'
   CALL FLUSH(w_unit)  
   CALL MPI_Gatherv(grid_msk_t, il_size_t, MPI_INTEGER, grid_msk_t_global, il_size_all , il_offset_all, MPI_INTEGER, 0, local_comm, ierror)
-  WRITE (w_unit,*) 'After MPI_GATHERv mask_error_global'
+  WRITE (w_unit,*) 'After MPI_GATHERv grid_msk_t_global'
+  CALL FLUSH(w_unit)  
+  CALL MPI_Gatherv(grid_frc_t, il_size_t, MPI_INTEGER, grid_frc_t_global, il_size_all , il_offset_all, MPI_INTEGER, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHERv grid_frc_t_global'
   CALL FLUSH(w_unit)  
   CALL MPI_Gatherv(grid_lon_t, il_size_t, MPI_DOUBLE_PRECISION, grid_lon_global_t, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
   WRITE (w_unit,*) 'After MPI_GATHERv grid_lon_global_t'
@@ -562,6 +596,74 @@ PROGRAM model1
       WRITE(w_unit,*) 'Before oasis_terminate'
       CALL FLUSH(w_unit)
   ENDIF
+
+#ifdef Fmask
+  !
+  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ! Modify the received field to build a good fractional mask in [0,1].
+  ! Build the atmospheric mask where fraction <= water_threshold (and set
+  ! there fractional mask to 0).
+  !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ! 
+  ALLOCATE(mask_atmo(il_extentx_t, il_extenty_t),STAT=ierror )
+  IF ( ierror /= 0 ) WRITE(w_unit,*) 'Error allocating mask_atmo'  
+  mask_atmo=0   ! OASIS convention (0=valid cell)
+
+  !GJ for bug correction of SCRIP destarea when nogt is source grid. Useless for ESMF and XIOS.
+  IF (TRIM(cl_grd_src) == 'nogt' .AND. &
+   & (TRIM(cl_grd_tgt) == 'bggd' .OR. TRIM(cl_grd_tgt) == 'sse7')) THEN
+      WHERE(field_recv < 0.0) field_recv = 1.0 ! At the North Pole
+  ENDIF
+  !GJ for bug correction of SCRIP destarea when torc is source grid. Useless for ESMF and XIOS. 
+  IF (TRIM(cl_grd_src) == 'torc' .AND. &
+   & (TRIM(cl_grd_tgt) == 'bggd' .OR. TRIM(cl_grd_tgt) == 'icos' .OR. TRIM(cl_grd_tgt) == 'sse7')) THEN
+      WHERE(field_recv < 0.0) field_recv = 1.0  ! At the North Pole or at the north of the Red Sea (for icos)
+  ENDIF
+
+  WHERE(field_recv <= rp_water_thresh)
+      field_recv = 0.0
+      mask_atmo = 1   ! OASIS convention (1=masked cell)
+  END WHERE
+  WHERE(field_recv > 1.0) field_recv = 1.0
+  !should be better: WHERE(field_recv >= (1.0-rp_water_thresh)) field_recv = 1.0
+
+  ! Gather again the global field and gather the global atmospheric mask on master process 
+  IF (mype == 0) THEN
+      field_recv_global = 0.0
+      ALLOCATE(mask_atmo_global(nlon_t, nlat_t),STAT=ierror )
+      mask_atmo_global = 0.0
+  ENDIF
+  CALL MPI_Gatherv(field_recv, il_size_t, MPI_DOUBLE_PRECISION, field_recv_global, il_size_all , il_offset_all, MPI_DOUBLE_PRECISION, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHERv again field_recv_global'
+  CALL FLUSH(w_unit)
+  CALL MPI_Gatherv(mask_atmo, il_size_t, MPI_INTEGER, mask_atmo_global, il_size_all , il_offset_all, MPI_INTEGER, 0, local_comm, ierror)
+  WRITE (w_unit,*) 'After MPI_GATHERv mask_atmo_global'
+  CALL FLUSH(w_unit)  
+
+
+  IF (mype == 0) THEN
+      !
+      !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      !  Write the frac in a NetCDF file on master process
+      !  Write the mask in a NetCDF file on master process
+      !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      !
+      data_filename='frac_'//TRIM(cl_grd_tgt)//'_w'//TRIM(cl_grd_src)//'.nc'
+      field_name=TRIM(cl_grd_tgt)//'.frc'
+      CALL write_field(nlon_t, nlat_t, data_filename, field_name, w_unit, file_debug, grid_lon_global_t, grid_lat_global_t, field_recv_global)
+      !
+      data_filename='mask_'//TRIM(cl_grd_tgt)//'_w'//TRIM(cl_grd_src)//'.nc'
+      field_name=TRIM(cl_grd_tgt)//'.msk'
+      CALL write_field_i2(nlon_t, nlat_t, data_filename, field_name, w_unit, file_debug, grid_lon_global_t, grid_lat_global_t, mask_atmo_global, rp_water_thresh)
+
+  ELSE
+      WRITE(w_unit,*) 'Before oasis_terminate with function mask'
+      CALL FLUSH(w_unit)
+  ENDIF
+#endif
+
+
+
   !
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !         TERMINATION 

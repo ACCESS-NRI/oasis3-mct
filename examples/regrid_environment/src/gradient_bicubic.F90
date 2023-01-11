@@ -111,12 +111,14 @@ INTEGER, PARAMETER ::  il_maskval= 1 ! in our grids sea_value = 0 and land_value
 !     Global field from analytical function
 !     -------------------------------------
       ALLOCATE(src_array(NX1, NY1))
-#ifdef FANA1
-      CALL function_ana1(NX1, NY1, src_lon, src_lat, src_array)
-#elif defined FANA2
-      CALL function_ana2(NX1, NY1, src_lon, src_lat, src_array)
-#elif defined FANA3
-      CALL function_ana3(NX1, NY1, src_lon, src_lat, src_array)
+#ifdef Fsinusoid
+      CALL function_sinusoid(NX1, NY1, src_lon, src_lat, src_array)
+#elif defined Fgulfstream
+      CALL function_gulfstream(NX1, NY1, src_lon, src_lat, src_array)
+#elif defined Fvortex
+      CALL function_vortex(NX1, NY1, src_lon, src_lat, src_array)
+#elif defined Fharmonic
+      CALL function_harmonic(NX1, NY1, src_lon, src_lat, src_array)
 #endif
 
 !     Global gradient allocation
