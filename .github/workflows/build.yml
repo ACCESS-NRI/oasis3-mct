@@ -10,3 +10,6 @@ on:
 jobs:
   build:
     uses: access-nri/workflows/.github/workflows/oasis3-mct-build.yml@main
+
+    permissions:
+      packages: read
