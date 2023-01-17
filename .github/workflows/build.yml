@@ -9,4 +9,4 @@ on:
 
 jobs:
   build:
-    uses: access-nri/workflows/oasis3-mct/workflows/build.yml@main
+    uses: access-nri/workflows/.github/workflows/oasis3-mct-build.yml@main

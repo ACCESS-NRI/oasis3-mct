@@ -5,4 +5,4 @@ on:
 
 jobs:
   build-and-push-image:
-    uses: access-nri/workflows/oasis3-mct/workflows/build-and-push-image.yml@main
+    uses: access-nri/workflows/.github/workflows/oasis3-mct-build-and-push-image.yml@main
