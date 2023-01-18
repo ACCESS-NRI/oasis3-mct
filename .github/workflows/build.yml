@@ -9,7 +9,10 @@ on:
 
 jobs:
   build:
-    uses: access-nri/workflows/.github/workflows/oasis3-mct-build.yml@main
-
+    uses: access-nri/workflows/.github/workflows/build-package.yml@main
+    with:
+      container-registry: ghcr.io
+      container-name: ${{ github.event.repository.name }}-build-image
+      package-name: access.nri.oasis3-mct
     permissions:
       packages: read
