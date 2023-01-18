@@ -12,7 +12,7 @@ jobs:
     uses: access-nri/workflows/.github/workflows/build-package.yml@main
     with:
       container-registry: ghcr.io
-      container-name: ${{ github.event.repository.name }}-build-image
+      container-path: access-nri/${{ github.event.repository.name }}-build-image
       package-name: access.nri.oasis3-mct
     permissions:
       packages: read
