@@ -5,8 +5,11 @@ on:
 
 jobs:
   build-and-push-image:
-    uses: access-nri/workflows/.github/workflows/oasis3-mct-build-and-push-image.yml@main
-
+    uses: access-nri/workflows/.github/workflows/build-and-push-image.yml@main
+    with:
+      container-registry: ghcr.io
+      container-path: access-nri/${{ github.event.repository.name }}-build-image
+      dockerfile-directory: ci
     permissions:
       contents: read
       packages: write
