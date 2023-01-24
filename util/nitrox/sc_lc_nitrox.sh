@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
+
 export nitrox_env=$1 
 export debug=$2
-export nitrox_oasis_root=$3
 
 declare -a StringArrayv1=("compile" "toy_1f1grd_to_2f2grd" "toy_auxiliary_routines" \
                           "toy_bundle" "toy_CHECKIN_BLASOLD_BLASNEW_CHECKOUT" \
@@ -23,10 +23,6 @@ echo '-------------------------------------------------'
 echo 'TOY TESTED     : '${nitrox_example}
 echo '-------------------------------------------------'
        cp lc_nitrox_${nitrox_env}_${debug}/env_tests_param_${nitrox_env}_${nitrox_example} env_tests_param_${nitrox_env}
-       NEW_OASIS_ROOT=`dirname ${nitrox_oasis_root}`
-       sed -i 's+OASIS_ROOT=/space/coquart+OASIS_ROOT=${NEW_OASIS_ROOT}+g' env_tests_param_${nitrox_env}
-       sed -i 's+OASIS_COUPLE=${OASIS_ROOT}/oasis3-mct+OASIS_COUPLE=/home/globc/coquart/${nitrox_oasis_root}+g' env_tests_param_${nitrox_env}
-echo "PATHS changed in env_tests_param_${nitrox_env}"
        cp ../env_tests/sc_top.sh sc_top.sh
        cp ../env_tests/sc_compile_oasis.sh sc_compile_oasis.sh
        cp ../env_tests/oasis_test_build.sh oasis_test_build.sh
