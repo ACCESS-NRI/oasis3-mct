@@ -29,7 +29,7 @@ f           = $(F90)
 CC          = gcc
 LD          = mpif90
 AR          = ar
-ARFLAGS     = -ruv
+ARFLAGS     = -rvD
 #
 # CPP keys and compiler options
 # 
