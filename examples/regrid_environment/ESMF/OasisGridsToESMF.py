@@ -10,7 +10,7 @@ Output: netcdf grid file in ESMF-SCRIP format
         netcdf grid file in ESMF unstructured format if the grid is unstructured
 """
 
-__author__ = "Gabriel Jonville - July 2019 - Updated february 2021"
+__author__ = "Gabriel Jonville - July 2019 - Updated January 2023"
 
 import os
 import sys
@@ -20,11 +20,12 @@ import time
 import subprocess
 
 #print(str(sys.argv))
-if len(sys.argv) == 3:
+if len(sys.argv) == 4:
     grid = sys.argv[1]
     fgridoasis_path = sys.argv[2]
+    grid_is_unstruct = sys.argv[3]
 else:
-    print("USAGE: python ./{} gridname gridpath".format(sys.argv[0]))
+    print("USAGE: python ./{} gridname gridpath gridisunstruct".format(sys.argv[0]))
     sys.exit()
 
 fgridoasis = 'grids.nc'
@@ -35,8 +36,8 @@ fgridoasis = 'grids.nc'
 #    sys.exit()
 
 
-def grid_is_unstruct(gr):
-    return gr in ("t12e", "icos", "icoh", "bt42", "ssea", "sse7", "t127", "t359","t799")
+#def grid_is_unstruct(gr):
+#    return gr in ("t12e", "icos", "icoh", "bt42", "ssea", "sse7", "t127", "t359","t799")
 
 
 fgridesmf_s=grid+'_ESMF_ScripFmt.nc'
@@ -153,7 +154,8 @@ fgridesmf = grid+'_ESMF.nc'
 if os.path.exists(os.path.join('.',fgridesmf)):
     os.remove(os.path.join('.',fgridesmf))
 
-if grid_is_unstruct(grid):
+if grid_is_unstruct=="True":
+    print("Convert grid {} to ESMF unstructured format".format(grid))
     fgridesmf_u = grid+'_ESMF_unstruct.nc'
     cmd = 'ESMF_Scrip2Unstruct {} {} 0'.format(fgridesmf_s,fgridesmf_u)
     #from python3.5#subprocess.run(cmd,shell=True)

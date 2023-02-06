@@ -56,14 +56,14 @@ if [ ${TGRID} != "bggd" ] && [ ${TGRID} != "sse7" ] && [ ${TGRID} != "icos" ] &&
     echo "Target grid must be either bggd, sse7, icos, icoh, nogt, torc"
     exit
 fi
-if [ ${SGRID} == "bggd" ] && [ ${SGRID} == "sse7" ] && [ ${SGRID} == "icos" ] && [ ${SGRID} == "icoh" ]; then
+if [ ${SGRID} == "bggd" ] || [ ${SGRID} == "sse7" ] || [ ${SGRID} == "icos" ] || [ ${SGRID} == "icoh" ]; then
     if [ ${TGRID} != "nogt" ] && [ ${TGRID} != "torc" ]; then
 	echo "You have to match an atmospheric grid (bggd, sse7, icos or icoh) with an ocean grid (nogt, torc)"
 	exit
     fi
 fi	
-if [ ${TGRID} == "bggd" ] && [ ${TGRID} == "sse7" ] && [ ${TGRID} == "icos" ] && [ ${TGRID} == "icoh" ]; then
-    if [ ${SGRID} != "nogt" ] && [ ${SGRID} != "torc" ]; then
+if [ ${SGRID} == "nogt" ] || [ ${SGRID} == "torc" ]; then
+    if [ ${TGRID} != "bggd" ] && [ ${TGRID} != "sse7" ] && [ ${TGRID} != "icos" ] && [ ${TGRID} != "icoh" ]; then
 	echo "You have to match an an ocean grid (nogt, torc) with an atmospheric grid (bggd, sse7, icos or icoh)" 
 	exit
     fi
@@ -200,6 +200,22 @@ fi
 
 ##
 if [ ${library} == "ESMF" ]; then
+    # Knowing if the source grid is unstructured 
+    if [ ${STYPE} = "LR" ]; then
+        sgridIsUnstruct="False"
+    else
+        sgridIsUnstruct="True"
+    fi
+    # With the current ESMF, nogt should be transformed to an unstructured grid for conservative methods
+    if [ ${SGRID} == "nogt" ] && [ ${method} == "conserv" ]; then
+        sgridIsUnstruct="True"
+    fi
+    # Knowing if the target grid is unstructured 
+    if [ ${TTYPE} = "LR" ]; then
+        tgridIsUnstruct="False"
+    else
+        tgridIsUnstruct="True"
+    fi
     cp -f $esmfdir/OasisGridsToESMF.py  $rundir/.
     cp -f $esmfdir/ESMFWeightsToOasis.sh  $rundir/.
     ### Define regridding options
@@ -264,11 +280,12 @@ cd $rundir
 ### KRAKEN_INTEL_IMPI_OPENMP 
 ###---------------------------------------------------------------------
 if [ ${arch} == kraken_intel_impi_openmp ]; then
-    timreq=00:30:00
+    queue=prodshared
+    timreq=00:10:00
     cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash -l
 #Partition
-#SBATCH --partition debug
+#SBATCH --partition=$queue
 # Nom du job
 #SBATCH --job-name ${n_p_t}
 # Time limit for the job
@@ -308,8 +325,8 @@ export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
 export OMP_NUM_THREADS=$threads
 
-python ./OasisGridsToESMF.py $SGRID $rundir
-python ./OasisGridsToESMF.py $TGRID $rundir
+python ./OasisGridsToESMF.py $SGRID $rundir $sgridIsUnstruct
+python ./OasisGridsToESMF.py $TGRID $rundir $tgridIsUnstruct
 # Generate ESMF weights
 time mpirun -np $nproces ESMF_RegridWeightGen -s ${SGRID}_ESMF.nc -d ${TGRID}_ESMF.nc -m ${esmfmethod} -w ESMFweights.nc --ignore_degenerate ${options}
 
@@ -377,8 +394,8 @@ EOF
     elif [ ${library} == "ESMF" ]; then
 	cat <<EOF >> $rundir/run_$casename.$arch
 # Convert OASIS grid file in ESMF format
-python ./OasisGridsToESMF.py $SGRID $rundir
-python ./OasisGridsToESMF.py $TGRID $rundir
+python ./OasisGridsToESMF.py $SGRID $rundir $sgridIsUnstruct
+python ./OasisGridsToESMF.py $TGRID $rundir $tgridIsUnstruct
 
 # Generate ESMF weights
 time mpirun -np $nproces ESMF_RegridWeightGen -s ${SGRID}_ESMF.nc -d ${TGRID}_ESMF.nc -m ${esmfmethod} -w ESMFweights.nc --ignore_degenerate ${options}
