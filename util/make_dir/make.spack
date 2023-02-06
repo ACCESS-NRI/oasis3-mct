@@ -1,6 +1,5 @@
 #
-# Include file for OASIS3 Makefile for a Linux system using 
-# Portland Group Fortran Compiler and MPICH
+# Include file for OASIS3 Makefile for a Linux Spack package management system
 #
 ###############################################################################
 #
@@ -16,33 +15,30 @@ COUPLE          = $(OASIS_HOME)
 ARCHDIR         = $(COUPLE)/compile_oa3-mct
 
 #
-# NETCDF library
-NETCDF_INCLUDE  = /usr/include
-NETCDF_LIBRARY  = -L/usr/lib -lnetcdff
-#
 # Compiling and other commands
 MAKE        = make
-F90         = mpif90 -Wall -fallow-argument-mismatch
+F90         = DEFINEINSPACK
 F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
-CC          = gcc
-LD          = mpif90
+CC          = DEFINEINSPACK
+LD          = $(F90)
 AR          = ar
 ARFLAGS     = -rvD
 #
 # CPP keys and compiler options
-# 
+#
 CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 #
-# 
-F90FLAGS_1  = 
+#
+
+F90FLAGS_1  = -Wall -fallow-argument-mismatch
 f90FLAGS_1  = $(F90FLAGS_1)
 FFLAGS_1    = $(F90FLAGS_1)
 fFLAGS_1    = $(F90FLAGS_1)
-CCFLAGS_1   = 
-LDFLAGS     = 
-MCT_FCFLAGS =
+CCFLAGS_1   =
+LDFLAGS     =
+MCT_FCFLAGS = -Wall -fallow-argument-mismatch
 #
 ###################
 #
@@ -54,12 +50,27 @@ BINDIR          = $(ARCHDIR)/bin
 # LIBBUILD      : contains a directory for each library
 LIBBUILD        = $(ARCHDIR)/build/lib
 # INCPSMILE     : includes all *o and *mod for each library
-INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/pio  -I$(LIBBUILD)/mct 
+INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/mct
 
-F90FLAGS  = $(F90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-f90FLAGS  = $(f90FLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-FFLAGS    = $(FFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-fFLAGS    = $(fFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
-CCFLAGS   = $(CCFLAGS_1) $(INCPSMILE) $(CPPDEF) -I$(NETCDF_INCLUDE)
+# https://www.gnu.org/software/make/manual/html_node/Conditional-Syntax.html
+ifeq ($(strip $(F90FLAGS)),)
+F90FLAGS  = $(F90FLAGS_1) $(INCPSMILE) $(CPPDEF)
+endif
+
+ifeq ($(strip $(f90FLAGS)),)
+f90FLAGS  = $(f90FLAGS_1) $(INCPSMILE) $(CPPDEF)
+endif
+
+ifeq ($(strip $(FFLAGS)),)
+FFLAGS    = $(FFLAGS_1) $(INCPSMILE) $(CPPDEF)
+endif
+
+ifeq ($(strip $(fFLAGS)),)
+fFLAGS    = $(fFLAGS_1) $(INCPSMILE) $(CPPDEF)
+endif
+
+ifeq ($(strip $(CCFLAGS)),)
+CCFLAGS   = $(CCFLAGS_1) $(INCPSMILE) $(CPPDEF)
+endif
 #
 #############################################################################

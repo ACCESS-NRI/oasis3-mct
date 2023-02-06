@@ -37,7 +37,7 @@ INCPATH:= $(INCFLAG)$(SRCDIR)/mpi-serial $(INCFLAG). $(INCFLAG)../ $(INCPATH)
 # ALLCFLAGS= -DFORTRAN_CAPS
 
 # FC=pgf90
-# AR=ar rv
+# AR=ar rvD
 # CC=cc
 
 

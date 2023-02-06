@@ -29,7 +29,7 @@ f           = $(F90)
 
 LD          = $(F90)
 AR          = ar
-ARFLAGS     = -ruv
+ARFLAGS     = -rvD
 
 # -g is necessary in F90FLAGS and LDFLAGS for pgf90 versions lower than 6.1
 # For compiling in double precision, put -r8
