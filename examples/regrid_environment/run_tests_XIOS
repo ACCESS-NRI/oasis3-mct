@@ -6,7 +6,7 @@ n_p_t=$2
 ext=$3
 library=XIOS
 casename=`basename $srcdir`
-remaps="conserv_1st_fracarea conserv_2nd_fracarea"
+remaps="conserv_1st_fracarea conserv_2nd_fracarea conserv_1st_destarea conserv_2nd_destarea"
 
 for SGRID in bggd icos sse7  ; do
     for TGRID in nogt torc ; do

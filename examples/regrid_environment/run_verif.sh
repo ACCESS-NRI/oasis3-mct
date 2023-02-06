@@ -11,7 +11,8 @@ cd RUNDIR_${library}_${ext}
 for rundir in `ls -d ${casename}_*_${n_p_t}_*` ; do
     sgrid=`echo $rundir | awk -F _ '{print $3}'`
     tgrid=`echo $rundir | awk -F _ '{print $4}'`
-    remap=`echo $rundir | awk -F _ '{print $5}'`
+    #remap=`echo $rundir | awk -F _ '{print $5}'`
+    remap=`grep "Remapping :" ${rundir}/model1.out_100 | awk -F " " '{print $3}'`
     resu=`grep "Error mean" ${rundir}/model1.out_100 | awk -F " " '{print $12}'`
     echo ${sgrid} ' ' ${tgrid} ' ' ${remap} ' : ' ${resu} >> $fileres
 done

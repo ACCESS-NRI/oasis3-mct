@@ -6,7 +6,7 @@ n_p_t=$2
 ext=$3
 library=SCRP
 casename=`basename $srcdir`
-remaps="distwgt bili bicu conserv_1st_fracarea conserv_2nd_fracarea"
+remaps="distwgt bili bicu conserv_1st_fracarea conserv_2nd_fracarea conserv_1st_destarea conserv_2nd_destarea"
 
 for SGRID in bggd ; do
    for TGRID in nogt torc ; do
@@ -17,14 +17,14 @@ for SGRID in bggd ; do
 done
 for SGRID in sse7 ; do
    for TGRID in nogt torc ; do
-       for remap in distwgt bili bicu conserv_1st_fracarea ; do
+       for remap in distwgt bili bicu conserv_1st_fracarea conserv_1st_destarea ; do
 	   ./run_regrid.sh $SGRID $TGRID $remap $fana $n_p_t $library $ext
        done
    done
 done
 for SGRID in icos ; do
    for TGRID in nogt torc ; do
-       for remap in distwgt conserv_1st_fracarea ; do
+       for remap in distwgt conserv_1st_fracarea conserv_1st_destarea ; do
            ./run_regrid.sh $SGRID $TGRID $remap $fana $n_p_t $library $ext
        done
    done

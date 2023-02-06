@@ -577,7 +577,7 @@ PROGRAM model1
       !
       max=MAXVAL(field_error_global, MASK=mask_error_global>0)
       IF (file_debug) THEN
-          WRITE(w_unit,'(A47,1X,F6.4)')'Max (%) and its location in the error field : ',max
+          WRITE(w_unit,'(A47,1X,F10.4)')'Max (%) and its location in the error field : ',max
           WRITE(w_unit,*) MAXLOC(field_error_global)
           CALL FLUSH(w_unit)
       ENDIF
@@ -587,7 +587,7 @@ PROGRAM model1
           WRITE(w_unit,*) 'Number of non-masked points :',ic_nmsk
           ic_nmskrv=SUM(mask_error_global)
           WRITE(w_unit,*) 'Number of non-masked points that received a value :',ic_nmskrv
-          WRITE(w_unit,'(A60,1X,F6.4)') 'Error mean on non masked points that received a value (%): ', SUM(ABS(field_error_global), MASK=mask_error_global>0)/ic_nmskrv
+          WRITE(w_unit,'(A60,1X,F10.4)') 'Error mean on non masked points that received a value (%): ', SUM(ABS(field_error_global), MASK=mask_error_global>0)/ic_nmskrv
           WRITE(w_unit,*) 'Delta error (%/echelle) :',(max - min)/echelle
           WRITE(w_unit,*) 'End calculation of stat on the error'
           CALL FLUSH(w_unit)
