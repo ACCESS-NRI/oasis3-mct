@@ -12,7 +12,7 @@ tests_toys_oasis_tioman:
      - ssh tioman "rm -rf /space/coquart/oasis3-mct"
      - ssh tioman "cd /space/coquart; git clone git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
      - ssh tioman "cd /space/coquart/oasis3-mct/util/nitrox;./sc_lc_nitrox.sh tioman_intel21.1.1_intelmpi2021.1.1 DEBUGT"
-     - ssh tioman "rm -rf $CI_PROJECT_DIR"
+     - ssh tioman "rm -rf /home/globc/coquart/builds"
 
 tests_toys_oasis_stiff:
      tags:
