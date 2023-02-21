@@ -58,7 +58,7 @@ makemct:
 	#       it as is. Refer to:
 	#       https://github.com/ACCESS-NRI/oasis3-mct/issues/4
 	(cd $(ARCHDIR)/build/lib/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
-         ./configure MPIFC="$(F90)" FC="$(F90)" CC="$(CC)" FCFLAGS="$(MCT_FCFLAGS)" \
+         ./configure MPIFC="$(F90)" FC="$(F90)" CC="$(CC)" CFLAGS="$(CFLAGS)" FCFLAGS="$(MCT_FCFLAGS)" \
           > >(tee -a $(LOG)) 2> >(tee -a $(ERR) >&2) ;\
          $(MAKE) > >(tee -a $(LOG)) 2> >(tee -a $(ERR) >&2) ; \
          cp -f ./*/lib*.a   $(ARCHDIR)/lib/; \

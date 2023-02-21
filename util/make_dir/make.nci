@@ -30,10 +30,12 @@ f           = $(F90)
 LD          = $(F90)
 AR          = ar
 ARFLAGS     = -rvD
+CFLAGS      =
 
 # -g is necessary in F90FLAGS and LDFLAGS for pgf90 versions lower than 6.1
 # For compiling in double precision, put -r8
 # For compiling in single precision, remove -r8 and add -Duse_realtype_single
+# Causes non-deterministic builds: -traceback -debug all
 NCI_INTEL_FLAGS = -r8 -i4 -traceback -fpe0 -convert big_endian -fno-alias -ip -check noarg_temp_created
 NCI_REPRO_FLAGS = -fp-model precise -fp-model source -align all
 ifeq ($(DEBUG), yes)
