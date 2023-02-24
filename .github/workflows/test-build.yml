@@ -13,7 +13,7 @@ jobs:
     with:
       container-registry: ghcr.io
       container-name: access-nri/build-${{ github.event.repository.name }}-intel2021.1.2
-      package-name: access.nri.oasis3-mct
+      package-name: oasis3-mct
       compiler-name: intel
       compiler-version: 2021.1.2
     permissions:
