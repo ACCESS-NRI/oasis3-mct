@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-
 export nitrox_env=$1 
 export debug=$2
 
