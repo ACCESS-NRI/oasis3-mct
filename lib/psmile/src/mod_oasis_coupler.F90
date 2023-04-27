@@ -748,10 +748,10 @@ CONTAINS
 
            if (flag == OASIS_In) then
               if (trim(namdstgrd(nn)) /= cspval) then
-                 if ((prism_part(part1)%nx < 1) .or. &
+                 if ((prism_part(part1)%nx < 0) .or. &
                      (prism_part(part1)%nx == namdst_nx(nn) .and. &
                       prism_part(part1)%ny == namdst_ny(nn) .and. &
-                      prism_part(part1)%gridname == trim(namdstgrd(nn)))) then
+                      trim(prism_part(part1)%gridname) == trim(namdstgrd(nn)))) then
                     ! part1 OK
                  else
                     partnew = -1
@@ -788,10 +788,10 @@ CONTAINS
 
            if (flag == OASIS_Out) then
               if (trim(namsrcgrd(nn)) /= cspval) then
-                 if ((prism_part(part1)%nx < 1) .or. &
+                 if ((prism_part(part1)%nx < 0) .or. &
                      (prism_part(part1)%nx == namsrc_nx(nn) .and. &
                       prism_part(part1)%ny == namsrc_ny(nn) .and. &
-                      prism_part(part1)%gridname == trim(namsrcgrd(nn)))) then
+                      trim(prism_part(part1)%gridname) == trim(namsrcgrd(nn)))) then
                     ! part1 OK
                  else
                     partnew = -1
