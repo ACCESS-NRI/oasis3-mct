@@ -5,7 +5,7 @@ tests_toys_oasis_tioman:
      tags:
      - sshcoquartci.spike
      only:        
-     - master
+     - part_duplication
                
      script:
      - ssh tioman "rm -rf /space/coquart/OA3_MCT_RES ; mkdir /space/coquart/OA3_MCT_RES"
