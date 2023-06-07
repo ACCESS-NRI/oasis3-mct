@@ -18,7 +18,7 @@ tests_toys_oasis_stiff:
      tags:
      - sshcoquartci.spike
      only:
-     - master
+     - part_duplication
 
      script:
      - ssh stiff "rm -rf /space/coquart/OA3_MCT_RES ; mkdir /space/coquart/OA3_MCT_RES"
@@ -31,7 +31,7 @@ tests_toys_oasis_fundy:
      tags:
      - sshcoquartci.spike
      only:
-     - master
+     - part_duplication
 
      script:
      - ssh fundy "rm -rf /space/coquart/OA3_MCT_RES ; mkdir /space/coquart/OA3_MCT_RES"
@@ -44,7 +44,7 @@ tests_toys_oasis_kraken:
      tags:
      - sshcoquartci.spike
      only:
-     - master
+     - part_duplication
 
      script:
      - ssh kraken "rm -rf /scratch/globc/coquart/OA3_MCT_RES ; mkdir /scratch/globc/coquart/OA3_MCT_RES"
@@ -57,7 +57,7 @@ tests_toys_oasis_belenos:
      tags:
      - sshcoquartci.spike
      only:
-     - master
+     - part_duplication
 
      script:
      - ssh elnino "/home/globc/coquart/bin/nitrox_belenos_oas3mct_run belenos_intel2018.5.274_intelmpi2018.5.274 DEBUGT" 
