@@ -34,11 +34,11 @@ tests_toys_oasis_fundy:
      - part_duplication
 
      script:
-     - ssh stiff "rm -rf /space/coquart/OA3_MCT_RES ; mkdir /space/coquart/OA3_MCT_RES"
-     - ssh stiff "rm -rf /space/coquart/oasis3-mct"
-     - ssh stiff "cd /space/coquart; git clone -b part_duplication git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
-     - ssh stiff "cd /space/coquart/oasis3-mct/util/nitrox;./sc_lc_nitrox.sh fundy_gfortran10.2.0_openmpi4.1.0 DEBUGT"
-     - ssh stiff "rm -rf $CI_PROJECT_DIR"
+     - ssh fundy "rm -rf /space/coquart/OA3_MCT_RES ; mkdir /space/coquart/OA3_MCT_RES"
+     - ssh fundy "rm -rf /space/coquart/oasis3-mct"
+     - ssh fundy "cd /space/coquart; git clone -b part_duplication git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
+     - ssh fundy "cd /space/coquart/oasis3-mct/util/nitrox;./sc_lc_nitrox.sh fundy_gfortran10.2.0_openmpi4.1.0 DEBUGT"
+     - ssh fundy "rm -rf $CI_PROJECT_DIR"
 
 tests_toys_oasis_kraken:
      tags:
