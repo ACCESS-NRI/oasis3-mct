@@ -16,10 +16,10 @@ export OASIS_ENV=nemo_intel18.0.1.163_intelmpi2018.1.163
 # TRUE or nothing
 export OASIS_DEBUG=TRUE
 export OPENMP=TRUE
-# Compile oasis (default) or pyoasis
+# Compile oasis (oasis3_psmile) or pyoasis
+export OASIS_TARGET=
 #export OASIS_TARGET=pyoasis
 export OASIS_COMPILE=FALSE
-export OASIS_TARGET=
 # put OASIS_SUBMITWAIT=1 for nitox tests
 export OASIS_SUBMITWAIT=1
 # Localisation and name of the toys
