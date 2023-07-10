@@ -4,8 +4,8 @@
 # OASIS VARIABLES DEFINITION   
 # + NAMES OF THE DIFFERENT TOYS
 ###########################################
-export OASIS_COUPLE=/scratch/globc/valcke/oasis3-mct
-export OASIS_ENV=nemo_intel18.0.1.163_intelmpi2018.1.163
+export OASIS_COUPLE=/scratch/work/valckes/oasis3-mct
+export OASIS_ENV=belenos_intel2018.5.274_intel2018.5.274
 # Localisation and name of the toys
 export USER_TOY=("${OASIS_COUPLE}/examples/tutorial_communication")
 # Number of tests for each toy		  

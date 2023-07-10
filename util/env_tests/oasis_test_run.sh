@@ -1,4 +1,5 @@
 #!/bin/ksh
+set -xv
 ###############################################
 # USAGE : 
 # Define following the variable environment:

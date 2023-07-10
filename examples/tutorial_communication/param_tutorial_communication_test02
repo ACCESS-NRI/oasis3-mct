@@ -1,5 +1,7 @@
 ####################################################
-## PARAMETERS for test 1 for tutorial_communication
+## PARAMETERS for test 2 for toy tutorial_communication 
+## OASIS_TOYDIR is defined in sc_top.sh but if not
+## it is put to `pwd` by default in oasis_test_run.sh
 ####################################################
 export USER_EXE1=atmos
 export USER_EXE2=ocean
@@ -7,10 +9,9 @@ export USER_NPEXE1=4
 export USER_NPEXE2=4
 export USER_NAMCOUPLE=namcouple
 export USER_MAKEFILE=Makefile
-export USER_RUNDIR=${OASIS_COUPLE}/examples/tutorial_communication
-export USER_RMPLOC=${OASIS_COUPLE}/examples/tutorial_communication/data_tutorial
+export USER_RMPLOC=${OASIS_TOYDIR}/data_tutorial
 export USER_AUXLOC=""
-export USER_RSTLOC=${OASIS_COUPLE}/examples/tutorial_communication/data_tutorial
-export USER_MESHLOC=${OASIS_COUPLE}/examples/tutorial_communication/data_tutorial
-export USER_NAMLOC=${OASIS_COUPLE}/examples/tutorial_communication/data_tutorial
-export USER_MAKELOC=${OASIS_COUPLE}/examples/tutorial_communication
+export USER_RSTLOC=${OASIS_TOYDIR}/data_tutorial
+export USER_MESHLOC=${OASIS_TOYDIR}/data_tutorial
+export USER_NAMLOC=${OASIS_TOYDIR}/data_tutorial
+export USER_MAKELOC=${OASIS_TOYDIR}

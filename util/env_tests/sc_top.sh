@@ -1,5 +1,5 @@
 #!/bin/ksh
-set -xv
+#set -xv
 ###############################################
 ###############################################
 # Link the correct env_tests_param
@@ -32,7 +32,10 @@ if [ -z "${OASIS_COUPLE}" ]; then
 fi
 . ${OASIS_COUPLE}/util/make_dir/comp_env_${OASIS_ENV}.sh
 #
-if [ ${OASIS_COMPILE} == TRUE ]; then
+if [ -z "${OASIS_COMPILE}" ]; then
+  echo "BE CAREFULL OASIS_COMPILE not defined, OASIS will not be compiled alone"
+elif [ ${OASIS_COMPILE} == TRUE ]; then
+	echo "OASIS_COMPILE is set to TRUE, OASIS will be compiled alone"
 	. ./sc_compile_oasis.sh
 fi
 ###############################################
