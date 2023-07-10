@@ -1,0 +1,20 @@
+# Creation de l'environnement virtuel PyO pour
+# faire tourner pyoasis sur Linux
+
+mkdir -p /space/coquart/INSTALL/PY_ENV/PyO
+export VENVDIR=/space/coquart/INSTALL/PY_ENV/PyO
+python3 -m venv ${VENVDIR}
+source ${VENVDIR}/bin/activate
+
+pip install --upgrade pip
+pip install mpi4py
+pip install numpy
+pip install netcdf4
+pip install pytest
+
+# Extra software
+pip install scipy
+pip install matplotlib
+pip uninstall shapely
+pip install shapely --no-binary shapely 
+pip install cartopy==0.19.0.post1
