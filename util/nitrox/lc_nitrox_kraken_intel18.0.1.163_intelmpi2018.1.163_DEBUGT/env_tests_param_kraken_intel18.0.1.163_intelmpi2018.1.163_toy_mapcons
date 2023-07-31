@@ -27,7 +27,7 @@ export OASIS_SUBMITWAIT=1
 # Localisation and name of the toys
 export USER_TOY=("${OASIS_TESTS}/oasis3-mct_tests/toy_mapcons")
 # Number of tests for each toy		  
-export USER_TEST=("48")
+export USER_TEST=("49")
 # Localization of the file paramater for each toy
 export USER_PARAMLOC=("${OASIS_TESTS}/oasis3-mct_tests/toy_mapcons")
 export USER_RUNDIR=${OASIS_TESTS}/OA3_MCT_RES
