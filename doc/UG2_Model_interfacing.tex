@@ -805,12 +805,20 @@ of the following aspects:
   that if {\tt fld3}, or {\tt fld4}, or {\tt fld5} are passed, {\tt fld2}, or {\tt fld3} and 
   {\tt fld2}, or {\tt fld4} and {\tt fld3} and {\tt fld2} must also be passed respectively.
 
-\item   When using higher order remapping weights with a BLASOLD transform, it may
-  be clearer to apply the transform on the receive side via BLASNEW.
+\item   If BLASOLD is used with
+  higher order transforms or fractions, BLASOLD is only applied only to fld1 before mapping.
+  Use of BLASOLD transforms is not well defined with higher order remapping weights, it may
+  be clearer to apply the transform on the receive side via BLASNEW.  
 
 \item   Higher order remapping weights and fracwgt can only be carried out with 
-  mapping if the mapping is done on the src model processors, see 
-  section \ref{subsec_interp}.
+  mapping on the src model processors, see section \ref{subsec_interp}.
+
+\item   Higher order remapping weights and fracwgt cannot be used with the min/max the
+  loctrans option.  see section \ref{subsec_timetrans}.
+
+\item Fracwgt is implemented by multiplying the fld1 by the fracwgt, mapping that product,
+  then normalizing by the mapped fracwgt weight on the destination grid.  Higher order
+  transforms are then applied separately without regard to fracwgt.
 
 \item Note that from OASIS3-MCT\_4.0 onwards, 
 the number of weights in the remapping file and the number of fields in the coupling restart file 

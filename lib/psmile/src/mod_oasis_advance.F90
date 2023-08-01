@@ -1007,12 +1007,10 @@ contains
                 endif
              endif
 
+             pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav)
              if (mapid > 0 .and. pcpointer%aVonfw .and. present(fracwgt)) then
                 call oasis_debug_note(subname//' apply fracwgt')
-                pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav) * fracwgt(1:nsav)
                 pcpointer%avectfw%rAttr(nfav,1:nsav) = fracwgt(1:nsav)
-             else
-                pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav)
              endif
 
              if (pcpointer%aVon(2)) then
@@ -1150,6 +1148,17 @@ contains
        endif
 
        if (map_now .and. ready_now) then
+          if (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p) then
+             call oasis_debug_note(subname//' apply sndmult sndadd')
+             if (OASIS_debug >= 20) then
+                write(nulprt,*) subname,' DEBUG sndmult,add = ',sndmult,sndadd
+                write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',cplid
+                write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',minval(pcpointer%avect1%rAttr)
+                write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',maxval(pcpointer%avect1%rAttr)
+             endif
+             pcpointer%avect1%rAttr(:,:) = pcpointer%avect1%rAttr(:,:)*sndmult + sndadd
+          endif
+          if (snddiag) call oasis_advance_avdiag(pcpointer%avect1,partid)
           write(tstring,'(A,I3.3)') 'pmapn_',cplid
           call oasis_debug_note(subname//' map_now')
           ! initialize avtmp, mapped av.  avect1m is accumulating
@@ -1357,37 +1366,37 @@ contains
                 call oasis_flush(nulprt)
              endif
 
-             if (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p) then
-                call oasis_debug_note(subname//' apply sndmult sndadd')
-                if (OASIS_debug >= 20) then
-                   write(nulprt,*) subname,' DEBUG sndmult,add = ',sndmult,sndadd
-                   write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',cplid
-                   write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',minval(pcpointer%avect1%rAttr)
-                   write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',maxval(pcpointer%avect1%rAttr)
-                endif
-                ! cache friendly here, less so in next block so split them up
-                pcpointer%avect1%rAttr(:,:) = pcpointer%avect1%rAttr(:,:)*sndmult + sndadd
-                ! if accumulating, then avect1_acc = sum(avect1*sndmult + sndadd)
-                !                       avect1_acc = sum(avect1)*sndmult + cnt*sndadd
-                !                       avect1_acc = sum(avect1)*sndmult + sndadd + (cnt-1)*sndadd
-                !                       avect1_acc = line_above + (cnt-1)*sndadd
-                !                       avect1_acc = line_above + block_below
-                if (sndadd /= 0.0_ip_double_p .and. maxval(pcpointer%avcnt(1:nf)) > 1) then
-                   do nf = 1,pcpointer%nflds
-                      if (pcpointer%avcnt(nf) > 1) then
-                         addcnt = real(pcpointer%avcnt(nf),kind=ip_r8_p) - 1.0_ip_double_p
-                         do n = 1,nsav
-                            pcpointer%avect1%rAttr(nf,n) = pcpointer%avect1%rAttr(nf,n) + addcnt*sndadd
-                         enddo
-                      endif
-                   enddo
-                endif
-             endif
-
-             if (snddiag) call oasis_advance_avdiag(pcpointer%avect1,partid)
-
-             ! data ends up in avect1m after this block
              if (.not. map_now) then
+                if (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p) then
+                   call oasis_debug_note(subname//' apply sndmult sndadd')
+                   if (OASIS_debug >= 20) then
+                      write(nulprt,*) subname,' DEBUG sndmult,add = ',sndmult,sndadd
+                      write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',cplid
+                      write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',minval(pcpointer%avect1%rAttr)
+                      write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',maxval(pcpointer%avect1%rAttr)
+                   endif
+                   ! cache friendly here, less so in next block so split them up
+                   pcpointer%avect1%rAttr(:,:) = pcpointer%avect1%rAttr(:,:)*sndmult + sndadd
+                   ! if accumulating, then avect1_acc = sum(avect1*sndmult + sndadd)
+                   !                       avect1_acc = sum(avect1)*sndmult + cnt*sndadd
+                   !                       avect1_acc = sum(avect1)*sndmult + sndadd + (cnt-1)*sndadd
+                   !                       avect1_acc = line_above + (cnt-1)*sndadd
+                   !                       avect1_acc = line_above + block_below
+                   if (sndadd /= 0.0_ip_double_p .and. maxval(pcpointer%avcnt(1:nf)) > 1) then
+                      do nf = 1,pcpointer%nflds
+                         if (pcpointer%avcnt(nf) > 1) then
+                            addcnt = real(pcpointer%avcnt(nf),kind=ip_r8_p) - 1.0_ip_double_p
+                            do n = 1,nsav
+                               pcpointer%avect1%rAttr(nf,n) = pcpointer%avect1%rAttr(nf,n) + addcnt*sndadd
+                            enddo
+                         endif
+                      enddo
+                   endif
+                endif
+
+                if (snddiag) call oasis_advance_avdiag(pcpointer%avect1,partid)
+
+                ! data ends up in avect1m after this block
                 if (mapid > 0) then
                    write(tstring,'(A,I3.3)') 'pmap_',cplid
                    call oasis_debug_note(subname//' put map')
@@ -1768,7 +1777,7 @@ contains
     real(kind=ip_r8_p),allocatable :: areas(:),aread(:)
     real(kind=ip_r8_p),allocatable  :: av_sums(:),av_sumd(:)  ! local sums
     real(kind=ip_r8_p),allocatable  :: wts_sumsx(:),wts_sumdx(:)  ! local sums for signed conserve
-    type(mct_aVect)       :: av1       ! av1in for conservation calc
+    type(mct_aVect)       :: av1inf    ! av1in with fracwgt if needed
     type(mct_aVect)       :: avdtmp    ! for summing multiple mapping weights or tmp av
     type(mct_aVect)       :: av2g      ! for bfb sums
     type(mct_aVect)       :: avone     ! for conserve
@@ -1894,6 +1903,23 @@ contains
        endif
     endif
 
+    lsizes = mct_avect_lsize(av1in)
+    fsize = mct_avect_nRattr(av1in)
+    call mct_aVect_init(av1inf,av1in,lsizes)
+    if (locavonfw) then
+       do n = 1,lsizes
+       do m = 1,fsize
+          av1inf%rAttr(m,n) = av1in%rAttr(m,n)*avfw%rAttr(m,n)
+       enddo
+       enddo
+    else
+       do n = 1,lsizes
+       do m = 1,fsize
+          av1inf%rAttr(m,n) = av1in%rAttr(m,n)
+       enddo
+       enddo
+    endif
+
     !> * optional barrier
 
     if (map_barrier) then
@@ -1914,16 +1940,18 @@ contains
     call mct_avect_zero(avd)
 
     if (locavon(1)) then
-       if (mct_avect_nRattr(av1in) /= mct_avect_nRattr(avd)) then
-          WRITE(nulprt,*) subname,estr,'in av1in num of flds'
+       if (mct_avect_nRattr(av1inf) /= mct_avect_nRattr(avd)) then
+          WRITE(nulprt,*) subname,estr,'in av1inf num of flds'
           call oasis_abort(file=__FILE__,line=__LINE__)
        endif
        if (detailed_map_timing .and. present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_avMult1')
-       call mct_sMat_avMult(av1in, mapper%sMatP(1), avd)
+       call mct_sMat_avMult(av1inf, mapper%sMatP(1), avd)
        if (detailed_map_timing .and. present(tstrinp)) call oasis_timer_stop(trim(tstrinp)//'_avMult1')
     endif
 
-    ! fracwgt already built into av1in, need to normalized avd with mapped frac
+    call mct_aVect_clean(av1inf)
+
+    ! fracwgt already built into avd, need to normalize avd with mapped frac
     if (locavonfw) then
        lsized = mct_avect_lsize(avd)
        fsize = mct_avect_nRattr(avd)
@@ -2027,27 +2055,7 @@ contains
 
     IF (prism_part(mapper%spart)%mpicom /= MPI_COMM_NULL) then
 
-       ! compute av1 for normalization, av1=av1in unless fracwgt is included
-       ! if fracwgt, normalize av1 by dividing by avfw to compute conservation
-       ! want to do it this way to take into account hot in avd properly
-       lsizes = mct_avect_lsize(av1in)
        fsize = mct_avect_nRattr(av1in)
-       call mct_aVect_init(av1,av1in,lsizes)
-       if (locavonfw) then
-          do n = 1,lsizes
-          do m = 1,fsize
-             if (avfw%rAttr(m,n) /= 0._ip_r8_p) then
-                av1%rAttr(m,n) = av1in%rAttr(m,n) / avfw%rAttr(m,n)
-             else
-                av1%rAttr(m,n) = av1in%rAttr(m,n)
-             endif
-          enddo
-          enddo
-       else
-          av1%rAttr(:,:) = av1in%rAttr(:,:)
-       endif
-
-       fsize = mct_avect_nRattr(av1)
        allocate(av_sums(fsize),av_sumd(fsize))
 
        zradi = 1./(eradius*eradius)
@@ -2143,11 +2151,11 @@ contains
        endif
 
        !-------------------
-       ! compute global sums of av1
-       ! assume av1 is the thing to be conserved
+       ! compute global sums of av1in
+       ! assume av1in is the thing to be conserved
        !-------------------
        if (detailed_map_timing .and. present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_avsum')
-       call oasis_advance_avsum(av1,av_sums,prism_part(mapper%spart)%pgsmap,prism_part(mapper%spart)%mpicom, &
+       call oasis_advance_avsum(av1in,av_sums,prism_part(mapper%spart)%pgsmap,prism_part(mapper%spart)%mpicom, &
                                 mask=imasks,wts=areas,consopt=lconsopt)
        call oasis_advance_avsum(avd,av_sumd,prism_part(mapper%dpart)%pgsmap,prism_part(mapper%dpart)%mpicom, &
                                 mask=imaskd,wts=aread,consopt=lconsopt)
@@ -2203,7 +2211,7 @@ contains
        elseif (conserv == ip_cgsspos) then
           if (detailed_map_timing .and. present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cgsspos')
           ! temporary AVs
-          call mct_avect_init(av1x,av1,lsize=lsizes)
+          call mct_avect_init(av1x,av1in,lsize=lsizes)
           call mct_avect_init(avdx,avd,lsize=lsized)
 
           ! loop twice over positive and negative values
@@ -2214,8 +2222,8 @@ contains
              ! fill postive or negative values on src and dst side
              do m = 1,fsize
                 do n = 1,lsizes
-                   if (k == 1 .and. av1%rAttr(m,n) > 0.0_ip_r8_p) av1x%rAttr(m,n) = av1%rAttr(m,n)
-                   if (k == 2 .and. av1%rAttr(m,n) < 0.0_ip_r8_p) av1x%rAttr(m,n) = av1%rAttr(m,n)
+                   if (k == 1 .and. av1in%rAttr(m,n) > 0.0_ip_r8_p) av1x%rAttr(m,n) = av1in%rAttr(m,n)
+                   if (k == 2 .and. av1in%rAttr(m,n) < 0.0_ip_r8_p) av1x%rAttr(m,n) = av1in%rAttr(m,n)
                 enddo
                 do n = 1,lsized
                    if (k == 1 .and. avd%rAttr(m,n) > 0.0_ip_r8_p) avdx%rAttr(m,n) = avd%rAttr(m,n)
@@ -2308,9 +2316,9 @@ contains
        elseif (conserv == ip_cbsspos) then
           if (detailed_map_timing .and. present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_cbsspos')
           ! temporary AVs
-          call mct_avect_init(av1x,av1,lsize=lsizes)
+          call mct_avect_init(av1x,av1in,lsize=lsizes)
           call mct_avect_init(avdx,avd,lsize=lsized)
-          call mct_avect_init(av1xm,av1,lsize=lsizes)
+          call mct_avect_init(av1xm,av1in,lsize=lsizes)
           call mct_avect_init(avdxm,avd,lsize=lsized)
           allocate(wts_sumsx(fsize),wts_sumdx(fsize))
 
@@ -2324,10 +2332,10 @@ contains
              ! fill postive or negative values on src and dst side
              do m = 1,fsize
                 do n = 1,lsizes
-                   if (k == 1 .and. av1%rAttr(m,n) > 0.0_ip_r8_p) av1x%rAttr(m,n)  = av1%rAttr(m,n)
-                   if (k == 1 .and. av1%rAttr(m,n) > 0.0_ip_r8_p) av1xm%rAttr(m,n) = 1.0_ip_r8_p
-                   if (k == 2 .and. av1%rAttr(m,n) < 0.0_ip_r8_p) av1x%rAttr(m,n)  = av1%rAttr(m,n)
-                   if (k == 2 .and. av1%rAttr(m,n) < 0.0_ip_r8_p) av1xm%rAttr(m,n) = 1.0_ip_r8_p
+                   if (k == 1 .and. av1in%rAttr(m,n) > 0.0_ip_r8_p) av1x%rAttr(m,n)  = av1in%rAttr(m,n)
+                   if (k == 1 .and. av1in%rAttr(m,n) > 0.0_ip_r8_p) av1xm%rAttr(m,n) = 1.0_ip_r8_p
+                   if (k == 2 .and. av1in%rAttr(m,n) < 0.0_ip_r8_p) av1x%rAttr(m,n)  = av1in%rAttr(m,n)
+                   if (k == 2 .and. av1in%rAttr(m,n) < 0.0_ip_r8_p) av1xm%rAttr(m,n) = 1.0_ip_r8_p
                 enddo
                 do n = 1,lsized
                    if (k == 1 .and. avd%rAttr(m,n) > 0.0_ip_r8_p) avdx%rAttr(m,n)  = avd%rAttr(m,n)
@@ -2395,7 +2403,7 @@ contains
 
        if (OASIS_debug >= 20) then
           if (detailed_map_timing .and. present(tstrinp)) call oasis_timer_start(trim(tstrinp)//'_avsumdiag')
-          call oasis_advance_avsum(av1,av_sums,prism_part(mapper%spart)%pgsmap,prism_part(mapper%spart)%mpicom, &
+          call oasis_advance_avsum(av1in,av_sums,prism_part(mapper%spart)%pgsmap,prism_part(mapper%spart)%mpicom, &
                                    mask=imasks,wts=areas,consopt=lconsopt)
           call oasis_advance_avsum(avd,av_sumd,prism_part(mapper%dpart)%pgsmap,prism_part(mapper%dpart)%mpicom, &
                                    mask=imaskd,wts=aread,consopt=lconsopt)
@@ -2407,7 +2415,6 @@ contains
 
        deallocate(imasks,imaskd,areas,aread)
        deallocate(av_sums,av_sumd)
-       call mct_aVect_clean(av1)
 
     ENDIF  ! part%mpicom /= MPI_COMM_NULL
     ENDIF  ! .not. ip_cnone
