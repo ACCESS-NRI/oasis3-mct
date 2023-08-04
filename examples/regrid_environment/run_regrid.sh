@@ -5,7 +5,8 @@ host=`uname -n`
 user=`whoami`
 
 ## - User's choice of computing architecture
-arch=kraken_intel_impi_openmp  # kraken_intel_impi_openmp, belenos
+## - Not used with OASIS3-MCT standard compiling environment, must be in global environment variable $OASIS_ENV
+arch=$OASIS_ENV
 
 ## - Define paths
 srcdir=`pwd`
@@ -129,7 +130,7 @@ grep "^CPPKEY_FANA=F$fana" Makefile > /dev/null
 if [ $? != 0 ]; then
     echo "Compiling model1 as CPP key in Makefile is not the one corresponding to the analytical function chosen" 
     sed -i "s/^CPPKEY_FANA=.*/CPPKEY_FANA=F$fana/" Makefile
-    make
+    ./oasis_test_build.sh
 else
     if [[ -e ${exe1} ]]; then
        echo "Not compiling model1 as it exists and CPP key in Makefile corresponds to the analytical function chosen" 
@@ -280,7 +281,7 @@ cd $rundir
 ###---------------------------------------------------------------------
 ### KRAKEN_INTEL_IMPI_OPENMP 
 ###---------------------------------------------------------------------
-if [ ${arch} == kraken_intel_impi_openmp ]; then
+if [ ${arch} == kraken_intel18.0.1.163_intelmpi2018.1.163 ]; then
     queue=prodshared
     timreq=00:10:00
     cat <<EOF > $rundir/run_$casename.$arch
@@ -310,6 +311,7 @@ export I_MPI_WAIT_MODE=enable
 export KMP_AFFINITY=verbose,granularity=fine,compact
 export OASIS_OMP_NUM_THREADS=$threads
 
+. ${OASIS_COUPLE}/util/make_dir/comp_env_${OASIS_ENV}.sh
 time mpirun -np $nproces ./$exe1
 EOF
       
@@ -361,7 +363,7 @@ EOF
     fi
 
 
-elif [ $arch == belenos ] ; then
+elif [ $arch == belenos_intel2018.5.274_intelmpi2018.5.274 ] ; then
     timreq=02:00:00
     cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash
@@ -424,11 +426,11 @@ fi
 ######################################################################
 ### - Execute the model
 
-if [ $arch == kraken_intel_impi_openmp ]; then
+if [ $arch == kraken_intel18.0.1.163_intelmpi2018.1.163 ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $USER
-elif [ $arch == belenos ]; then
+elif [ $arch == belenos_intel2018.5.274_intelmpi2018.5.274 ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $user
