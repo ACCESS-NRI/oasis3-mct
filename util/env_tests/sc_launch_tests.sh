@@ -162,8 +162,6 @@ mkdir -p $rundir
 
 echo "OASIS_COUPLE : ${OASIS_COUPLE}"
 echo "OASIS_ENV : ${OASIS_ENV}"
-echo "USER_NAMLOC : ${USER_NAMLOC}"
-echo "USER_MAKELOC : ${USER_MAKELOC}"
 echo "rundir : ${rundir}"
 
 cp -f ${OASIS_COUPLE}/util/make_dir/comp_env_${OASIS_ENV}.sh ${rundir}/comp_env.sh
