@@ -1,0 +1,16 @@
+############################################
+## USER SPECIFICATIONS 
+###########################################
+# OASIS VARIABLES DEFINITION   
+# + NAMES OF THE DIFFERENT TOYS
+###########################################
+# To recompile oasis or not
+export OASIS_COMPILE=TRUE
+# List of the toys to run (complete name including directory)
+export USER_TOY=("/scratch/globc/valcke/oasis3-mct/examples/tutorial_communication" "/scratch/globc/valcke/oasis3-mct/examples/spoc/spoc_communication")
+# Number of tests for each toy		  
+export USER_TEST=("2" "1")
+# Localization of parameter files for each toy
+export USER_PARAMLOC=("/scratch/globc/valcke/oasis3-mct/examples/tutorial_communication" "/scratch/globc/valcke/oasis3-mct/examples/spoc/spoc_communication")
+# Root directory for all tests
+export USER_RUNDIR=${OASIS_COUPLE}/OA3_MCT_RES
