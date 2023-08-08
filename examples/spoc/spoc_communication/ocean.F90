@@ -9,6 +9,8 @@ PROGRAM ocean
   !
   INCLUDE 'mpif.h'   ! Include for MPI
   !
+  INTEGER :: mypeglobal ! rank in global communicator
+  INTEGER :: il_ocean ! local color for MPI_Comm_split
   INTEGER :: mype, npes ! rank and number of pe
   INTEGER :: local_comm  ! local communicator for ocean processes
   CHARACTER(len=128) :: comp_out_ocean ! name of the output log file 
@@ -45,7 +47,11 @@ PROGRAM ocean
   !
   call MPI_Init(ierror)
   !
-  local_comm =  MPI_COMM_WORLD
+  CALL MPI_Comm_Rank (MPI_COMM_WORLD, mypeglobal, ierror )
+  !
+  ! Explicitely define a local communicator in case MPI_COMM_WORLD includes other processes
+  il_ocean = ICHAR("o")+ICHAR("c")+ICHAR("e")+ICHAR("a")+ICHAR("n")
+  CALL MPI_Comm_split(MPI_COMM_WORLD, il_ocean, mypeglobal, local_comm, ierror)
   !
   !!!!!!!!!!!!!!!!! OASIS_INIT_COMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !

@@ -9,7 +9,9 @@ PROGRAM atmos
   !
   INCLUDE 'mpif.h'   ! Include for MPI
   !
-  INTEGER :: mype, npes ! rank and number of pe
+  INTEGER :: mypeglobal ! rank in global communicator
+  INTEGER :: il_atmos ! local color for MPI_Comm_split
+  INTEGER :: mype, npes ! rank and number of pe in local communicator
   INTEGER :: local_comm  ! local communicator for atmos processes
   CHARACTER(len=128) :: comp_out_atmos ! name of the output log file 
   CHARACTER(len=3)   :: chout
@@ -43,9 +45,13 @@ PROGRAM atmos
   !  INITIALISATION 
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   !
-  call MPI_Init(ierror)
+  CALL MPI_Init(ierror)
   !
-  local_comm =  MPI_COMM_WORLD
+  CALL MPI_Comm_Rank (MPI_COMM_WORLD, mypeglobal, ierror )
+  ! 
+  ! Explicitely define a local communicator in case MPI_COMM_WORLD includes other processes
+  il_atmos = ICHAR("a")+ICHAR("t")+ICHAR("m")+ICHAR("o")+ICHAR("s")
+  CALL MPI_Comm_split(MPI_COMM_WORLD, il_atmos, mypeglobal, local_comm, ierror) 
   !
   !!!!!!!!!!!!!!!!! OASIS_INIT_COMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !
