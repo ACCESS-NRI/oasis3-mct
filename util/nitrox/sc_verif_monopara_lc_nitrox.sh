@@ -90,7 +90,7 @@ for toy in ${USER_TOY[@]}; do
 		echo "rundirname $rundirname"
 		echo "rundirname_mono ${rundirname_mono}"
                 export rundir=${USER_RUNDIR}/${rundirname}
-		if [ $casename == toy_1f1grd_to_2f2grd ] || [ $casename == toy_bundle ] || [ $casename == toy_CHECKIN_BLASOLD_BLASNEW_CHECKOUT ] || [ $casename == toy_gaussianreducedgrid ] || [ $casename == toy_grids_regional_to_regional ] || [ $casename == toy_intracomm ] || [ $casename == toy_multiple_fields_one_communication ] || [ $casename == toy_NTHRESH_STHRESH ] || [ $casename == toy_runoff ] || [ $casename == toy_interpolation ]; then
+		if [ $casename == toy_1f1grd_to_2f2grd ] || [ $casename == toy_bundle ] || [ $casename == toy_CHECKIN_BLASOLD_BLASNEW_CHECKOUT ] || [ $casename == toy_gaussianreducedgrid ] || [ $casename == toy_grids_regional_to_regional ] || [ $casename == toy_intracomm ] || [ $casename == toy_multiple_fields_one_communication ] || [ $casename == toy_NTHRESH_STHRESH ] || [ $casename == toy_runoff ] || [ $casename == toy_interpolation ] || [ $casename == toy_multiple_grids_per_partition ]; then
 	        cd ${rundir}
 		nbfield=1
 		for field in ${USER_FIELDS[@]}; do

@@ -68,7 +68,7 @@ for toy in ${USER_TOY[@]}; do
 			. ./param_${casename}_test${nb_tests}
 		fi
                 # Compilation of the toy for this test
-		echo "OASIS_TOYDIR : ${OASIS_TOYDIR}, USER_MAKELOC : ${USER_MAKELOC}"
+		echo "OASIS_TOYDIR : ${OASIS_TOYDIR}"
 	        cd ${OASIS_TOYDIR}
 		cp -f ${USER_MAKELOC}/${USER_MAKEFILE} ${OASIS_TOYDIR}/Makefile
                 echo "Compile $casename on ${OASIS_ENV}"

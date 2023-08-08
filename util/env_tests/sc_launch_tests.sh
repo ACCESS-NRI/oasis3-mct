@@ -168,6 +168,7 @@ echo "rundir : ${rundir}"
 
 cp -f ${OASIS_COUPLE}/util/make_dir/comp_env_${OASIS_ENV}.sh ${rundir}/comp_env.sh
 cp -f ${USER_NAMLOC}/${USER_NAMCOUPLE} ${rundir}/namcouple
+cp -f ${USER_MAKELOC}/${USER_MAKEFILE} ${rundir}/Makefile
 if [ -z ${USER_RSTLOC} ]; then
    echo "No restart file for this toy"
 else

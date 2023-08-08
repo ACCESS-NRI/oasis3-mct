@@ -18,7 +18,8 @@ declare -a StringArrayv1=("compile" "toy_1f1grd_to_2f2grd" "toy_auxiliary_routin
 			  "toy_time_transformations"
 		          "toy_restart_ACCUMUL_1_LAG" "toy_restart_ACCUMUL_1_NOLAG" \
 		          "toy_restart_ACCUMUL_2_LAG" "toy_restart_ACCUMUL_2_NOLAG" \
-		          "toy_runoff" "toy_scalar_coupling" "toy_interpolation")
+		          "toy_runoff" "toy_scalar_coupling" "toy_interpolation" "toy_multiple_grids_per_partition" \
+			  "toy_multiple_grids_per_partition_NOLAG")
 for nitrox_example in ${StringArrayv1[@]}; do
 echo '-------------------------------------------------'
 echo 'TOY TESTED     : '${nitrox_example}
