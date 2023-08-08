@@ -1,0 +1,7 @@
+####################################################
+## PARAMETERS for test 1 for toy regrid_environment (here only for compilation with oasis_test_build.sh
+## By default, OASIS_TOYDIR is defined as `pwd` in oasis_test_build.sh;
+## If top-level script sc_top.sh is used to run multiple tests, OASIS_TOYDIR is defined in sc_top.sh
+####################################################
+export USER_MAKEFILE=Makefile
+export USER_MAKELOC=${OASIS_TOYDIR}
