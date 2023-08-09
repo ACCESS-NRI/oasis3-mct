@@ -390,9 +390,8 @@ CONTAINS
 
    ikey = 0
    icolor = 1
-   if (.not.oasis_coupled) icolor = 0
+   if (.not.oasis_coupled) icolor = MPI_UNDEFINED
    call MPI_COMM_SPLIT(mpi_comm_global_world,icolor,ikey,mpi_comm_global,ierr)
-!tcx   if (.not.oasis_coupled) mpi_comm_global = MPI_COMM_NULL
 
 #elif defined use_comm_MPI2
 
@@ -632,7 +631,7 @@ CONTAINS
 
    SUBROUTINE oasis_terminate(kinfo)
 
-   IMPLICIT NONE
+   implicit none
 
    INTEGER (kind=ip_intwp_p),intent(inout),optional :: kinfo  !< return code
 !  ---------------------------------------------------------
@@ -642,28 +641,25 @@ CONTAINS
 
    call oasis_debug_enter(subname)
 
-
-   if (.not. oasis_coupled) then
-      deallocate(compnmlist)
-      call oasis_debug_exit(subname)
-      return
-   endif
-
    if (present(kinfo)) then
       kinfo = OASIS_OK
    endif
 
-   !------------------------
-   !> * Print timer information
-   !------------------------
+   if (oasis_coupled) then
 
-   call oasis_timer_stop('total')
-   call oasis_timer_print()
+      !------------------------
+      !> * Print timer information
+      !------------------------
 
-   !------------------------------------
-   !> * Print load balancing information
-   !------------------------------------
-   IF (ET_debug) call oasis_lb_print(trim(compnm),namruntim)
+      call oasis_timer_stop('total')
+      call oasis_timer_print()
+
+      !------------------------------------
+      !> * Print load balancing information
+      !------------------------------------
+      if (ET_debug) call oasis_lb_print(trim(compnm),namruntim)
+
+   endif
 
    deallocate(compnmlist)
 
@@ -671,34 +667,38 @@ CONTAINS
    !> * Call MPI finalize
    !------------------------
 
-   IF ( .NOT. lg_mpiflag ) THEN
-       IF (OASIS_debug >= 2)  THEN
-           WRITE (nulprt,FMT='(A)') subname//': Calling MPI_Finalize'
-           CALL oasis_flush(nulprt)
-       ENDIF
-       CALL MPI_Finalize ( ierr )
+   if ( .not. lg_mpiflag ) then
+      if (OASIS_debug >= 2)  then
+         write (nulprt,FMT='(A)') subname//': Calling MPI_Finalize'
+         call oasis_flush(nulprt)
+      endif
+      call MPI_Finalize ( ierr )
    else
-       IF (OASIS_debug >= 2)  THEN
-           WRITE (nulprt,FMT='(A)') subname//': Not Calling MPI_Finalize'
-           CALL oasis_flush(nulprt)
-       ENDIF
-   ENDIF
+      if (OASIS_debug >= 2)  then
+         write (nulprt,FMT='(A)') subname//': Not Calling MPI_Finalize'
+         call oasis_flush(nulprt)
+      endif
+   endif
 
-   !------------------------
-   !> * Write SUCCESSFUL RUN
-   !------------------------
-   IF (OASIS_debug >= 2)  THEN
-       CALL oasis_mem_print(nulprt,subname)
-   ENDIF
+   if (oasis_coupled) then
 
-   IF (mpi_rank_local == 0)  THEN
-       WRITE(nulprt,*) subname,' SUCCESSFUL RUN'
-       CALL oasis_flush(nulprt)
-   ENDIF
+      !------------------------
+      !> * Write SUCCESSFUL RUN
+      !------------------------
+      if (OASIS_debug >= 2)  then
+         call oasis_mem_print(nulprt,subname)
+      endif
+
+      if (mpi_rank_local == 0)  then
+         write(nulprt,*) subname,' SUCCESSFUL RUN'
+         call oasis_flush(nulprt)
+      endif
+
+   endif
 
    call oasis_debug_exit(subname)
 
-   CALL oasis_flush(nulprt)
+   call oasis_flush(nulprt)
    close(nulprt)
 
  END SUBROUTINE oasis_terminate
