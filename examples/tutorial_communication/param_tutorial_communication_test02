@@ -1,13 +1,14 @@
 ####################################################
 ## PARAMETERS for test 1 for toy tutorial_communication 
-## OASIS_TOYDIR is defined as `pwd` by default in oasis_test_run.sh;
-##  if top-level scripts from /util/env_tests are used to run one or multiple tests
-##  OASIS_TOYDIR is defined in sc_top.sh 
+## By default, OASIS_TOYDIR is defined as `pwd` in oasis_test_build.sh and oasis_test_run.sh;
+## If top-level script sc_top.sh is used to run multiple tests, OASIS_TOYDIR is defined in sc_top.sh
 ####################################################
 export USER_EXE1=atmos
 export USER_EXE2=ocean
 export USER_NPEXE1=4
 export USER_NPEXE2=4
+export USER_MAKEFILE=Makefile
+export USER_MAKELOC=${OASIS_TOYDIR}
 export USER_NAMCOUPLE=namcouple
 export USER_NAMLOC=${OASIS_TOYDIR}/data_tutorial
 export USER_RMPLOC=${OASIS_TOYDIR}/data_tutorial
