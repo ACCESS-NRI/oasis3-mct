@@ -3,22 +3,16 @@
 ###############################################
 # USAGE : 
 # Define following the variable environment:
+# OASIS_COUPLE : the location of the sources of the coupler (/lib, /util, /examples, etc. directories) 
+# OASIS_ENV :the extension of the header Makefile to use for OASIS3-MCT compilation
 #
-# For all the toys
-# export OASIS_COUPLE=
-# export OASIS_ENV=
-#
-# Then
+# Then for example
 # ./oasis_test_run.sh param_casename_test01
 # ./oasis_test_run.sh param_casename_test02
 # ...
-# 
-# The param file that is in argument of oasis_test_run.sh
-# is a file that exists in the toy
-# directory and specifies several aspects of the each test run
+# The param_casename_test?? are files that exists in the toy
+# directory and specify several aspects of the each test run
 #
-# Be carefull that OASIS3-MCT is compiled
-# with the same environment than the toy
 ###############################################
 
 testname=$1
@@ -29,7 +23,7 @@ if [ ! -f ./$testname ]; then
   echo "  ./oasis_test_run.sh \$testname"
   exit -9
 fi
-
+ 
 if [ -z "${OASIS_ENV}" ]; then
   echo "ERROR OASIS_ENV not defined"
   exit -9
@@ -59,9 +53,6 @@ else
 fi
 
 . ${OASIS_COUPLE}/util/make_dir/comp_env_${OASIS_ENV}.sh
-
-#echo "module setting"
-#module list
 
 # Need to reinitialize some variables
 # to run toys with different models one after the other
