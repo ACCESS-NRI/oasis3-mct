@@ -39,11 +39,13 @@ else
 fi
 ##
 ## User's choice of computing architecture
-arch=pgi20.4_openmpi_openmp_linux  # nemo_lenovo_intel_impi_openmp, kraken_intel_impi_openmp,
-              # training_computer, gfortran_openmpi_openmp_linux, belenos, mac
-	      # pgi_openmpi_openmp_linux, 
-	      # pgi20.4_openmpi_openmp_linux (not work with 4.0)
-	      # gnu1020_openmpi_openmp_linux (not work with 4.0)
+arch=$OASIS_ENV  # nemo_intel18.0.1.163_intelmpi2018.1.163 
+                 # kraken_intel18.0.1.163_intelmpi2018.1.163,
+                 # training_computer, gfortran_openmpi_openmp_linux
+                 # belenos_intel2018.5.274_intelmpi2018.5.274 
+                 # mac_gfortran10_openmpi4.0.5
+	         # stiff_pgi20.4_openmpi3.1.3 
+	         # fundy_gfortran10.2.0_openmpi4.1.0 
 ##
 ######################################################################
 ## - Verification source grid type and remapping
@@ -153,7 +155,7 @@ cd $rundir
 ###---------------------------------------------------------------------
 ### NEMO_LENOVO_INTEL_IMPI_OPENMP
 ###---------------------------------------------------------------------
-if [ ${arch} == nemo_lenovo_intel_impi_openmp ]; then
+if [ ${arch} == nemo_intel18.0.1.163_intelmpi2018.1.163 ]; then
 
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash -l
@@ -183,7 +185,7 @@ EOF
 ###---------------------------------------------------------------------
 ### KRAKEN_INTEL_IMPI_OPENMP 
 ###---------------------------------------------------------------------
-elif [ ${arch} == kraken_intel_impi_openmp ]; then
+elif [ ${arch} == kraken_intel18.0.1.163_intelmpi2018.1.163 ]; then
 
   timreq=00:30:00
 
@@ -235,7 +237,7 @@ export OMP_NUM_THREADS=$threads
 time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 
 EOF
 
-elif [ $arch == belenos ] ; then
+elif [ $arch == belenos_intel2018.5.274_intelmpi2018.5.274 ] ; then
   cat <<EOF > $rundir/run_$casename.$arch
 #!/bin/bash
 #SBATCH --exclusive
@@ -279,32 +281,28 @@ elif [ ${arch} == gfortran_openmpi_openmp_linux ]; then
     MPIRUN=/usr/lib64/openmpi/bin/mpirun
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
-elif [ $arch == pgi_openmpi_openmp_linux ]; then
-    MPIRUN=/usr/local/pgi/linux86-64/18.7/mpi/openmpi-2.1.2/bin/mpirun
-    echo 'Executing the model using '$MPIRUN
-    $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
-elif [ ${arch} == gnu1020_openmpi_openmp_linux ]; then
+elif [ ${arch} == fundy_gfortran10.2.0_openmpi4.1.0 ]; then
     export OASIS_OMP_NUM_THREADS=$threads
     MPIRUN=/usr/local/openmpi/4.1.0_gcc1020/bin/mpirun
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -oversubscribe -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
-elif [ $arch == pgi20.4_openmpi_openmp_linux ]; then
+elif [ $arch == stiff_pgi20.4_openmpi3.1.3 ]; then
     MPIRUN=/usr/local/pgi/linux86-64/20.4/mpi/openmpi-3.1.3/bin/mpirun
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -oversubscribe -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
-elif [ $arch == nemo_lenovo_intel_impi_openmp ]; then
+elif [ $arch == nemo_intel18.0.1.163_intelmpi2018.1.163 ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $USER
-elif [ $arch == kraken_intel_impi_openmp ]; then
+elif [ $arch == kraken_intel18.0.1.163_intelmpi2018.1.163 ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $USER
-elif [ $arch == belenos ]; then
+elif [ $arch == belenos_intel2018.5.274_intelmpi2018.5.274 ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $user
-elif [ ${arch} == mac ]; then
+elif [ ${arch} == mac_gfortran10_openmpi4.0.5 ]; then
     echo 'Executing the model using mpirun'
     mpirun --oversubscribe -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2
 fi
