@@ -9,8 +9,7 @@ program nonactive
    character(len=10), dimension(3) :: cnames
    integer :: intra_comm, intra_rank, intra_size
 
-!AP   logical, parameter :: lp_coupled = .false.
-   logical, parameter :: lp_coupled = .true.
+   logical, parameter :: lp_coupled = .false.
 
    print '(2A)', "Component name: ", comp_name
 
@@ -33,10 +32,10 @@ program nonactive
       if(kinfo<0) call oasis_abort(comp_id, comp_name, &
          & "Error in oasis_enddef: ", rcode=kinfo)
 
-      call oasis_terminate(kinfo)
-      if(kinfo<0) call oasis_abort(comp_id, comp_name, &
-         & "Error in oasis_terminate: ", rcode=kinfo)
-
    end if
+
+   call oasis_terminate(kinfo)
+   if(kinfo<0) call oasis_abort(comp_id, comp_name, &
+      & "Error in oasis_terminate: ", rcode=kinfo)
 
 end program nonactive
