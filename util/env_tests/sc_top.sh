@@ -70,9 +70,13 @@ for toy in ${USER_TOY[@]}; do
                 # Compilation of the toy for this test
 		echo "OASIS_TOYDIR : ${OASIS_TOYDIR}"
 	        cd ${OASIS_TOYDIR}
-		cp -f ${USER_MAKELOC}/${USER_MAKEFILE} ${OASIS_TOYDIR}/Makefile
+		#cp -f ${USER_MAKELOC}/${USER_MAKEFILE} ${OASIS_TOYDIR}/Makefile
                 echo "Compile $casename on ${OASIS_ENV}"
-                ./oasis_test_build.sh
+                if [ ${nb_tests} -le 9 ]; then
+                        ./oasis_test_build param_${casename}_test0${nb_tests}
+                else
+                        ./oasis_test_build param_${casename}_test${nb_tests}
+                fi
 ###############################################
                	if [ ${nb_tests} -le 9 ]; then
 			./oasis_test_run.sh param_${casename}_test0${nb_tests}
