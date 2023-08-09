@@ -11,24 +11,20 @@ OASIS3-MCT is a mixed MPI-OpenMP parallel code. Compiling OASIS3-MCT libraries c
 from the {\tt oasis3-MCT/util/make\_dir} directory
 with the makefile {\tt TopMakefileOasis3}.
 
-{\tt TopMakefileOasis3} includes the header file {\tt make.inc}
-which should then point to (include) your own {\tt make.your\_platform}
-file.  That file is specific to the hardware and compiling platform used.
+With the new compiling environment available on OASIS3-MCT master branch since December 2022 (commit 5e9efd18), two environment variables {\tt \$(OASIS\_COUPLE)} and {\tt \$(OASIS\_ENV)} have to be defined. {\tt \$(OASIS\_COUPLE)} gives the location of the coupler sources ({\tt /lib, /util, /examples}, etc. directories). {\tt \$(OASIS\_ENV)} gives the extension of the header Makefile to be used for compilation {\tt make.\$(OASIS\_ENV)}. 
+{\tt TopMakefileOasis3} includes {\tt make.inc}
+which itself includes \newline {\tt \$(OASIS\_COUPLE)/util/make\_dir/make.\$(OASIS\_ENV)} where {\tt make.\$(OASIS\_ENV)} is specific to the hardware and compiling environment used. 
+We recommend to compose {\tt \$(OASIS\_ENV)} as {\tt (computer\_name)\_(compiler\_version)\_(MPI\_library\_version)}. A file named \newline {\tt comp\_env\_\$(OASIS\_ENV).sh} must also exist the directory {\tt oasis3-mct/util/make\_dir}. It defines the computer environment for running the test examples from {\tt oasis3-mct/examples}.  
 
-Several header files are distributed with the release and can by used as
-a template to create a custom file for your machine.
-The root of the OASIS3-MCT tree can be anywhere, but it must be defined
-by the variable {\tt COUPLE}.  Similarly, the variable {\tt ARCHDIR} defines
-the location of the compilation directory.
-Finally, the OASIS3-MCT library
-should be compiled with the same compilers and system software as any
-coupled model component using it.  After successful compilation, resulting
-libraries are found in the directory in {\tt \$ARCHDIR/lib} while
-object and module files are found in {\tt \$ARCHDIR/build-static} and {\tt \$ARCHDIR/build-shared}. 
+Several header files {\tt make.\$(OASIS\_ENV)} and {\tt comp\_env\_\$(OASIS\_ENV).sh} files are distributed with the release and can by used as
+a template to create a custom file for your machine, see the files in directory {\tt oasis3-mct/util/make\_dir}. It is important to note that the coupled model components must be compiled with the same compilers and system software than the OASIS3-MCT library itself.
+After successful compilation, resulting
+libraries are found in the directory in {\tt \$(ARCHDIR)/lib}\footnote{where \$(ARCHDIR) = \$(OASIS\_COUPLE)/INSTALL\_OASIS.\$(OASIS\_ENV), see the header files} while
+object and module files are found in {\tt \$(ARCHDIR)/build-static} and {\tt \$(ARCHDIR)/build-shared}. 
 
 OASIS3-MCT has historically created static libraries for use in
 Fortran source codes.  However, C language bindings are now
-available, and python codes are now fully supported. Therefore, the OASIS3-MCT makefile {\tt TopMakefileOasis3}
+available and python codes are now fully supported. Therefore, the Makefile {\tt TopMakefileOasis3}
 supports compilation of both static and shared libraries.
 
 {\tt TopMakefileOasis3} has several targets including:
@@ -74,7 +70,7 @@ Log and error messages from compilation are normally saved in the directory
 {\tt COMP.log} and {\tt COMP.err} or similar.  The {\tt TopMakefileOasis3}
 output will direct users to the compile output files.
 
-To interface a component code with OASIS3-MCT and use the module {\tt mod\_oasis} (see section \ref{subsubsec_Use}), it is required to include OASIS3-MCT modules from {\tt \$ARCHDIR/include} and link with appropriate libraries in {\tt \$ARCHDIR/lib} during the compilation and linking.
+To interface a component code with OASIS3-MCT and use the module {\tt mod\_oasis} (see section \ref{subsubsec_Use}), it is required to include OASIS3-MCT modules from {\tt \$(ARCHDIR)/include} and link with appropriate libraries in {\tt \$(ARCHDIR)/lib} during the compilation and linking.
 
 Exchange of coupling fields in single and double precision is now supported directly through the interface 
 (see section \ref{subsubsec_Declaration}).  Single precision fields are converted to double precision fields internally and temporarily.
