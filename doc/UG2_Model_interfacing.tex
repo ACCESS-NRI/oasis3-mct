@@ -805,13 +805,12 @@ of the following aspects:
   that if {\tt fld3}, or {\tt fld4}, or {\tt fld5} are passed, {\tt fld2}, or {\tt fld3} and 
   {\tt fld2}, or {\tt fld4} and {\tt fld3} and {\tt fld2} must also be passed respectively.
 
-\item   If BLASOLD is used with
-  higher order transforms or fractions, BLASOLD is only applied only to fld1 before mapping.
-  Use of BLASOLD transforms is not well defined with higher order remapping weights, it may
-  be clearer to apply the transform on the receive side via BLASNEW.  
+\item   BLASOLD is not allowed with higher order transforms because it is not uniquely
+  defined.  Application of additive or multiplicative transforms might be better done in 
+  the components or with BLASNEW with higher order transforms.
 
 \item   Higher order remapping weights and fracwgt can only be carried out with 
-  mapping on the src model processors, see section \ref{subsec_interp}.
+  mapping on the src model processors, ({\tt \$MAPLOC=src}) in section \ref{subsec_interp}.
 
 \item   Higher order remapping weights and fracwgt cannot be used with the min/max the
   loctrans option.  see section \ref{subsec_timetrans}.
@@ -860,7 +859,10 @@ oasis\_put .
   performed and the resulting field is finally sent at the coupling or
   I/O frequency.  For non-instantaneous transformations, partially
   transformed fields will be written to the restart file at the end of
-  the run for use on the next component startup, when needed.
+  the run for use on the next component startup, when needed.  For
+  average or accumulating, the coupler period is assumed to be constant
+  and each instantaneous field is given the same weight over the
+  averging/accumulating period.
 
 \item A coupling field sent by a source component can be
   associated with more than one target field and component, with different entries in the {\it namcouple} configuration
