@@ -18,6 +18,6 @@ declare -a StringArrayv1=("toy_1f1grd_to_2f2grd" "toy_auxiliary_routines" \
 			  "toy_multiple_grids_per_partition" "toy_multiple_grids_per_partition_NOLAG")
 
 for var in ${StringArrayv1[@]}; do
-	cp oasis_test_build.sh /space/coquart/oasis3-mct_tests/$var/.
-	cp oasis_test_run.sh /space/coquart/oasis3-mct_tests/$var/.
+	cp /space/coquart/oasis3-mct/util/env_tests/oasis_test_build.sh /space/coquart/oasis3-mct_tests/$var/.
+	cp /space/coquart/oasis3-mct/util/env_tests/oasis_test_run.sh /space/coquart/oasis3-mct_tests/$var/.
 done
