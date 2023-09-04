@@ -71,7 +71,6 @@ for toy in ${USER_TOY[@]}; do
 		echo "OASIS_TOYDIR : ${OASIS_TOYDIR}"
 		echo "USER_MAKELOC : ${USER_MAKELOC}"
 	        cd ${OASIS_TOYDIR}
-		cp -f ${USER_MAKELOC}/${USER_MAKEFILE} ${OASIS_TOYDIR}/Makefile
                 echo "Compile $casename on ${OASIS_ENV}"
                 if [ ${nb_tests} -le 9 ]; then
                         ./oasis_test_build param_${casename}_test0${nb_tests}
