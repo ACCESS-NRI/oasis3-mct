@@ -45,17 +45,6 @@ noted with the string UNUSED and not described.
   \item {\tt ONCE}: UNUSED, not supported in OASIS3-MCT.
   \end{itemize}
 
-  LOCTRANS with min or max is applied on the raw data passed into OASIS3-MCT
-  before BLASOLD is applied.  In addition,
-  accumulation or averaging with fracwgt mapping requires an accumluation
-  of the instanteous mapped fields.  This may increase cost somewhat
-  relative to accumulation or averaging without fracwgt where the
-  accumulated fields can be mapped at coupling time.  For
-  averaging or accumulating, the coupler period is assumed to be constant
-  and each instantaneous field is given the same weight over the
-  averging/accumulating period.  In general, OASIS3-MCT does not support
-  coupling with timing-varying coupling periods (timesteps).
-
   Time transformations are now supported more generally
   than with previous versions of the coupler with use of the coupling restart file.  The coupling restart file
   allows the partial time transformation at the end of the run, if any
@@ -119,8 +108,7 @@ noted with the string UNUSED and not described.
   scalar to be added to the field.  The prior ability to perform a
   linear combination of the current coupling field with other coupling
   fields has been deprecated in OASIS3-MCT.  This transformation
-  occurs before the interpolation and cannot be used with min or max
-  LOCTRANS.
+  occurs before the interpolation {\it per se}.
 
   This transformation requires at least one configuring line with two
   parameters:
