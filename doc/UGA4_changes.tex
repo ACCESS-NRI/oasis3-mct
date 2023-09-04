@@ -46,11 +46,11 @@ following novelties:
 
 \item New {\tt GSSPOS} and {\tt BSSPOS} options for global CONSERV (as
   {\tt GLBPOS} and {\tt BASPOS} options respectively except that the
-  multiplicative term is computed separately for positive 
+  multiplicative term is computed separately for positive
   and negative values of the field), see section \ref{subsec_cooking}
 
   \item Extension of {\tt oasis\_get\_intracomm} to support
-  multiple components, see {\tt oasis\_get\_multi\_intracomm} in  section \ref{subsubsec_auxroutines} 
+  multiple components, see {\tt oasis\_get\_multi\_intracomm} in  section \ref{subsubsec_auxroutines}
 
 \item Communication/exchange of simple scalars, see section \ref{subsec_scalar}
 
@@ -61,7 +61,7 @@ following novelties:
 
 \item Update of compiling environment, see \ref{subsec_compile}
 
-\item Migration from SVN to GIT for source management 
+\item Migration from SVN to GIT for source management
 
 \item Migration of the OASIS3-MCT web site from DKRZ (content
   manager Plone) to Cerfacs (content manager Wordpress), see the new
@@ -71,7 +71,7 @@ following novelties:
   {\tt GAUSWGTNF}  {\tt LOCCUNIF}, {\tt LOCCDIST} or {\tt LOCCGAUS},
   inclusion of the number of neighbours used in the remapping file
   name
-    
+
 \item  For {\tt SCRIPR/CONSERV}, specification through the {\it namcouple} of North thresh
   {\tt \$NTHRESH} and South thresh {\tt \$STHRESH} values, above
   which a Lambert projection is activated
@@ -83,7 +83,7 @@ following novelties:
 
 \item Systematic tests of NetCDF returned error code
 
-\item Update oasis\_abort to also write to unit 0 (stderr) 
+\item Update oasis\_abort to also write to unit 0 (stderr)
 
 \item Bugfixes
 
@@ -115,7 +115,7 @@ Different developments were realised to improve the parallel performance of OASI
 
 \item A new communication method, using the remapping weights to define the intermediate mapping decomposition, offers a significant gain at run time, especially for high-resolution cases running on a high number of tasks, thanks to reduced communication. However, as expected, the new method takes longer to initialize, partly due to the fact that the mapping weight file has to be read twice but also due to the extra cost for the initialization of the different MCT routers.  That initialization cost is largely mitigated by an upgrade to MCT 2.10.beta1 which reduces the penalty to few seconds.  Generally, it should be worth the extra initial cost to speed up the run time. See {\tt \$NMAPDEC} in section \ref{subsec_namcouplefirst}.
 
-\item The hybrid MPI+OpenMP parallelisation of the SCRIP library (previously fully sequential) leads to great improvement in the calculation of the remapping weights. The results obtained here show a reduction in the weight calculation time of 2 to 3 orders of magnitude with the new parallel SCRIP library for high-resolution grids. Details are available in \cite{piacentini08}. The {\tt test\_interpolation} environment (see section \ref{subsec_testinterpolation} ) gives a practical example on how to use OASIS3-MCT\_4.0 to pre-calculate (i.e. in a separate job prior to the “real” simulation) the remapping weight and address file.
+\item The hybrid MPI+OpenMP parallelisation of the SCRIP library (previously fully sequential) leads to great improvement in the calculation of the remapping weights. The results obtained here show a reduction in the weight calculation time of 2 to 3 orders of magnitude with the new parallel SCRIP library for high-resolution grids. Details are available in \cite{piacentini08}. The {\tt test\_interpolation} environment gives a practical example on how to use OASIS3-MCT\_4.0 to pre-calculate (i.e. in a separate job prior to the “real” simulation) the remapping weight and address file.
 
 Thanks to some preliminary work, few bugs were fixed, in particular in the bounding box definition of the grid cells. This solves an important bug observed in the Pacific near the equator for the bilinear and bicubic interpolations for Cartesian grids.
 
