@@ -22,8 +22,6 @@ export OPENMP=TRUE
 export OASIS_TARGET=
 #export OASIS_TARGET=pyoasis
 export OASIS_COMPILE=TRUE
-# put OASIS_SUBMITWAIT=1 for nitrox tests
-export OASIS_NITROX=FALSE
 export OASIS_SUBMITWAIT=1
 # Localisation and name of the toys
 export USER_TOY=("${OASIS_TESTS}/oasis3-mct_tests/toy_interpolation")
@@ -31,7 +29,5 @@ export USER_TOY=("${OASIS_TESTS}/oasis3-mct_tests/toy_interpolation")
 export USER_TEST=("104")
 # Localization of the file paramater for each toy
 export USER_PARAMLOC=("${OASIS_TESTS}/oasis3-mct_tests/toy_interpolation")
-# For NITROX tests: use script sc_lc_nitrox.sh which calls sc_top.sh
-# and compile OASIS (OASIS_COMPILE=TRUE)
+# To run the tests in USER_RUNDIR
 export USER_RUNDIR=${OASIS_ROOT}/OA3_MCT_RES
-export DIR_RES_REF=${OASIS_TESTS}/OA3_MCT_RES_REF
