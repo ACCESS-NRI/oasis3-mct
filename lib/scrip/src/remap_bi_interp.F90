@@ -8,7 +8,7 @@
 !
 !     Purpose:
 !     -------
-!     Adaptation of SCRIP 1.4 remap_biear module to calculate 
+!     Adaptation of SCRIP 1.4 remap_biear module to calculate
 !     bilinear remapping.
 !
 !**   Interface:
@@ -24,25 +24,25 @@
 !     History:
 !     -------
 !       Version   Programmer     Date        Description
-!       -------   ----------     ----        -----------  
+!       -------   ----------     ----        -----------
 !       2.5       S. Valcke      2002/09     Treatment for masked point
 !
 ! %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
-!     this module contains necessary routines for performing an 
+!     this module contains necessary routines for performing an
 !     bilinear interpolation.
 !
 !-----------------------------------------------------------------------
 !
 !     CVS:$Id: remap_biear.f 2826 2010-12-10 11:14:21Z valcke $
 !
-!     Copyright (c) 1997, 1998 the Regents of the University of 
+!     Copyright (c) 1997, 1998 the Regents of the University of
 !       California.
 !
-!     This software and ancillary information (herein called software) 
-!     called SCRIP is made available under the terms described here.  
-!     The software has been approved for release with associated 
+!     This software and ancillary information (herein called software)
+!     called SCRIP is made available under the terms described here.
+!     The software has been approved for release with associated
 !     LA-CC Number 98-45.
 !
 !     Unless otherwise indicated, this software has been authored
@@ -57,7 +57,7 @@
 !     any liability or responsibility for the use of this software.
 !
 !     If software is modified to produce derivative works, such modified
-!     software should be clearly marked, so as not to confuse it with 
+!     software should be clearly marked, so as not to confuse it with
 !     the version available from Los Alamos National Laboratory.
 !
 !***********************************************************************
@@ -79,8 +79,8 @@
 !-----------------------------------------------------------------------
 
       real (kind=dbl_kind), dimension(:), allocatable, save ::  &
-                                        coslat, sinlat,  & ! cosine, sine of grid lats (for distance) 
-                                        coslon, sinlon     ! cosine, sine of grid lons (for distance) 
+                                        coslat, sinlat,  & ! cosine, sine of grid lats (for distance)
+                                        coslon, sinlon     ! cosine, sine of grid lons (for distance)
 
       integer (kind=int_kind) :: il_nbthreads = 1
 
@@ -373,7 +373,7 @@
 #ifdef REMAP_TIMING
       if (ll_timing) then
          if (il_nbthreads.gt.1) then
-!$          dl_tstop = OMP_GET_WTIME() 
+!$          dl_tstop = OMP_GET_WTIME()
             dla_timer(il_mythread,1)=dla_timer(il_mythread,1) + dl_tstop - dl_tstart
          else
             call timer_stop(3)
@@ -384,7 +384,7 @@
 
 
       !***
-      !*** loop over destination grid 
+      !*** loop over destination grid
       !***
 !$OMP DO SCHEDULE(STATIC,1)
       thread_loop: do ib_thread = 1, il_nbthreads
@@ -429,7 +429,7 @@
 #ifdef REMAP_TIMING
           if (ll_timing) then
             if (il_nbthreads.gt.1) then
-!$            dl_tstop = OMP_GET_WTIME() 
+!$            dl_tstop = OMP_GET_WTIME()
               dla_timer(ib_thread,2) = dla_timer(ib_thread,2) + dl_tstop - dl_tstart
             else
               call timer_stop(4)
@@ -440,7 +440,7 @@
           if (src_add(1) > 0) THEN
 
             !***
-            !*** if the 4 surrounding points have been found and are 
+            !*** if the 4 surrounding points have been found and are
             !*** non-masked, do bilinear interpolation
             !***
 
@@ -509,7 +509,7 @@
 #ifdef REMAP_TIMING
             if (ll_timing) then
                if (il_nbthreads.gt.1) then
-!$                dl_tstop = OMP_GET_WTIME() 
+!$                dl_tstop = OMP_GET_WTIME()
                   dla_timer(ib_thread,3) = dla_timer(ib_thread,3) + dl_tstop - dl_tstart
                else
                   call timer_stop(5)
@@ -563,7 +563,7 @@
 #ifdef REMAP_TIMING
             if (ll_timing) then
                if (il_nbthreads.gt.1) then
-!$                dl_tstop = OMP_GET_WTIME() 
+!$                dl_tstop = OMP_GET_WTIME()
                   dla_timer(ib_thread,4) = dla_timer(ib_thread,4) + dl_tstop - dl_tstart
                else
                   call timer_stop(6)
@@ -583,7 +583,7 @@
             enddo
             write(nulou,*)'Current i,j : ',iguess, jguess
             write(nulou,*)'Iteration for i,j exceed max iteration count'
-            stop 
+            stop
           endif
         !
         else if (src_add(1) < 0) THEN
@@ -591,7 +591,7 @@
           !***
           !*** Search for neighbour search failed or at least one of the 4
           !*** neighbours was masked. Do distance-weighted average using
-          !*** the non-masked points among the 4 closest ones. 
+          !*** the non-masked points among the 4 closest ones.
           !***
 
           IF (nlogprt .eq. 2) then
@@ -676,7 +676,7 @@
 #ifdef REMAP_TIMING
             if (ll_timing) then
                if (il_nbthreads.gt.1) then
-!$                dl_tstop = OMP_GET_WTIME() 
+!$                dl_tstop = OMP_GET_WTIME()
                   dla_timer(ib_thread,5) = dla_timer(ib_thread,5) + dl_tstop - dl_tstart
                else
                   call timer_stop(7)
@@ -710,7 +710,7 @@
 #ifdef REMAP_TIMING
             if (ll_timing) then
                if (il_nbthreads.gt.1) then
-!$                dl_tstop = OMP_GET_WTIME() 
+!$                dl_tstop = OMP_GET_WTIME()
                   dla_timer(ib_thread,4) = dla_timer(ib_thread,4) + dl_tstop - dl_tstart
                else
                   call timer_stop(6)
@@ -763,7 +763,7 @@
                   endif
                 endif
               end do
-              ! Special treatment for bilinear reduced 
+              ! Special treatment for bilinear reduced
               ! consequence of different bins definition
               ! in source and target grid
               IF (src_addnn == 0 .AND. ll_gaussreduced_grid) THEN
@@ -790,14 +790,14 @@
               ENDIF
               IF (src_addnn == 0) THEN
                 WRITE(nulou,*) 'Problem with target grid point'
-                WRITE(nulou,*) 'with address = ',dst_add 
-                call abort
-              ENDIF 
+                WRITE(nulou,*) 'with address = ',dst_add
+                CALL MPI_abort(mpi_comm_map,-1,il_err)
+              ENDIF
               IF (nlogprt .ge. 2) THEN
                 WRITE(nulou,*) '  '
                 WRITE(nulou,*) 'Nearest non masked neighbour is source point ',src_addnn
                 WRITE(nulou,*) 'with longitude and latitude',grid1_center_lon(src_addnn), &
-                                                             grid1_center_lat(src_addnn) 
+                                                             grid1_center_lat(src_addnn)
               ENDIF
 
               wgts(1,1) = 1.
@@ -816,7 +816,7 @@
 #ifdef REMAP_TIMING
             if (ll_timing) then
                if (il_nbthreads.gt.1) then
-!$                dl_tstop = OMP_GET_WTIME() 
+!$                dl_tstop = OMP_GET_WTIME()
                   dla_timer(ib_thread,6) = dla_timer(ib_thread,6) + dl_tstop - dl_tstart
                else
                   call timer_stop(8)
@@ -1053,7 +1053,7 @@
 
       integer (kind=int_kind), dimension(2), intent(in) :: src_grid_dims  ! size of each src grid dimension
 
-      real (kind=dbl_kind), dimension(:), intent(in) :: src_center_lat, & ! latitude  of each src grid center 
+      real (kind=dbl_kind), dimension(:), intent(in) :: src_center_lat, & ! latitude  of each src grid center
                                                         src_center_lon    ! longitude of each src grid center
 
       real (kind=dbl_kind), dimension(:,:), intent(in) :: src_grid_bound_box ! bound box for source grid
@@ -1095,10 +1095,10 @@
           max_add = max(max_add, src_bin_add(2,n))
         endif
       end do
- 
+
 !-----------------------------------------------------------------------
 !
-!     now perform a more detailed search 
+!     now perform a more detailed search
 !
 !-----------------------------------------------------------------------
 
@@ -1200,9 +1200,9 @@
             next_n = MOD(n,4) + 1
 
             !***
-            !*** here we take the cross product of the vector making 
+            !*** here we take the cross product of the vector making
             !*** up each box side with the vector formed by the vertex
-            !*** and search point.  if all the cross products are 
+            !*** and search point.  if all the cross products are
             !*** positive, the point is contained in the box.
             !***
 
@@ -1251,15 +1251,15 @@
             src_add(4) = n_add
 
            ! Check if one point is masked; IF so, nearest-neighbour
-           ! interpolation will be used  
+           ! interpolation will be used
 
             ntotmask = 0
             do ni=1,4
               if (.not. grid1_mask(src_add(ni)).and. .not. lextrapdone) &
-                 ntotmask = ntotmask + 1 
+                 ntotmask = ntotmask + 1
             end DO
             IF (ntotmask .gt. 0) src_add(1) = -src_add(1)
-        
+
             return
           endif
 
@@ -1275,7 +1275,7 @@
       !*** either pole or is outside the grid. Put src_add = -1 so that
       !*** distance-weighted average of the 4 non-masked closest points
       !*** is done in calling routine.
-  
+
       src_add = -1
 
 !-----------------------------------------------------------------------
@@ -1288,7 +1288,7 @@
             real (kind=dbl_kind), intent(in) :: rd_lon
             real (kind=dbl_kind), intent(in) :: rd_west,rd_east
             integer (kind=int_kind), intent(in) :: id_per
-            
+
             select case (id_per)
             case (0)
                lf_lon_in_box = &
@@ -1304,7 +1304,7 @@
 
 !-----------------------------------------------------------------------
 
-      end subroutine grid_search_bi 
+      end subroutine grid_search_bi
 
 !***********************************************************************
 
@@ -1312,8 +1312,8 @@
 
 !-----------------------------------------------------------------------
 !
-!     this routine stores the address and weight for four links 
-!     associated with one destination point in the appropriate address 
+!     this routine stores the address and weight for four links
+!     associated with one destination point in the appropriate address
 !     and weight arrays and resizes those arrays if necessary.
 !
 !-----------------------------------------------------------------------
@@ -1441,7 +1441,7 @@
 
       integer (kind=int_kind), dimension(2), intent(in) :: src_grid_dims  ! size of each src grid dimension
 
-      real (kind=dbl_kind), dimension(:), intent(in) :: src_center_lat, & ! latitude  of each src grid center 
+      real (kind=dbl_kind), dimension(:), intent(in) :: src_center_lat, & ! latitude  of each src grid center
                                                         src_center_lon  ! longitude of each src grid center
 
       LOGICAL :: lextrapdone   ! logical, true if EXTRAP done on field
@@ -1492,7 +1492,7 @@
 
 !-----------------------------------------------------------------------
 !
-!     now perform a more detailed search 
+!     now perform a more detailed search
 !
 !-----------------------------------------------------------------------
       if (min_add .ne. 0 .and. max_add .ne. nx+1) THEN
@@ -1536,7 +1536,7 @@
            src_lats(2) = src_center_lat(src_add(4))
            src_lats(3) = src_center_lat(src_add(2))
            src_lats(4) = src_center_lat(src_add(1))
-      
+
            src_lons(1) = src_center_lon(src_add(3))
            src_lons(2) = src_center_lon(src_add(4))
            src_lons(3) = src_center_lon(src_add(2))
@@ -1548,22 +1548,22 @@
            src_add(2) = src_bid(4)
            src_add(3) = src_bid(2)
            src_add(4) = src_bid(1)
-    
+
            ! Check if one point is masked; IF so, nearest-neighbour
-           ! interpolation will be used 
+           ! interpolation will be used
 
            ntotmask = 0
            do ni=1,4
              if (.not. grid1_mask(src_add(ni)).and. .not. lextrapdone) &
-                ntotmask = ntotmask + 1 
+                ntotmask = ntotmask + 1
            end DO
-           IF (ntotmask .gt. 0) src_add(1) = -src_add(1) 
-          
-       ELSE 
+           IF (ntotmask .gt. 0) src_add(1) = -src_add(1)
+
+       ELSE
 
            !*** We are in the first or last bin.  Put src_add = -1 so that
            !*** distance-weighted average of the 4 non-masked closest points
-           !*** is done in calling routine. 
+           !*** is done in calling routine.
 
            src_add = -1
 
