@@ -73,9 +73,9 @@ for toy in ${USER_TOY[@]}; do
 	        cd ${OASIS_TOYDIR}
                 echo "Compile $casename on ${OASIS_ENV}"
                 if [ ${nb_tests} -le 9 ]; then
-                        ./oasis_test_build param_${casename}_test0${nb_tests}
+                        ./oasis_test_build.sh param_${casename}_test0${nb_tests}
                 else
-                        ./oasis_test_build param_${casename}_test${nb_tests}
+                        ./oasis_test_build.sh param_${casename}_test${nb_tests}
                 fi
 ###############################################
                	if [ ${nb_tests} -le 9 ]; then
