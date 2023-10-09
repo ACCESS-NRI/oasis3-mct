@@ -44,7 +44,7 @@ CONTAINS
 
 !===============================================================================
 
-!> Checks whether the var fldname is in the file 
+!> Checks whether the var fldname is in the file
 
 logical function oasis_io_varexists(filename,fldname)
 
@@ -301,7 +301,7 @@ subroutine oasis_io_write_avfile(rstfile,av,gsmap,mpicom,nx,ny,nampre)
    character(len=*), intent(in) :: rstfile    !< filename
    type(mct_aVect) , intent(in) :: av         !< avect
    type(mct_gsmap) , intent(in) :: gsmap      !< gsmap decomp
-   integer(ip_i4_p), intent(in) :: mpicom     !< mpi comm 
+   integer(ip_i4_p), intent(in) :: mpicom     !< mpi comm
    integer(ip_i4_p), intent(in) :: nx         !< 2d global nx size
    integer(ip_i4_p), intent(in) :: ny         !< 2d global ny size
    character(len=*), intent(in),optional :: nampre  !< field name prepend string on file
@@ -472,7 +472,7 @@ subroutine oasis_io_read_avfile(rstfile,av,gsmap,mpicom,abort,nampre,didread)
    character(len=*), intent(in) :: rstfile    !< filename
    type(mct_aVect) , intent(inout) :: av      !< avect
    type(mct_gsmap) , intent(in) :: gsmap      !< gsmap decomp
-   integer(ip_i4_p), intent(in) :: mpicom     !< mpi comm 
+   integer(ip_i4_p), intent(in) :: mpicom     !< mpi comm
    logical         , intent(in) ,optional :: abort   !< abort on error flag, default is true
    character(len=*), intent(in) ,optional :: nampre  !< name prepend string for fields on file
    logical         , intent(out),optional :: didread !< flag indicating that read was successful
@@ -1002,7 +1002,7 @@ subroutine oasis_io_write_avfbf(av,gsmap,mpicom,nx,ny,msec,f_string,filename)
       call oasis_ioshr_write(lfn, gsmap, av, 'pout', &
                whead=whead,wdata=wdata,nx=nx,ny=ny,nt=1, &
                use_float=.false.)
-   
+
       if (fk == 1) call oasis_ioshr_enddef(lfn)
    enddo
 
@@ -1352,7 +1352,7 @@ subroutine oasis_io_read_field_fromroot(filename,fldname,ifld2,fld2,fld3,nx,ny,n
          call oasis_abort(file=__FILE__,line=__LINE__)
        endif
      endif
-    
+
      status = nf90_close(ncid)
      call check_status(status,subname,__FILE__,__LINE__)
 
@@ -1388,8 +1388,8 @@ subroutine oasis_io_read_field_fromroot(filename,fldname,ifld2,fld2,fld3,nx,ny,n
    endif
 
    if (present(nx)) call oasis_mpi_bcast(nx,mpi_comm_map,subname//' nx')
-   if (present(ny)) call oasis_mpi_bcast(ny,mpi_comm_map,subname//' nx')
-   if (present(nz)) call oasis_mpi_bcast(nz,mpi_comm_map,subname//' nx')
+   if (present(ny)) call oasis_mpi_bcast(ny,mpi_comm_map,subname//' ny')
+   if (present(nz)) call oasis_mpi_bcast(nz,mpi_comm_map,subname//' nz')
 
 !   endif
 
@@ -1600,7 +1600,7 @@ end subroutine oasis_io_write_2dgridint_fromroot
 !> Write a 3d real array named field from the root task to a file.
 
 subroutine oasis_io_write_3dgridfld_fromroot(filename,fldname,fld,nx,ny,nc)
- 
+
    ! ---------------------------------------
    ! Designed to work with oasis3 write_grid.
    ! ---------------------------------------
