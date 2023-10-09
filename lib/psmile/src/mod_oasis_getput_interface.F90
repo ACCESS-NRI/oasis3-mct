@@ -27,12 +27,14 @@ MODULE mod_oasis_getput_interface
      module procedure oasis_put_r14
      module procedure oasis_put_r24f1
      module procedure oasis_put_r24f2
-     module procedure oasis_put_r34
+     module procedure oasis_put_r34f2
+     module procedure oasis_put_r34f3
 #endif
      module procedure oasis_put_r18
      module procedure oasis_put_r28f1
      module procedure oasis_put_r28f2
-     module procedure oasis_put_r38
+     module procedure oasis_put_r38f2
+     module procedure oasis_put_r38f3
   end interface
 
 !> Generic overloaded interface for data get (receive)
@@ -143,7 +145,7 @@ contains
 
 !-------------------------------------------------------------------
 
-!> Send 4 byte real 1D data
+!> Send 8 byte real 1D data
 
   SUBROUTINE oasis_put_r18(var_id,kstep,fld1,kinfo, &
     fld2, fld3, fld4, fld5, write_restart, fracwgt)
@@ -361,7 +363,7 @@ contains
     ! treat data as 2d unbundled data
 
        if (present(fracwgt)) then
-          WRITE(nulprt,*) subname,estr,' fracwgt shape incorrect in oasis_put'
+          WRITE(nulprt,*) subname,estr,' fracwgt shape incorrect in oasis_put, sending 2d data, 1d fracwgt'
           call oasis_abort(file=__FILE__,line=__LINE__)
        else
           if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
@@ -431,13 +433,77 @@ contains
     endif
 
     if (prism_var(var_id)%num > 1) then
-    ! treat data as 1d bundled data, should not happen with this interface, fracwgt is 2d
+    ! treat data as 1d bundled data, fracwgt is 2d bundled and passed
 
-       WRITE(nulprt,*) subname,estr,' Passing 2d fracwgt'
-       call oasis_abort(file=__FILE__,line=__LINE__)
+       if (size(fld1,dim=2) /= prism_var(var_id)%num) then
+          write(nulprt,*) subname,estr,'called for variable ',trim(prism_var(var_id)%name)
+          write(nulprt,*) subname,estr,'expecting bundled field with num = ',prism_var(var_id)%num
+          write(nulprt,*) subname,estr,'passing in field with incorrect 2nd dim size = ',size(fld1,dim=2)
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+
+       size_fld1 = size(fld1,dim=2)
+       if (present(fld2)) then
+          if (size(fld2,dim=2) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld2 size different than fld1 size ',size_fld1,size(fld2,dim=2)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld3)) then
+          if (size(fld3,dim=2) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld3 size different than fld1 size ',size_fld1,size(fld3,dim=2)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld4)) then
+          if (size(fld4,dim=2) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld4 size different than fld1 size ',size_fld1,size(fld4,dim=2)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld5)) then
+          if (size(fld5,dim=2) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld5 size different than fld1 size ',size_fld1,size(fld5,dim=2)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+!       if (present(fracwgt)) then
+          if (size(fracwgt,dim=2) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fracwgt size different than fld1 size ',size_fld1,size(fracwgt,dim=2)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+!       endif
+
+!       if (present(fracwgt)) then
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)), DBLE(fld4(:,n)), DBLE(fld5(:,n)), &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(fracwgt(:,n)))
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)), DBLE(fld4(:,n)),      &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(fracwgt(:,n)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)),                       &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(fracwgt(:,n)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     DBLE(fld2(:,n)), DBLE(fld3(:,n)), DBLE(fld4(:,n)),      &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(fracwgt(:,n)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(fld1(:,n)), kinfo, &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(fracwgt(:,n)))
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+!       endif
 
     else
-    ! treat data as 2d unbundled data, must be the case, fracwgt is 2d and passed
+    ! treat data as 2d unbundled data, fracwgt is 2d and passed
 
 !       if (present(fracwgt)) then
           if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
@@ -479,7 +545,7 @@ contains
 
 !> Send 4 byte real 2D bundled data
 
-  SUBROUTINE oasis_put_r34(var_id,kstep,fld1,kinfo, &
+  SUBROUTINE oasis_put_r34f2(var_id,kstep,fld1,kinfo, &
     fld2, fld3, fld4, fld5, write_restart, fracwgt)
 
     IMPLICIT none
@@ -496,7 +562,7 @@ contains
     real(kind=ip_single_p), optional :: fracwgt(:,:)  !< dynamic fraction weight
     !-------------------------------------
     integer(kind=ip_i4_p) :: n, size_fld1
-    character(len=*),parameter :: subname = '(oasis_put_r34)'
+    character(len=*),parameter :: subname = '(oasis_put_r34f2)'
     !-------------------------------------
 
     call oasis_debug_enter(subname)
@@ -612,9 +678,126 @@ contains
 
     call oasis_debug_exit(subname)
 
-  END SUBROUTINE oasis_put_r34
+  END SUBROUTINE oasis_put_r34f2
 #endif
-!-------------------------------------------------------------------
+
+!---------------------------------------------------------------------
+#ifndef __NO_4BYTE_REALS
+
+!> Send 4 byte real 2D bundled data with bundled fracwgt
+
+  SUBROUTINE oasis_put_r34f3(var_id,kstep,fld1,kinfo, &
+    fld2, fld3, fld4, fld5, write_restart, fracwgt)
+
+    IMPLICIT none
+    !-------------------------------------
+    integer(kind=ip_i4_p) , intent(in) :: var_id      !< variable id
+    integer(kind=ip_i4_p) , intent(in) :: kstep       !< model time in seconds
+    real(kind=ip_single_p) :: fld1(:,:,:)             !< field data
+    integer(kind=ip_i4_p) , intent(out):: kinfo       !< return code
+    real(kind=ip_single_p), optional :: fld2(:,:,:)   !< higher order field data
+    real(kind=ip_single_p), optional :: fld3(:,:,:)   !< higher order field data
+    real(kind=ip_single_p), optional :: fld4(:,:,:)   !< higher order field data
+    real(kind=ip_single_p), optional :: fld5(:,:,:)   !< higher order field data
+    logical               , optional :: write_restart !< write restart now
+    real(kind=ip_single_p)           :: fracwgt(:,:,:)!< dynamic fraction weight
+    !-------------------------------------
+    integer(kind=ip_i4_p) :: n, size_fld1
+    character(len=*),parameter :: subname = '(oasis_put_r34f3)'
+    !-------------------------------------
+
+    call oasis_debug_enter(subname)
+    kinfo = OASIS_OK
+    if (.not. oasis_coupled) then
+       call oasis_debug_exit(subname)
+       return
+    endif
+
+    if (prism_var(var_id)%num > 1) then
+    ! treat data as 2d bundled data
+
+       if (size(fld1,dim=3) /= prism_var(var_id)%num) then
+          write(nulprt,*) subname,estr,'called for variable ',trim(prism_var(var_id)%name)
+          write(nulprt,*) subname,estr,'expecting bundled field with num = ',prism_var(var_id)%num
+          write(nulprt,*) subname,estr,'passing in field with incorrect 3rd dim size = ',size(fld1,dim=3)
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+
+       size_fld1 = size(fld1,dim=3)
+       if (present(fld2)) then
+          if (size(fld2,dim=3) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld2 size different than fld1 size ',size_fld1,size(fld2,dim=3)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld3)) then
+          if (size(fld3,dim=3) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld3 size different than fld1 size ',size_fld1,size(fld3,dim=3)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld4)) then
+          if (size(fld4,dim=3) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld4 size different than fld1 size ',size_fld1,size(fld4,dim=3)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld5)) then
+          if (size(fld5,dim=3) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld5 size different than fld1 size ',size_fld1,size(fld5,dim=3)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+!       if (present(fracwgt)) then
+          if (size(fracwgt,dim=3) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fracwgt size different than fld1 size ',size_fld1,size(fracwgt,dim=3)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+!       endif
+
+!       if (present(fracwgt)) then
+
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)), DBLE(PACK(fld3(:,:,n),mask=.true.)),   &
+                     DBLE(PACK(fld4(:,:,n),mask=.true.)), DBLE(PACK(fld5(:,:,n),mask=.true.)),   &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(PACK(fracwgt(:,:,n),mask=.true.)))
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)), DBLE(PACK(fld3(:,:,n),mask=.true.)),   &
+                     DBLE(PACK(fld4(:,:,n),mask=.true.)),                                        &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(PACK(fracwgt(:,:,n),mask=.true.)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)), DBLE(PACK(fld3(:,:,n),mask=.true.)),   &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(PACK(fracwgt(:,:,n),mask=.true.)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     DBLE(PACK(fld2(:,:,n),mask=.true.)),                                        &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(PACK(fracwgt(:,:,n),mask=.true.)))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, DBLE(PACK(fld1(:,:,n),mask=.true.)), kinfo, &
+                     write_restart=write_restart, varnum=n, fracwgt=DBLE(PACK(fracwgt(:,:,n),mask=.true.)))
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+
+!       endif
+
+    else
+       WRITE(nulprt,*) subname,estr,' Dimension sizes incorrect'
+       call oasis_abort(file=__FILE__,line=__LINE__)
+
+    endif
+
+    call oasis_debug_exit(subname)
+
+  END SUBROUTINE oasis_put_r34f3
+#endif
+
 !---------------------------------------------------------------------
 
 !> Send 8 byte real 2D data
@@ -780,9 +963,8 @@ contains
   END SUBROUTINE oasis_put_r28f1
 
 !---------------------------------------------------------------------
-#ifndef __NO_4BYTE_REALS
 
-!> Send 4 byte real 2D data, complements r28f1, used when fracwgt is 2d passed array
+!> Send 8 byte real 2D data, complements r28f1, used when fracwgt is 2d passed array
 
   SUBROUTINE oasis_put_r28f2(var_id,kstep,fld1,kinfo, &
     fld2, fld3, fld4, fld5, write_restart, fracwgt)
@@ -812,10 +994,74 @@ contains
     endif
 
     if (prism_var(var_id)%num > 1) then
-    ! treat data as 1d bundled data, should not happen with this interface, fracwgt is 2d
+    ! treat data as 1d bundled data, fracwgt is 2d bundled and passed
 
-       WRITE(nulprt,*) subname,estr,' Passing 2d fracwgt'
-       call oasis_abort(file=__FILE__,line=__LINE__)
+       if (size(fld1,dim=2) /= prism_var(var_id)%num) then
+          write(nulprt,*) subname,estr,'called for variable ',trim(prism_var(var_id)%name)
+          write(nulprt,*) subname,estr,'expecting bundled field with num = ',prism_var(var_id)%num
+          write(nulprt,*) subname,estr,'passing in field with incorrect 2nd dim size = ',size(fld1,dim=2)
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+
+       size_fld1 = size(fld1,dim=2)
+       if (present(fld2)) then
+          if (size(fld2,dim=2) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld2 size different than fld1 size ',size_fld1,size(fld2,dim=2)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld3)) then
+          if (size(fld3,dim=2) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld3 size different than fld1 size ',size_fld1,size(fld3,dim=2)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld4)) then
+          if (size(fld4,dim=2) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld4 size different than fld1 size ',size_fld1,size(fld4,dim=2)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld5)) then
+          if (size(fld5,dim=2) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld5 size different than fld1 size ',size_fld1,size(fld5,dim=2)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+!       if (present(fracwgt)) then
+          if (size(fracwgt,dim=2) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fracwgt size different than fld1 size ',size_fld1,size(fracwgt,dim=2)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+!       endif
+
+!       if (present(fracwgt)) then
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n), fld3(:,n), fld4(:,n), fld5(:,n), &
+                     write_restart=write_restart, varnum=n, fracwgt=fracwgt(:,n))
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n), fld3(:,n), fld4(:,n),      &
+                     write_restart=write_restart, varnum=n, fracwgt=fracwgt(:,n))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n), fld3(:,n),                       &
+                     write_restart=write_restart, varnum=n, fracwgt=fracwgt(:,n))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     fld2(:,n), fld3(:,n), fld4(:,n),      &
+                     write_restart=write_restart, varnum=n, fracwgt=fracwgt(:,n))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, fld1(:,n), kinfo, &
+                     write_restart=write_restart, varnum=n, fracwgt=fracwgt(:,n))
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+!       endif
 
     else
     ! treat data as 2d unbundled data, must be the case, fracwgt is 2d and passed
@@ -853,14 +1099,12 @@ contains
     call oasis_debug_exit(subname)
 
   END SUBROUTINE oasis_put_r28f2
-#endif
 
-!-------------------------------------------------------------------
 !---------------------------------------------------------------------
 
 !> Send 8 byte real 2D bundled data
 
-  SUBROUTINE oasis_put_r38(var_id,kstep,fld1,kinfo, &
+  SUBROUTINE oasis_put_r38f2(var_id,kstep,fld1,kinfo, &
     fld2, fld3, fld4, fld5, write_restart, fracwgt)
 
     IMPLICIT none
@@ -877,7 +1121,7 @@ contains
     real(kind=ip_double_p), optional :: fracwgt(:,:)  !< dynamic fraction weight
     !-------------------------------------
     integer(kind=ip_i4_p) :: n, size_fld1
-    character(len=*),parameter :: subname = '(oasis_put_r38)'
+    character(len=*),parameter :: subname = '(oasis_put_r38f2)'
     !-------------------------------------
 
     call oasis_debug_enter(subname)
@@ -989,10 +1233,123 @@ contains
 
     call oasis_debug_exit(subname)
 
-  END SUBROUTINE oasis_put_r38
+  END SUBROUTINE oasis_put_r38f2
+
+!---------------------------------------------------------------------
+
+!> Send 8 byte real 2D bundled data with bundled fracwgt
+
+  SUBROUTINE oasis_put_r38f3(var_id,kstep,fld1,kinfo, &
+    fld2, fld3, fld4, fld5, write_restart, fracwgt)
+
+    IMPLICIT none
+    !-------------------------------------
+    integer(kind=ip_i4_p) , intent(in) :: var_id      !< variable id
+    integer(kind=ip_i4_p) , intent(in) :: kstep       !< model time in seconds
+    real(kind=ip_double_p) :: fld1(:,:,:)             !< field data
+    integer(kind=ip_i4_p) , intent(out):: kinfo       !< return code
+    real(kind=ip_double_p), optional :: fld2(:,:,:)   !< higher order field data
+    real(kind=ip_double_p), optional :: fld3(:,:,:)   !< higher order field data
+    real(kind=ip_double_p), optional :: fld4(:,:,:)   !< higher order field data
+    real(kind=ip_double_p), optional :: fld5(:,:,:)   !< higher order field data
+    logical               , optional :: write_restart !< write restart now
+    real(kind=ip_double_p)           :: fracwgt(:,:,:)!< dynamic fraction weight
+    !-------------------------------------
+    integer(kind=ip_i4_p) :: n, size_fld1
+    character(len=*),parameter :: subname = '(oasis_put_r38f3)'
+    !-------------------------------------
+
+    call oasis_debug_enter(subname)
+    kinfo = OASIS_OK
+    if (.not. oasis_coupled) then
+       call oasis_debug_exit(subname)
+       return
+    endif
+
+    if (prism_var(var_id)%num > 1) then
+    ! treat data as 1d bundled data
+
+       if (size(fld1,dim=3) /= prism_var(var_id)%num) then
+          write(nulprt,*) subname,estr,'called for variable ',trim(prism_var(var_id)%name)
+          write(nulprt,*) subname,estr,'expecting bundled field with num = ',prism_var(var_id)%num
+          write(nulprt,*) subname,estr,'passing in field with incorrect 3rd dim size = ',size(fld1,dim=3)
+          call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+
+       size_fld1 = size(fld1,dim=3)
+       if (present(fld2)) then
+          if (size(fld2,dim=3) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld2 size different than fld1 size ',size_fld1,size(fld2,dim=3)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld3)) then
+          if (size(fld3,dim=3) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld3 size different than fld1 size ',size_fld1,size(fld3,dim=3)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld4)) then
+          if (size(fld4,dim=3) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld4 size different than fld1 size ',size_fld1,size(fld4,dim=3)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+       if (present(fld5)) then
+          if (size(fld5,dim=3) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fld5 size different than fld1 size ',size_fld1,size(fld5,dim=3)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+       endif
+!       if (present(fracwgt)) then
+          if (size(fracwgt,dim=3) /= size_fld1) then
+             write(nulprt,*) subname,estr,'fracwgt size different than fld1 size ',size_fld1,size(fracwgt,dim=3)
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+!       endif
+
+!       if (present(fracwgt)) then
+          do n = 1,prism_var(var_id)%num
+             if (present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),  PACK(fld3(:,:,n),mask=.true.),        &
+                     PACK(fld4(:,:,n),mask=.true.),  PACK(fld5(:,:,n),mask=.true.),        &
+                     write_restart=write_restart, varnum=n, fracwgt=PACK(fracwgt(:,:,n),mask=.true.))
+             elseif (.not.present(fld5) .and. present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),  PACK(fld3(:,:,n),mask=.true.),        &
+                     PACK(fld4(:,:,n),mask=.true.),                                        &
+                     write_restart=write_restart, varnum=n, fracwgt=PACK(fracwgt(:,:,n),mask=.true.))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),  PACK(fld3(:,:,n),mask=.true.),        &
+                     write_restart=write_restart, varnum=n, fracwgt=PACK(fracwgt(:,:,n),mask=.true.))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     PACK(fld2(:,:,n),mask=.true.),                                        &
+                     write_restart=write_restart, varnum=n, fracwgt=PACK(fracwgt(:,:,n),mask=.true.))
+             elseif (.not.present(fld5) .and. .not.present(fld4) .and. .not.present(fld3) .and. .not.present(fld2)) then
+                CALL oasis_put_worker(var_id, kstep, PACK(fld1(:,:,n),mask=.true.), kinfo, &
+                     write_restart=write_restart, varnum=n, fracwgt=PACK(fracwgt(:,:,n),mask=.true.))
+             else
+                WRITE(nulprt,*) subname,estr,' Wrong field array argument list in oasis_put'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+!       endif
+
+    else
+       WRITE(nulprt,*) subname,estr,' Dimension sizes incorrect'
+       call oasis_abort(file=__FILE__,line=__LINE__)
+
+    endif
+
+    call oasis_debug_exit(subname)
+
+  END SUBROUTINE oasis_put_r38f3
 
 !-------------------------------------------------------------------
-!---------------------------------------------------------------------
+
 !> Send worker routine puts 8 byte real 1D data
 
   SUBROUTINE oasis_put_worker(var_id,kstep,fld1,kinfo, &
@@ -1304,7 +1661,6 @@ contains
 #endif
 
 !---------------------------------------------------------------------
-!---------------------------------------------------------------------
 #ifndef __NO_4BYTE_REALS
 
 !> Receive 4 byte real 2D bundled data
@@ -1436,7 +1792,6 @@ contains
 
   END SUBROUTINE oasis_get_r28
 
-!-------------------------------------------------------------------
 !---------------------------------------------------------------------
 
 !> Receive 8 byte real 2D bundled data

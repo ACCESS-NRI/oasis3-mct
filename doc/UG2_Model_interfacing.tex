@@ -725,9 +725,9 @@ In the component time step loop, each process sends its part of the
 coupling (or I/O) field.
 
 \begin{itemize}
-\item {\tt CALL oasis\_put (var\_id,date,fld1,info,fld2,fld3,fld4, fld5,write\_restart)}
+\item {\tt CALL oasis\_put (var\_id,date,fld1,info,fld2,fld3,fld4, fld5,write\_restart, fracwgt)}
 \item {\tt CALL prism\_put\_proto(var\_id, date, fld1, info, fld2,
-    fld3, fld4, fld5, write\_restart)}
+    fld3, fld4, fld5, write\_restart), fracwgt}
   \begin{itemize}
   \item {\tt var\_id [INTEGER; IN]}: field ID (returned from corresponding {\tt
       oasis\_def\_var}, see section \ref{subsubsec_Declaration})
@@ -769,6 +769,13 @@ coupling (or I/O) field.
   \item {\tt write\_restart [LOGICAL, IN, OPTIONAL]}: optional argument to write an
     intermediate restart file associated with the variable {\tt
       var\_id} at the current timestep (see below).
+  \item {\tt fracwgt [REAL, IN, OPTIONAL]}: optional fraction weight
+    field array; can be 1D, 2D, bundle 1D, or bundle 2D.  Can vary with different
+    fields in a bundle or be identical for different fields in a bundle.  Grid size 
+    must match {\tt fld1} and number of bundled fields must match {\tt fld1} or be 1.
+    This field multiplies {\tt fld1} on the source side and then is mapped
+    and applied as a normalization term on the destination side.  It will
+    often vary in time and may be associated with a field like ice fraction.
   \end{itemize}
 \end{itemize}
 
@@ -801,6 +808,20 @@ of the following aspects:
   are provided at each time step as {\tt oasis\_put} arguments. Note
   that if {\tt fld3}, or {\tt fld4}, or {\tt fld5} are passed, {\tt fld2}, or {\tt fld3} and
   {\tt fld2}, or {\tt fld4} and {\tt fld3} and {\tt fld2} must also be passed respectively.
+
+\item   BLASOLD is not allowed with higher order transforms because it is not uniquely
+  defined.  Application of additive or multiplicative transforms might be better done in 
+  the components or with BLASNEW with higher order transforms.
+
+\item   Higher order remapping weights and fracwgt can only be carried out with 
+  mapping on the src model processors, ({\tt \$MAPLOC=src}) in section \ref{subsec_interp}.
+
+\item   Higher order remapping weights and fracwgt cannot be used with the min/max the
+  loctrans option.  see section \ref{subsec_timetrans}.
+
+\item Fracwgt is implemented by multiplying the fld1 by the fracwgt, mapping that product,
+  then normalizing by the mapped fracwgt weight on the destination grid.  Higher order
+  transforms are then applied separately without regard to fracwgt.
 
 \item Note that from OASIS3-MCT\_4.0 onwards,
 the number of weights in the remapping file and the number of fields in the coupling restart file
@@ -842,7 +863,10 @@ oasis\_put .
   performed and the resulting field is finally sent at the coupling or
   I/O frequency.  For non-instantaneous transformations, partially
   transformed fields will be written to the restart file at the end of
-  the run for use on the next component startup, when needed.
+  the run for use on the next component startup, when needed.  For
+  average or accumulating, the coupler period is assumed to be constant
+  and each instantaneous field is given the same weight over the
+  averging/accumulating period.
 
 \item A coupling field sent by a source component can be
   associated with more than one target field and component, with different entries in the {\it namcouple} configuration
