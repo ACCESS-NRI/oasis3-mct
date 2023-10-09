@@ -1573,6 +1573,7 @@ CONTAINS
                  write(nulprt,*) subname,' nf90_strerror = ',trim(nf90_strerror(status))
                  call oasis_abort(file=__FILE__,line=__LINE__)
               endif
+              status = nf90_close(ncid)
               if (local_timers_on >= 3) call oasis_timer_stop('cpl_setup_n4da3')
               if (local_timers_on >= 3) call oasis_timer_stop('cpl_setup_n4da')
            endif  ! rank = 0
