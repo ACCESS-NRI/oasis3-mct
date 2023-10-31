@@ -16,3 +16,8 @@ doc/*.cb2
 doc/*.idx
 doc/*.log
 doc/*.toc
+doc/doxygen/html
+doc/doxygen/latex
+lib/psmile/src/FORTAGS
+
+
