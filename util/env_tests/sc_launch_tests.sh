@@ -336,7 +336,7 @@ fi
 ######################################################################
 ### 5. Execute/Submit the model
 
-if [ ${OASIS_ENV} == tioman_intel21.1.1_intelmpi2021.1.1 ] || [ ${OASIS_ENV} == stiff_pgi20.4_openmpi3.1.3 ] || [ ${OASIS_ENV} == fundy_gfortran10.2.0_openmpi4.1.0 ]; then
+if [ ${OASIS_ENV} == intel_davinci ] || [ ${OASIS_ENV} == tioman_intel21.1.1_intelmpi2021.1.1 ] || [ ${OASIS_ENV} == stiff_pgi20.4_openmpi3.1.3 ] || [ ${OASIS_ENV} == fundy_gfortran10.2.0_openmpi4.1.0 ]; then
     echo "Executing the model using "`which mpirun`
     echo "${mpistr}"
     . ./comp_env.sh

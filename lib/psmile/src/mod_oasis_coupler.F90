@@ -10,6 +10,7 @@ MODULE mod_oasis_coupler
   USE mod_oasis_namcouple
   USE mod_oasis_sys
   USE mod_oasis_map
+  USE mod_oasis_yac_map
   USE mod_oasis_part
   USE mod_oasis_var
   USE mod_oasis_mpi
@@ -782,7 +783,7 @@ CONTAINS
                  IF (OASIS_debug >= 20) THEN
                     write(nulprt,*) subname,' part init n+g ',trim(prism_part(part1)%gridname),prism_part(part1)%nx,prism_part(part1)%ny
                  ENDIF
-                 
+
               endif
            endif
 
@@ -880,7 +881,7 @@ CONTAINS
               ! check used appropriate array value, we are using "src" side sorted list
               ! if output, just set the nf value
               ! if input, search for an nn and myfldi match in the list
-              
+
               if (prism_var(nv1)%ops == OASIS_Out) then
                  namsrc_checkused(nf) = 1
                  if (OASIS_debug >= 20) then
@@ -907,7 +908,7 @@ CONTAINS
               if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n3d')
               nm = sortvars%modnum(nvf)
               nv = sortvars%varnum(nvf)
-              
+
               if (OASIS_debug >= 20) then
                  write(nulprt,*) subname,' match otfld ',trim(otfld),nn
                  call oasis_flush(nulprt)
@@ -1158,21 +1159,28 @@ CONTAINS
                  tmp_mapfile = nammapfil(nn)
                  tmp_mapfile2 = ''
 
-                 if (TRIM(tmp_mapfile) == 'idmap' .and. TRIM(namscrmet(nn)) /= TRIM(cspval)) then
-                    if (trim(namscrmet(nn)) == 'CONSERV') then
-                       tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
-                          &'_'//TRIM(namscrmet(nn))//'_'//TRIM(namscrnor(nn))//'.nc'
-                    elseif (namscrnbr(nn) > 0) then
-                       write(tmpstr,'(i0)') namscrnbr(nn)
-                       tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
-                          &'_'//TRIM(namscrmet(nn))//'_'//TRIM(tmpstr)//'.nc'
-                       tmp_mapfile2 = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
-                          &'_'//TRIM(namscrmet(nn))//'.nc'
-                    else
-                       tmp_mapfile = 'rmp_'//trim(namsrcgrd(nn))//'_to_'//trim(namdstgrd(nn))//&
-                          &'_'//trim(namscrmet(nn))//'.nc'
-                    endif
-                 endif
+                 IF (TRIM(tmp_mapfile) == 'idmap') THEN
+                    IF (TRIM(namscrmet(nn)) /= TRIM(cspval)) THEN
+                       IF (TRIM(namscrmet(nn)) == 'CONSERV') THEN
+                          tmp_mapfile = 'rmp_'//TRIM(namsrcgrd(nn))//'_to_'//TRIM(namdstgrd(nn))//&
+                             &'_'//TRIM(namscrmet(nn))//'_'//TRIM(namscrnor(nn))//'.nc'
+                       ELSEIF (namscrnbr(nn) > 0) THEN
+                          WRITE(tmpstr,'(i0)') namscrnbr(nn)
+                          tmp_mapfile = 'rmp_'//TRIM(namsrcgrd(nn))//'_to_'//TRIM(namdstgrd(nn))//&
+                             &'_'//TRIM(namscrmet(nn))//'_'//TRIM(tmpstr)//'.nc'
+                          tmp_mapfile2 = 'rmp_'//TRIM(namsrcgrd(nn))//'_to_'//TRIM(namdstgrd(nn))//&
+                             &'_'//TRIM(namscrmet(nn))//'.nc'
+                       ELSE
+                          tmp_mapfile = 'rmp_'//TRIM(namsrcgrd(nn))//'_to_'//TRIM(namdstgrd(nn))//&
+                             &'_'//TRIM(namscrmet(nn))//'.nc'
+                       ENDIF
+#ifdef YAC_REMAP
+                    ELSEIF (namyacmet(nn)%active) THEN
+                       tmp_mapfile = 'rmp_'//TRIM(namsrcgrd(nn))//'_to_'//TRIM(namdstgrd(nn))//&
+                             &'_'//TRIM(namyacmet(nn)%filename)//'.nc'
+#endif
+                    END IF
+                 ENDIF
 
                  if (trim(tmp_mapfile) /= 'idmap') then
                     pcpointer%maploc = trim(nammaploc(nn))
@@ -1373,6 +1381,10 @@ CONTAINS
   !> * Loop over all couplers
   !----------------------------------------------------------
 
+#ifdef YAC_REMAP
+  IF ( namcouple_has_yac ) CALL oasis_map_yac_init()
+#endif
+
   do nc = 1,prism_mcoupler
   ! tcraig, this barrier make sure mapping files are generated one coupler at a time
   if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4_global_barrier')
@@ -1509,8 +1521,12 @@ CONTAINS
                     call oasis_map_genmap(mapID,namID)
                     if (local_timers_on > 2) call oasis_timer_stop('cpl_setup_genmap')
                  end if
+#ifdef YAC_REMAP
+              ELSEIF (namyacmet(namID)%active) THEN
+                 CALL oasis_map_yac_genmap(mapID,namID)
+#endif
               else
-                 write(nulprt,*) subname,estr,'map file does not exist and SCRIPR not set = ',&
+                 write(nulprt,*) subname,estr,'map file does not exist and neither SCRIPR nor YAC are set = ',&
                                  trim(prism_mapper(mapID)%file)
                  call oasis_abort(file=__FILE__,line=__LINE__)
               endif
@@ -1845,12 +1861,16 @@ CONTAINS
      endif  ! no mapper
 
    endif ! endif of pcpointer%valid
-   
+
 !   print'(I3,A,X,L,X,8(I8,X))',mpi_rank_global, 'would have done sndrcv here', pcpointer%sndrcv,pcpointer%comp,compid, &
 !           pcpointer%valid, mapID, pcpointer%rPartID, pcpointer%routerID
 
   enddo   ! npc
   enddo   ! nc
+
+#ifdef YAC_REMAP
+  IF ( namcouple_has_yac ) CALL oasis_map_yac_free
+#endif
 
 !-------------------------------------------------
 ! CEG split 1 loop into 2 to allow map reading on different models in parallel.
