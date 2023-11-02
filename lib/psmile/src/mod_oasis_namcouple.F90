@@ -3332,7 +3332,7 @@ SUBROUTINE alloc()
 !
 !* Alloc array needed for YAC (already in final storage)
 !
-  ALLOCATE(namyacmet(ig_nfield), stat=il_err)
+  ALLOCATE(namyacmet(ig_final_nfield), stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "namyacmet" allocation of '//TRIM(subname),il_err,1)
   namyacmet(:)%active = .FALSE.
 #endif
