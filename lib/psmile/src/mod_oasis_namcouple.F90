@@ -626,6 +626,19 @@ SUBROUTINE oasis_namcouple_init()
                    & supported only for SCALAR mapping, not '//TRIM(namscrtyp(jf))
                  CALL namcouple_abort(subname,__LINE__,tmpstr1)
               ENDIF
+#ifdef YAC_REMAP
+              IF ( namyacmet(jf)%active ) THEN
+                 WRITE(tmpstr1,*) subname,jf,'ERROR: SCRIPR and YAC methods&
+                   & cannot be prescribed together for the same field'
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1)
+              END IF
+           ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'YAC') THEN
+              IF ( TRIM(namscrmet(jf)) /= TRIM(cspval) ) THEN
+                 WRITE(tmpstr1,*) subname,jf,'ERROR: SCRIPR and YAC methods&
+                   & cannot be prescribed together for the same field'
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1)
+              END IF
+#endif
            ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'MAPPING') THEN
               nammapfil(jf) = TRIM(cmap_file(ig_number_field(jf)))
               nammaploc(jf) = TRIM(cmaptyp(ig_number_field(jf)))
@@ -1185,7 +1198,7 @@ SUBROUTINE inipar_alloc()
                     CALL skip(clline, jpeighty, ios=ios)
                  ENDDO
 #else
-                 WRITE(tmpstr1,*) subname,jf,'ERROR: YAC weights generation &
+                 WRITE(tmpstr1,*) subname,jf,'ERROR: YAC weights generation&
                    & supported only if -DYAC_REMAP activated at compilation'
                  CALL namcouple_abort(subname,__LINE__,tmpstr1)
 #endif
