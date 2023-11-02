@@ -1543,11 +1543,12 @@ SUBROUTINE inipar_alloc()
               !*                    Get root name for grid-related files (final field)
               IF (lg_state(jf)) cficaf(ig_number_field(jf)) = clvari
               cga_locatoraf(jf) = clvari(1:4)
-              nlonbf(ig_number_field(jf)) = nlonbf_notnc
-              nlatbf(ig_number_field(jf)) = nlatbf_notnc
-              nlonaf(ig_number_field(jf)) = nlonaf_notnc
-              nlataf(ig_number_field(jf)) = nlataf_notnc
-
+              IF (lg_state(jf)) THEN
+                 nlonbf(ig_number_field(jf)) = nlonbf_notnc
+                 nlatbf(ig_number_field(jf)) = nlatbf_notnc
+                 nlonaf(ig_number_field(jf)) = nlonaf_notnc
+                 nlataf(ig_number_field(jf)) = nlataf_notnc
+              END IF
            ENDIF
         ENDIF
 
