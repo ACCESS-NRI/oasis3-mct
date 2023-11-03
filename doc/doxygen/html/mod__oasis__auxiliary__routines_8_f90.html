@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Oasis3-MCT: /home/globc2/tcraig/oasis3-mct.trunk/lib/psmile/src/mod_oasis_auxiliary_routines.F90 File Reference</title>
+<title>Oasis3-MCT: /home/globc/andrea/WORK/OASIS3-MCT/oasis3-mct/lib/psmile/src/mod_oasis_auxiliary_routines.F90 File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -98,11 +98,14 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a71bf70a87b2d4ce86016bbb93d9edd73"><td class="mdescLeft">&#160;</td><td class="mdescRight">OASIS user interface to set debug level.  <a href="namespacemod__oasis__auxiliary__routines.html#a71bf70a87b2d4ce86016bbb93d9edd73">More...</a><br /></td></tr>
 <tr class="separator:a71bf70a87b2d4ce86016bbb93d9edd73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a589021c0f1427f8e5edb1c7efcd7fa2c"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__auxiliary__routines.html#a589021c0f1427f8e5edb1c7efcd7fa2c">mod_oasis_auxiliary_routines::oasis_get_intercomm</a> (new_comm, cdnam, kinfo)</td></tr>
-<tr class="memdesc:a589021c0f1427f8e5edb1c7efcd7fa2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">OASIS user interface to establish an intercomm communicator between the root of two models.  <a href="namespacemod__oasis__auxiliary__routines.html#a589021c0f1427f8e5edb1c7efcd7fa2c">More...</a><br /></td></tr>
+<tr class="memdesc:a589021c0f1427f8e5edb1c7efcd7fa2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">OASIS user interface to establish an MPI intercomm communicator between two models.  <a href="namespacemod__oasis__auxiliary__routines.html#a589021c0f1427f8e5edb1c7efcd7fa2c">More...</a><br /></td></tr>
 <tr class="separator:a589021c0f1427f8e5edb1c7efcd7fa2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1959db40e8c27dea289b97458929526"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__auxiliary__routines.html#aa1959db40e8c27dea289b97458929526">mod_oasis_auxiliary_routines::oasis_get_intracomm</a> (new_comm, cdnam, kinfo)</td></tr>
-<tr class="memdesc:aa1959db40e8c27dea289b97458929526"><td class="mdescLeft">&#160;</td><td class="mdescRight">OASIS user interface to establish an intracomm communicator between the root of two models.  <a href="namespacemod__oasis__auxiliary__routines.html#aa1959db40e8c27dea289b97458929526">More...</a><br /></td></tr>
+<tr class="memdesc:aa1959db40e8c27dea289b97458929526"><td class="mdescLeft">&#160;</td><td class="mdescRight">OASIS user interface to establish an intracomm communicator between two components.  <a href="namespacemod__oasis__auxiliary__routines.html#aa1959db40e8c27dea289b97458929526">More...</a><br /></td></tr>
 <tr class="separator:aa1959db40e8c27dea289b97458929526"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaab3f229e1733a7d48ac0cc44d344c7f"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__auxiliary__routines.html#aaab3f229e1733a7d48ac0cc44d344c7f">mod_oasis_auxiliary_routines::oasis_get_multi_intracomm</a> (new_comm, cdnam, root_ranks, kinfo)</td></tr>
+<tr class="memdesc:aaab3f229e1733a7d48ac0cc44d344c7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">OASIS user interface to establish an intracomm communicator between two or more components.  <a href="namespacemod__oasis__auxiliary__routines.html#aaab3f229e1733a7d48ac0cc44d344c7f">More...</a><br /></td></tr>
+<tr class="separator:aaab3f229e1733a7d48ac0cc44d344c7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a154d3345ef9691e378afdc871086f7eb"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__auxiliary__routines.html#a154d3345ef9691e378afdc871086f7eb">mod_oasis_auxiliary_routines::oasis_get_ncpl</a> (varid, ncpl, kinfo)</td></tr>
 <tr class="memdesc:a154d3345ef9691e378afdc871086f7eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">OASIS user query for the number of unique couplings associated with a variable.  <a href="namespacemod__oasis__auxiliary__routines.html#a154d3345ef9691e378afdc871086f7eb">More...</a><br /></td></tr>
 <tr class="separator:a154d3345ef9691e378afdc871086f7eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -121,7 +124,7 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 29 2018 20:52:29 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 3 2023 16:29:05 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

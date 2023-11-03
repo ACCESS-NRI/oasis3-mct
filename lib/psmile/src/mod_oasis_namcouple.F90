@@ -98,35 +98,41 @@ MODULE mod_oasis_namcouple
 #ifdef YAC_REMAP
   !--- yac remapper related entities
 
+  !> Description of a single line of the stack
   TYPE yac_stack_line
-     CHARACTER(LEN=:), ALLOCATABLE :: method
-     CHARACTER(LEN=:), ALLOCATABLE :: cons_order
-     CHARACTER(LEN=:), ALLOCATABLE :: cons_norm
-     CHARACTER(LEN=:), ALLOCATABLE :: nnn_meth
-     REAL(KIND=8) :: nnn_scale
-     INTEGER :: nnn_points
-     INTEGER :: creep_iter
-     CHARACTER(LEN=:), ALLOCATABLE :: spm_meth
-     REAL(KIND=8) :: spm_spread, spm_max_radius
+     CHARACTER(LEN=:), ALLOCATABLE :: method     !< Identifier of the YAC method
+     CHARACTER(LEN=:), ALLOCATABLE :: cons_order !< Order for the conservative interpolations
+     CHARACTER(LEN=:), ALLOCATABLE :: cons_norm  !< Kind of normalisation for the conserv int.
+     CHARACTER(LEN=:), ALLOCATABLE :: nnn_meth   !< Weighting method for nearest neigbour interp.
+     REAL(KIND=8) :: nnn_scale !< Scale for Gauss or Radial Basis func n.n. weights
+     INTEGER :: nnn_points     !< Number of nearest neighbours to account for in n.n. interp
+     INTEGER :: creep_iter     !< Number of iterations for the creep fill method
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_meth !< Source point mapping method
+     REAL(KIND=8) :: spm_spread     !< Spread index for the source point mapping
+     REAL(KIND=8) :: spm_max_radius !< Radius of influence for the source point mapping
   END TYPE yac_stack_line
 
+  !> Storage for the parsed entry of a YAC channel for a namcouple field
   TYPE yac_parse
-     LOGICAL :: active
-     CHARACTER(LEN=:), ALLOCATABLE :: src_grid_type
-     CHARACTER(LEN=:), ALLOCATABLE :: dst_grid_type
-     LOGICAL :: src_use_ll
-     LOGICAL :: dst_use_ll
-     INTEGER :: stacksize
-     CHARACTER(LEN=:), ALLOCATABLE :: filename
-     CHARACTER(LEN=:), ALLOCATABLE :: io_ranks_per_node
-     TYPE(yac_stack_line), DIMENSION(:), ALLOCATABLE :: yac_stack
+     LOGICAL :: active  !< Whether this file has an active YAC channel or not
+     CHARACTER(LEN=:), ALLOCATABLE :: src_grid_type !< Edges representation for the source grid
+                                                    !! (LonLat or GreatCircles)
+     CHARACTER(LEN=:), ALLOCATABLE :: dst_grid_type !< Edges representation for the target grid
+                                                    !! (LonLat or GreatCircles)
+     LOGICAL :: src_use_ll !< Toggle for the LonLat edges representation for the source grid
+     LOGICAL :: dst_use_ll !< Toggle for the LonLat edges representation for the target grid
+     INTEGER :: stacksize  !< Number of treatments in the stack
+     CHARACTER(LEN=:), ALLOCATABLE :: filename !< Interpolation weights output file name
+     CHARACTER(LEN=:), ALLOCATABLE :: io_ranks_per_node !< Optimization of the I/O parallelism
+                                                        !! Refer to the OASIS or YAC manuals.
+     TYPE(yac_stack_line), DIMENSION(:), ALLOCATABLE :: yac_stack !< The stack lines storage
   CONTAINS
-     PROCEDURE :: write_yac => write_yac_fmt
-     GENERIC, PUBLIC :: WRITE(formatted) => write_yac
+     PROCEDURE :: write_yac => write_yac_fmt !< Output procedure of the whole collection
+     GENERIC, PUBLIC :: WRITE(formatted) => write_yac !< Overloading of the F90 write functions
   END TYPE yac_parse
 
-  TYPE(yac_parse) ,PUBLIC,POINTER :: namyacmet(:)
-  LOGICAL, PUBLIC :: namcouple_has_yac
+  TYPE(yac_parse) ,PUBLIC,POINTER :: namyacmet(:) !< The storage of the YAC fields in the namcouple
+  LOGICAL, PUBLIC :: namcouple_has_yac !< Toggle YAC related treatments if any field has a YAC channel
 #endif
 
   !--- derived ---
@@ -4170,6 +4176,8 @@ END SUBROUTINE namcouple_abort
 !*======================================================================
 
 !> Function for converting strings to uppercase
+!! @param[in] cd_s1 string to be converted
+!! @return the uppercase string
 FUNCTION uppercase(cd_s1)  RESULT (cd_s2)
    !!-----------------------------------------------------------------------
    !!                  ***  FUNCTION  uppercase  ***
@@ -4209,7 +4217,8 @@ END FUNCTION uppercase
 
 !*========================================================================
 
-!> Subroutine for the output of yac configurations
+!> Subroutine for the output of yac configurations.
+!! The parameter list is imposed by the F90 standard. Refer to it.
 SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
 
    IMPLICIT NONE

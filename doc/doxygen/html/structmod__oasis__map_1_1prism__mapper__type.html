@@ -84,6 +84,9 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a10ad0d8412afdfa993728ac63e117e9e"><td class="memItemLeft" align="right" valign="top">character(len=ic_long)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__map_1_1prism__mapper__type.html#a10ad0d8412afdfa993728ac63e117e9e">file</a></td></tr>
 <tr class="memdesc:a10ad0d8412afdfa993728ac63e117e9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">file to read/write  <a href="#a10ad0d8412afdfa993728ac63e117e9e">More...</a><br /></td></tr>
 <tr class="separator:a10ad0d8412afdfa993728ac63e117e9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d8ffe110f767fb9fe6bfebd5198ef03"><td class="memItemLeft" align="right" valign="top">character(len=ic_long)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__map_1_1prism__mapper__type.html#a6d8ffe110f767fb9fe6bfebd5198ef03">file2</a></td></tr>
+<tr class="memdesc:a6d8ffe110f767fb9fe6bfebd5198ef03"><td class="mdescLeft">&#160;</td><td class="mdescRight">alternate file to read/write  <a href="#a6d8ffe110f767fb9fe6bfebd5198ef03">More...</a><br /></td></tr>
+<tr class="separator:a6d8ffe110f767fb9fe6bfebd5198ef03"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37a969cc8b9d9234e6e99c6d3ef144ad"><td class="memItemLeft" align="right" valign="top">character(len=ic_med)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__map_1_1prism__mapper__type.html#a37a969cc8b9d9234e6e99c6d3ef144ad">loc</a></td></tr>
 <tr class="memdesc:a37a969cc8b9d9234e6e99c6d3ef144ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">location setting, src or dst model  <a href="#a37a969cc8b9d9234e6e99c6d3ef144ad">More...</a><br /></td></tr>
 <tr class="separator:a37a969cc8b9d9234e6e99c6d3ef144ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -108,99 +111,12 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a279bf3df7b5f87eec6e1b2ffdce3e5b1"><td class="memItemLeft" align="right" valign="top">character(len=ic_med)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__map_1_1prism__mapper__type.html#a279bf3df7b5f87eec6e1b2ffdce3e5b1">dstgrid</a></td></tr>
 <tr class="memdesc:a279bf3df7b5f87eec6e1b2ffdce3e5b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">target grid name  <a href="#a279bf3df7b5f87eec6e1b2ffdce3e5b1">More...</a><br /></td></tr>
 <tr class="separator:a279bf3df7b5f87eec6e1b2ffdce3e5b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a270d69de9108f210fedbc3871d8a7a15"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__map_1_1prism__mapper__type.html#a270d69de9108f210fedbc3871d8a7a15">avred</a></td></tr>
-<tr class="memdesc:a270d69de9108f210fedbc3871d8a7a15"><td class="mdescLeft">&#160;</td><td class="mdescRight">flag indicating AV_ms, AV_md data has been read  <a href="#a270d69de9108f210fedbc3871d8a7a15">More...</a><br /></td></tr>
-<tr class="separator:a270d69de9108f210fedbc3871d8a7a15"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a428a70b5f90d592638e1eaf55c56baae"><td class="memItemLeft" align="right" valign="top">type(mct_avect)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__map_1_1prism__mapper__type.html#a428a70b5f90d592638e1eaf55c56baae">av_ms</a></td></tr>
-<tr class="memdesc:a428a70b5f90d592638e1eaf55c56baae"><td class="mdescLeft">&#160;</td><td class="mdescRight">stores data for CONSERV for src such as mask and area  <a href="#a428a70b5f90d592638e1eaf55c56baae">More...</a><br /></td></tr>
-<tr class="separator:a428a70b5f90d592638e1eaf55c56baae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ff54ff3819cd06df5d6a9f9d993cb21"><td class="memItemLeft" align="right" valign="top">type(mct_avect)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__map_1_1prism__mapper__type.html#a3ff54ff3819cd06df5d6a9f9d993cb21">av_md</a></td></tr>
-<tr class="memdesc:a3ff54ff3819cd06df5d6a9f9d993cb21"><td class="mdescLeft">&#160;</td><td class="mdescRight">stores data for CONSERV for dst such as mask and area  <a href="#a3ff54ff3819cd06df5d6a9f9d993cb21">More...</a><br /></td></tr>
-<tr class="separator:a3ff54ff3819cd06df5d6a9f9d993cb21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Mapper data for interpolating data between grids. </p>
 
 <p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00035">35</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="a3ff54ff3819cd06df5d6a9f9d993cb21"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3ff54ff3819cd06df5d6a9f9d993cb21">&#9670;&nbsp;</a></span>av_md</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">type(mct_avect) mod_oasis_map::prism_mapper_type::av_md</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>stores data for CONSERV for dst such as mask and area </p>
-
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00050">50</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
-
-</div>
-</div>
-<a id="a428a70b5f90d592638e1eaf55c56baae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a428a70b5f90d592638e1eaf55c56baae">&#9670;&nbsp;</a></span>av_ms</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">type(mct_avect) mod_oasis_map::prism_mapper_type::av_ms</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>stores data for CONSERV for src such as mask and area </p>
-
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00049">49</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
-
-</div>
-</div>
-<a id="a270d69de9108f210fedbc3871d8a7a15"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a270d69de9108f210fedbc3871d8a7a15">&#9670;&nbsp;</a></span>avred</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">logical mod_oasis_map::prism_mapper_type::avred</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>flag indicating AV_ms, AV_md data has been read </p>
-
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00048">48</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
-
-</div>
-</div>
 <a id="a8a597bf1362ebd82c03fdd6ac887620e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8a597bf1362ebd82c03fdd6ac887620e">&#9670;&nbsp;</a></span>dpart</h2>
 
@@ -223,7 +139,7 @@ Private Attributes</h2></td></tr>
 
 <p>dst partition </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00045">45</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00046">46</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
 
 </div>
 </div>
@@ -249,7 +165,7 @@ Private Attributes</h2></td></tr>
 
 <p>target grid name </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00047">47</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00048">48</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
 
 </div>
 </div>
@@ -279,6 +195,32 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a6d8ffe110f767fb9fe6bfebd5198ef03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d8ffe110f767fb9fe6bfebd5198ef03">&#9670;&nbsp;</a></span>file2</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">character(len=ic_long) mod_oasis_map::prism_mapper_type::file2</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>alternate file to read/write </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00040">40</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
+
+</div>
+</div>
 <a id="aebd50312a6d63fb217231d7cb43cdf65"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aebd50312a6d63fb217231d7cb43cdf65">&#9670;&nbsp;</a></span>init</h2>
 
@@ -301,7 +243,7 @@ Private Attributes</h2></td></tr>
 
 <p>flag indicating initialization complete </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00043">43</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00044">44</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
 
 </div>
 </div>
@@ -327,7 +269,7 @@ Private Attributes</h2></td></tr>
 
 <p>location setting, src or dst model </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00040">40</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00041">41</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
 
 </div>
 </div>
@@ -379,7 +321,7 @@ Private Attributes</h2></td></tr>
 
 <p>optimization setting, bfb, sum, or opt </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00041">41</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00042">42</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
 
 </div>
 </div>
@@ -405,7 +347,7 @@ Private Attributes</h2></td></tr>
 
 <p>mct map setting, src or dst, derived from opt </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00042">42</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00043">43</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
 
 </div>
 </div>
@@ -457,7 +399,7 @@ Private Attributes</h2></td></tr>
 
 <p>src partition </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00044">44</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00045">45</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
 
 </div>
 </div>
@@ -483,17 +425,17 @@ Private Attributes</h2></td></tr>
 
 <p>source grid name </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00046">46</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__map_8_f90_source.html#l00047">47</a> of file <a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this type was generated from the following file:<ul>
-<li>/home/globc2/tcraig/oasis3-mct.trunk/lib/psmile/src/<a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a></li>
+<li>/home/globc/andrea/WORK/OASIS3-MCT/oasis3-mct/lib/psmile/src/<a class="el" href="mod__oasis__map_8_f90_source.html">mod_oasis_map.F90</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 29 2018 20:52:29 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 3 2023 16:29:05 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

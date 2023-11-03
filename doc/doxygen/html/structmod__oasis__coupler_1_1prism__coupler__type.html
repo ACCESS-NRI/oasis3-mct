@@ -78,6 +78,9 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a153e0bf9e28c0a8ff4d8bb27c83f598e"><td class="memItemLeft" align="right" valign="top">type(mct_avect)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#a153e0bf9e28c0a8ff4d8bb27c83f598e">avect1</a></td></tr>
 <tr class="memdesc:a153e0bf9e28c0a8ff4d8bb27c83f598e"><td class="mdescLeft">&#160;</td><td class="mdescRight">primary aVect  <a href="#a153e0bf9e28c0a8ff4d8bb27c83f598e">More...</a><br /></td></tr>
 <tr class="separator:a153e0bf9e28c0a8ff4d8bb27c83f598e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab93382323f7cce85d164dd94cf23b4e6"><td class="memItemLeft" align="right" valign="top">type(mct_avect)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#ab93382323f7cce85d164dd94cf23b4e6">avect1p</a></td></tr>
+<tr class="memdesc:ab93382323f7cce85d164dd94cf23b4e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">primary aVect, value at most recent coupling time (used in BLASNEW)  <a href="#ab93382323f7cce85d164dd94cf23b4e6">More...</a><br /></td></tr>
+<tr class="separator:ab93382323f7cce85d164dd94cf23b4e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5626722caee601622658134916f12bf"><td class="memItemLeft" align="right" valign="top">type(mct_avect)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#ab5626722caee601622658134916f12bf">avect1m</a></td></tr>
 <tr class="memdesc:ab5626722caee601622658134916f12bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">extra aVect needed for mapping  <a href="#ab5626722caee601622658134916f12bf">More...</a><br /></td></tr>
 <tr class="separator:ab5626722caee601622658134916f12bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -195,6 +198,27 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:adee95ace457db5ccaacc0195f3327277"><td class="memItemLeft" align="right" valign="top">real(kind=ip_double_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#adee95ace457db5ccaacc0195f3327277">rcvadd</a></td></tr>
 <tr class="memdesc:adee95ace457db5ccaacc0195f3327277"><td class="mdescLeft">&#160;</td><td class="mdescRight">receive field addition term  <a href="#adee95ace457db5ccaacc0195f3327277">More...</a><br /></td></tr>
 <tr class="separator:adee95ace457db5ccaacc0195f3327277"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe5c43fd5b563dbdab9a6a6d27415206"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#afe5c43fd5b563dbdab9a6a6d27415206">blasfld</a></td></tr>
+<tr class="memdesc:afe5c43fd5b563dbdab9a6a6d27415206"><td class="mdescLeft">&#160;</td><td class="mdescRight">flag indicates field used in other BLASNEW computations  <a href="#afe5c43fd5b563dbdab9a6a6d27415206">More...</a><br /></td></tr>
+<tr class="separator:afe5c43fd5b563dbdab9a6a6d27415206"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a297ff604ac6fbb83cf560e638e649005"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#a297ff604ac6fbb83cf560e638e649005">rfno</a></td></tr>
+<tr class="memdesc:a297ff604ac6fbb83cf560e638e649005"><td class="mdescLeft">&#160;</td><td class="mdescRight">BLASNEW extra field number for local variable.  <a href="#a297ff604ac6fbb83cf560e638e649005">More...</a><br /></td></tr>
+<tr class="separator:a297ff604ac6fbb83cf560e638e649005"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c7b29a73f66c38c1f4d2b8411cfb9cb"><td class="memItemLeft" align="right" valign="top">character(len=ic_med), dimension(:), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#a1c7b29a73f66c38c1f4d2b8411cfb9cb">rfna</a></td></tr>
+<tr class="memdesc:a1c7b29a73f66c38c1f4d2b8411cfb9cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">blasnew extra field name  <a href="#a1c7b29a73f66c38c1f4d2b8411cfb9cb">More...</a><br /></td></tr>
+<tr class="separator:a1c7b29a73f66c38c1f4d2b8411cfb9cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b756410acbdc46690167c0ab8863630"><td class="memItemLeft" align="right" valign="top">real(kind=ip_double_p), dimension(:), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#a7b756410acbdc46690167c0ab8863630">rfmult</a></td></tr>
+<tr class="memdesc:a7b756410acbdc46690167c0ab8863630"><td class="mdescLeft">&#160;</td><td class="mdescRight">blasnew extra field multiplier term  <a href="#a7b756410acbdc46690167c0ab8863630">More...</a><br /></td></tr>
+<tr class="separator:a7b756410acbdc46690167c0ab8863630"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a337fc7968366689769de6e84a6cc49b8"><td class="memItemLeft" align="right" valign="top">real(kind=ip_double_p), dimension(:), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#a337fc7968366689769de6e84a6cc49b8">rfadd</a></td></tr>
+<tr class="memdesc:a337fc7968366689769de6e84a6cc49b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">blasnew extra field addition term  <a href="#a337fc7968366689769de6e84a6cc49b8">More...</a><br /></td></tr>
+<tr class="separator:a337fc7968366689769de6e84a6cc49b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a090e6832355f714af2c64d4029c8aea5"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p), dimension(:), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#a090e6832355f714af2c64d4029c8aea5">rfcpl</a></td></tr>
+<tr class="memdesc:a090e6832355f714af2c64d4029c8aea5"><td class="mdescLeft">&#160;</td><td class="mdescRight">blasnew extra field coupler id  <a href="#a090e6832355f714af2c64d4029c8aea5">More...</a><br /></td></tr>
+<tr class="separator:a090e6832355f714af2c64d4029c8aea5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6be4f1b135e027b3ede5c957184e392e"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p), dimension(:), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#a6be4f1b135e027b3ede5c957184e392e">rffnum</a></td></tr>
+<tr class="memdesc:a6be4f1b135e027b3ede5c957184e392e"><td class="mdescLeft">&#160;</td><td class="mdescRight">blasnew extra field field number  <a href="#a6be4f1b135e027b3ede5c957184e392e">More...</a><br /></td></tr>
+<tr class="separator:a6be4f1b135e027b3ede5c957184e392e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d93a8e5b39d3b713e8f1bf4760b10f9"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__coupler_1_1prism__coupler__type.html#a5d93a8e5b39d3b713e8f1bf4760b10f9">ltime</a></td></tr>
 <tr class="memdesc:a5d93a8e5b39d3b713e8f1bf4760b10f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">time at last coupling  <a href="#a5d93a8e5b39d3b713e8f1bf4760b10f9">More...</a><br /></td></tr>
 <tr class="separator:a5d93a8e5b39d3b713e8f1bf4760b10f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -211,7 +235,7 @@ Private Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Coupler data for managing all aspects of coupling in OASIS. </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00047">47</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00049">49</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="accd8eb166c6aac75690be947dec43ccc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#accd8eb166c6aac75690be947dec43ccc">&#9670;&nbsp;</a></span>avcnt</h2>
@@ -235,7 +259,7 @@ Private Attributes</h2></td></tr>
 
 <p>counter for averaging </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00092">92</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00102">102</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -261,7 +285,7 @@ Private Attributes</h2></td></tr>
 
 <p>primary aVect </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00049">49</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00051">51</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -287,7 +311,33 @@ Private Attributes</h2></td></tr>
 
 <p>extra aVect needed for mapping </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00050">50</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00053">53</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+
+</div>
+</div>
+<a id="ab93382323f7cce85d164dd94cf23b4e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab93382323f7cce85d164dd94cf23b4e6">&#9670;&nbsp;</a></span>avect1p</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(mct_avect) mod_oasis_coupler::prism_coupler_type::avect1p</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>primary aVect, value at most recent coupling time (used in BLASNEW) </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00052">52</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -313,7 +363,7 @@ Private Attributes</h2></td></tr>
 
 <p>higher order mapping data </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00051">51</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00054">54</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -339,7 +389,7 @@ Private Attributes</h2></td></tr>
 
 <p>higher order mapping data </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00052">52</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00055">55</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -365,7 +415,7 @@ Private Attributes</h2></td></tr>
 
 <p>higher order mapping data </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00053">53</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00056">56</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -391,7 +441,7 @@ Private Attributes</h2></td></tr>
 
 <p>higher order mapping data </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00054">54</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00057">57</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -417,7 +467,33 @@ Private Attributes</h2></td></tr>
 
 <p>flags indicating whether aVects 2-5 are active </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00055">55</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00058">58</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+
+</div>
+</div>
+<a id="afe5c43fd5b563dbdab9a6a6d27415206"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe5c43fd5b563dbdab9a6a6d27415206">&#9670;&nbsp;</a></span>blasfld</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">logical mod_oasis_coupler::prism_coupler_type::blasfld</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>flag indicates field used in other BLASNEW computations </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00092">92</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -443,7 +519,7 @@ Private Attributes</h2></td></tr>
 
 <p>other model compid to couple </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00070">70</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00073">73</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -469,7 +545,7 @@ Private Attributes</h2></td></tr>
 
 <p>conserve operation (ip_cnone,ip_cglobal,...) </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00077">77</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00080">80</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -495,7 +571,7 @@ Private Attributes</h2></td></tr>
 
 <p>conserve option (bfb, opt) </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00078">78</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00081">81</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -521,7 +597,7 @@ Private Attributes</h2></td></tr>
 
 <p>time at last call </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00091">91</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00101">101</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -547,7 +623,7 @@ Private Attributes</h2></td></tr>
 
 <p>coupling period (secs) </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00073">73</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00076">76</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -573,7 +649,7 @@ Private Attributes</h2></td></tr>
 
 <p>field list </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00059">59</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00062">62</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -599,7 +675,7 @@ Private Attributes</h2></td></tr>
 
 <p>get/put flag </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00079">79</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00082">82</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -625,7 +701,7 @@ Private Attributes</h2></td></tr>
 
 <p>input file if data is read </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00058">58</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00061">61</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -651,7 +727,7 @@ Private Attributes</h2></td></tr>
 
 <p>input flag </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00082">82</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00085">85</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -677,7 +753,7 @@ Private Attributes</h2></td></tr>
 
 <p>put lag positive is put sooner (secs) </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00074">74</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00077">77</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -703,7 +779,7 @@ Private Attributes</h2></td></tr>
 
 <p>time at last coupling </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00090">90</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00100">100</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -729,7 +805,7 @@ Private Attributes</h2></td></tr>
 
 <p>map location setting, src or dst </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00068">68</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00071">71</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -755,7 +831,7 @@ Private Attributes</h2></td></tr>
 
 <p>mapper ID </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00067">67</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00070">70</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -781,7 +857,7 @@ Private Attributes</h2></td></tr>
 
 <p>max time for the coupler </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00075">75</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00078">78</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -807,7 +883,7 @@ Private Attributes</h2></td></tr>
 
 <p>namcouple ID </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00063">63</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00066">66</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -833,7 +909,7 @@ Private Attributes</h2></td></tr>
 
 <p>number of fields </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00060">60</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00063">63</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -859,7 +935,7 @@ Private Attributes</h2></td></tr>
 
 <p>namcouple operation (ip_exported,...) </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00069">69</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00072">72</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -885,7 +961,7 @@ Private Attributes</h2></td></tr>
 
 <p>output flag </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00081">81</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00084">84</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -911,7 +987,7 @@ Private Attributes</h2></td></tr>
 
 <p>local variable partition ID </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00064">64</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00067">67</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -937,7 +1013,7 @@ Private Attributes</h2></td></tr>
 
 <p>receive field addition term </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00088">88</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00091">91</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -963,7 +1039,7 @@ Private Attributes</h2></td></tr>
 
 <p>diagnose rcv fields as part of coupling </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00084">84</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00087">87</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -989,7 +1065,163 @@ Private Attributes</h2></td></tr>
 
 <p>receive field multiplier term </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00087">87</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00090">90</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+
+</div>
+</div>
+<a id="a337fc7968366689769de6e84a6cc49b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a337fc7968366689769de6e84a6cc49b8">&#9670;&nbsp;</a></span>rfadd</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">real(kind=ip_double_p), dimension(:), pointer mod_oasis_coupler::prism_coupler_type::rfadd</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>blasnew extra field addition term </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00096">96</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+
+</div>
+</div>
+<a id="a090e6832355f714af2c64d4029c8aea5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a090e6832355f714af2c64d4029c8aea5">&#9670;&nbsp;</a></span>rfcpl</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(kind=ip_i4_p), dimension(:), pointer mod_oasis_coupler::prism_coupler_type::rfcpl</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>blasnew extra field coupler id </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00097">97</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+
+</div>
+</div>
+<a id="a6be4f1b135e027b3ede5c957184e392e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6be4f1b135e027b3ede5c957184e392e">&#9670;&nbsp;</a></span>rffnum</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(kind=ip_i4_p), dimension(:), pointer mod_oasis_coupler::prism_coupler_type::rffnum</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>blasnew extra field field number </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00098">98</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+
+</div>
+</div>
+<a id="a7b756410acbdc46690167c0ab8863630"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b756410acbdc46690167c0ab8863630">&#9670;&nbsp;</a></span>rfmult</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">real(kind=ip_double_p), dimension(:), pointer mod_oasis_coupler::prism_coupler_type::rfmult</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>blasnew extra field multiplier term </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00095">95</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+
+</div>
+</div>
+<a id="a1c7b29a73f66c38c1f4d2b8411cfb9cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c7b29a73f66c38c1f4d2b8411cfb9cb">&#9670;&nbsp;</a></span>rfna</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">character(len=ic_med), dimension(:), pointer mod_oasis_coupler::prism_coupler_type::rfna</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>blasnew extra field name </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00094">94</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+
+</div>
+</div>
+<a id="a297ff604ac6fbb83cf560e638e649005"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a297ff604ac6fbb83cf560e638e649005">&#9670;&nbsp;</a></span>rfno</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(kind=ip_i4_p) mod_oasis_coupler::prism_coupler_type::rfno</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>BLASNEW extra field number for local variable. </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00093">93</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1015,7 +1247,7 @@ Private Attributes</h2></td></tr>
 
 <p>router ID </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00066">66</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00069">69</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1041,7 +1273,7 @@ Private Attributes</h2></td></tr>
 
 <p>router partition ID </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00065">65</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00068">68</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1067,7 +1299,7 @@ Private Attributes</h2></td></tr>
 
 <p>restart file </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00056">56</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00059">59</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1093,7 +1325,7 @@ Private Attributes</h2></td></tr>
 
 <p>sequence number </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00072">72</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00075">75</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1119,7 +1351,7 @@ Private Attributes</h2></td></tr>
 
 <p>send field addition term </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00086">86</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00089">89</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1145,7 +1377,7 @@ Private Attributes</h2></td></tr>
 
 <p>diagnose src fields as part of coupling </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00083">83</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00086">86</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1171,7 +1403,7 @@ Private Attributes</h2></td></tr>
 
 <p>send field multiplier term </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00085">85</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00088">88</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1197,7 +1429,7 @@ Private Attributes</h2></td></tr>
 
 <p>send recv flag </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00080">80</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00083">83</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1223,7 +1455,7 @@ Private Attributes</h2></td></tr>
 
 <p>status of variables in coupler </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00093">93</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00103">103</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1249,7 +1481,7 @@ Private Attributes</h2></td></tr>
 
 <p>communcation tag </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00071">71</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00074">74</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1275,7 +1507,7 @@ Private Attributes</h2></td></tr>
 
 <p>transformation (ip_average,...) </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00076">76</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00079">79</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1301,7 +1533,7 @@ Private Attributes</h2></td></tr>
 
 <p>is this coupler valid </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00062">62</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00065">65</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1327,7 +1559,7 @@ Private Attributes</h2></td></tr>
 
 <p>varid for each field </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00061">61</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00064">64</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
@@ -1353,17 +1585,17 @@ Private Attributes</h2></td></tr>
 
 <p>flag to write a restart file </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00057">57</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__coupler_8_f90_source.html#l00060">60</a> of file <a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this type was generated from the following file:<ul>
-<li>/home/globc2/tcraig/oasis3-mct.trunk/lib/psmile/src/<a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a></li>
+<li>/home/globc/andrea/WORK/OASIS3-MCT/oasis3-mct/lib/psmile/src/<a class="el" href="mod__oasis__coupler_8_f90_source.html">mod_oasis_coupler.F90</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 29 2018 20:52:29 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 3 2023 16:29:05 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

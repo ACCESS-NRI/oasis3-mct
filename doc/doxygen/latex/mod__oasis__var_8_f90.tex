@@ -1,8 +1,10 @@
-\hypertarget{mod__oasis__var_8_f90}{}\section{/home/globc2/tcraig/oasis3-\/mct.trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+var.F90 File Reference}
-\label{mod__oasis__var_8_f90}\index{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+var.\+F90@{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+var.\+F90}}
+\hypertarget{mod__oasis__var_8_f90}{}\section{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+var.F90 File Reference}
+\label{mod__oasis__var_8_f90}\index{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+var.\+F90@{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+var.\+F90}}
 \subsection*{Data Types}
 \begin{DoxyCompactItemize}
 \item 
+interface \hyperlink{interfacemod__oasis__var_1_1oasis__def__var}{mod\+\_\+oasis\+\_\+var\+::oasis\+\_\+def\+\_\+var}
+\begin{DoxyCompactList}\small\item\em Overloaded interface into \hyperlink{interfacemod__oasis__var_1_1oasis__def__var}{oasis\+\_\+def\+\_\+var} to support old and new interface. \end{DoxyCompactList}\item 
 type \hyperlink{structmod__oasis__var_1_1prism__var__type}{mod\+\_\+oasis\+\_\+var\+::prism\+\_\+var\+\_\+type}
 \begin{DoxyCompactList}\small\item\em Model variable data for model coupling. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Modules}
@@ -13,8 +15,12 @@ module \hyperlink{namespacemod__oasis__var}{mod\+\_\+oasis\+\_\+var}
 \subsection*{Functions/\+Subroutines}
 \begin{DoxyCompactItemize}
 \item 
-subroutine, public \hyperlink{namespacemod__oasis__var_a7d16403015304fadc15624773f87d2a0}{mod\+\_\+oasis\+\_\+var\+::oasis\+\_\+def\+\_\+var} (id\+\_\+nports, cdport, id\+\_\+part, id\+\_\+var\+\_\+nodims, kinout, id\+\_\+var\+\_\+shape, ktype, kinfo)
-\begin{DoxyCompactList}\small\item\em The O\+A\+S\+IS user interface to define variables. \end{DoxyCompactList}\item 
+subroutine \hyperlink{namespacemod__oasis__var_ab28530889758da2183e09f345c0993f1}{mod\+\_\+oasis\+\_\+var\+::oasis\+\_\+def\+\_\+var\+\_\+v1s1} (id\+\_\+nports, cdport, id\+\_\+part, id\+\_\+var\+\_\+nodims, kinout, id\+\_\+var\+\_\+shape, ktype, kinfo)
+\begin{DoxyCompactList}\small\item\em The original O\+A\+S\+IS user interface to define variables id\+\_\+var\+\_\+shape is 1d array (not used) Called via \hyperlink{interfacemod__oasis__var_1_1oasis__def__var}{oasis\+\_\+def\+\_\+var}. \end{DoxyCompactList}\item 
+subroutine \hyperlink{namespacemod__oasis__var_a63fa94287280b746e4fc7b811f377ceb}{mod\+\_\+oasis\+\_\+var\+::oasis\+\_\+def\+\_\+var\+\_\+v1s2} (id\+\_\+nports, cdport, id\+\_\+part, id\+\_\+var\+\_\+nodims, kinout, id\+\_\+var\+\_\+shape, ktype, kinfo)
+\begin{DoxyCompactList}\small\item\em The original O\+A\+S\+IS user interface to define variables id\+\_\+var\+\_\+shape is 2d array (not used) Called via \hyperlink{interfacemod__oasis__var_1_1oasis__def__var}{oasis\+\_\+def\+\_\+var}. \end{DoxyCompactList}\item 
+subroutine \hyperlink{namespacemod__oasis__var_a1d95fff92118dedf036d117a8b8e856f}{mod\+\_\+oasis\+\_\+var\+::oasis\+\_\+def\+\_\+var\+\_\+v2} (id\+\_\+nports, cdport, id\+\_\+part, id\+\_\+var\+\_\+nodims, kinout, ktype, kinfo)
+\begin{DoxyCompactList}\small\item\em The updated O\+A\+S\+IS user interface to define variables Called via \hyperlink{interfacemod__oasis__var_1_1oasis__def__var}{oasis\+\_\+def\+\_\+var}. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__var_ab33b7fbec62bcfd15e9cd7f912f71035}{mod\+\_\+oasis\+\_\+var\+::oasis\+\_\+var\+\_\+setup} ()
 \begin{DoxyCompactList}\small\item\em Synchronize variables across all tasks, called at oasis enddef. \end{DoxyCompactList}\item 
 subroutine \hyperlink{namespacemod__oasis__var_aa780f62e9eded0a55d0077a990bf2443}{mod\+\_\+oasis\+\_\+var\+::oasis\+\_\+var\+\_\+zero} (prism\+\_\+var)

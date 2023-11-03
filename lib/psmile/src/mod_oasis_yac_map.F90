@@ -7,7 +7,7 @@ MODULE mod_oasis_yac_map
    USE mod_oasis_data
    USE mod_oasis_namcouple
    USE mod_oasis_map, ONLY: prism_mapper
-   USE mod_oasis_sys, ONLY: oasis_debug_enter, oasis_debug_exit!AP, oasis_debug_note
+   USE mod_oasis_sys, ONLY: oasis_debug_enter, oasis_debug_exit
    USE mod_oasis_timer, ONLY: oasis_timer_start, oasis_timer_stop
 
 #ifdef YAC_REMAP
@@ -27,7 +27,10 @@ MODULE mod_oasis_yac_map
 
    INTERFACE
 
-      ! Low level C functions access
+      !> Low level C function access for setting an environment variable from F90
+      !! param [in] name the name of the variable
+      !! param [in] val  the value to be set (always as a string)
+      !! param [in] overwrite  toggle value overwriting (0 false, 1 true)
       FUNCTION setenv_c(name,val,overwrite) &
          BIND ( C, name='setenv' )
 
@@ -44,50 +47,58 @@ MODULE mod_oasis_yac_map
 
    ! Define YAC internal types
 
-   ! Storage of YAC grid structures
+   !> Storage of YAC grid structures
    TYPE, PRIVATE :: yac_grid_f
-      CHARACTER(LEN=:), ALLOCATABLE :: id
-      CHARACTER(LEN=:), ALLOCATABLE :: grid_filename
-      CHARACTER(LEN=:), ALLOCATABLE :: mask_filename
-      TYPE(c_ptr) :: grid
-      TYPE(c_ptr) :: duplicated_cell_idx
-      TYPE(c_ptr) :: orig_cell_global_id
-      INTEGER(c_size_t) :: nbr_duplicated_cells
-      INTEGER(c_size_t) :: grid_size
+      CHARACTER(LEN=:), ALLOCATABLE :: id            !< identifier of the grid
+      CHARACTER(LEN=:), ALLOCATABLE :: grid_filename !< grid file name
+      CHARACTER(LEN=:), ALLOCATABLE :: mask_filename !< mask file name
+      TYPE(c_ptr) :: grid                       !< ptr to YAC grid structure (C)
+      TYPE(c_ptr) :: duplicated_cell_idx        !< ptr to YAC array of duplicated cells
+      TYPE(c_ptr) :: orig_cell_global_id        !< ptr to YAC array of the origin of dupl. cells
+      INTEGER(c_size_t) :: nbr_duplicated_cells !< number of duplicated cells
+      INTEGER(c_size_t) :: grid_size            !< total size of the grid
    END TYPE yac_grid_f
 
-   ! Storage of YAC distributed grid pairs structures
+   !> Storage of YAC distributed grid pairs structures
    TYPE, PRIVATE ::  yac_dist_grid_pair_f
-      TYPE(c_ptr) :: pair
-      INTEGER :: grids(2)
+      TYPE(c_ptr) :: pair  !< ptr to YAC distributed grid pair structure (C)
+      INTEGER :: grids(2)  !< indexes of the two associated basic grids
    END TYPE yac_dist_grid_pair_f
 
    ! Accessible encapsulated collections
+
+   !> Collection of basic grids
    TYPE basic_grid_collection
-      INTEGER, PRIVATE :: num_basic_grids
-      INTEGER(kind=YAC_MPI_FINT_KIND), PRIVATE :: comm
-      TYPE(yac_grid_f), DIMENSION(:), ALLOCATABLE, PRIVATE :: grids
+      INTEGER, PRIVATE :: num_basic_grids               !< size of the collection
+      INTEGER(kind=YAC_MPI_FINT_KIND), PRIVATE :: comm  !< local MPI communicator
+      TYPE(yac_grid_f), DIMENSION(:), &
+         & ALLOCATABLE, PRIVATE :: grids !< array of basic grid types
    CONTAINS
-      PROCEDURE, PUBLIC :: init => bg_init
-      PROCEDURE, PUBLIC :: get => bg_get
-      PROCEDURE, PUBLIC :: id => bg_id
-      PROCEDURE, PUBLIC :: grid_size => bg_grid_size
-      PROCEDURE, PUBLIC :: grid => bg_grid
-      PROCEDURE, PUBLIC :: orig_cell_global_id => bg_orig_cell_global_id
-      PROCEDURE, PUBLIC :: duplicated_cell_idx => bg_duplicated_cell_idx
-      PROCEDURE, PUBLIC :: nbr_duplicated_cells => bg_nbr_duplicated_cells
-      PROCEDURE, PUBLIC :: free => bg_free
+      PROCEDURE, PUBLIC :: init => bg_init !< initialization
+      PROCEDURE, PUBLIC :: get => bg_get   !< recover index if stored or read from file
+      PROCEDURE, PUBLIC :: id => bg_id     !< get the grid name
+      PROCEDURE, PUBLIC :: grid_size => bg_grid_size !< get the grid size
+      PROCEDURE, PUBLIC :: grid => bg_grid !< give F90 access to a grid structure
+      PROCEDURE, PUBLIC :: orig_cell_global_id => bg_orig_cell_global_id !< get the index of ref
+                                                                  !! cells for duplicated entries
+      PROCEDURE, PUBLIC :: duplicated_cell_idx => bg_duplicated_cell_idx !< get the index of
+                                                                         !! duplicated cells
+      PROCEDURE, PUBLIC :: nbr_duplicated_cells => bg_nbr_duplicated_cells !< get the number of
+                                                                           !!duplicated cells
+      PROCEDURE, PUBLIC :: free => bg_free !< finalization
    END TYPE basic_grid_collection
 
+   !> Collection of distributed grid pairs
    TYPE dist_grid_pair_collection
-      INTEGER, PRIVATE :: num_dist_grids
-      INTEGER(kind=YAC_MPI_FINT_KIND), PRIVATE :: comm
-      TYPE(yac_dist_grid_pair_f), DIMENSION(:), ALLOCATABLE, PRIVATE :: pairs
+      INTEGER, PRIVATE :: num_dist_grids                !< size of the collection
+      INTEGER(kind=YAC_MPI_FINT_KIND), PRIVATE :: comm  !< local MPI communicator
+      TYPE(yac_dist_grid_pair_f), DIMENSION(:), &
+         & ALLOCATABLE, PRIVATE :: pairs !< array of distributed grid pair types
    CONTAINS
-      PROCEDURE, PUBLIC :: init => dgp_init
-      PROCEDURE, PUBLIC :: get => dgp_get
-      PROCEDURE, PUBLIC :: pair => dgp_pair
-      PROCEDURE, PUBLIC :: free => dgp_free
+      PROCEDURE, PUBLIC :: init => dgp_init !< initialization
+      PROCEDURE, PUBLIC :: get => dgp_get   !< recover index if stored or generate
+      PROCEDURE, PUBLIC :: pair => dgp_pair !< give F90 access to a dist grid pair structure
+      PROCEDURE, PUBLIC :: free => dgp_free !< finalization
    END TYPE dist_grid_pair_collection
 
    ! Static shared data
@@ -109,6 +120,10 @@ CONTAINS
 
    ! Manipulation of the YAC basic_grid types
 
+   !> Initialization of a YAC basic grid type
+   !! @param [inout] self   the basic grid collection to be allocated
+   !! @param [in] max_size  the maximum possible number of grids
+   !! @param [in] comm      the local MPI communicator
    SUBROUTINE bg_init(self, max_size, comm)
 
       CLASS(basic_grid_collection), INTENT(INOUT) :: self
@@ -121,6 +136,8 @@ CONTAINS
 
    END SUBROUTINE bg_init
 
+   !> Finalization of a YAC basic grid type
+   !! @param [inout] self   the basic grid collection to be cleared
    SUBROUTINE bg_free(self)
 
       CLASS(basic_grid_collection), INTENT(INOUT) :: self
@@ -140,6 +157,14 @@ CONTAINS
 
    END SUBROUTINE bg_free
 
+   !> Recover the index of a basic grid type in the collection if stored
+   !! or read the grid and its mask from files and add it to the collection
+   !! @param [inout] self   the basic grid collection
+   !! @param [in] grid_name     the name of the grid
+   !! @param [in] grid_filename the filename of the NetCDF SCRIP-like description of the grids
+   !! @param [in] mask_filename the filename of the NetCDF SCRIP-like description of the masks
+   !! @param [in] use_ll    toggle the lon/lat edge representation (use great circles if false)
+   !! @return the index of the grid in the collection
    FUNCTION bg_get(self, grid_name, grid_filename, mask_filename, use_ll)
 
       USE mpi
@@ -207,6 +232,10 @@ CONTAINS
 
    END FUNCTION bg_get
 
+   !> Recover a basic grid name by position
+   !! @param [in] self   the basic grid collection
+   !! @param [in] idx    the basic grid index
+   !! @return the name (identifier) of the basic grid
    PURE FUNCTION bg_id(self, idx) RESULT(id)
 
       CLASS(basic_grid_collection), INTENT(IN) :: self
@@ -218,6 +247,10 @@ CONTAINS
 
    END FUNCTION bg_id
 
+   !> Recover a basic grid size by position
+   !! @param [in] self   the basic grid collection
+   !! @param [in] idx    the basic grid index
+   !! @return the size of the basic grid
    PURE FUNCTION bg_grid_size(self, idx) RESULT(grid_size)
 
       CLASS(basic_grid_collection), INTENT(IN) :: self
@@ -229,6 +262,10 @@ CONTAINS
 
    END FUNCTION bg_grid_size
 
+   !> Give F90 access to a basic grid type
+   !! @param [in] self   the basic grid collection
+   !! @param [in] idx    the basic grid index
+   !! @return the pointer to the YAC storage of the basic grid
    PURE FUNCTION bg_grid(self, idx) RESULT(grid)
 
       CLASS(basic_grid_collection), INTENT(IN) :: self
@@ -240,6 +277,10 @@ CONTAINS
 
    END FUNCTION bg_grid
 
+   !> Give F90 access to the array of the reference cells for duplicated entries
+   !! @param [in] self   the basic grid collection
+   !! @param [in] idx    the basic grid index
+   !! @return the pointer to the YAC storage of the reference cells array
    PURE FUNCTION bg_orig_cell_global_id(self, idx) RESULT(orig_cell_global_id)
 
       CLASS(basic_grid_collection), INTENT(IN) :: self
@@ -251,6 +292,10 @@ CONTAINS
 
    END FUNCTION bg_orig_cell_global_id
 
+   !> Give F90 access to the array of the duplicated cells
+   !! @param [in] self   the basic grid collection
+   !! @param [in] idx    the basic grid index
+   !! @return the pointer to the YAC storage of the duplicated cells array
    PURE FUNCTION bg_duplicated_cell_idx(self, idx) RESULT(duplicated_cell_idx)
 
       CLASS(basic_grid_collection), INTENT(IN) :: self
@@ -262,6 +307,10 @@ CONTAINS
 
    END FUNCTION bg_duplicated_cell_idx
 
+   !> Recover the number of duplicated cells
+   !! @param [in] self   the basic grid collection
+   !! @param [in] idx    the basic grid index
+   !! @return the number of duplicated cells
    PURE FUNCTION bg_nbr_duplicated_cells(self, idx) RESULT(nbr_duplicated_cells)
 
       CLASS(basic_grid_collection), INTENT(IN) :: self
@@ -275,6 +324,10 @@ CONTAINS
 
    ! Manipulation of the YAC dist_grid_pair types
 
+   !> Initialization of a YAC distributed grid pair type
+   !! @param [inout] self   the dist grid pair collection to be allocated
+   !! @param [in] max_size  the maximum possible number of pairs
+   !! @param [in] comm      the local MPI communicator
    SUBROUTINE dgp_init(self, max_size, comm)
 
       CLASS(dist_grid_pair_collection), INTENT(INOUT) :: self
@@ -287,6 +340,8 @@ CONTAINS
 
    END SUBROUTINE dgp_init
 
+   !> Finalization of a YAC distributed grid pair type
+   !! @param [inout] self   the dist grid pair collection to be cleared
    SUBROUTINE dgp_free(self)
 
       CLASS(dist_grid_pair_collection), INTENT(INOUT) :: self
@@ -301,6 +356,13 @@ CONTAINS
 
    END SUBROUTINE dgp_free
 
+   !> Recover the index of a distributed grid pair type in the collection if stored
+   !! or generate it from two basic grids and add it to the collection
+   !! @param [inout] self   the distributed grid pair collection to be allocated
+   !! @param [in] basic_grid    the collection of the basic grids
+   !! @param [in] grid_a  the index in the basic grid collection of the first grid
+   !! @param [in] grid_b  the index in the basic grid collection of the second grid
+   !! @return the index of the distributed grid pair in the collection
    FUNCTION dgp_get(self, basic_grid, grid_a, grid_b)
 
       CLASS(dist_grid_pair_collection), INTENT(INOUT) :: self
@@ -345,6 +407,10 @@ CONTAINS
 
    END FUNCTION dgp_get
 
+   !> Give F90 access to a distributed grid pair type
+   !! @param [in] self   the dist grid pair collection
+   !! @param [in] idx    the dist grid pair index
+   !! @return the pointer to the YAC storage of the distributed grid pair
    PURE FUNCTION dgp_pair(self, idx) RESULT(pair)
 
       CLASS(dist_grid_pair_collection), INTENT(IN) :: self
@@ -359,8 +425,8 @@ CONTAINS
    ! Mapping Weights Computation
    ! ---------------------------
 
-   ! Initialisation
-
+   !> Initialisation of the YAC communication context and allocation
+   !! of the basic grids and distributed grid pairs collections
    SUBROUTINE oasis_map_yac_init()
 
       IMPLICIT NONE
@@ -392,8 +458,8 @@ CONTAINS
 
    END SUBROUTINE oasis_map_yac_init
 
-   ! Finalisation
-
+   !> Finalisation of the YAC communication context and clean up
+   !! of the basic grids and distributed grid pairs collections
    SUBROUTINE oasis_map_yac_free()
 
       IMPLICIT NONE
@@ -419,14 +485,17 @@ CONTAINS
 
    END SUBROUTINE oasis_map_yac_free
 
-   ! The Mapper
-
+   !> Generation of the mapping (interpolation) weights and their output to a file.
+   !! It includes the treatment of the duplicated cells by replication of the
+   !! reference cell stecil, very much like in the TREAT_OVERLAY case for the SCRIP
+   !! @param [in] mapID index of the prism_mapper for this transformation
+   !! @param [in] namID index of the namcouple field for this transformation
    SUBROUTINE oasis_map_yac_genmap(mapID,namID)
 
       IMPLICIT NONE
 
-      INTEGER(ip_i4_p), INTENT(in) :: mapID  !< map id
-      INTEGER(ip_i4_p), INTENT(in) :: namID  !< namcouple id
+      INTEGER(ip_i4_p), INTENT(IN) :: mapID
+      INTEGER(ip_i4_p), INTENT(IN) :: namID
       !----------------------------------------------------------
 
       ! Identifier

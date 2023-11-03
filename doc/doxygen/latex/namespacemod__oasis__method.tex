@@ -22,8 +22,6 @@ subroutine \hyperlink{namespacemod__oasis__method_a13d6e469ea14642a2e1e6cb807d9b
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__method_a390290b92b6af57b2732cb7521532f1c}{debug} =1
 \item 
 logical \hyperlink{namespacemod__oasis__method_a405af91a0535e4ce70d55513bb4c3867}{lg\+\_\+mpiflag}
-\item 
-integer(kind=ip\+\_\+intwp\+\_\+p) \hyperlink{namespacemod__oasis__method_aff65fa61d2762374419fe4c44c0f9282}{mpi\+\_\+comm\+\_\+global\+\_\+world}
 \end{DoxyCompactItemize}
 
 
@@ -43,7 +41,7 @@ Local method to compute each models\textquotesingle{} global task ids, exists fo
 
 
 
-Definition at line 939 of file mod\+\_\+oasis\+\_\+method.\+F90.
+Definition at line 944 of file mod\+\_\+oasis\+\_\+method.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__method_a093552f9f9895ac79a5fefa043fc5881}\label{namespacemod__oasis__method_a093552f9f9895ac79a5fefa043fc5881}} 
 \index{mod\+\_\+oasis\+\_\+method@{mod\+\_\+oasis\+\_\+method}!oasis\+\_\+enddef@{oasis\+\_\+enddef}}
@@ -74,11 +72,12 @@ O\+A\+S\+IS user interface specifying the O\+A\+S\+IS definition phase is comple
 \item Write grid info to files one model at a time
 \item M\+CT Initialization
 \item Initialize coupling via call to coupler\+\_\+setup
+\item Initialize partition grid data call to part\+\_\+readgrid
 \item Call advance\+\_\+init to initialize coupling fields from restarts 
 \end{DoxyItemize}
 \end{DoxyItemize}
 
-Definition at line 730 of file mod\+\_\+oasis\+\_\+method.\+F90.
+Definition at line 711 of file mod\+\_\+oasis\+\_\+method.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__method_ad266b77f6e75f2d150c80374a841a43c}\label{namespacemod__oasis__method_ad266b77f6e75f2d150c80374a841a43c}} 
 \index{mod\+\_\+oasis\+\_\+method@{mod\+\_\+oasis\+\_\+method}!oasis\+\_\+init\+\_\+comp@{oasis\+\_\+init\+\_\+comp}}
@@ -145,11 +144,12 @@ O\+A\+S\+IS user finalize method.
 
 \begin{DoxyItemize}
 \item Print timer information
+\item Print load balancing information
 \item Call M\+PI finalize
 \item Write S\+U\+C\+C\+E\+S\+S\+F\+UL R\+UN 
 \end{DoxyItemize}
 
-Definition at line 663 of file mod\+\_\+oasis\+\_\+method.\+F90.
+Definition at line 633 of file mod\+\_\+oasis\+\_\+method.\+F90.
 
 
 
@@ -162,23 +162,13 @@ Definition at line 663 of file mod\+\_\+oasis\+\_\+method.\+F90.
 
 
 
-Definition at line 34 of file mod\+\_\+oasis\+\_\+method.\+F90.
+Definition at line 35 of file mod\+\_\+oasis\+\_\+method.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__method_a405af91a0535e4ce70d55513bb4c3867}\label{namespacemod__oasis__method_a405af91a0535e4ce70d55513bb4c3867}} 
 \index{mod\+\_\+oasis\+\_\+method@{mod\+\_\+oasis\+\_\+method}!lg\+\_\+mpiflag@{lg\+\_\+mpiflag}}
 \index{lg\+\_\+mpiflag@{lg\+\_\+mpiflag}!mod\+\_\+oasis\+\_\+method@{mod\+\_\+oasis\+\_\+method}}
 \subsubsection{\texorpdfstring{lg\+\_\+mpiflag}{lg\_mpiflag}}
 {\footnotesize\ttfamily logical mod\+\_\+oasis\+\_\+method\+::lg\+\_\+mpiflag\hspace{0.3cm}{\ttfamily [private]}}
-
-
-
-Definition at line 36 of file mod\+\_\+oasis\+\_\+method.\+F90.
-
-\mbox{\Hypertarget{namespacemod__oasis__method_aff65fa61d2762374419fe4c44c0f9282}\label{namespacemod__oasis__method_aff65fa61d2762374419fe4c44c0f9282}} 
-\index{mod\+\_\+oasis\+\_\+method@{mod\+\_\+oasis\+\_\+method}!mpi\+\_\+comm\+\_\+global\+\_\+world@{mpi\+\_\+comm\+\_\+global\+\_\+world}}
-\index{mpi\+\_\+comm\+\_\+global\+\_\+world@{mpi\+\_\+comm\+\_\+global\+\_\+world}!mod\+\_\+oasis\+\_\+method@{mod\+\_\+oasis\+\_\+method}}
-\subsubsection{\texorpdfstring{mpi\+\_\+comm\+\_\+global\+\_\+world}{mpi\_comm\_global\_world}}
-{\footnotesize\ttfamily integer(kind=ip\+\_\+intwp\+\_\+p) mod\+\_\+oasis\+\_\+method\+::mpi\+\_\+comm\+\_\+global\+\_\+world\hspace{0.3cm}{\ttfamily [private]}}
 
 
 

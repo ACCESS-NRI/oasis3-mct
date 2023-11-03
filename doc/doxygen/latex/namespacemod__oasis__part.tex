@@ -21,6 +21,12 @@ subroutine \hyperlink{namespacemod__oasis__part_a17c747bc29d25b558df42524bd63ac9
 \begin{DoxyCompactList}\small\item\em Zero partition information. \end{DoxyCompactList}\item 
 subroutine \hyperlink{namespacemod__oasis__part_a12edb4b0248a3f562fe5f6e16eede06a}{oasis\+\_\+part\+\_\+write} (s\+\_\+prism\+\_\+part, npart)
 \begin{DoxyCompactList}\small\item\em Print parition information. \end{DoxyCompactList}\item 
+subroutine, public \hyperlink{namespacemod__oasis__part_ae5c72886d4078ff0cc8e4c87a4dfd43c}{oasis\+\_\+part\+\_\+readgrid} ()
+\begin{DoxyCompactList}\small\item\em Read grid data into partition. \end{DoxyCompactList}\item 
+subroutine, public \hyperlink{namespacemod__oasis__part_aabbc667e6db4ed0a0d593749a396f392}{oasis\+\_\+part\+\_\+copy} (partbase, partnew)
+\begin{DoxyCompactList}\small\item\em Copy base partition to new partition. \end{DoxyCompactList}\item 
+subroutine, public \hyperlink{namespacemod__oasis__part_ac0db50937fb4217da43edcd1d1536535}{oasis\+\_\+part\+\_\+find} (partbase, partnew, nx, ny, gridname)
+\begin{DoxyCompactList}\small\item\em Find matching base partition to new partition. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__part_aacc20c24f42edbef4ec2610bf98aadfc}{oasis\+\_\+part\+\_\+create} (id\+\_\+part, T\+Y\+PE, gsize, nx, ny, gridname, gscomm, mpicom, grid\+ID)
 \begin{DoxyCompactList}\small\item\em Create a new partition internally, needed for mapping. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
@@ -68,7 +74,28 @@ The O\+A\+S\+IS user interface to define partitions.
 \item Increment partition number and store user values 
 \end{DoxyItemize}
 
-Definition at line 60 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 74 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__part_aabbc667e6db4ed0a0d593749a396f392}\label{namespacemod__oasis__part_aabbc667e6db4ed0a0d593749a396f392}} 
+\index{mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}!oasis\+\_\+part\+\_\+copy@{oasis\+\_\+part\+\_\+copy}}
+\index{oasis\+\_\+part\+\_\+copy@{oasis\+\_\+part\+\_\+copy}!mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}}
+\subsubsection{\texorpdfstring{oasis\+\_\+part\+\_\+copy()}{oasis\_part\_copy()}}
+{\footnotesize\ttfamily subroutine, public mod\+\_\+oasis\+\_\+part\+::oasis\+\_\+part\+\_\+copy (\begin{DoxyParamCaption}\item[{integer(ip\+\_\+i4\+\_\+p), intent(in)}]{partbase,  }\item[{integer(ip\+\_\+i4\+\_\+p), intent(out)}]{partnew }\end{DoxyParamCaption})}
+
+
+
+Copy base partition to new partition. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em partbase} & base partition id\\
+\hline
+\mbox{\tt out}  & {\em partnew} & new partition id \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 565 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__part_aacc20c24f42edbef4ec2610bf98aadfc}\label{namespacemod__oasis__part_aacc20c24f42edbef4ec2610bf98aadfc}} 
 \index{mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}!oasis\+\_\+part\+\_\+create@{oasis\+\_\+part\+\_\+create}}
@@ -112,7 +139,48 @@ Create a new partition internally, needed for mapping.
 \end{DoxyItemize}
 \end{DoxyItemize}
 
-Definition at line 444 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 676 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__part_ac0db50937fb4217da43edcd1d1536535}\label{namespacemod__oasis__part_ac0db50937fb4217da43edcd1d1536535}} 
+\index{mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}!oasis\+\_\+part\+\_\+find@{oasis\+\_\+part\+\_\+find}}
+\index{oasis\+\_\+part\+\_\+find@{oasis\+\_\+part\+\_\+find}!mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}}
+\subsubsection{\texorpdfstring{oasis\+\_\+part\+\_\+find()}{oasis\_part\_find()}}
+{\footnotesize\ttfamily subroutine, public mod\+\_\+oasis\+\_\+part\+::oasis\+\_\+part\+\_\+find (\begin{DoxyParamCaption}\item[{integer(ip\+\_\+i4\+\_\+p), intent(in)}]{partbase,  }\item[{integer(ip\+\_\+i4\+\_\+p), intent(inout)}]{partnew,  }\item[{integer(ip\+\_\+i4\+\_\+p), intent(in)}]{nx,  }\item[{integer(ip\+\_\+i4\+\_\+p), intent(in)}]{ny,  }\item[{character(len=$\ast$), intent(in)}]{gridname }\end{DoxyParamCaption})}
+
+
+
+Find matching base partition to new partition. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em partbase} & base partition id\\
+\hline
+\mbox{\tt in,out}  & {\em partnew} & new partition id\\
+\hline
+\mbox{\tt in}  & {\em nx} & new partition nx\\
+\hline
+\mbox{\tt in}  & {\em ny} & new partition ny\\
+\hline
+\mbox{\tt in}  & {\em gridname} & new partition gridname \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 638 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__part_ae5c72886d4078ff0cc8e4c87a4dfd43c}\label{namespacemod__oasis__part_ae5c72886d4078ff0cc8e4c87a4dfd43c}} 
+\index{mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}!oasis\+\_\+part\+\_\+readgrid@{oasis\+\_\+part\+\_\+readgrid}}
+\index{oasis\+\_\+part\+\_\+readgrid@{oasis\+\_\+part\+\_\+readgrid}!mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}}
+\subsubsection{\texorpdfstring{oasis\+\_\+part\+\_\+readgrid()}{oasis\_part\_readgrid()}}
+{\footnotesize\ttfamily subroutine, public mod\+\_\+oasis\+\_\+part\+::oasis\+\_\+part\+\_\+readgrid (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Read grid data into partition. 
+
+
+
+Definition at line 480 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__part_a80f66cc0ce5857aa53d070861f05b521}\label{namespacemod__oasis__part_a80f66cc0ce5857aa53d070861f05b521}} 
 \index{mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}!oasis\+\_\+part\+\_\+setup@{oasis\+\_\+part\+\_\+setup}}
@@ -132,7 +200,7 @@ Synchronize partitions across all tasks, called at oasis enddef.
 \item Initialize the local gsmap and partition gsmap 
 \end{DoxyItemize}
 
-Definition at line 142 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 160 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__part_a12edb4b0248a3f562fe5f6e16eede06a}\label{namespacemod__oasis__part_a12edb4b0248a3f562fe5f6e16eede06a}} 
 \index{mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}!oasis\+\_\+part\+\_\+write@{oasis\+\_\+part\+\_\+write}}
@@ -146,7 +214,7 @@ Print parition information.
 
 
 
-Definition at line 390 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 418 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__part_a17c747bc29d25b558df42524bd63ac90}\label{namespacemod__oasis__part_a17c747bc29d25b558df42524bd63ac90}} 
 \index{mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}!oasis\+\_\+part\+\_\+zero@{oasis\+\_\+part\+\_\+zero}}
@@ -160,7 +228,7 @@ Zero partition information.
 
 
 
-Definition at line 361 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 383 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 
 
@@ -177,7 +245,7 @@ maximum number of partitions allowed
 
 
 
-Definition at line 26 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 31 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__part_a8cee930f023feb7bcad4a0cab0b490a1}\label{namespacemod__oasis__part_a8cee930f023feb7bcad4a0cab0b490a1}} 
 \index{mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}!part\+\_\+name\+\_\+cnt@{part\+\_\+name\+\_\+cnt}}
@@ -191,7 +259,7 @@ used to define partition names internally
 
 
 
-Definition at line 51 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 65 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__part_ac8340e63b159a9786ad8fffabd1d47f8}\label{namespacemod__oasis__part_ac8340e63b159a9786ad8fffabd1d47f8}} 
 \index{mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}!prism\+\_\+npart@{prism\+\_\+npart}}
@@ -205,7 +273,7 @@ number of partitions defined
 
 
 
-Definition at line 46 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 60 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__part_a326ce52f630ba7e71905af864a6cb2dc}\label{namespacemod__oasis__part_a326ce52f630ba7e71905af864a6cb2dc}} 
 \index{mod\+\_\+oasis\+\_\+part@{mod\+\_\+oasis\+\_\+part}!prism\+\_\+part@{prism\+\_\+part}}
@@ -219,5 +287,5 @@ list of defined partitions
 
 
 
-Definition at line 47 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 61 of file mod\+\_\+oasis\+\_\+part.\+F90.
 

@@ -1,10 +1,21 @@
-\hypertarget{mod__oasis__parameters_8_f90}{}\section{/home/globc2/tcraig/oasis3-\/mct.trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+parameters.F90 File Reference}
-\label{mod__oasis__parameters_8_f90}\index{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+parameters.\+F90@{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+parameters.\+F90}}
+\hypertarget{mod__oasis__parameters_8_f90}{}\section{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+parameters.F90 File Reference}
+\label{mod__oasis__parameters_8_f90}\index{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+parameters.\+F90@{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+parameters.\+F90}}
 \subsection*{Modules}
 \begin{DoxyCompactItemize}
 \item 
 module \hyperlink{namespacemod__oasis__parameters}{mod\+\_\+oasis\+\_\+parameters}
 \begin{DoxyCompactList}\small\item\em Defines parameters for O\+A\+S\+IS. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions/\+Subroutines}
+\begin{DoxyCompactItemize}
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p) function \hyperlink{namespacemod__oasis__parameters_abf6fb2dbeee19674bef02b0c1fc7dc2f}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+orange\+\_\+params} (n\+\_\+segments)
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p) function \hyperlink{namespacemod__oasis__parameters_a1f4f746e95fc0b05147aaa0b82a77a54}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+points\+\_\+params} (n\+\_\+points)
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p) function \hyperlink{namespacemod__oasis__parameters_a3f85c99a22ed2a7ac207c8f21c1a363c}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+orange\+\_\+params} (n\+\_\+segments)
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p) function \hyperlink{namespacemod__oasis__parameters_a4fe64d20b93b278465a4842c6a844501}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+points\+\_\+params} (n\+\_\+points)
+\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
@@ -128,13 +139,19 @@ integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__pa
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_aec700ad0c6a11dd35e5d6c2afb745fd0}{mod\+\_\+oasis\+\_\+parameters\+::ip\+\_\+cglbpos} = 2
 \item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a49f38ac3b4cada9ce9b7f5aa8b57f4a0}{mod\+\_\+oasis\+\_\+parameters\+::ip\+\_\+cgsspos} = 6
+\item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_aaa7ead98ff7d53acfd539a32fca9e2c7}{mod\+\_\+oasis\+\_\+parameters\+::ip\+\_\+cbasbal} = 4
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a3b96d31bbe142d84df2b93880498936f}{mod\+\_\+oasis\+\_\+parameters\+::ip\+\_\+cbaspos} = 5
 \item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a2199bfd0d49116fed576cec76f63372b}{mod\+\_\+oasis\+\_\+parameters\+::ip\+\_\+cbsspos} = 7
+\item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a611cae6f3c65a75f26e76b2f88f34037}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+strategy} = 1
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a7427036a6530871a0f49c0fb75f2b3ef}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+segments} = 2
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a6c376f3049b7af988e71a2e50a1c50ba}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+npoints} = 2
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a5c410369e763f9156d0ce1c82e866265}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+serial} = 0
 \item 
@@ -155,6 +172,44 @@ integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__pa
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a206910560c246db3404224a04cfd4319}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+sizey} = 4
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a3407c11054d24782182c649307808e47}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+ldx} = 5
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a03d86f9ce8a47debbd60515fa94e5b11}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+serial\+\_\+params} = 3
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a9c8bcc73b1daadd3dd4814b2dfe5e649}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+apple\+\_\+params} = 3
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_ad1b7c8ebf0654b72d75292821cf54bc9}{mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+box\+\_\+params} = 5
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_aa6a71a0b20dacca6f3263d8619eb9fca}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+strategy} = C\+L\+I\+M\+\_\+\+Strategy
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_abea28ab92f0119c9beadce9c1461b88b}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+segments} = C\+L\+I\+M\+\_\+\+Segments
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_ac8f73bfed8f7b03f17cd72e7b95b4646}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+npoints} = C\+L\+I\+M\+\_\+\+Npoints
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a6d75932f0d32fb81f74a14ff2236552a}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+serial} = C\+L\+I\+M\+\_\+\+Serial
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a3ea72dd64e62c99227513c14b909b11c}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+apple} = C\+L\+I\+M\+\_\+\+Apple
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_aaec8bc9377ee93b6ff19e68dd1c629c1}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+box} = C\+L\+I\+M\+\_\+\+Box
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_abb1fb57f8d75a98957e6d3e1c85d0096}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+orange} = C\+L\+I\+M\+\_\+\+Orange
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_ac3b3c12b4455e1baab14dd39820586e8}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+points} = C\+L\+I\+M\+\_\+\+Points
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a854ff4345b9a9676b39f7f30233a55d2}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+offset} = C\+L\+I\+M\+\_\+\+Offset
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a631ca32860a10f8134985ad8db4667d2}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+length} = C\+L\+I\+M\+\_\+\+Length
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a58295a6037954bd96e350f0077810529}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+sizex} = C\+L\+I\+M\+\_\+\+SizeX
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_ac3441e0815500ea5d38d80a48c4c7474}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+sizey} = C\+L\+I\+M\+\_\+\+SizeY
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a70aa19a7931c1ef1a371fb9be8379421}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+ldx} = C\+L\+I\+M\+\_\+\+LdX
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a021091fc3ff43fdd8699d810bc18b6be}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+serial\+\_\+params} = C\+L\+I\+M\+\_\+\+Serial\+\_\+\+Params
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a4e80e06d524bff6a98d2dbb856d0b92d}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+apple\+\_\+params} = C\+L\+I\+M\+\_\+\+Apple\+\_\+\+Params
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a5796610110f6707828b7626f03ad93b3}{mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+box\+\_\+params} = C\+L\+I\+M\+\_\+\+Box\+\_\+\+Params
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a02e0627219e7769df37e3d55da46f65d}{mod\+\_\+oasis\+\_\+parameters\+::prism\+\_\+real} = 4
 \item 

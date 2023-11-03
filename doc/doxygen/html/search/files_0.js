@@ -10,6 +10,7 @@ var searchData=
   ['mod_5foasis_5fio_2ef90',['mod_oasis_io.F90',['../mod__oasis__io_8_f90.html',1,'']]],
   ['mod_5foasis_5fioshr_2ef90',['mod_oasis_ioshr.F90',['../mod__oasis__ioshr_8_f90.html',1,'']]],
   ['mod_5foasis_5fkinds_2ef90',['mod_oasis_kinds.F90',['../mod__oasis__kinds_8_f90.html',1,'']]],
+  ['mod_5foasis_5fload_5fbalancing_2ef90',['mod_oasis_load_balancing.F90',['../mod__oasis__load__balancing_8_f90.html',1,'']]],
   ['mod_5foasis_5fmap_2ef90',['mod_oasis_map.F90',['../mod__oasis__map_8_f90.html',1,'']]],
   ['mod_5foasis_5fmem_2ef90',['mod_oasis_mem.F90',['../mod__oasis__mem_8_f90.html',1,'']]],
   ['mod_5foasis_5fmethod_2ef90',['mod_oasis_method.F90',['../mod__oasis__method_8_f90.html',1,'']]],
@@ -22,5 +23,6 @@ var searchData=
   ['mod_5foasis_5fsys_2ef90',['mod_oasis_sys.F90',['../mod__oasis__sys_8_f90.html',1,'']]],
   ['mod_5foasis_5ftimer_2ef90',['mod_oasis_timer.F90',['../mod__oasis__timer_8_f90.html',1,'']]],
   ['mod_5foasis_5fvar_2ef90',['mod_oasis_var.F90',['../mod__oasis__var_8_f90.html',1,'']]],
+  ['mod_5foasis_5fyac_5fmap_2ef90',['mod_oasis_yac_map.F90',['../mod__oasis__yac__map_8_f90.html',1,'']]],
   ['mod_5fprism_2ef90',['mod_prism.F90',['../mod__prism_8_f90.html',1,'']]]
 ];

@@ -79,7 +79,7 @@ Search a character field list for a matching values.
 \end{DoxyParams}
 
 
-Definition at line 2106 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 2360 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_a65adf0558cfd9a9d316bd22ad1f9dc23}\label{namespacemod__oasis__coupler_a65adf0558cfd9a9d316bd22ad1f9dc23}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!oasis\+\_\+coupler\+\_\+bldvarname@{oasis\+\_\+coupler\+\_\+bldvarname}}
@@ -102,7 +102,7 @@ Build a consistent variable name based on bundles.
 \end{DoxyParams}
 
 
-Definition at line 2012 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 2266 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_a5cb96db0ae7b837db934689a49df3da6}\label{namespacemod__oasis__coupler_a5cb96db0ae7b837db934689a49df3da6}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!oasis\+\_\+coupler\+\_\+print@{oasis\+\_\+coupler\+\_\+print}}
@@ -123,7 +123,7 @@ Print routine for oasis\+\_\+couplers.
 \end{DoxyParams}
 
 
-Definition at line 1904 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 2149 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_ab48c4d4ee118f948ccc286eec5b509ec}\label{namespacemod__oasis__coupler_ab48c4d4ee118f948ccc286eec5b509ec}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!oasis\+\_\+coupler\+\_\+setup@{oasis\+\_\+coupler\+\_\+setup}}
@@ -174,14 +174,14 @@ This routine initializes all the coupler data based on the namcouple inputs and 
 \item Initialize avect1 which stores the get/put data
 \item Compute nflds for this coupling and initialize avcnt and status
 \item Initialize the mapper data
-\item Read mapper mask and area if not already done
 \item Initialize avect1m, the data in avect1 mapped to another grid
 \item Initialize router based on rpart\+ID
+\item Find blasnew extra fields
 \end{DoxyItemize}
 \item Diagnostics for all couplers 
 \end{DoxyItemize}
 
-Definition at line 121 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 131 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_ad8c9a74a349ea4420ac38e2da2dc3cd2}\label{namespacemod__oasis__coupler_ad8c9a74a349ea4420ac38e2da2dc3cd2}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!oasis\+\_\+coupler\+\_\+unbldvarname@{oasis\+\_\+coupler\+\_\+unbldvarname}}
@@ -204,7 +204,7 @@ Deconstruct the varname based on oasis\+\_\+coupler\+\_\+bldvarname.
 \end{DoxyParams}
 
 
-Definition at line 2055 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 2309 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 
 
@@ -221,7 +221,7 @@ flag to allow no restart files at startup
 
 
 
-Definition at line 106 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 116 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_a0cb9b8a96c10385d38fa244d920c7eaf}\label{namespacemod__oasis__coupler_a0cb9b8a96c10385d38fa244d920c7eaf}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!lastseq@{lastseq}}
@@ -235,7 +235,7 @@ last coupler sequence
 
 
 
-Definition at line 104 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 114 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_a47f4727f94719892d837f6a1545d3d08}\label{namespacemod__oasis__coupler_a47f4727f94719892d837f6a1545d3d08}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!lastseqtime@{lastseqtime}}
@@ -249,7 +249,7 @@ last coupler sequence time
 
 
 
-Definition at line 105 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 115 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_a6f166f099a134dffba97a168d28a3c01}\label{namespacemod__oasis__coupler_a6f166f099a134dffba97a168d28a3c01}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!prism\+\_\+coupler\+\_\+avsmax@{prism\+\_\+coupler\+\_\+avsmax}}
@@ -263,7 +263,7 @@ maximum number of higher order terms in mapping
 
 
 
-Definition at line 44 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 46 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_a96df3ef2ec1b53597bb9beca43fe8349}\label{namespacemod__oasis__coupler_a96df3ef2ec1b53597bb9beca43fe8349}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!prism\+\_\+coupler\+\_\+get@{prism\+\_\+coupler\+\_\+get}}
@@ -277,7 +277,7 @@ prism\+\_\+coupler get array
 
 
 
-Definition at line 102 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 112 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_ae59d8823993d9ca8610efd9770393271}\label{namespacemod__oasis__coupler_ae59d8823993d9ca8610efd9770393271}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!prism\+\_\+coupler\+\_\+put@{prism\+\_\+coupler\+\_\+put}}
@@ -291,7 +291,7 @@ prism\+\_\+coupler put array
 
 
 
-Definition at line 101 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 111 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_aaa019c39b0f657e7c37820697ecf354a}\label{namespacemod__oasis__coupler_aaa019c39b0f657e7c37820697ecf354a}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!prism\+\_\+mcoupler@{prism\+\_\+mcoupler}}
@@ -305,7 +305,7 @@ max couplers
 
 
 
-Definition at line 100 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 110 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_a6d46883e9df70ab9cdafaf607afacacb}\label{namespacemod__oasis__coupler_a6d46883e9df70ab9cdafaf607afacacb}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!prism\+\_\+mrouter@{prism\+\_\+mrouter}}
@@ -319,7 +319,7 @@ max routers
 
 
 
-Definition at line 96 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 106 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_a2ebdb255598e1b004de2533f16b06e04}\label{namespacemod__oasis__coupler_a2ebdb255598e1b004de2533f16b06e04}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!prism\+\_\+nrouter@{prism\+\_\+nrouter}}
@@ -333,7 +333,7 @@ router counter
 
 
 
-Definition at line 97 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 107 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__coupler_a33dbf692ad73f83f73fe083e252badd8}\label{namespacemod__oasis__coupler_a33dbf692ad73f83f73fe083e252badd8}} 
 \index{mod\+\_\+oasis\+\_\+coupler@{mod\+\_\+oasis\+\_\+coupler}!prism\+\_\+router@{prism\+\_\+router}}
@@ -347,5 +347,5 @@ prism\+\_\+router array
 
 
 
-Definition at line 98 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 108 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
