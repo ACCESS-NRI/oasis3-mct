@@ -103,7 +103,7 @@ MODULE mod_oasis_yac_map
    TYPE(dist_grid_pair_collection) :: dist_grid_pair
 
    ! Timers switch
-   INTEGER, PARAMETER :: local_timers_on = 2   ! 0=None, 1=overall, 2=detailed
+   INTEGER, PARAMETER :: local_timers_on = 0   ! 0=None, 1=overall, 2=detailed
 
 CONTAINS
 
