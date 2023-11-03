@@ -10,4 +10,4 @@ if [ -z $OASIS_DEBUG ] ; then
 else
     export MPIRUN="mpirun -tv"
 fi
-export corespn=1
+export corespn=6
