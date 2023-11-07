@@ -2667,9 +2667,23 @@ SUBROUTINE inipar
               namyacmet(jf)%active = .TRUE.
               CALL parse(clline, clvari, 1, jpeighty, ILEN, __LINE__)
               namyacmet(jf)%src_grid_type = TRIM(ADJUSTL(clvari))
+              IF ( uppercase(TRIM(namyacmet(jf)%src_grid_type)) /= 'LL' .AND. &
+                 & uppercase(TRIM(namyacmet(jf)%src_grid_type)) /= 'GC') THEN
+                 WRITE(tmpstr1,*) ' YAC src grid type can only be LL or GC &
+                    &not '//TRIM(namyacmet(jf)%src_grid_type)
+                 WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+              END IF
               namyacmet(jf)%src_use_ll = uppercase(TRIM(namyacmet(jf)%src_grid_type)) == 'LL'
               CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
               namyacmet(jf)%dst_grid_type = TRIM(ADJUSTL(clvari))
+              IF ( uppercase(TRIM(namyacmet(jf)%dst_grid_type)) /= 'LL' .AND. &
+                 & uppercase(TRIM(namyacmet(jf)%dst_grid_type)) /= 'GC') THEN
+                 WRITE(tmpstr1,*) ' YAC dst grid type can only be LL or GC &
+                    &not '//TRIM(namyacmet(jf)%dst_grid_type)
+                 WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+              END IF
               namyacmet(jf)%dst_use_ll = uppercase(TRIM(namyacmet(jf)%dst_grid_type)) == 'LL'
               CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
               READ(clvari, FMT='(I4)') namyacmet(jf)%stacksize
@@ -2694,18 +2708,58 @@ SUBROUTINE inipar
                  SELECT CASE(TRIM(namyacmet(jf)%yac_stack(ib_s)%method))
                  CASE('CONSERV')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
-                    namyacmet(jf)%yac_stack(ib_s)%cons_order = uppercase(TRIM(clvari))
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('FIRST', 'SECOND')
+                       namyacmet(jf)%yac_stack(ib_s)%cons_order = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC conservative order can only be FIRST &
+                          &or SECOND not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
                     CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
-                    namyacmet(jf)%yac_stack(ib_s)%cons_norm = uppercase(TRIM(clvari))
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('DESTAREA', 'FRACAREA')
+                       namyacmet(jf)%yac_stack(ib_s)%cons_norm = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC conservative normalisation can only be &
+                          &DESTAREA or FRACAREA not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
                  CASE('AVG')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
-                    namyacmet(jf)%yac_stack(ib_s)%avg_meth = uppercase(TRIM(clvari))
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('ARITHMETIC', 'DIST', 'BARY')
+                       namyacmet(jf)%yac_stack(ib_s)%avg_meth = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC average method can only be &
+                          &ARITHMETIC, DIST or BARY not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
                     CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
-                    namyacmet(jf)%yac_stack(ib_s)%avg_partial = &
-                  & uppercase(TRIM(clvari)) == "PARTIAL"
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('PARTIAL', 'FULL')
+                       namyacmet(jf)%yac_stack(ib_s)%avg_partial = &
+                          & uppercase(TRIM(clvari)) == "PARTIAL"
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC average partial stencil can only be &
+                          &PARTIAL or FULL not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
                  CASE('NNN')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
-                    namyacmet(jf)%yac_stack(ib_s)%nnn_meth = uppercase(TRIM(clvari))
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('AVG', 'DIST', 'GAUSS', 'RBF')
+                       namyacmet(jf)%yac_stack(ib_s)%nnn_meth = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC NNN method can only be AVG, &
+                          &DIST, GAUSS or RBF not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
                     CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
                     READ(clvari,'(I4)') namyacmet(jf)%yac_stack(ib_s)%nnn_points
                     SELECT CASE(TRIM(namyacmet(jf)%yac_stack(ib_s)%nnn_meth))
@@ -2720,7 +2774,15 @@ SUBROUTINE inipar
                     READ(clvari,'(I4)') namyacmet(jf)%yac_stack(ib_s)%creep_iter
                  CASE('SPMAP')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
-                    namyacmet(jf)%yac_stack(ib_s)%spm_meth = uppercase(TRIM(clvari))
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('AVG', 'DIST')
+                       namyacmet(jf)%yac_stack(ib_s)%spm_meth = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC SPMAP method can only be AVG &
+                          &or DIST not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
                     CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
                     READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_spread
                     namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
@@ -2732,6 +2794,14 @@ SUBROUTINE inipar
                  CASE('FILE')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
                     namyacmet(jf)%yac_stack(ib_s)%file_name = TRIM(clvari)
+                 CASE('HCSBB')
+                    ! Nothing to do. Just here for the sanity check
+                 CASE DEFAULT
+                    WRITE(tmpstr1,*) ' YAC interpolation &
+                       &method '//TRIM(namyacmet(jf)%yac_stack(ib_s)%method)//' not &
+                       &implemented'
+                    WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                    CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
                  END SELECT
               END DO
 #endif
