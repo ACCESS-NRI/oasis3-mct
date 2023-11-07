@@ -516,6 +516,8 @@ CONTAINS
       TYPE(c_ptr) :: interp_stack_config
       TYPE(c_ptr) :: interp_method_stack
       TYPE(c_ptr) :: interp_weights
+      INTEGER(kind=c_int) :: avg_meth
+      INTEGER(kind=c_int) :: i_avg_partial
       INTEGER(kind=c_int) :: nnn_meth
       INTEGER(kind=c_int) :: spm_meth
       INTEGER(kind=c_int) :: cons_order
@@ -609,6 +611,18 @@ CONTAINS
             END SELECT
             CALL yac_interp_stack_config_add_conservative_c( &
                & interp_stack_config, cons_order, 0_c_int, 1_c_int, cons_norm)
+         CASE('AVG')
+            SELECT CASE(TRIM(namyacmet(namID)%yac_stack(ib_s)%avg_meth))
+            CASE('ARITHMETIC')
+               avg_meth = YAC_INTERP_AVG_ARITHMETIC
+            CASE('DIST')
+               avg_meth = YAC_INTERP_AVG_DIST
+            CASE('BARY')
+               avg_meth = YAC_INTERP_AVG_BARY
+            END SELECT
+            i_avg_partial = MERGE(1_c_int, 0_c_int, namyacmet(namID)%yac_stack(ib_s)%avg_partial)
+            CALL yac_interp_stack_config_add_average_c( &
+               & interp_stack_config, avg_meth, i_avg_partial)
          CASE('NNN')
             SELECT CASE(TRIM(namyacmet(namID)%yac_stack(ib_s)%nnn_meth))
             CASE('AVG')
@@ -642,6 +656,11 @@ CONTAINS
                & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_spread,c_double), &
                & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_max_radius,c_double), &
                & spm_meth)
+         CASE('FILE')
+            CALL yac_interp_stack_config_add_user_file_c( &
+               & interp_stack_config, &
+               & TRIM(namyacmet(namID)%yac_stack(ib_s)%file_name)//c_null_char, &
+               & TRIM(namsrcgrd(namID))//c_null_char, TRIM(namdstgrd(namID))//c_null_char)
          END SELECT
       END DO
 

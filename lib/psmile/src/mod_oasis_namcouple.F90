@@ -103,6 +103,8 @@ MODULE mod_oasis_namcouple
      CHARACTER(LEN=:), ALLOCATABLE :: method     !< Identifier of the YAC method
      CHARACTER(LEN=:), ALLOCATABLE :: cons_order !< Order for the conservative interpolations
      CHARACTER(LEN=:), ALLOCATABLE :: cons_norm  !< Kind of normalisation for the conserv int.
+     CHARACTER(LEN=:), ALLOCATABLE :: avg_meth   !< Weighting method for average interp.
+     LOGICAL :: avg_partial                      !< Use partial stencils for average interp.
      CHARACTER(LEN=:), ALLOCATABLE :: nnn_meth   !< Weighting method for nearest neigbour interp.
      REAL(KIND=8) :: nnn_scale !< Scale for Gauss or Radial Basis func n.n. weights
      INTEGER :: nnn_points     !< Number of nearest neighbours to account for in n.n. interp
@@ -110,6 +112,7 @@ MODULE mod_oasis_namcouple
      CHARACTER(LEN=:), ALLOCATABLE :: spm_meth !< Source point mapping method
      REAL(KIND=8) :: spm_spread     !< Spread index for the source point mapping
      REAL(KIND=8) :: spm_max_radius !< Radius of influence for the source point mapping
+     CHARACTER(LEN=:), ALLOCATABLE :: file_name !< Filename for the file precomputed interp.
   END TYPE yac_stack_line
 
   !> Storage for the parsed entry of a YAC channel for a namcouple field
@@ -2694,6 +2697,12 @@ SUBROUTINE inipar
                     namyacmet(jf)%yac_stack(ib_s)%cons_order = uppercase(TRIM(clvari))
                     CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
                     namyacmet(jf)%yac_stack(ib_s)%cons_norm = uppercase(TRIM(clvari))
+                 CASE('AVG')
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    namyacmet(jf)%yac_stack(ib_s)%avg_meth = uppercase(TRIM(clvari))
+                    CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                    namyacmet(jf)%yac_stack(ib_s)%avg_partial = &
+                  & uppercase(TRIM(clvari)) == "PARTIAL"
                  CASE('NNN')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
                     namyacmet(jf)%yac_stack(ib_s)%nnn_meth = uppercase(TRIM(clvari))
@@ -2720,6 +2729,9 @@ SUBROUTINE inipar
                     READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_max_radius
                     namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
                        & namyacmet(jf)%yac_stack(ib_s)%spm_max_radius * deg2rad
+                 CASE('FILE')
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    namyacmet(jf)%yac_stack(ib_s)%file_name = TRIM(clvari)
                  END SELECT
               END DO
 #endif
@@ -4261,6 +4273,16 @@ SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
             & ' conservative order ',TRIM(dtv%yac_stack(ib_s)%cons_order)
          WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' conservative norm. ',TRIM(dtv%yac_stack(ib_s)%cons_norm)
+      CASE('AVG')
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' average meth ',TRIM(dtv%yac_stack(ib_s)%avg_meth)
+         IF (dtv%yac_stack(ib_s)%avg_partial) THEN
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' average meth allows for partial stencils'
+         ELSE
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' average meth uses full stencils only'
+         END IF
       CASE('NNN')
          WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' n next neighbour meth ',TRIM(dtv%yac_stack(ib_s)%nnn_meth)
@@ -4278,6 +4300,9 @@ SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
             & ' source target map spread',dtv%yac_stack(ib_s)%spm_spread
          WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' source target map max radius',dtv%yac_stack(ib_s)%spm_max_radius
+      CASE('FILE')
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' precomputed file name ',TRIM(dtv%yac_stack(ib_s)%file_name)
       END SELECT
    END DO
 END SUBROUTINE write_yac_fmt
