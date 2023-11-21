@@ -17,6 +17,11 @@ MODULE mod_oasis_namcouple
   USE mod_oasis_sys
   USE mod_oasis_mpi
   USE mod_oasis_string
+#ifdef YAC_REMAP
+  ! Access to the YAC core utilities and definitions and to the remap toolbox
+  USE mo_yac_core
+  USE, INTRINSIC :: iso_c_binding
+#endif
 
   IMPLICIT NONE
 
@@ -136,13 +141,6 @@ MODULE mod_oasis_namcouple
 
   TYPE(yac_parse) ,PUBLIC,POINTER :: namyacmet(:) !< The storage of the YAC fields in the namcouple
   LOGICAL, PUBLIC :: namcouple_has_yac !< Toggle YAC related treatments if any field has a YAC channel
-
-  !> YAC Defaults
-  REAL(KIND=8), PARAMETER :: YAC_DEFAULT_RBF_SCALE = 1.487973d+01  !< Default radial basis fct scale
-  REAL(KIND=8), PARAMETER :: YAC_DEFAULT_GAUSS_SCALE = 0.1         !< Default Gauss scale for NNN
-  REAL(KIND=8), PARAMETER :: YAC_DEFAULT_SPREAD_DISTANCE = 0.0     !< Default spread for src mapping
-  REAL(KIND=8), PARAMETER :: YAC_DEFAULT_MAX_SEARCH_DISTANCE = 0.0 !< Default dist for src mapping
-  INTEGER, PARAMETER :: YAC_DEFAULT_CREEP_DISTANCE = -1            !< Default creep fill iterations
 #endif
 
   !--- derived ---
@@ -2778,23 +2776,31 @@ SUBROUTINE inipar
                        CALL parse(clline, clvari, 4, jpeighty, ILEN, __LINE__)
                        IF (ILEN > 0) THEN
                           IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
-                             namyacmet(jf)%yac_stack(ib_s)%nnn_scale = YAC_DEFAULT_GAUSS_SCALE
+                             namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                                & REAL(YAC_INTERP_NNN_GAUSS_SCALE_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
                           ELSE
                              READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%nnn_scale
                           END IF
                        ELSE
-                          namyacmet(jf)%yac_stack(ib_s)%nnn_scale = YAC_DEFAULT_GAUSS_SCALE
+                          namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                             & REAL(YAC_INTERP_NNN_GAUSS_SCALE_DEFAULT_F, &
+                             &     KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
                        END IF
                     CASE('RBF')
                        CALL parse(clline, clvari, 4, jpeighty, ILEN, __LINE__)
                        IF (ILEN > 0) THEN
                           IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
-                             namyacmet(jf)%yac_stack(ib_s)%nnn_scale = YAC_DEFAULT_RBF_SCALE
+                             namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                                & REAL(YAC_INTERP_RBF_SCALE_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
                           ELSE
                              READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%nnn_scale
                           END IF
                        ELSE
-                          namyacmet(jf)%yac_stack(ib_s)%nnn_scale = YAC_DEFAULT_RBF_SCALE
+                          namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                             & REAL(YAC_INTERP_RBF_SCALE_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
                        END IF
                     CASE DEFAULT
                        namyacmet(jf)%yac_stack(ib_s)%nnn_scale = 1.d0
@@ -2803,12 +2809,16 @@ SUBROUTINE inipar
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
                     IF (ILEN > 0 ) THEN
                        IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
-                          namyacmet(jf)%yac_stack(ib_s)%creep_iter = YAC_DEFAULT_CREEP_DISTANCE
+                          namyacmet(jf)%yac_stack(ib_s)%creep_iter = &
+                             & INT(YAC_INTERP_CREEP_DISTANCE_DEFAULT_F, &
+                             &     KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%creep_iter))
                        ELSE
                           READ(clvari,'(I4)') namyacmet(jf)%yac_stack(ib_s)%creep_iter
                        END IF
                     ELSE
-                       namyacmet(jf)%yac_stack(ib_s)%creep_iter = YAC_DEFAULT_CREEP_DISTANCE
+                       namyacmet(jf)%yac_stack(ib_s)%creep_iter = &
+                          & INT(YAC_INTERP_CREEP_DISTANCE_DEFAULT_F, &
+                          &     KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%creep_iter))
                     END IF
                  CASE('SPMAP')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
@@ -2825,7 +2835,9 @@ SUBROUTINE inipar
                     IF (ILEN > 0 ) THEN
                        IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
                           namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
-                             & YAC_DEFAULT_SPREAD_DISTANCE * deg2rad
+                             & REAL(YAC_INTERP_SPMAP_SPREAD_DISTANCE_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_spread)) &
+                             & * deg2rad
                        ELSE
                           READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_spread
                           namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
@@ -2834,7 +2846,9 @@ SUBROUTINE inipar
                        CALL parse(clline, clvari, 4, jpeighty, ILEN, __LINE__)
                        IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
                           namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
-                             & YAC_DEFAULT_MAX_SEARCH_DISTANCE * deg2rad
+                             & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_radius)) &
+                             & * deg2rad
                        ELSE
                           READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_max_radius
                           namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
@@ -2842,9 +2856,13 @@ SUBROUTINE inipar
                        END IF
                     ELSE
                        namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
-                          & YAC_DEFAULT_SPREAD_DISTANCE * deg2rad
+                          & REAL(YAC_INTERP_SPMAP_SPREAD_DISTANCE_DEFAULT_F, &
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_spread)) &
+                          & * deg2rad
                        namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
-                          & YAC_DEFAULT_MAX_SEARCH_DISTANCE * deg2rad
+                          & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_radius)) &
+                          & * deg2rad
                     END IF
                  CASE('FILE')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
