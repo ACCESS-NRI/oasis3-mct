@@ -2805,6 +2805,25 @@ SUBROUTINE inipar
                     CASE DEFAULT
                        namyacmet(jf)%yac_stack(ib_s)%nnn_scale = 1.d0
                     END SELECT
+                 CASE('RBF')
+                    namyacmet(jf)%yac_stack(ib_s)%method = 'NNN'
+                    namyacmet(jf)%yac_stack(ib_s)%nnn_meth = 'RBF'
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    READ(clvari,'(I4)') namyacmet(jf)%yac_stack(ib_s)%nnn_points
+                    CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                    IF (ILEN > 0) THEN
+                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                          namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                             & REAL(YAC_INTERP_RBF_SCALE_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
+                       ELSE
+                          READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%nnn_scale
+                       END IF
+                    ELSE
+                       namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                          & REAL(YAC_INTERP_RBF_SCALE_DEFAULT_F, &
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
+                    END IF
                  CASE('CREEP')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
                     IF (ILEN > 0 ) THEN
