@@ -179,7 +179,11 @@ if [ -z ${USER_AUXLOC} ]; then
 else
    cp ${USER_AUXLOC}/grids.nc ${rundir}/grids.nc
    cp ${USER_AUXLOC}/areas.nc ${rundir}/areas.nc
-   cp ${USER_AUXLOC}/masks.nc ${rundir}/masks.nc
+   if [ -z ${USER_MASKFILE} ] ; then
+       cp ${USER_AUXLOC}/masks.nc ${rundir}/masks.nc
+   else
+       cp ${USER_AUXLOC}/${USER_MASKFILE} ${rundir}/masks.nc
+   fi
 fi
 if [ -z ${USER_MESHLOC} ]; then
    echo "No model files for this toy"
