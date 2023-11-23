@@ -2747,17 +2747,22 @@ SUBROUTINE inipar
                        WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
                        CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
                     END SELECT
-                    CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
-                    SELECT CASE(uppercase(TRIM(clvari)))
-                    CASE('PARTIAL', 'FULL')
-                       namyacmet(jf)%yac_stack(ib_s)%avg_partial = &
-                          & uppercase(TRIM(clvari)) == "PARTIAL"
-                    CASE DEFAULT
-                       WRITE(tmpstr1,*) ' YAC average partial stencil can only be &
-                          &PARTIAL or FULL not '//TRIM(clvari)
-                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
-                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
-                    END SELECT
+                    namyacmet(jf)%yac_stack(ib_s)%avg_partial = 'FULL'
+                    ! Since OASIS only uses YAC core masks for defining both the removal of
+                    ! duplicated or overlapping cells and for the sea land masks (that should
+                    ! ideally be described as YAC field masks) the next option is uneffective.
+                    ! Lines are kept in a comment in case of a future change.
+                    ! CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                    ! SELECT CASE(uppercase(TRIM(clvari)))
+                    ! CASE('PARTIAL', 'FULL')
+                    !    namyacmet(jf)%yac_stack(ib_s)%avg_partial = &
+                    !       & uppercase(TRIM(clvari)) == "PARTIAL"
+                    ! CASE DEFAULT
+                    !    WRITE(tmpstr1,*) ' YAC average partial stencil can only be &
+                    !       &PARTIAL or FULL not '//TRIM(clvari)
+                    !    WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                    !    CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    ! END SELECT
                  CASE('NNN')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
                     SELECT CASE(uppercase(TRIM(clvari)))
