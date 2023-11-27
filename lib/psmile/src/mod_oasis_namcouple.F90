@@ -118,6 +118,8 @@ MODULE mod_oasis_namcouple
      REAL(KIND=8) :: spm_spread     !< Spread index for the source point mapping
      REAL(KIND=8) :: spm_max_radius !< Radius of influence for the source point mapping
      CHARACTER(LEN=:), ALLOCATABLE :: file_name !< Filename for the file precomputed interp.
+  CONTAINS
+     PROCEDURE :: to_string => yac_stack_line_to_string
   END TYPE yac_stack_line
 
   !> Storage for the parsed entry of a YAC channel for a namcouple field
@@ -2747,7 +2749,7 @@ SUBROUTINE inipar
                        WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
                        CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
                     END SELECT
-                    namyacmet(jf)%yac_stack(ib_s)%avg_partial = 'FULL'
+                    namyacmet(jf)%yac_stack(ib_s)%avg_partial = .FALSE.
                     ! Since OASIS only uses YAC core masks for defining both the removal of
                     ! duplicated or overlapping cells and for the sea land masks (that should
                     ! ideally be described as YAC field masks) the next option is uneffective.
@@ -4395,6 +4397,72 @@ FUNCTION uppercase(cd_s1)  RESULT (cd_s2)
 END FUNCTION uppercase
 
 !*========================================================================
+
+!> Function for descrbing the YAC stack lines in a string to be used as NF90 attr
+FUNCTION yac_stack_line_to_string(dtv, ib_s) RESULT(yac_str)
+
+   IMPLICIT NONE
+   CLASS(yac_stack_line), INTENT(IN) :: dtv !< the stack line object
+   INTEGER, INTENT(IN) :: ib_s              !< the position in the stack
+   CHARACTER(LEN=1024) :: yac_str       !< output string
+
+   CHARACTER(LEN=1024) :: tmp_str
+   WRITE(yac_str,'(A,I2,2A)') &
+      & 'YAC stack method ',ib_s,': ',TRIM(ADJUSTL(dtv%method))
+   SELECT CASE(TRIM(dtv%method))
+   CASE('CONSERV')
+      WRITE(tmp_str,'(3A)') &
+         & ' ', TRIM(dtv%cons_order), ' order '
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      WRITE(tmp_str,'(2A)') &
+         & ' norm. ',TRIM(dtv%cons_norm)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   CASE('AVG')
+      WRITE(tmp_str,'(2A)') &
+         & ' weigthing ',TRIM(dtv%avg_meth)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      IF (dtv%avg_partial) THEN
+         WRITE(tmp_str,'(A)') &
+            & ' (allows for partial stencils)'
+      ELSE
+         WRITE(tmp_str,'(A)') &
+            & ' (uses full stencils only)'
+      END IF
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   CASE('NNN')
+      WRITE(tmp_str,'(2A)') &
+         & ' weighting ',TRIM(dtv%nnn_meth)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      WRITE(tmp_str,'(A,I3)') &
+         & ' nr of neighbours',dtv%nnn_points
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      IF (TRIM(dtv%nnn_meth) == 'GAUSS' .OR. TRIM(dtv%nnn_meth) == 'RBF') THEN
+         WRITE(tmp_str,'(3A,F10.3)') &
+            & ' ',TRIM(dtv%nnn_meth), ' scale',dtv%nnn_scale
+         yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      END IF
+   CASE('CREEP')
+      WRITE(tmp_str,'(A,I3)') &
+         & ' creep fill iterations',dtv%creep_iter
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   CASE('SPMAP')
+      WRITE(tmp_str,'(2A)') &
+         & ' source target map meth ',TRIM(dtv%spm_meth)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      WRITE(tmp_str,'(A,F10.3)') &
+         & ' spread',dtv%spm_spread
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      WRITE(tmp_str,'(A,F10.3)') &
+         & ' max radius',dtv%spm_max_radius
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   CASE('FILE')
+      WRITE(tmp_str,'(2A)') &
+         & ' precomputed weights file ',TRIM(dtv%file_name)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   END SELECT
+
+END FUNCTION yac_stack_line_to_string
+
 
 !> Subroutine for the output of yac configurations.
 !! The parameter list is imposed by the F90 standard. Refer to it.
