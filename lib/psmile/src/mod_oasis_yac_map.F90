@@ -653,6 +653,8 @@ CONTAINS
                nnn_meth = YAC_INTERP_NNN_DIST
             CASE('GAUSS')
                nnn_meth = YAC_INTERP_NNN_GAUSS
+            CASE('ZERO')
+               nnn_meth = YAC_INTERP_NNN_ZERO
             CASE('RBF')
                nnn_meth = YAC_INTERP_NNN_RBF
             END SELECT
@@ -764,6 +766,7 @@ CONTAINS
 
       ! Output the check statistics
       IF (OASIS_debug >= 12) THEN
+         WRITE(nulprt1, '(A)') '(oasis_map_yac_genmap) Applied the following YAC stack:'
          WRITE(nulprt1,*) namyacmet(namID)
          CALL mpi_allreduce(MPI_IN_PLACE, tgt_counts(0:namyacmet(namID)%stacksize), &
             & 1 + namyacmet(namID)%stacksize, MPI_INTEGER, MPI_SUM, mpi_comm_yac, ierror)

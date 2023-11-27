@@ -2768,16 +2768,21 @@ SUBROUTINE inipar
                  CASE('NNN')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
                     SELECT CASE(uppercase(TRIM(clvari)))
-                    CASE('AVG', 'DIST', 'GAUSS', 'RBF')
+                    CASE('AVG', 'DIST', 'GAUSS', 'RBF', 'ZERO')
                        namyacmet(jf)%yac_stack(ib_s)%nnn_meth = uppercase(TRIM(clvari))
                     CASE DEFAULT
                        WRITE(tmpstr1,*) ' YAC NNN method can only be AVG, &
-                          &DIST, GAUSS or RBF not '//TRIM(clvari)
+                          &DIST, GAUSS, ZERO or RBF not '//TRIM(clvari)
                        WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
                        CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
                     END SELECT
-                    CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
-                    READ(clvari,'(I4)') namyacmet(jf)%yac_stack(ib_s)%nnn_points
+                    SELECT CASE(TRIM(namyacmet(jf)%yac_stack(ib_s)%nnn_meth))
+                    CASE('ZERO')
+                       namyacmet(jf)%yac_stack(ib_s)%nnn_points = 1
+                    CASE DEFAULT
+                       CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                       READ(clvari,'(I4)') namyacmet(jf)%yac_stack(ib_s)%nnn_points
+                    END SELECT
                     SELECT CASE(TRIM(namyacmet(jf)%yac_stack(ib_s)%nnn_meth))
                     CASE('GAUSS')
                        CALL parse(clline, clvari, 4, jpeighty, ILEN, __LINE__)
@@ -2812,6 +2817,11 @@ SUBROUTINE inipar
                     CASE DEFAULT
                        namyacmet(jf)%yac_stack(ib_s)%nnn_scale = 1.d0
                     END SELECT
+                 CASE('ZERO')
+                    namyacmet(jf)%yac_stack(ib_s)%method = 'NNN'
+                    namyacmet(jf)%yac_stack(ib_s)%nnn_meth = 'ZERO'
+                    namyacmet(jf)%yac_stack(ib_s)%nnn_points = 1
+                    namyacmet(jf)%yac_stack(ib_s)%nnn_scale = 1.d0
                  CASE('RBF')
                     namyacmet(jf)%yac_stack(ib_s)%method = 'NNN'
                     namyacmet(jf)%yac_stack(ib_s)%nnn_meth = 'RBF'
