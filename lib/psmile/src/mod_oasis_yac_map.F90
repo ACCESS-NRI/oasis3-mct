@@ -534,6 +534,8 @@ CONTAINS
       TYPE(c_ptr) :: interp_weights
       INTEGER(kind=c_int) :: avg_meth
       INTEGER(kind=c_int) :: i_avg_partial
+      INTEGER(kind=c_int) :: ncc_meth
+      INTEGER(kind=c_int) :: i_ncc_partial
       INTEGER(kind=c_int) :: nnn_meth
       INTEGER(kind=c_int) :: spm_meth
       INTEGER(kind=c_int) :: cons_order
@@ -645,6 +647,16 @@ CONTAINS
             i_avg_partial = MERGE(1_c_int, 0_c_int, namyacmet(namID)%yac_stack(ib_s)%avg_partial)
             CALL yac_interp_stack_config_add_average_c( &
                & interp_stack_config, avg_meth, i_avg_partial)
+         CASE('NCC')
+            SELECT CASE(TRIM(namyacmet(namID)%yac_stack(ib_s)%ncc_meth))
+            CASE('AVG')
+               ncc_meth = YAC_INTERP_NCC_AVG
+            CASE('DIST')
+               ncc_meth = YAC_INTERP_NCC_DIST
+            END SELECT
+            i_ncc_partial = MERGE(1_c_int, 0_c_int, namyacmet(namID)%yac_stack(ib_s)%ncc_partial)
+            CALL yac_interp_stack_config_add_ncc_c( &
+               & interp_stack_config, ncc_meth, i_ncc_partial)
          CASE('NNN')
             SELECT CASE(TRIM(namyacmet(namID)%yac_stack(ib_s)%nnn_meth))
             CASE('AVG')

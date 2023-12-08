@@ -40,6 +40,7 @@ MODULE mod_oasis_data
   INTEGER(kind=ip_i4_p)           :: prism_amodels    ! number of active models
   character(len=ic_lvar)          :: prism_modnam(prism_mmodels)  ! model names
   logical                         :: prism_modcpl(prism_mmodels)  ! model coupling flags
+  logical                         :: is_remapper
 
   ! These are task specific
   character(len=ic_lvar):: compnm         ! name of model on TASK
@@ -66,7 +67,7 @@ MODULE mod_oasis_data
   LOGICAL               :: mpi_in_map
   CHARACTER(len=MPI_MAX_PROCESSOR_NAME) :: mpi_node_name
   INTEGER(kind=ip_i4_p) :: mpi_err
-  INTEGER(kind=ip_i4_p),allocatable :: mpi_root_global(:)  ! for each model, the root rank in comm_world 
+  INTEGER(kind=ip_i4_p),allocatable :: mpi_root_global(:)  ! for each model, the root rank in comm_world
   INTEGER(kind=ip_i4_p),allocatable :: mpi_comp_size(:)    ! for each model, the size of the local comm
   character(len=ic_lvar),pointer :: compnmlist(:)
 
@@ -107,10 +108,8 @@ CONTAINS
   mpi_rank_local = -1
   mpi_size_local = -1
   enddef_called = .false.
-  
+
 END SUBROUTINE oasis_data_zero
 
 !------------------------------------------------------------
 END MODULE mod_oasis_data
-
-

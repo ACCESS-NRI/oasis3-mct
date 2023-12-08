@@ -100,6 +100,8 @@ MODULE mod_oasis_namcouple
   REAL (kind=ip_realwp_p) ,public,pointer :: namscrsth(:)  !< scrip conserv south threshold
   INTEGER(kind=ip_i4_p)   ,public,pointer :: namscrbin(:)  !< script number of search bins
 
+  LOGICAL :: is_scr_rmp, is_yac_rmp
+
 #ifdef YAC_REMAP
   !--- yac remapper related entities
 
@@ -110,6 +112,8 @@ MODULE mod_oasis_namcouple
      CHARACTER(LEN=:), ALLOCATABLE :: cons_norm  !< Kind of normalisation for the conserv int.
      CHARACTER(LEN=:), ALLOCATABLE :: avg_meth   !< Weighting method for average interp.
      LOGICAL :: avg_partial                      !< Use partial stencils for average interp.
+     CHARACTER(LEN=:), ALLOCATABLE :: ncc_meth   !< Weighting method for nearest corner cells interp.
+     LOGICAL :: ncc_partial                      !< Use partial stencils for n.c.c. interp.
      CHARACTER(LEN=:), ALLOCATABLE :: nnn_meth   !< Weighting method for nearest neigbour interp.
      REAL(KIND=8) :: nnn_scale !< Scale for Gauss or Radial Basis func n.n. weights
      INTEGER :: nnn_points     !< Number of nearest neighbours to account for in n.n. interp
@@ -342,6 +346,8 @@ MODULE mod_oasis_namcouple
     clfield  = '$NFIELDS ', &
     clchan   = '$CHANNEL ', &
     clstring = '$STRINGS ', &
+    clyacstr = '$YAC_STR ', &
+    clscrstr = '$SCR_STR ', &
     clmod    = '$NBMODEL ', &
     cljob    = '$JOBNAME ', &
     cltime   = '$RUNTIME ', &
@@ -357,9 +363,9 @@ MODULE mod_oasis_namcouple
     clrest   = '$NNOREST ', &
     clcal    = '$CALTYPE ', &
     clend    = '$END     '
-  INTEGER (kind=ip_intwp_p),parameter :: nkeywords = 18
+  INTEGER (kind=ip_intwp_p),PARAMETER :: nkeywords = 20
   CHARACTER*9, parameter :: keyword_list(nkeywords) = &
-    (/clfield, clchan, clstring, clmod, cljob, cltime, clseq, &
+    (/clfield, clchan, clstring, clyacstr, clscrstr, clmod, cljob, cltime, clseq, &
      cldate, clhead, clprint, clmapdec, clcdftyp, clmatxrd, clunit, clrest, &
      clcal, clend, clwgtopt /)
   CHARACTER*512 :: tmpstr1, tmpstr2, tmpstr3, tmpstr4
@@ -911,6 +917,10 @@ SUBROUTINE inipar_alloc()
   ig_nfield = 0
   lg_oasis_field = .true.
 
+  !* Detect remapper mode
+
+  is_remapper = compnm == '_oasis_remapper_py'
+
   !* Check for typos in keywords, read all lines until file is at end
 
   IF (mpi_rank_global == 0) THEN
@@ -1047,12 +1057,27 @@ SUBROUTINE inipar_alloc()
 
   !* Get information for all fields
 
-  keyword = clstring
-  CALL findkeyword (keyword, clline, found)
-  IF (.not.found) THEN
-     WRITE(tmpstr1,*) TRIM(keyword)//' not found in namcouple'
-     CALL namcouple_abort(subname,__LINE__,tmpstr1)
-  ENDIF
+  IF (is_remapper) THEN
+     keyword = clscrstr
+     CALL findkeyword (keyword, clline, is_scr_rmp)
+     keyword = clyacstr
+     CALL findkeyword (keyword, clline, is_yac_rmp)
+     IF (.NOT.(is_scr_rmp.OR.is_yac_rmp)) THEN
+        WRITE(tmpstr1,*) 'Remapper mode please use '//TRIM(clscrstr)//' or '//TRIM(clyacstr)
+        CALL namcouple_abort(subname,__LINE__,tmpstr1)
+     ENDIF
+     IF (is_scr_rmp.AND.is_yac_rmp) THEN
+        WRITE(tmpstr1,*) TRIM(clscrstr)//' and '//TRIM(clyacstr)//' are mutually exclusive'
+        CALL namcouple_abort(subname,__LINE__,tmpstr1)
+     ENDIF
+  ELSE
+     keyword = clstring
+     CALL findkeyword (keyword, clline, found)
+     IF (.NOT.found) THEN
+        WRITE(tmpstr1,*) TRIM(keyword)//' not found in namcouple'
+        CALL namcouple_abort(subname,__LINE__,tmpstr1)
+     ENDIF
+  END IF
 
   !* Loop on total number of fields
 
@@ -2765,6 +2790,33 @@ SUBROUTINE inipar
                     !    WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
                     !    CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
                     ! END SELECT
+                 CASE('NCC')
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('AVG', 'DIST')
+                       namyacmet(jf)%yac_stack(ib_s)%ncc_meth = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC nearest corner cells method can only be &
+                          &AVG or DIST not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
+                    namyacmet(jf)%yac_stack(ib_s)%ncc_partial = .FALSE.
+                    ! Since OASIS only uses YAC core masks for defining both the removal of
+                    ! duplicated or overlapping cells and for the sea land masks (that should
+                    ! ideally be described as YAC field masks) the next option is uneffective.
+                    ! Lines are kept in a comment in case of a future change.
+                    ! CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                    ! SELECT CASE(uppercase(TRIM(clvari)))
+                    ! CASE('PARTIAL', 'FULL')
+                    !    namyacmet(jf)%yac_stack(ib_s)%ncc_partial = &
+                    !       & uppercase(TRIM(clvari)) == "PARTIAL"
+                    ! CASE DEFAULT
+                    !    WRITE(tmpstr1,*) ' YAC n.c.c. partial stencil can only be &
+                    !       &PARTIAL or FULL not '//TRIM(clvari)
+                    !    WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                    !    CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    ! END SELECT
                  CASE('NNN')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
                     SELECT CASE(uppercase(TRIM(clvari)))
@@ -4439,6 +4491,18 @@ FUNCTION yac_stack_line_to_string(dtv, ib_s) RESULT(yac_str)
             & ' (uses full stencils only)'
       END IF
       yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   CASE('NCC')
+      WRITE(tmp_str,'(2A)') &
+         & ' weigthing ',TRIM(dtv%ncc_meth)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      IF (dtv%ncc_partial) THEN
+         WRITE(tmp_str,'(A)') &
+            & ' (allows for partial stencils)'
+      ELSE
+         WRITE(tmp_str,'(A)') &
+            & ' (uses full stencils only)'
+      END IF
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
    CASE('NNN')
       WRITE(tmp_str,'(2A)') &
          & ' weighting ',TRIM(dtv%nnn_meth)
@@ -4527,6 +4591,16 @@ SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
          ELSE
             WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
                & ' average meth uses full stencils only'
+         END IF
+      CASE('NCC')
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' n.c.c. meth ',TRIM(dtv%yac_stack(ib_s)%ncc_meth)
+         IF (dtv%yac_stack(ib_s)%ncc_partial) THEN
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' n.c.c. meth allows for partial stencils'
+         ELSE
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' n.c.c. meth uses full stencils only'
          END IF
       CASE('NNN')
          WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
