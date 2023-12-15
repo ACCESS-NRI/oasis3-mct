@@ -459,9 +459,8 @@ CONTAINS
       CALL dist_grid_pair%init(nnamcpl, mpi_comm_yac)
 
       ! register the callback method for the check interpolation method
-      IF (OASIS_debug >= 12) &
-         & CALL yac_interp_method_check_add_do_search_callback_c( &
-            & C_FUNLOC(update_tgt_count), c_null_ptr, "update_tgt_count" // c_null_char)
+      CALL yac_interp_method_check_add_do_search_callback_c( &
+         & C_FUNLOC(update_tgt_count), c_null_ptr, "update_tgt_count" // c_null_char)
 
       IF ( local_timers_on >=1 ) CALL oasis_timer_stop('cpl_yac_init')
       CALL oasis_debug_exit(subname)
@@ -613,8 +612,7 @@ CONTAINS
       !   (the configuration has to be consistent on all processes)
       interp_stack_config = yac_interp_stack_config_new_c()
 
-      IF (OASIS_debug >= 12) &
-         & CALL yac_interp_stack_config_add_check_c( &
+      CALL yac_interp_stack_config_add_check_c( &
          &    interp_stack_config, YAC_INTERP_CHECK_CONSTRUCTOR_KEY_DEFAULT_F, &
          &    "update_tgt_count" // c_null_char)
 
@@ -698,8 +696,7 @@ CONTAINS
                & TRIM(namyacmet(namID)%yac_stack(ib_s)%file_name)//c_null_char, &
                & TRIM(namsrcgrd(namID))//c_null_char, TRIM(namdstgrd(namID))//c_null_char)
          END SELECT
-         IF (OASIS_debug >= 12) &
-            & CALL yac_interp_stack_config_add_check_c( &
+         CALL yac_interp_stack_config_add_check_c( &
             &    interp_stack_config, YAC_INTERP_CHECK_CONSTRUCTOR_KEY_DEFAULT_F, &
             &    "update_tgt_count" // c_null_char)
       END DO
@@ -712,10 +709,8 @@ CONTAINS
          & ' Created the interpolation stack'
 
       ! reset the counters for interpolation checks
-      IF (OASIS_debug >= 12) THEN
-         ALLOCATE(tgt_counts(0:namyacmet(namID)%stacksize))
-         count_pos = 0
-      END IF
+      ALLOCATE(tgt_counts(0:namyacmet(namID)%stacksize))
+      count_pos = 0
 
       ! execute the interpolation stack and generate the weights
       !   YAC starts by extracting all non-masked target points, which
@@ -739,6 +734,10 @@ CONTAINS
 
       IF (OASIS_debug >= 12) WRITE(nulprt,'(2A)') TRIM(subname), &
          & ' Generated the interpolation weights'
+
+      ! sum up statistics
+      CALL mpi_allreduce(MPI_IN_PLACE, tgt_counts(0:namyacmet(namID)%stacksize), &
+         & 1 + namyacmet(namID)%stacksize, MPI_INTEGER, MPI_SUM, mpi_comm_yac, ierror)
 
       ! write weights to file
       !   This is done in parallel by a subset of all processes.
@@ -765,6 +764,13 @@ CONTAINS
             nc_str = namyacmet(namID)%yac_stack(ib_s)%to_string(ib_s)
             ierror = nf90_put_att(ncid, NF90_GLOBAL, TRIM(nc_att), TRIM(nc_str))
          END DO
+         nc_att = 'total_unmskd_dst_cells'
+         ierror = nf90_put_att(ncid, NF90_GLOBAL, TRIM(nc_att), tgt_counts(0))
+         DO ib_s = 1, namyacmet(namID)%stacksize
+            WRITE(nc_att, '(A,I2.2)') 'residual_dst_cells_after_map_',ib_s
+            ierror = nf90_put_att(ncid, NF90_GLOBAL, TRIM(nc_att), tgt_counts(ib_s))
+            IF (tgt_counts(ib_s) == 0) EXIT
+         END DO
          CALL date_and_time(date=nc_date)
          ierror = nf90_put_att(ncid, NF90_GLOBAL, "history", &
             & "Created: "//nc_date(1:4)//"-"//nc_date(5:6)//"-"//nc_date(7:8))
@@ -780,8 +786,6 @@ CONTAINS
       IF (OASIS_debug >= 12) THEN
          WRITE(nulprt1, '(A)') '(oasis_map_yac_genmap) Applied the following YAC stack:'
          WRITE(nulprt1,*) namyacmet(namID)
-         CALL mpi_allreduce(MPI_IN_PLACE, tgt_counts(0:namyacmet(namID)%stacksize), &
-            & 1 + namyacmet(namID)%stacksize, MPI_INTEGER, MPI_SUM, mpi_comm_yac, ierror)
          WRITE(nulprt1,'(A, I10)') 'Total number of unmasked tgt cells:',tgt_counts(0)
          DO ib_s = 1, namyacmet(namID)%stacksize
             WRITE(nulprt1,'(A, I2, A, I10)') 'Left to interpolate after method',ib_s,':', &
@@ -803,7 +807,7 @@ CONTAINS
       CALL yac_interp_stack_config_delete_c(interp_stack_config)
       CALL yac_interp_grid_delete_c(interp_grid)
       DEALLOCATE(namyacmet(namID)%yac_stack)
-      IF (OASIS_debug >= 12) DEALLOCATE(tgt_counts)
+      DEALLOCATE(tgt_counts)
 
       IF (OASIS_debug >= 12) WRITE(nulprt,'(2A)') TRIM(subname), &
          & ' Cleanup done'
