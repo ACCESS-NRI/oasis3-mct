@@ -54,7 +54,9 @@ MODULE mod_oasis_coupler
      type(mct_aVect)       :: aVect3   !< higher order mapping data
      type(mct_aVect)       :: aVect4   !< higher order mapping data
      type(mct_aVect)       :: aVect5   !< higher order mapping data
+     type(mct_aVect)       :: aVectfw  !< fraction weight
      logical               :: aVon(prism_coupler_avsmax)  !< flags indicating whether aVects 2-5 are active
+     logical               :: aVonfw   !< flag indicating whether aVfw is active
      character(len=ic_xl)  :: rstfile  !< restart file
      logical               :: writrest !< flag to write a restart file
      character(len=ic_xl)  :: inpfile  !< input file if data is read
@@ -826,7 +828,7 @@ CONTAINS
            endif
 
            IF (OASIS_debug >= 20) THEN
-               WRITE(nulprt,*) subname,' Field : ',trim(prism_var(nn)%name)
+               WRITE(nulprt,*) subname,' Field : ',trim(prism_var(nv1)%name)
                WRITE(nulprt,*) subname,' Grid dst : ',trim(namdstgrd(nn))
                WRITE(nulprt,*) subname,' Grid src : ',trim(namsrcgrd(nn))
 !               WRITE(nulprt,*) subname,' prism_part : ',prism_part(part1)%gridname
@@ -1428,9 +1430,11 @@ CONTAINS
      endif
      call mct_avect_init(pcpointer%avect1,rList=trim(pcpointer%fldlist),lsize=lsize)
      call mct_avect_zero(pcpointer%avect1)
+     call mct_avect_init(pcpointer%avect1m,rList=trim(pcpointer%fldlist),lsize=lsize)
+     call mct_avect_zero(pcpointer%avect1m)
      pcpointer%aVon(1) = .true.
      if (OASIS_debug >= 15) then
-        write(nulprt,*) subname,' DEBUG ci:avect1 initialized '
+        write(nulprt,*) subname,' DEBUG ci:avect1, avect1m initialized '
         call oasis_flush(nulprt)
      endif
 
@@ -1702,7 +1706,7 @@ CONTAINS
 
            endif
 
-            if (local_timers_on >= 1) then
+           if (local_timers_on >= 1) then
               call oasis_timer_start('cpl_setup_n4part_cr_barrier')
               call oasis_mpi_barrier(mpi_comm_local, 'cpl_setup_n4part')
               call oasis_timer_stop('cpl_setup_n4part_cr_barrier')
@@ -1805,7 +1809,7 @@ CONTAINS
         endif  ! map init
 
         !--------------------------------
-        !>   * Initialize avect1m, the data in avect1 mapped to another grid
+        !>   * Reinitialize avect1m, the data in avect1 mapped to another grid
         !--------------------------------
 
         if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4f')
@@ -1820,10 +1824,11 @@ CONTAINS
            enddo
            call oasis_flush(nulprt)
         endif
+        call mct_avect_clean(pcpointer%avect1m)
         call mct_avect_init(pcpointer%avect1m,rList=trim(pcpointer%fldlist),lsize=lsize)
         call mct_avect_zero(pcpointer%avect1m)
         if (OASIS_debug >= 15) then
-           write(nulprt,*) subname,' DEBUG ci:avect1m initialized '
+           write(nulprt,*) subname,' DEBUG ci:avect1m reinitialized '
            call oasis_flush(nulprt)
         endif
 
