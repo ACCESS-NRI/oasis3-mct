@@ -233,10 +233,11 @@ CONTAINS
 !$OMP SHARED(bin_addr1_r,num_srch_red,sga_remap,num_wts) &
 !$OMP SHARED(nulou) &
 !$OMP SHARED(il_nbthreads) &
+!$OMP SHARED(mpi_comm_map) &
 !$OMP SHARED(mpi_rank_map,mpi_root_map,ila_mpi_mn,ila_mpi_mx) &
 !$OMP SHARED(ila_thr_sz,ila_thr_mn,ila_thr_mx) &
 !$OMP SHARED(grid1_dims,grid1_size) &
-!$OMP PRIVATE(nlogprt) &
+!$OMP PRIVATE(nlogprt,il_err) &
 !$OMP PRIVATE(ib_dst_add) &
 !$OMP PRIVATE(ila_src_add) &
 !$OMP PRIVATE(rl_coslat_dst,rl_coslon_dst,rl_sinlat_dst,rl_sinlon_dst) &
