@@ -28,7 +28,7 @@ libstatic: header $(OBJS_F) $(OBJS_C)
 	$(AR) $(ARFLAGS) $(ARCHDIR)/lib/liboasis.cbind.a $(OBJS_F) $(OBJS_C)
 
 libshared: header $(OBJS_F) $(OBJS_C)
-	$(F90) $(LFLAGS) $(OBJS_F) $(OBJS_C) -lpsmile.$(CHAN) -lscrip -lmct -lmpeu -o $(ARCHDIR)/lib/liboasis.cbind.so
+	$(F90) $(LFLAGS) $(OBJS_F) $(OBJS_C) -lpsmile.$(CHAN) -lscrip -lmct -lmpeu $(YAC_LIBRARY) -o $(ARCHDIR)/lib/liboasis.cbind.so
 
 # C
 
