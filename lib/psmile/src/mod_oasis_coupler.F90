@@ -98,6 +98,7 @@ MODULE mod_oasis_coupler
      integer(kind=ip_i4_p) ,pointer :: rfcpl(:) !< blasnew extra field coupler id
      integer(kind=ip_i4_p) ,pointer :: rffnum(:)!< blasnew extra field field number
      !--- time varying info ---
+     integer(kind=ip_i4_p) :: ftime    !< estimate of initial coupling time
      integer(kind=ip_i4_p) :: ltime    !< time at last coupling
      integer(kind=ip_i4_p) :: ctime    !< time at last call
      integer(kind=ip_i4_p),pointer :: avcnt(:)  !< counter for averaging
@@ -291,6 +292,7 @@ CONTAINS
      pcpointer%input   = .false.
      pcpointer%trans   = ip_instant
      pcpointer%conserv = ip_cnone
+     pcpointer%ftime   = ispval
      pcpointer%ltime   = ispval
      pcpointer%ctime   = ispval
      pcpointer%snddiag = .false.

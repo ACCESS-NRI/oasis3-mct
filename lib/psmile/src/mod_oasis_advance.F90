@@ -48,7 +48,7 @@ contains
 !   ----------------------------------------------------------------
     integer(kind=ip_i4_p) :: cplid,partid,part2,varid,mapid
     INTEGER(kind=ip_i4_p) :: nf,lsize,nflds,npc
-    integer(kind=ip_i4_p) :: dt,ltime,lag,getput
+    integer(kind=ip_i4_p) :: dt,lag,getput
     integer(kind=ip_i4_p) :: msec
     real   (kind=ip_r8_p), allocatable :: array(:)  ! data
     real   (kind=ip_r8_p), allocatable :: array2(:) ! data
@@ -99,7 +99,6 @@ contains
     if (pcpointer%valid) then
        dt    = pcpointer%dt
        lag   = pcpointer%lag
-       ltime = pcpointer%ltime
        getput= pcpointer%getput
        rstfile=TRIM(pcpointer%rstfile)
        partid= pcpointer%partID
@@ -199,7 +198,6 @@ contains
     IF (pcpointer%valid) then
        dt    = pcpointer%dt
        lag   = pcpointer%lag
-       ltime = pcpointer%ltime
        getput= pcpointer%getput
        rstfile=TRIM(pcpointer%rstfile)
        mapid = pcpointer%mapperid
@@ -256,11 +254,9 @@ contains
                                     abort=.false.,nampre=trim(vstring))
 
           write(vstring,'(a,i6.6,a)') 'av1mloc',pcpointer%namID,'_'
-          if (oasis_io_varexists(rstfile,trim(vstring))) then
-             call oasis_io_read_avfile(rstfile,pcpointer%aVect1m, &
-                                       prism_part(part2)%pgsmap,prism_part(partid)%mpicom, &
-                                       abort=.false.,nampre=trim(vstring))
-          endif
+          call oasis_io_read_avfile(rstfile,pcpointer%aVect1m, &
+                                    prism_part(part2)%pgsmap,prism_part(partid)%mpicom, &
+                                    abort=.false.,nampre=trim(vstring))
 
           call mct_aVect_init(pcpointer%aVect2,pcpointer%aVect1,lsize)
           call mct_aVect_zero(pcpointer%aVect2)
@@ -318,12 +314,17 @@ contains
           endif
 
           if (OASIS_debug >= 20) then
-             write(nulprt,*) subname,' DEBUG read loctrans restart',cplid,pcpointer%avcnt
-             write(nulprt,*) subname,' DEBUG read loctrans restart',cplid
-             write(nulprt,*) subname,' DEBUG read loctrans restart',minval(pcpointer%avect1%rAttr)
-             write(nulprt,*) subname,' DEBUG read loctrans restart',maxval(pcpointer%avect1%rAttr)
+             write(nulprt,*) subname,' DEBUG read loctrans rest',cplid,pcpointer%avcnt
+             do nf = 1,pcpointer%nflds
+                write(nulprt,*) subname,' DEBUG read loctrans rest',cplid,nf
+                write(nulprt,*) subname,' DEBUG read loctrans rest1',minval(pcpointer%avect1%rAttr(nf,:))
+                write(nulprt,*) subname,' DEBUG read loctrans rest1',maxval(pcpointer%avect1%rAttr(nf,:))
+                write(nulprt,*) subname,' DEBUG read loctrans rest1m',minval(pcpointer%avect1m%rAttr(nf,:))
+                write(nulprt,*) subname,' DEBUG read loctrans rest1m',maxval(pcpointer%avect1m%rAttr(nf,:))
+             enddo
           endif
        endif
+
     ENDIF  ! valid
     enddo  ! npc
     ENDDO  ! cplid
@@ -377,7 +378,7 @@ contains
     INTEGER(kind=ip_i4_p) :: cplid,rouid,mapid,partid,part2
     INTEGER(kind=ip_i4_p) :: nfav,nsav,nsa,n,nc,nf,npc
     INTEGER(kind=ip_i4_p) :: lsize,nflds,ierr
-    integer(kind=ip_i4_p) :: tag,dt,ltime,lag,getput,maxtime,conserv
+    integer(kind=ip_i4_p) :: tag,dt,lag,getput,maxtime,conserv
     character(len=ic_med) :: consopt
     logical               :: sndrcv,output,input,unpack
     logical               :: snddiag,rcvdiag
@@ -553,7 +554,6 @@ contains
        tag     = pcpointer%tag
        dt      = pcpointer%dt
        lag     = pcpointer%lag
-       ltime   = pcpointer%ltime
        sndrcv  = pcpointer%sndrcv
        rstfile = TRIM(pcpointer%rstfile)
        inpfile = TRIM(pcpointer%inpfile)
@@ -688,10 +688,22 @@ contains
           enddo
 
           ! avect1m
-          ! nothing to read here, only if loctrans is avg/accum with map_now, done separately
+          vstring = "av1m_"
+          CALL oasis_io_read_avfile(TRIM(rstfile),pcpointer%avect1m,prism_part(part2)%pgsmap,prism_part(partid)%mpicom, &
+! for backwards compatibility, allow av1m to NOT be on restart file
+!                                    abort=readabort,nampre=vstring,didread=didread)
+                                    abort=.false.,nampre=vstring,didread=didread)
+
+          ! cnt
+          write(vstring,'(a,i6.6,a)') 'a',pcpointer%namID,'_cnt'
+          call oasis_io_read_array(rstfile,prism_part(partid)%mpicom,iarray=pcpointer%avcnt,&
+                                   ivarname=trim(vstring),abort=.false.)
+          IF (OASIS_debug >= 20) THEN
+             write(nulprt,*) subname,'read avcnt1 ',pcpointer%avcnt
+          ENDIF
 
           ! fracwgt
-          vstring = "avfw"
+          vstring = "avfw_"
           readabort = .false.  ! allow avfw not on restart because it's new feature
           if (arrayonfw) then
              CALL oasis_io_read_avfile(TRIM(rstfile),avtmp,prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
@@ -776,15 +788,23 @@ contains
              write(nulprt,'(2a,1x,a,2i8,1x,a,2i8)') subname,'deadlock_chkB ',trim(pcpointer%fldlist),pcpointer%ltime,pcpointer%dt,trim(pcpointmp%fldlist),pcpointmp%ltime,pcpointmp%dt
           endif
 
+          ! compute ftime
+          if (pcpointer%ltime /= ispval) then
+             if (pcpointmp%ftime == ispval) then
+               pcpointmp%ftime = pcpointer%ltime
+             else
+               pcpointmp%ftime = min(pcpointmp%ftime,pcpointer%ltime)
+             endif
+          endif
           if ((sndrcv .and. pcpointmp%sndrcv .and. time_now) .and. &
               ((pcpointmp%ltime /= ispval .and. msec >  pcpointmp%ltime + pcpointmp%dt) .or. &
-               (pcpointmp%ltime == ispval .and. pcpointer%ltime /= ispval .and. msec >= pcpointmp%dt ))) then
+               (pcpointmp%ltime == ispval .and. pcpointer%ltime /= ispval .and. msec >= pcpointmp%ftime+pcpointmp%dt ))) then
              write(nulprt,'(3a)') subname,estr,'coupling skipped at earlier time, potential deadlock '
              write(nulprt,'(3a,i8,2a)') subname,estr,'my coupler = ',cplid,' variable = ',trim(pcpointer%fldlist)
              write(nulprt,'(3a,i12,a,i12)') subname,estr,'current time = ',msec,' mseclag = ',mseclag
              write(nulprt,'(3a,2i12)') subname,estr,'my coupler last time and dt = ',pcpointer%ltime,pcpointer%dt
              write(nulprt,'(3a,i8,2a)') subname,estr,'skipped coupler = ',n,' variable = ',trim(pcpointmp%fldlist)
-             write(nulprt,'(3a,2i12)') subname,estr,'skipped coupler last time and dt = ',pcpointmp%ltime,pcpointmp%dt
+             write(nulprt,'(3a,3i12)') subname,estr,'skipped coupler last time, ftime, and dt = ',pcpointmp%ltime,pcpointmp%ftime,pcpointmp%dt
              call oasis_abort(file=__FILE__,line=__LINE__)
           endif
        endif  ! part lsize
@@ -821,9 +841,13 @@ contains
        !------------------------------------------------
 
        call oasis_debug_note(subname//' compute field index and sizes')
+
        nfav = mct_avect_indexra(pcpointer%avect1,trim(vname))
        nsav = mct_avect_lsize(pcpointer%avect1)
-       if (lag > 0 .and. lreadrest) nsa=size(array1din)
+       if (lreadrest .and. &
+           (lag > 0 .or. pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul)) &
+                                nsa = size(array1din )
+!tczz       if (lag > 0 .and. lreadrest) nsa=size(array1din)
        if (present(array1din )) nsa = size(array1din )
        if (present(array1dout)) nsa = size(array1dout)
        if (present(array2dout)) nsa = size(array2dout)
@@ -979,6 +1003,7 @@ contains
 
           if ((pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul) .and. &
               mapid > 0 .and. pcpointer%aVonfw .and. present(fracwgt)) then
+             call oasis_debug_note(subname//' map_now true')
              map_now = .true.
           endif
 
@@ -988,22 +1013,24 @@ contains
           if ((lreadrest .and. .not. time_now) .or. &
               (pcpointer%trans == ip_instant .and. .not. time_now)) then
              ! nothing to do, need to avoid final else below
+             call oasis_debug_note(subname//' copy to av: none')
 
           ! instantaneous or map_now
           elseif ((lreadrest .and. time_now) .or. &
                   (pcpointer%trans == ip_instant .and. time_now) .or.  &
                   (map_now)) then
 
+             call oasis_debug_note(subname//' copy to av: now')
              cstring = 'instant'
-             pcpointer%avcnt(nfav) = 1
+             if (.not. lreadrest) pcpointer%avcnt(nfav) = 1
              if (map_now) then
                 pcpointer%status(nfav) = OASIS_COMM_READY
                 if (pcpointer%trans == ip_average) then
                    cstring = 'average'
-                   pcpointer%avcnt(nfav) = pcpointer%avcnt(nfav) + 1
+                   if (.not. lreadrest) pcpointer%avcnt(nfav) = pcpointer%avcnt(nfav) + 1
                 elseif (pcpointer%trans == ip_accumul) then
                    cstring = 'accumul'
-                   pcpointer%avcnt(nfav) = 1
+                   if (.not. lreadrest) pcpointer%avcnt(nfav) = 1
                 endif
              endif
 
@@ -1045,6 +1072,7 @@ contains
           ! accum/avg, never with fracwgt, don't need to accumulate fracwgt
           elseif (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul) then
 
+             call oasis_debug_note(subname//' copy to av: accum')
              if (pcpointer%trans == ip_average) then
                 cstring = 'average'
                 pcpointer%avcnt(nfav) = pcpointer%avcnt(nfav) + 1
@@ -1074,6 +1102,7 @@ contains
 
           elseif (pcpointer%trans == ip_max) then
 
+             call oasis_debug_note(subname//' copy to av: max')
              cstring = 'max'
              pcpointer%avcnt(nfav) = 1
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
@@ -1085,6 +1114,7 @@ contains
 
           elseif (pcpointer%trans == ip_min) then
 
+             call oasis_debug_note(subname//' copy to av: min')
              cstring = 'min'
              pcpointer%avcnt(nfav) = 1
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
@@ -1105,7 +1135,11 @@ contains
           endif
 
           if (OASIS_debug >= 20) then
-             write(nulprt,*) subname,' DEBUG loctrans update ',cplid,' ',trim(cstring),pcpointer%avcnt(nfav)
+             write(nulprt,*) subname,' DEBUG loctrans avcnt ',cplid,' ',trim(cstring),pcpointer%avcnt(nfav)
+             do nf = 1,pcpointer%nflds
+                write(nulprt,*) subname,' DEBUG loctrans min = ',nf,minval(pcpointer%avect1%rAttr(nf,:))
+                write(nulprt,*) subname,' DEBUG loctrans max = ',nf,maxval(pcpointer%avect1%rAttr(nf,:))
+             enddo
           endif
 
           if (time_now) then
@@ -1138,7 +1172,7 @@ contains
        enddo
 
        comm_now = .false.
-       if (time_now) then
+       if (time_now .and. .not.(lag == 0 .and. lreadrest)) then
           if (ready_now) then
              comm_now = .true.
           else
@@ -1147,14 +1181,16 @@ contains
           endif
        endif
 
-       if (map_now .and. ready_now) then
+       if (map_now .and. ready_now .and. .not.lreadrest) then
           if (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p) then
-             call oasis_debug_note(subname//' apply sndmult sndadd')
+             call oasis_debug_note(subname//' apply sndmult sndadd now')
              if (OASIS_debug >= 20) then
                 write(nulprt,*) subname,' DEBUG sndmult,add = ',sndmult,sndadd
-                write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',cplid
-                write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',minval(pcpointer%avect1%rAttr)
-                write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',maxval(pcpointer%avect1%rAttr)
+                do nf = 1,pcpointer%nflds
+                   write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',cplid,nf
+                   write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',minval(pcpointer%avect1%rAttr(nf,:))
+                   write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',maxval(pcpointer%avect1%rAttr(nf,:))
+                enddo
              endif
              pcpointer%avect1%rAttr(:,:) = pcpointer%avect1%rAttr(:,:)*sndmult + sndadd
           endif
@@ -1176,6 +1212,16 @@ contains
           ! copy avtmp to avect1m to prepare to send it
           pcpointer%avect1m%rAttr(:,:) = pcpointer%avect1m%rAttr(:,:) + avtmp%rAttr(:,:)
           call mct_aVect_clean(avtmp)
+          pcpointer%status(:) = OASIS_COMM_WAIT
+          if (OASIS_debug >= 20) then
+             write(nulprt,*) subname,' DEBUG avect1m = ',pcpointer%avcnt
+             do nf = 1,pcpointer%nflds
+                write(nulprt,*) subname,' DEBUG avect1ma = ',cplid,nf,pcpointer%avcnt(nf)
+                write(nulprt,*) subname,' DEBUG avect1mb = ',minval(pcpointer%avect1m%rAttr(nf,:))
+                write(nulprt,*) subname,' DEBUG avect1mc = ',maxval(pcpointer%avect1m%rAttr(nf,:))
+                call oasis_flush(nulprt)
+             enddo
+          endif
        endif ! map_now
 
        !------------------------------------------------
@@ -1202,33 +1248,42 @@ contains
           !------------------------------------------------
           !>     * average as needed for some transforms
           ! (not cache friendly yet)
+          ! skip if lreadrest, was already done before
           !------------------------------------------------
 
-          if (getput == OASIS3_PUT) then
+          if (getput == OASIS3_PUT .and. .not.lreadrest) then
              call oasis_debug_note(subname//' loctrans calc')
              write(tstring,'(A,I3.3)') 'pavg_',cplid
              if (local_timers_on) call oasis_timer_start(tstring)
 
              ! average avects if needed
              if (map_now) then
+                lsize = mct_avect_lsize(pcpointer%avect1m)
                 do nf = 1,pcpointer%nflds
+                   if (OASIS_debug >= 20) then
+                      write(nulprt,*) subname,' DEBUG loctrans mncalc00 = ',cplid,nf,pcpointer%avcnt(nf)
+                      write(nulprt,*) subname,' DEBUG loctrans mncalc01 = ',minval(pcpointer%avect1m%rAttr(nf,:))
+                      write(nulprt,*) subname,' DEBUG loctrans mncalc02 = ',maxval(pcpointer%avect1m%rAttr(nf,:))
+                      call oasis_flush(nulprt)
+                   endif
                    if (pcpointer%avcnt(nf) > 1) then
+                      call oasis_debug_note(subname//' average in map_now')
                       rcnt = 1.0/pcpointer%avcnt(nf)
 !tcx better but changes answers
 !                      rcnt = 1.0_ip_r8_p/real(pcpointer%avcnt(nf),kind=ip_r8_p)
-                      do n = 1,nsav
+                      do n = 1,lsize
                          pcpointer%avect1m%rAttr(nf,n) = pcpointer%avect1m%rAttr(nf,n) * rcnt
                       enddo
                    endif
                    if (OASIS_debug >= 20) then
-                      write(nulprt,*) subname,' DEBUG loctrans mncalc0 = ',cplid,nf,pcpointer%avcnt(nf)
-                      write(nulprt,*) subname,' DEBUG loctrans mncalc1 = ',minval(pcpointer%avect1m%rAttr(nf,:))
-                      write(nulprt,*) subname,' DEBUG loctrans mncalc2 = ',maxval(pcpointer%avect1m%rAttr(nf,:))
+                      write(nulprt,*) subname,' DEBUG loctrans mncalc10 = ',cplid,nf,pcpointer%avcnt(nf)
+                      write(nulprt,*) subname,' DEBUG loctrans mncalc11 = ',minval(pcpointer%avect1m%rAttr(nf,:))
+                      write(nulprt,*) subname,' DEBUG loctrans mncalc12 = ',maxval(pcpointer%avect1m%rAttr(nf,:))
                       call oasis_flush(nulprt)
                    endif
                 enddo
-
              else
+                call oasis_debug_note(subname//' average')
                 do nf = 1,pcpointer%nflds
                    if (pcpointer%avcnt(nf) > 1) then
                       rcnt = 1.0/pcpointer%avcnt(nf)
@@ -1248,7 +1303,7 @@ contains
                          if (pcpointer%aVon(5)) then
                             pcpointer%avect5%rAttr(nf,n) = pcpointer%avect5%rAttr(nf,n) * rcnt
                          endif
-                      enddo             
+                      enddo
                    endif
 
                    if (OASIS_debug >= 20) then
@@ -1280,16 +1335,19 @@ contains
                       call oasis_flush(nulprt)
                    endif
                 enddo             
-             endif
+             endif ! map_now
              if (local_timers_on) call oasis_timer_stop(tstring)
           endif
+!tczz
+       endif   ! comm_now
 
           !------------------------------------------------
           !>     * write to restart file if put and at the end of the run, 
           !>       turn off communication
           ! past namcouple runtime (maxtime) no communication
-          ! do restart if time+lag = maxtime, this assumes coupling
+          ! do restart if time+lag => maxtime, this assumes coupling
           ! period and lag and maxtime are all nicely consistent
+          ! need to write restarts for averaging or accumulation even with lag=0
           !------------------------------------------------
 
           if (mseclag >= maxtime) then
@@ -1298,10 +1356,16 @@ contains
           endif
 
           if (len_trim(rstfile) > 0) then
-          if ((getput == OASIS3_PUT .and. lag > 0 .and. mseclag == maxtime) .or. &
-              (getput == OASIS3_PUT .and. pcpointer%writrest)) then
+          if (getput == OASIS3_PUT .and. &
+              ((mseclag == maxtime .and. lag > 0) .or. &
+               (msec + dt >= maxtime .and. (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul)) .or. &
+               (pcpointer%writrest))) then
+!tczz          if ((getput == OASIS3_PUT .and. lag > 0 .and. mseclag == maxtime) .or. &
+!              (getput == OASIS3_PUT .and. pcpointer%writrest)) then
              call oasis_debug_note(subname//' lag restart write')
 
+!zzz             if ((mseclag == maxtime .and. lag > 0) .or. &
+!                 (msec + dt >= maxtime .and. (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul))) then
              if (lag > 0 .and. mseclag == maxtime) then
                 kinfo = OASIS_ToRest
                 rstfile2 = rstfile
@@ -1313,6 +1377,9 @@ contains
              write(tstring,'(A,I3.3)') 'wrst_',cplid
              if (local_timers_on) call oasis_timer_start(tstring)
              if (ET_debug) CALL oasis_lb_measure(cplid,LB_RST,msec)
+             WRITE(vstring,'(a,i6.6,a)') 'a',pcpointer%namID,'_cnt'
+             CALL oasis_io_write_array(rstfile2,prism_part(partid)%mpicom,iarray=pcpointer%avcnt,&
+                                       ivarname=TRIM(vstring))
              call oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny)
              call oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
@@ -1351,7 +1418,9 @@ contains
           !>     * map and communicate operations
           !------------------------------------------------
 
-          if (sndrcv) then
+!tczz
+       if (comm_now) then
+         if (sndrcv) then
           if (getput == OASIS3_PUT) then
              kinfo = OASIS_sent
              call oasis_debug_note(subname//' put section')
@@ -1371,9 +1440,12 @@ contains
                    call oasis_debug_note(subname//' apply sndmult sndadd')
                    if (OASIS_debug >= 20) then
                       write(nulprt,*) subname,' DEBUG sndmult,add = ',sndmult,sndadd
-                      write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',cplid
-                      write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',minval(pcpointer%avect1%rAttr)
-                      write(nulprt,*) subname,' DEBUG put b4 sndmult,add = ',maxval(pcpointer%avect1%rAttr)
+                      do nf = 1,pcpointer%nflds
+                         write(nulprt,*) subname,' DEBUG put b4 sndmult,add1 = ',cplid,nf
+                         write(nulprt,*) subname,' DEBUG put b4 sndmult,add2 = ',pcpointer%avcnt(nf)
+                         write(nulprt,*) subname,' DEBUG put b4 sndmult,add3 = ',minval(pcpointer%avect1%rAttr(nf,:))
+                         write(nulprt,*) subname,' DEBUG put b4 sndmult,add4 = ',maxval(pcpointer%avect1%rAttr(nf,:))
+                      enddo
                    endif
                    ! cache friendly here, less so in next block so split them up
                    pcpointer%avect1%rAttr(:,:) = pcpointer%avect1%rAttr(:,:)*sndmult + sndadd
@@ -1382,14 +1454,17 @@ contains
                    !                       avect1_acc = sum(avect1)*sndmult + sndadd + (cnt-1)*sndadd
                    !                       avect1_acc = line_above + (cnt-1)*sndadd
                    !                       avect1_acc = line_above + block_below
-                   if (sndadd /= 0.0_ip_double_p .and. maxval(pcpointer%avcnt(1:nf)) > 1) then
+                   do nf = 1,pcpointer%nflds
+                      if (sndadd /= 0.0_ip_double_p .and. pcpointer%avcnt(nf) > 1) then
+                         addcnt = real(pcpointer%avcnt(nf),kind=ip_r8_p) - 1.0_ip_double_p
+                         pcpointer%avect1%rAttr(nf,:) = pcpointer%avect1%rAttr(nf,:) + addcnt*sndadd
+                      endif
+                   enddo
+                   if (OASIS_debug >= 20) then
                       do nf = 1,pcpointer%nflds
-                         if (pcpointer%avcnt(nf) > 1) then
-                            addcnt = real(pcpointer%avcnt(nf),kind=ip_r8_p) - 1.0_ip_double_p
-                            do n = 1,nsav
-                               pcpointer%avect1%rAttr(nf,n) = pcpointer%avect1%rAttr(nf,n) + addcnt*sndadd
-                            enddo
-                         endif
+                         write(nulprt,*) subname,' DEBUG put af sndmult,add = ',cplid,nf
+                         write(nulprt,*) subname,' DEBUG put af sndmult,add = ',minval(pcpointer%avect1%rAttr(nf,:))
+                         write(nulprt,*) subname,' DEBUG put af sndmult,add = ',maxval(pcpointer%avect1%rAttr(nf,:))
                       enddo
                    endif
                 endif
@@ -1419,9 +1494,11 @@ contains
              write(tstring,'(A,I3.3)') 'psnd_',cplid
              call oasis_debug_note(subname//' put send')
              if (OASIS_debug >= 20) then
-                write(nulprt,*) subname,' DEBUG put av1m b4 send = ',cplid
-                write(nulprt,*) subname,' DEBUG put av1m b4 send = ',minval(pcpointer%avect1m%rAttr)
-                write(nulprt,*) subname,' DEBUG put av1m b4 send = ',maxval(pcpointer%avect1m%rAttr)
+                do nf = 1,pcpointer%nflds
+                   write(nulprt,*) subname,' DEBUG put av1m b4 send = ',cplid,nf
+                   write(nulprt,*) subname,' DEBUG put av1m b4 send = ',minval(pcpointer%avect1m%rAttr(nf,:))
+                   write(nulprt,*) subname,' DEBUG put av1m b4 send = ',maxval(pcpointer%avect1m%rAttr(nf,:))
+                enddo
              endif
              if (local_timers_on) call oasis_timer_start(tstring)
              if (ET_debug) CALL oasis_lb_measure(cplid,LB_PUT,msec)
@@ -1457,9 +1534,11 @@ contains
              if (ET_debug) CALL oasis_lb_measure(cplid,LB_GET,msec)
              if (local_timers_on) call oasis_timer_stop(tstring)
              if (OASIS_debug >= 20) then
-                write(nulprt,*) subname,' DEBUG get af recv = ',cplid
-                write(nulprt,*) subname,' DEBUG get af recv = ',minval(pcpointer%avect1m%rAttr)
-                write(nulprt,*) subname,' DEBUG get af recv = ',maxval(pcpointer%avect1m%rAttr)
+                do nf = 1,pcpointer%nflds
+                   write(nulprt,*) subname,' DEBUG get af recv = ',cplid,nf
+                   write(nulprt,*) subname,' DEBUG get af recv = ',minval(pcpointer%avect1m%rAttr(nf,:))
+                   write(nulprt,*) subname,' DEBUG get af recv = ',maxval(pcpointer%avect1m%rAttr(nf,:))
+                enddo
              endif
 
              ! data ends up in avect1
@@ -1481,9 +1560,11 @@ contains
                 pcpointer%avect1%rAttr(:,:) = pcpointer%avect1%rAttr(:,:)*rcvmult + rcvadd
                 if (OASIS_debug >= 20) then
                    write(nulprt,*) subname,' DEBUG rcvmult,add = ',rcvmult,rcvadd
-                   write(nulprt,*) subname,' DEBUG get af rcvmult,add = ',cplid
-                   write(nulprt,*) subname,' DEBUG get af rcvmult,add = ',minval(pcpointer%avect1%rAttr)
-                   write(nulprt,*) subname,' DEBUG get af rcvmult,add = ',maxval(pcpointer%avect1%rAttr)
+                   do nf = 1,pcpointer%nflds
+                      write(nulprt,*) subname,' DEBUG get af rcvmult,add = ',cplid,nf
+                      write(nulprt,*) subname,' DEBUG get af rcvmult,add = ',minval(pcpointer%avect1%rAttr(nf,:))
+                      write(nulprt,*) subname,' DEBUG get af rcvmult,add = ',maxval(pcpointer%avect1%rAttr(nf,:))
+                   enddo
                 endif
              endif
 
@@ -1507,7 +1588,14 @@ contains
 
              if (rcvdiag) call oasis_advance_avdiag(pcpointer%avect1,partid)
           endif  ! getput
-          endif  ! sndrcv
+         else   ! sndrcv
+          ! need to zero out avect1m here if it's accumulating at end of run for loctrans restart
+          if (getput == OASIS3_PUT) then
+             if (map_now) then
+                call mct_avect_zero(pcpointer%avect1m)
+             endif
+          endif
+         endif  ! sndrcv
 
           !------------------------------------------------
           !>     * write to output files if output is turned on
@@ -1558,7 +1646,9 @@ contains
 
           call oasis_debug_note(subname//' reset status')
           if (getput == OASIS3_PUT) then
-             if (.not.lreadrest) pcpointer%ltime = msec
+             if (.not.lreadrest) then
+                pcpointer%ltime = msec
+             endif
              pcpointer%status(:) = OASIS_COMM_WAIT
              pcpointer%avcnt(:) = 0
              call mct_avect_zero(pcpointer%avect1)
@@ -1571,7 +1661,9 @@ contains
                 write(nulprt,*) subname,' DEBUG put reset status = '
              endif
           elseif (getput == OASIS3_GET) then
-             if (.not.lreadrest) pcpointer%ltime = msec
+             if (.not.lreadrest) then
+                pcpointer%ltime = msec
+             endif
              pcpointer%status(:) = OASIS_COMM_WAIT
              if (OASIS_debug >= 20) then
                 write(nulprt,*) subname,' DEBUG get reset status = '
@@ -1623,9 +1715,15 @@ contains
           WRITE(vstring,'(a,i6.6,a)') 'loc',pcpointer%namID,'_cnt'
           CALL oasis_io_write_array(rstfile2,prism_part(partid)%mpicom,iarray=pcpointer%avcnt,&
                                     ivarname=TRIM(vstring))
+
           write(vstring,'(a,i6.6,a)') 'loc',pcpointer%namID,'_'
           CALL oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
              prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
+
+          write(vstring,'(a,i6.6,a)') 'av1mloc',pcpointer%namID,'_'
+          CALL oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
+             prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=TRIM(vstring))
+
           if (pcpointer%aVon(2)) then
              write(vstring,'(a,i6.6,a)') 'av2loc',pcpointer%namID,'_'
              CALL oasis_io_write_avfile(rstfile2,pcpointer%avect2, &
@@ -1665,9 +1763,11 @@ contains
           endif
           if (OASIS_debug >= 20) then
              write(nulprt,*) subname,' DEBUG write loctrans restart',cplid,pcpointer%avcnt
-             write(nulprt,*) subname,' DEBUG write loctrans restart',cplid
-             write(nulprt,*) subname,' DEBUG write loctrans restart',minval(pcpointer%avect1%rAttr)
-             write(nulprt,*) subname,' DEBUG write loctrans restart',maxval(pcpointer%avect1%rAttr)
+             do nf = 1,pcpointer%nflds
+                write(nulprt,*) subname,' DEBUG write loctrans restart',cplid,nf
+                write(nulprt,*) subname,' DEBUG write loctrans restart',minval(pcpointer%avect1%rAttr(nf,:))
+                write(nulprt,*) subname,' DEBUG write loctrans restart',maxval(pcpointer%avect1%rAttr(nf,:))
+             enddo
           endif
        ENDIF
 
@@ -1879,28 +1979,32 @@ contains
 
     if (OASIS_debug >= 20) then
        if (present(tstrinp)) write(nulprt,*) subname,' DEBUG b4 map = ',trim(tstrinp)
-       write(nulprt,*) subname,' DEBUG av1in b4 map min = ',minval(av1in%rAttr)
-       write(nulprt,*) subname,' DEBUG av1in b4 map max = ',maxval(av1in%rAttr)
-       if (locavon(2)) then
-          write(nulprt,*) subname,' DEBUG av2 b4 map min = ',minval(av2%rAttr)
-          write(nulprt,*) subname,' DEBUG av2 b4 map max = ',maxval(av2%rAttr)
-       endif
-       if (locavon(3)) then
-          write(nulprt,*) subname,' DEBUG av3 b4 map min = ',minval(av3%rAttr)
-          write(nulprt,*) subname,' DEBUG av3 b4 map max = ',maxval(av3%rAttr)
-       endif
-       if (locavon(4)) then
-          write(nulprt,*) subname,' DEBUG av4 b4 map min = ',minval(av4%rAttr)
-          write(nulprt,*) subname,' DEBUG av4 b4 map max = ',maxval(av4%rAttr)
-       endif
-       if (locavon(5)) then
-          write(nulprt,*) subname,' DEBUG av5 b4 map min = ',minval(av5%rAttr)
-          write(nulprt,*) subname,' DEBUG av5 b4 map max = ',maxval(av5%rAttr)
-       endif
-       if (locavonfw) then
-          write(nulprt,*) subname,' DEBUG avfw b4 map min = ',minval(avfw%rAttr)
-          write(nulprt,*) subname,' DEBUG avfw b4 map max = ',maxval(avfw%rAttr)
-       endif
+       fsize = mct_avect_nRattr(av1in)
+       do m = 1,fsize
+          write(nulprt,*) subname,' DEBUG av b4 map nf = ',m
+          write(nulprt,*) subname,' DEBUG av1in b4 map min = ',minval(av1in%rAttr(m,:))
+          write(nulprt,*) subname,' DEBUG av1in b4 map max = ',maxval(av1in%rAttr(m,:))
+          if (locavon(2)) then
+             write(nulprt,*) subname,' DEBUG av2 b4 map min = ',minval(av2%rAttr(m,:))
+             write(nulprt,*) subname,' DEBUG av2 b4 map max = ',maxval(av2%rAttr(m,:))
+          endif
+          if (locavon(3)) then
+             write(nulprt,*) subname,' DEBUG av3 b4 map min = ',minval(av3%rAttr(m,:))
+             write(nulprt,*) subname,' DEBUG av3 b4 map max = ',maxval(av3%rAttr(m,:))
+          endif
+          if (locavon(4)) then
+             write(nulprt,*) subname,' DEBUG av4 b4 map min = ',minval(av4%rAttr(m,:))
+             write(nulprt,*) subname,' DEBUG av4 b4 map max = ',maxval(av4%rAttr(m,:))
+          endif
+          if (locavon(5)) then
+             write(nulprt,*) subname,' DEBUG av5 b4 map min = ',minval(av5%rAttr(m,:))
+             write(nulprt,*) subname,' DEBUG av5 b4 map max = ',maxval(av5%rAttr(m,:))
+          endif
+          if (locavonfw) then
+             write(nulprt,*) subname,' DEBUG avfw b4 map min = ',minval(avfw%rAttr(m,:))
+             write(nulprt,*) subname,' DEBUG avfw b4 map max = ',maxval(avfw%rAttr(m,:))
+          endif
+       enddo
     endif
 
     lsizes = mct_avect_lsize(av1in)
@@ -2422,8 +2526,12 @@ contains
 
     if (OASIS_debug >= 20) then
        if (present(tstrinp)) write(nulprt,*) subname,' DEBUG avd af map = ',trim(tstrinp)
-       write(nulprt,*) subname,' DEBUG avd af map min = ',minval(avd%rAttr)
-       write(nulprt,*) subname,' DEBUG avd af map max = ',maxval(avd%rAttr)
+       fsize = mct_avect_nRattr(avd)
+       do m = 1,fsize
+          write(nulprt,*) subname,' DEBUG avd af map nf = ',m
+          write(nulprt,*) subname,' DEBUG avd af map min = ',minval(avd%rAttr(m,:))
+          write(nulprt,*) subname,' DEBUG avd af map max = ',maxval(avd%rAttr(m,:))
+       enddo
        CALL oasis_flush(nulprt)
     endif
 
