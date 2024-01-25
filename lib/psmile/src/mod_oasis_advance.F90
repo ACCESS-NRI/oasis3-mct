@@ -847,7 +847,6 @@ contains
        if (lreadrest .and. &
            (lag > 0 .or. pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul)) &
                                 nsa = size(array1din )
-!tczz       if (lag > 0 .and. lreadrest) nsa=size(array1din)
        if (present(array1din )) nsa = size(array1din )
        if (present(array1dout)) nsa = size(array1dout)
        if (present(array2dout)) nsa = size(array2dout)
@@ -1070,22 +1069,23 @@ contains
              endif
 
           ! accum/avg, never with fracwgt, don't need to accumulate fracwgt
+          ! need to apply blasold (sndadd, sndmult) here for accumulation but not averaging (done later)
           elseif (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul) then
 
              call oasis_debug_note(subname//' copy to av: accum')
              if (pcpointer%trans == ip_average) then
                 cstring = 'average'
                 pcpointer%avcnt(nfav) = pcpointer%avcnt(nfav) + 1
+                pcpointer%avect1%rAttr(nfav,1:nsav) =  pcpointer%avect1%rAttr(nfav,1:nsav) + array1din(1:nsav)
              elseif (pcpointer%trans == ip_accumul) then
-                cstring = 'accumul'
+                cstring = 'accumul apply sndmult sndadd'
                 pcpointer%avcnt(nfav) = 1
+                pcpointer%avect1%rAttr(nfav,1:nsav) =  pcpointer%avect1%rAttr(nfav,1:nsav) + array1din(1:nsav)*sndmult + sndadd
              else
                 write(nulprt,*) subname,estr,'transform error for var = ',trim(vname),pcpointer%trans
                 call oasis_abort(file=__FILE__,line=__LINE__)
              endif
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
-
-             pcpointer%avect1%rAttr(nfav,1:nsav) =  pcpointer%avect1%rAttr(nfav,1:nsav) + array1din(1:nsav)
 
              if (pcpointer%aVon(2) .and. present(array2)) then
                 pcpointer%avect2%rAttr(nfav,1:nsav) = pcpointer%avect2%rAttr(nfav,1:nsav) + array2(1:nsav)
@@ -1338,7 +1338,6 @@ contains
              endif ! map_now
              if (local_timers_on) call oasis_timer_stop(tstring)
           endif
-!tczz
        endif   ! comm_now
 
           !------------------------------------------------
@@ -1360,12 +1359,8 @@ contains
               ((mseclag == maxtime .and. lag > 0) .or. &
                (msec + dt >= maxtime .and. (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul)) .or. &
                (pcpointer%writrest))) then
-!tczz          if ((getput == OASIS3_PUT .and. lag > 0 .and. mseclag == maxtime) .or. &
-!              (getput == OASIS3_PUT .and. pcpointer%writrest)) then
              call oasis_debug_note(subname//' lag restart write')
 
-!zzz             if ((mseclag == maxtime .and. lag > 0) .or. &
-!                 (msec + dt >= maxtime .and. (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul))) then
              if (lag > 0 .and. mseclag == maxtime) then
                 kinfo = OASIS_ToRest
                 rstfile2 = rstfile
@@ -1418,7 +1413,6 @@ contains
           !>     * map and communicate operations
           !------------------------------------------------
 
-!tczz
        if (comm_now) then
          if (sndrcv) then
           if (getput == OASIS3_PUT) then
@@ -1436,7 +1430,8 @@ contains
              endif
 
              if (.not. map_now) then
-                if (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p) then
+                ! for accumulation, this is done during accumulation phase
+                if (pcpointer%trans /= ip_accumul .and. (sndadd /= 0.0_ip_double_p .or. sndmult /= 1.0_ip_double_p)) then
                    call oasis_debug_note(subname//' apply sndmult sndadd')
                    if (OASIS_debug >= 20) then
                       write(nulprt,*) subname,' DEBUG sndmult,add = ',sndmult,sndadd
@@ -1447,19 +1442,7 @@ contains
                          write(nulprt,*) subname,' DEBUG put b4 sndmult,add4 = ',maxval(pcpointer%avect1%rAttr(nf,:))
                       enddo
                    endif
-                   ! cache friendly here, less so in next block so split them up
                    pcpointer%avect1%rAttr(:,:) = pcpointer%avect1%rAttr(:,:)*sndmult + sndadd
-                   ! if accumulating, then avect1_acc = sum(avect1*sndmult + sndadd)
-                   !                       avect1_acc = sum(avect1)*sndmult + cnt*sndadd
-                   !                       avect1_acc = sum(avect1)*sndmult + sndadd + (cnt-1)*sndadd
-                   !                       avect1_acc = line_above + (cnt-1)*sndadd
-                   !                       avect1_acc = line_above + block_below
-                   do nf = 1,pcpointer%nflds
-                      if (sndadd /= 0.0_ip_double_p .and. pcpointer%avcnt(nf) > 1) then
-                         addcnt = real(pcpointer%avcnt(nf),kind=ip_r8_p) - 1.0_ip_double_p
-                         pcpointer%avect1%rAttr(nf,:) = pcpointer%avect1%rAttr(nf,:) + addcnt*sndadd
-                      endif
-                   enddo
                    if (OASIS_debug >= 20) then
                       do nf = 1,pcpointer%nflds
                          write(nulprt,*) subname,' DEBUG put af sndmult,add = ',cplid,nf
