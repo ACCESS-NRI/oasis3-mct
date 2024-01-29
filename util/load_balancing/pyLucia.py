@@ -2,9 +2,9 @@
 
 ##########################################################################
 #
-#   pyLucia.py 
+#   pyLucia.py
 #
-#   Visualisation tool 
+#   Visualisation tool
 #
 #   Input:  - timeline files produced by the OASIS coupler
 #             ( load balancing measurement option required )
@@ -88,7 +88,7 @@
 #    - Love
 #
 ##########################################################################
- 
+
 import netCDF4
 try:
     import json
@@ -134,8 +134,8 @@ if (not config_ok) and has_yaml:
             except:
                 pass
     except:
-        pass        
-if not config_ok:    
+        pass
+if not config_ok:
     print(">>> Problem loading configuration file {}".format(sys.argv[1]))
     exit(1)
 jf.close()
@@ -156,7 +156,7 @@ for cp in config["Components"]:
 
 if "Fields" in config:
     fieldlb = ["Oasis"]+config["Fields"]
-    
+
 dofile = "File" in config["Rendering"]
 if dofile:
     outfile = config["Rendering"]["File"]
@@ -268,7 +268,7 @@ tmax = float(math.ceil(tmax))
 if uselimits:
     ti_msk = np.less_equal(polyxy[:,1,0],tmin)
     ti_msk = np.logical_or(ti_msk,np.greater_equal(polyxy[:,0,0],tmax))
-    
+
     if config["Plots"]["Kind"]:
         pkind = np.delete(pkind,ti_msk)
     if config["Plots"]["Field"]:
@@ -299,23 +299,26 @@ compolb = ['Oasis']+cnam
 compopc = [0]+cprocs
 plotnb = 0
 
+refaxes = None
+
 if config["Plots"]["Kind"]:
     cm = LinearSegmentedColormap.from_list(cmap_name, okabe_ito, N=10)
     if udpal:
         palette = udpalette # 'tab10' # or 'Paired'
     else :
-        palette = cm 
+        palette = cm
     plotnb += 1
     kind_ax = plt.subplot(nbplots*100+10+plotnb)
     kind_ax.set_ylim([0.5,totprocs+1.5])
     kind_ax.set_xlim([tmin,tmax])
+    refaxes = kind_ax
     kind_pc = matplotlib.collections.PolyCollection(polyxy,pickradius=0.0)
     kind_pc.set_array(pkind)
     kind_pc.set_clim([minpkind-.5,maxpkind+.5])
     cmap = plt.get_cmap(palette, maxpkind-minpkind+1)
     cbar = plt.colorbar(kind_pc, ticks=np.arange(minpkind,maxpkind+1))
     kind_pc.set_cmap(cmap)
-    
+
     plt.hlines(fprocs[:-1],tmin,tmax,colors='black',linestyles='dashed', linewidth=0.8)
     kind_ax.add_collection(kind_pc)
     kind_ax.set_title('KIND')
@@ -331,18 +334,22 @@ if config["Plots"]["Field"]:
     if udpal:
         palette = udpalette # 'tab10' # or 'Paired'
     else :
-        palette = cm 
+        palette = cm
     plotnb += 1
-    field_ax = plt.subplot(nbplots*100+10+plotnb)
-    field_ax.set_ylim([0.5,totprocs+1.5])
-    field_ax.set_xlim([tmin,tmax])
+    if refaxes is None:
+        field_ax = plt.subplot(nbplots*100+10+plotnb)
+        field_ax.set_ylim([0.5,totprocs+1.5])
+        field_ax.set_xlim([tmin,tmax])
+        refaxes = field_ax
+    else:
+        field_ax = plt.subplot(nbplots*100+10+plotnb, sharex=refaxes, sharey=refaxes)
     field_pc = matplotlib.collections.PolyCollection(polyxy,pickradius=0.0)
     field_pc.set_array(pfield)
     field_pc.set_clim([minpfield-.5,maxpfield+.5])
     cmap = plt.get_cmap(palette, len(fieldlb))
     cbar = plt.colorbar(field_pc, ticks=np.arange(len(fieldlb)))
     field_pc.set_cmap(cmap)
-    
+
     plt.hlines(fprocs[:-1],tmin,tmax,colors='black',linestyles='dashed', linewidth=0.8)
     field_ax.add_collection(field_pc)
     field_ax.set_title('FIELD')
@@ -359,18 +366,22 @@ if config["Plots"]["Component"]:
     if udpal:
         palette = udpalette # 'tab10' # or 'Paired'
     else :
-        palette = cm 
+        palette = cm
     plotnb += 1
-    compo_ax = plt.subplot(nbplots*100+10+plotnb)
-    compo_ax.set_ylim([0.5,totprocs+1.5])
-    compo_ax.set_xlim([tmin,tmax])
+    if refaxes is None:
+        compo_ax = plt.subplot(nbplots*100+10+plotnb)
+        compo_ax.set_ylim([0.5,totprocs+1.5])
+        compo_ax.set_xlim([tmin,tmax])
+        refaxes = compo_ax
+    else:
+        compo_ax = plt.subplot(nbplots*100+10+plotnb, sharex=refaxes, sharey=refaxes)
     compo_pc = matplotlib.collections.PolyCollection(polyxy,pickradius=0.0)
     compo_pc.set_array(pcompo)
     compo_pc.set_clim([-.5,len(compolb)-.5])
     cmap = plt.get_cmap(palette, len(compolb))
     cbar = plt.colorbar(compo_pc, ticks=np.arange(len(compolb)))
     compo_pc.set_cmap(cmap)
-    
+
     plt.hlines(fprocs[:-1],tmin,tmax,colors='black',linestyles='dashed', linewidth=0.8)
     compo_ax.add_collection(compo_pc)
     compo_ax.set_title('COMPONENT')
@@ -404,7 +415,7 @@ if config["Rendering"]["Display"]:
         if config["Plots"]["Component"]:
             compo_pc.set_edgecolor('black')
             compo_pc.set_linewidth(0.3)
-        
+
     class pseudo_mouse:
         def __init__(self,x,y):
             self.x = x
