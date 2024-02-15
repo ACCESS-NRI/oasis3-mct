@@ -277,6 +277,7 @@ CONTAINS
      allocate(pcpointer%varid(1))
      pcpointer%varid(:) = ispval
      pcpointer%aVon(:) = .false.
+     pcpointer%aVonfw  = .false.
      pcpointer%ops     = ispval
      pcpointer%comp    = ispval
      pcpointer%routerID  = ispval
@@ -786,7 +787,7 @@ CONTAINS
                  IF (OASIS_debug >= 20) THEN
                     write(nulprt,*) subname,' part init n+g ',trim(prism_part(part1)%gridname),prism_part(part1)%nx,prism_part(part1)%ny
                  ENDIF
-                 
+
               endif
            endif
 
@@ -884,7 +885,7 @@ CONTAINS
               ! check used appropriate array value, we are using "src" side sorted list
               ! if output, just set the nf value
               ! if input, search for an nn and myfldi match in the list
-              
+
               if (prism_var(nv1)%ops == OASIS_Out) then
                  namsrc_checkused(nf) = 1
                  if (OASIS_debug >= 20) then
@@ -911,7 +912,7 @@ CONTAINS
               if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n3d')
               nm = sortvars%modnum(nvf)
               nv = sortvars%varnum(nvf)
-              
+
               if (OASIS_debug >= 20) then
                  write(nulprt,*) subname,' match otfld ',trim(otfld),nn
                  call oasis_flush(nulprt)
@@ -1852,7 +1853,7 @@ CONTAINS
      endif  ! no mapper
 
    endif ! endif of pcpointer%valid
-   
+
 !   print'(I3,A,X,L,X,8(I8,X))',mpi_rank_global, 'would have done sndrcv here', pcpointer%sndrcv,pcpointer%comp,compid, &
 !           pcpointer%valid, mapID, pcpointer%rPartID, pcpointer%routerID
 
@@ -2242,7 +2243,7 @@ CONTAINS
 !
 !> Build a consistent variable name based on bundles
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !     Build a variable name for a given variable based on the name, number
 !     of bundled fields, and bundle level.  Needs to be used in a few different
 !     places in oasis.
@@ -2286,7 +2287,7 @@ CONTAINS
 !
 !> Deconstruct the varname based on oasis_coupler_bldvarname
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !     Deconstruct a variable name for a given variable based on the name, number
 !     of bundled fields, and bundle level.  Must be consistent with oasis_coupler_bldvarname
 !
@@ -2335,9 +2336,9 @@ CONTAINS
 !------------------------------------------------------------
 ! !BOP ===========================================================================
 !
-!> Search a character field list for a matching values 
+!> Search a character field list for a matching values
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !     Sort a character array and the associated array(s) based on a
 !     reasonably fast sort algorithm
 !
@@ -2445,7 +2446,7 @@ subroutine cplfind(num, fldlist, fld, ifind, nfind)
           enddo
        endif
        ifind = is
-       nfind = (ie - is + 1)    
+       nfind = (ie - is + 1)
     endif
 
 !   call oasis_debug_exit(subname)
@@ -2455,5 +2456,3 @@ end subroutine cplfind
 !===============================================================================
 
 END MODULE mod_oasis_coupler
-
-
