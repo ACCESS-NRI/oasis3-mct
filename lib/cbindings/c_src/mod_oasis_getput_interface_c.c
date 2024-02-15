@@ -72,6 +72,64 @@ int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y
   }
 }
 
+int oasis_c_put_with_frac(const int var_id, const int kstep, const int x_size, const int y_size, const int z_or_bundle_size, const int fkind, const int storage, const void* fld1, const void* fracwgt, const bool write_restart, int* kinfo){
+  bool storage_is1D = ((int)( x_size == 1 ) + (int)( y_size == 1 ) + (int)( z_or_bundle_size == 1 )) == 2;
+  if ( storage != OASIS_COL_MAJOR && storage != OASIS_ROW_MAJOR )
+    oasis_c_abort(0, "oasis_c_put", "storage argument can only be OASIS_ROW_MAJOR or OASIS_COL_MAJOR", __FILE__, __LINE__);
+  if ( storage == OASIS_COL_MAJOR || storage_is1D ) {
+    if ( fkind == OASIS_Real ) {
+      oasis_put_with_frac_iso_float(&var_id, &kstep, &x_size, &y_size, &z_or_bundle_size, (float*)fld1, (float*)fracwgt, kinfo, &write_restart);
+    } else if ( fkind == OASIS_Double ) {
+      oasis_put_with_frac_iso_double(&var_id, &kstep, &x_size, &y_size, &z_or_bundle_size, fld1, fracwgt, kinfo, &write_restart);
+    } else {
+      oasis_c_abort(0, "oasis_c_put", "fkind argument can only be OASIS_Real or OASIS_Double", __FILE__, __LINE__);
+    }
+  } else {
+    if ( fkind == OASIS_Real ) {
+      float* fld2;
+      float* frc2;
+      int i,j,k;
+      fld2 = (float*) malloc(x_size*y_size*z_or_bundle_size*sizeof(float));
+      frc2 = (float*) malloc(x_size*y_size*z_or_bundle_size*sizeof(float));
+      for (i=0; i<x_size; i++) {
+	for (j=0; j<y_size; j++) {
+	  for (k=0; k<z_or_bundle_size; k++) {
+	    memcpy(fld2+k*y_size*x_size+j*x_size+i, fld1+(i*y_size*z_or_bundle_size+j*z_or_bundle_size+k)*sizeof(float), sizeof(float));
+	    memcpy(frc2+k*y_size*x_size+j*x_size+i, fracwgt+(i*y_size*z_or_bundle_size+j*z_or_bundle_size+k)*sizeof(float), sizeof(float));
+	  }
+	}
+      }
+      oasis_put_with_frac_iso_float(&var_id, &kstep, &x_size, &y_size, &z_or_bundle_size, fld2, frc2, kinfo, &write_restart);
+      free(fld2);
+      free(frc2);
+    } else if ( fkind == OASIS_Double ) {
+      double* fld2;
+      double* frc2;
+      int i,j,k;
+      fld2 = (double*) malloc(x_size*y_size*z_or_bundle_size*sizeof(double));
+      frc2 = (double*) malloc(x_size*y_size*z_or_bundle_size*sizeof(double));
+      for (i=0; i<x_size; i++) {
+	for (j=0; j<y_size; j++) {
+	  for (k=0; k<z_or_bundle_size; k++) {
+	    memcpy(fld2+k*y_size*x_size+j*x_size+i, fld1+(i*y_size*z_or_bundle_size+j*z_or_bundle_size+k)*sizeof(double), sizeof(double));
+	    memcpy(frc2+k*y_size*x_size+j*x_size+i, fracwgt+(i*y_size*z_or_bundle_size+j*z_or_bundle_size+k)*sizeof(double), sizeof(double));
+	  }
+	}
+      }
+      oasis_put_with_frac_iso_double(&var_id, &kstep, &x_size, &y_size, &z_or_bundle_size, fld2, frc2, kinfo, &write_restart);
+      free(fld2);
+      free(frc2);
+    } else {
+      oasis_c_abort(0, "oasis_c_put", "fkind argument can only be OASIS_Real or OASIS_Double", __FILE__, __LINE__);
+    }
+  }
+  if ( IS_VALID_PUT(*kinfo) ) {
+    return OASIS_Ok;
+  } else {
+    return OASIS_Error;
+  }
+}
+
 int oasis_c_get(const int var_id, const int kstep, const int x_size, const int y_size, const int z_or_bundle_size, const int fkind, const int storage, void* fld1, int* kinfo){
   bool storage_is1D = ((int)( x_size == 1 ) + (int)( y_size == 1 ) + (int)( z_or_bundle_size == 1 )) == 2;
   if ( storage != OASIS_COL_MAJOR && storage != OASIS_ROW_MAJOR )

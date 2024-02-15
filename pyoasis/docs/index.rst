@@ -651,7 +651,7 @@ Var
 |   var_actual_shape, vartype,       |                                   |
 |   ierror)                          |                                   |
 +------------------------------------+-----------------------------------+
-| oasis_put(varid, date, fld1, info, | put(date, field,                  |
+| oasis_put(varid, date, fld1, info, | put(date, field, fracwgt=None,    |
 | fld2, fld3, fld4, fld5,            |   write_restart=False)            |
 | write_restart)                     |                                   |
 +------------------------------------+-----------------------------------+

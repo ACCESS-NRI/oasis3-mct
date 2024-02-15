@@ -60,6 +60,55 @@ subroutine oasis_put_iso_double(var_id, &
 
 end subroutine oasis_put_iso_double
 
+subroutine oasis_put_with_frac_iso_double(var_id, &
+                                kstep, &
+                                size1, size2, size3, &
+                                fld1, &
+                                fracwgt, &
+                                kinfo, &
+                                write_restart) BIND(C)
+
+  use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
+  use mod_oasis
+
+  implicit none
+
+  integer (c_int),  intent(in)         :: var_id
+  integer (c_int),  intent(in)         :: kstep
+  integer (c_int),  intent(in)         :: size1, size2, size3
+  real (c_double),  intent(in), target :: fld1(size1*size2*size3)
+  real (c_double),  intent(in), target :: fracwgt(size1*size2*size3)
+  integer (c_int),  intent(out)        :: kinfo
+  logical (c_bool), intent(in)         :: write_restart
+  integer :: var_id_f
+  integer :: kstep_f
+  integer :: kinfo_f
+  logical :: write_restart_f
+  real (c_double), pointer :: tfld2d(:,:)
+  real (c_double), pointer :: tfld3d(:,:,:)
+  real (c_double), pointer :: tfrc2d(:,:)
+  real (c_double), pointer :: tfrc3d(:,:,:)
+
+  var_id_f=var_id
+  kstep_f=kstep
+  write_restart_f=write_restart
+
+  if(size3>1) then
+    tfld3d(1:size1,1:size2,1:size3)=>fld1(:)
+    tfrc3d(1:size1,1:size2,1:size3)=>fracwgt(:)
+    call oasis_put(var_id_f, kstep_f, tfld3d, kinfo_f, fracwgt=tfrc3d, write_restart=write_restart_f)
+  else if(size2>1) then
+    tfld2d(1:size1,1:size2)=>fld1(:)
+    tfrc2d(1:size1,1:size2)=>fracwgt(:)
+    call oasis_put(var_id_f, kstep_f, tfld2d, kinfo_f, fracwgt=tfrc2d, write_restart=write_restart_f)
+  else
+    call oasis_put(var_id_f, kstep_f, fld1, kinfo_f, fracwgt=fracwgt, write_restart=write_restart_f)
+  end if
+
+  kinfo=kinfo_f
+
+end subroutine oasis_put_with_frac_iso_double
+
 
 
 subroutine oasis_get_iso_double(var_id, kstep, size1, size2, size3, fld1, kinfo) bind(C)
@@ -95,6 +144,7 @@ subroutine oasis_get_iso_double(var_id, kstep, size1, size2, size3, fld1, kinfo)
   kinfo=kinfo_f
 
 end subroutine oasis_get_iso_double
+
 
 
 subroutine oasis_put_iso_float(var_id, &
@@ -139,6 +189,57 @@ subroutine oasis_put_iso_float(var_id, &
   kinfo=kinfo_f
 
 end subroutine oasis_put_iso_float
+
+
+
+subroutine oasis_put_with_frac_iso_float(var_id, &
+                               kstep, &
+                               size1, size2, size3, &
+                               fld1, &
+                               fracwgt, &
+                               kinfo, &
+                               write_restart) BIND(C)
+
+  use iso_c_binding, only: c_int, c_float, c_ptr, c_bool
+  use mod_oasis
+
+  implicit none
+
+  integer (c_int),  intent(in)         :: var_id
+  integer (c_int),  intent(in)         :: kstep
+  integer (c_int),  intent(in)         :: size1, size2, size3
+  real (c_float),   intent(in), target :: fld1(size1*size2*size3)
+  real (c_float),   intent(in), target :: fracwgt(size1*size2*size3)
+  integer (c_int),  intent(out)        :: kinfo
+  logical (c_bool), intent(in)         :: write_restart
+  integer :: var_id_f
+  integer :: kstep_f
+  integer :: kinfo_f
+  logical :: write_restart_f
+  real (c_float), pointer :: tfld2d(:,:)
+  real (c_float), pointer :: tfld3d(:,:,:)
+  real (c_float), pointer :: tfrc2d(:,:)
+  real (c_float), pointer :: tfrc3d(:,:,:)
+
+  var_id_f=var_id
+  kstep_f=kstep
+  write_restart_f=write_restart
+
+  if(size3>1) then
+    tfld3d(1:size1,1:size2,1:size3)=>fld1(:)
+    tfrc3d(1:size1,1:size2,1:size3)=>fracwgt(:)
+    call oasis_put(var_id_f, kstep_f, tfld3d, kinfo_f, fracwgt=tfrc3d, write_restart=write_restart_f)
+  else if(size2>1) then
+    tfld2d(1:size1,1:size2)=>fld1(:)
+    tfrc2d(1:size1,1:size2)=>fracwgt(:)
+    call oasis_put(var_id_f, kstep_f, tfld2d, kinfo_f, fracwgt=tfrc2d, write_restart=write_restart_f)
+  else
+    call oasis_put(var_id_f, kstep_f, fld1, kinfo_f, fracwgt=fracwgt, write_restart=write_restart_f)
+  end if
+
+  kinfo=kinfo_f
+
+end subroutine oasis_put_with_frac_iso_float
 
 
 

@@ -148,6 +148,8 @@ int oasis_c_get_freqs(const int varid, const int mop, const int ncpl, int* cpl_f
 
 int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y_size, const int z_or_bundle_size, const int fkind, const int storage, const void* fld1, const bool write_restart, int* kinfo);
 
+int oasis_c_put_with_frac(const int var_id, const int kstep, const int x_size, const int y_size, const int z_or_bundle_size, const int fkind, const int storage, const void* fld1, const void* fracwgt, const bool write_restart, int* kinfo);
+
 int oasis_c_get(const int var_id, const int kstep, const int x_size, const int y_size, const int z_or_bundle_size, const int fkind, const int storage, void* fld1, int* kinfo);
 
 int oasis_c_start_grids_writing();
