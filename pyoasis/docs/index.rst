@@ -141,7 +141,7 @@ Creating a partition
 
 The data can be partitioned in various ways.
 These correspond to the  **SerialPartition**, **ApplePartition**,
-**BoxPartition**, **OrangePartition** and **PointsPartition**
+**BoxPartition**, **OrangePartition**, **PointsPartition** and **CubePartition**
 classes which are inherited from the **Partition** abstract class.
 For details on the different ways to describe the partitions,
 see OASIS3-MCT User Guide, section 2.2.3 and examples ``1-serial``,
@@ -574,6 +574,8 @@ API reference
 
 .. autoclass:: pyoasis.PointsPartition
 
+.. autoclass:: pyoasis.CubePartition
+
 .. autofunction:: pyoasis.OasisParameters()
 
 .. autofunction:: pyoasis.asarray
@@ -657,6 +659,12 @@ Partition
 |                                    |   global_size=-1, name="")        |
 |                                    | PointsPartition(global_indices,   |
 |                                    |   global_size=-1, name="")        |
+|                                    | CubePartition(global_offset,      |
+|                                    |   local_extent_x, local_extent_y, |
+|                                    |   global_extent_x,                |
+|                                    |   global_extent_y,                |
+|                                    |   global_extent_z, global_size=-1,|
+|                                    |   name="")                        |
 +------------------------------------+-----------------------------------+
 
 Var

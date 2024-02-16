@@ -207,6 +207,7 @@ class PointsPartition(Partition):
             parameters.append(index)
         self._set(parameters, global_size, local_size, name)
 
+
 class CubePartition(Partition):
     """
     Cube partition
