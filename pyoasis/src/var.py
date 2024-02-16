@@ -165,17 +165,13 @@ class Var:
     def put_inquire(self, time):
         """
         :param int time: model time (in seconds) [msec in OASIS]
-
         :returns: return value expected at a specified time
-        for a given variable
-
+         for a given variable
         :rtype: pyoasis.OasisParameters
-
         :raises OasisException: if OASIS is unable to obtain
-        the return code
-
+         the return code
         :raises PyOasisException: if an incorrect parameter is
-        supplied
+         supplied
         """
         pyoasis.check_types([int], [time])
         rcode, ierr = pyoasis.mod_oasis_auxiliary_routines.put_inquire(self._id,

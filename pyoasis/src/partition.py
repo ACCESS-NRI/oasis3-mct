@@ -84,7 +84,7 @@ class ApplePartition(Partition):
     :param int global_size: global size of the grid (optional)
     :param str name: name of the partition (optional)
     :raises OasisException: if OASIS is unable to initialise the
-    partition
+     partition
     :raises PyOasisException: if an incorrect parameter is supplied
     """
 
@@ -205,4 +205,51 @@ class PointsPartition(Partition):
         parameters = [4, len(global_indices)]
         for index in global_indices:
             parameters.append(index)
+        self._set(parameters, global_size, local_size, name)
+
+class CubePartition(Partition):
+    """
+    Cube partition
+
+    :param int global_offset: offset according to the global index
+    :param int local_extent_x: extent in the x direction of the local \
+                               partition
+    :param int local_extent_y: extent in the y direction of the local \
+                               partition
+    :param int global_extent_x: global extent in the x direction
+    :param int global_extent_y: global extent in the y direction
+    :param int global_extent_z: global extent in the z direction
+    :param int global_size: global size of the grid (optional)
+    :param str name: name of the partition (optional)
+    :raises OasisException: if OASIS is unable to initialise the partition
+    :raises PyOasisException: if an incorrect parameter is supplied
+    """
+
+    def __init__(self, global_offset, local_extent_x, local_extent_y,
+                 global_extent_x, global_extent_y, global_extent_z,
+                 global_size=-1, name=""):
+        """Constructor"""
+        pyoasis.check_types([int, int, int, int, int, int, int, str],
+                            [global_offset, local_extent_x, local_extent_y,
+                             global_extent_x, global_extent_y, global_extent_z,
+                             global_size, name])
+        if global_offset < 0:
+            raise pyoasis.PyOasisException("Global offset <0.")
+
+        if local_extent_x < 0:
+            raise pyoasis.PyOasisException("Local extent in x-direction <=0.")
+
+        if local_extent_y < 0:
+            raise pyoasis.PyOasisException("Local extent in y-direction <=0.")
+        if global_extent_x <= 0:
+            raise pyoasis.PyOasisException("Global extent in x-direction <=0.")
+        if global_extent_y <= 0:
+            raise pyoasis.PyOasisException("Global extent in y-direction <=0.")
+        if global_extent_z <= 0:
+            raise pyoasis.PyOasisException("Global extent in z-direction <=0.")
+
+        local_size = local_extent_x * local_extent_y * global_extent_z
+
+        parameters = [5, global_offset, local_extent_x, local_extent_y,
+                      global_extent_x, global_extent_y, global_extent_z]
         self._set(parameters, global_size, local_size, name)

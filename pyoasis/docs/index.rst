@@ -51,7 +51,7 @@ More advanced testing of the python wrapping functions can be done
 with ``make wrappertest``; this will call the script ``tests/run_pytest.sh`` that invokes the standard ``pytest`` testing framework (that has to be installed).
 
 Creating a component using MPI
-++++++++++++++++++++
+++++++++++++++++++++++++++++++
 
 In pyOASIS, components are instances of the **Component** class. To
 initialise a component, its name has to be supplied ::
@@ -96,39 +96,45 @@ optional argument. This should be created with ``mpi4py``. ::
 To create a coupling communicator for a subset of processes, one can
 use the method ``create_couplcomm``, with a flag being ``True`` for all these
 processes: ::
-  coupled = True
-  if local_comm_size > 3:
-    if local_comm_rank >= local_comm_size - 2:
-        coupled = False
-  comp.create_couplcomm(coupled)
+
+    coupled = True
+    if local_comm_size > 3:
+      if local_comm_rank >= local_comm_size - 2:
+          coupled = False
+    comp.create_couplcomm(coupled)
 
 If such a communicator already exists in the code, it should simply be
 provided to OASIS3-MCT with the method ``set_couplcomm``. Notice that the processes not involved in the coupling should still invoke this method providing the ``MPI.COMM_NULL`` communicator (predefined in ``mpi4py``): ::
-  couplcomm = comp.localcomm.Split(icpl, local_comm_rank)
-  if icpl == 0:
-      couplcomm = MPI.COMM_NULL
-  comp.set_couplcomm(couplcomm)
+
+    couplcomm = comp.localcomm.Split(icpl, local_comm_rank)
+    if icpl == 0:
+        couplcomm = MPI.COMM_NULL
+    comp.set_couplcomm(couplcomm)
 
 To set up an MPI intra-communicator or inter-communicator between the local component and
 another component, e.g. the component ``receiver`` in the example
 below, one can use ``get_intracomm`` or ``get_intercomm``: ::
-  intracomm = comp.get_intracomm("receiver")
-  intercomm = comp.get_intercomm("receiver")
+
+    intracomm = comp.get_intracomm("receiver")
+    intercomm = comp.get_intercomm("receiver")
 
 To set up an MPI intra-communicator among some of the coupled components, listed in the ``comp_list`` list,
 one can use::
-  intracomm, root_ranks = comp.get_multi_intracomm(comp_list)
+
+    intracomm, root_ranks = comp.get_multi_intracomm(comp_list)
 
 where ``root_ranks`` is a dictionary (the keys are the elements of ``comp_list``) providing the ranks of the component roots in the intra-communicator.
 
 The current OASIS3-MCT internal debug level (``$NLOGPRT``
 value in the ``namcouple``), can be retrieved as a property of a component,
 namely ``comp.debug_level``, as in: ::
-  print("PyOasis debug level set to {}".format(comp.debug_level)
+
+    print("PyOasis debug level set to {}".format(comp.debug_level)
 
 and can be changed by directly modifying, the ``debug_level`` property
 of the component::
-  comp.debug_level = 2
+
+    comp.debug_level = 2
 
 Creating a partition
 ++++++++++++++++++++
@@ -220,65 +226,71 @@ parallel models can be found in ``examples/10-grid`` .
 
 To initialise a grid and write the grid longitudes and latitudes, one
 has to create an instance of the **Grid** class: ::
-  [...]
-  lon = np.array([-180. + comm_rank*nx_loc*dx + float(i)*dx +
-               dx/2.0 for i in range(nx_loc)], dtype=np.float64)
-  lon = np.tile(lon, (ny_loc, 1)).T
 
-  lat = np.array([-90.0 + float(j)*dy + dy/2.0 for j in range(ny_loc)],
-               dtype=np.float64)
-  lat = np.tile(lat, (nx_loc, 1))
-  grid = pyoasis.Grid('pyoa', nx_global, ny_global, lon, lat, partition)
+    [...]
+    lon = np.array([-180. + comm_rank*nx_loc*dx + float(i)*dx +
+                 dx/2.0 for i in range(nx_loc)], dtype=np.float64)
+    lon = np.tile(lon, (ny_loc, 1)).T
+
+    lat = np.array([-90.0 + float(j)*dy + dy/2.0 for j in range(ny_loc)],
+                 dtype=np.float64)
+    lat = np.tile(lat, (nx_loc, 1))
+    grid = pyoasis.Grid('pyoa', nx_global, ny_global, lon, lat, partition)
 
 To write the grid cell corner longitudes and latitudes, the
 ``set_corners`` method can be used ::
-  [...]
-  ncrn = 4
-  clo = pyoasis.asarray(np.zeros((nx_loc, ny_loc, ncrn), dtype=np.float64))
-  clo[:, :, 0] = lon[:, :] - dx/2.0
-  clo[:, :, 1] = lon[:, :] + dx/2.0
-  clo[:, :, 2] = clo[:, :, 1]
-  clo[:, :, 3] = clo[:, :, 0]
-  cla = pyoasis.asarray(np.zeros((nx_loc, ny_loc, ncrn), dtype=np.float64))
-  cla[:, :, 0] = lat[:, :] - dy/2.0
-  cla[:, :, 1] = cla[:, :, 0]
-  cla[:, :, 2] = lat[:, :] + dy/2.0
-  cla[:, :, 3] = cla[:, :, 2]
 
-  grid.set_corners(clo, cla)
+    [...]
+    ncrn = 4
+    clo = pyoasis.asarray(np.zeros((nx_loc, ny_loc, ncrn), dtype=np.float64))
+    clo[:, :, 0] = lon[:, :] - dx/2.0
+    clo[:, :, 1] = lon[:, :] + dx/2.0
+    clo[:, :, 2] = clo[:, :, 1]
+    clo[:, :, 3] = clo[:, :, 0]
+    cla = pyoasis.asarray(np.zeros((nx_loc, ny_loc, ncrn), dtype=np.float64))
+    cla[:, :, 0] = lat[:, :] - dy/2.0
+    cla[:, :, 1] = cla[:, :, 0]
+    cla[:, :, 2] = lat[:, :] + dy/2.0
+    cla[:, :, 3] = cla[:, :, 2]
+
+    grid.set_corners(clo, cla)
 
 To write the grid cell areas, the
 ``set_area`` method can be used : ::
-  [...]
-  area = np.zeros((nx_loc, ny_loc), dtype=np.float64)
-  area[:, :] = dp_conv * \
-             np.abs(np.sin(cla[:, :, 2] * dp_conv) -
-                    np.sin(cla[:, :, 0] * dp_conv)) * \
-             np.abs(clo[:, :, 1] - clo[:, :, 0])
 
-  grid.set_area(area)
+    [...]
+    area = np.zeros((nx_loc, ny_loc), dtype=np.float64)
+    area[:, :] = dp_conv * \
+               np.abs(np.sin(cla[:, :, 2] * dp_conv) -
+                      np.sin(cla[:, :, 0] * dp_conv)) * \
+               np.abs(clo[:, :, 1] - clo[:, :, 0])
+
+    grid.set_area(area)
 
 To define the mask of the grid, the ``set_mask`` method can be used (here
 a mask where all points have zero value i.e. are valid). Notice the optional
 argument ``companion`` providing the name of the corresponding ocean
 grid from which the masks and fractions are obtained: ::
-  msk = np.zeros((nx_loc, ny_loc), dtype=np.int32)
-  grid.set_mask(msk, companion=None)
+
+    msk = np.zeros((nx_loc, ny_loc), dtype=np.int32)
+    grid.set_mask(msk, companion=None)
 
 To define the grid cell water fraction,
 the ``set_frac`` method can be used: ::
-  frc = np.ones((nx_loc, ny_loc), dtype=np.float64)
-  frc = np.where(msk == 1, 0.0, 1.0)
-  grid.set_frac(frc, companion=None)
+
+    frc = np.ones((nx_loc, ny_loc), dtype=np.float64)
+    frc = np.where(msk == 1, 0.0, 1.0)
+    grid.set_frac(frc, companion=None)
 
 To define the grid cell angles,
 the ``set_angle`` method can be used: ::
-  angle = np.zeros((nx_loc, ny_loc), dtype=np.float64)
-  grid.set_angle(angle)
+
+    angle = np.zeros((nx_loc, ny_loc), dtype=np.float64)
+    grid.set_angle(angle)
 
 
 Declaring the coupling data
-+++++++++++++++++++++
++++++++++++++++++++++++++++
 
 The coupling data is handled by the class **Var**. Its constructor requires
 its symbolic name, as it appears in the ``namcouple`` file, the partition and a flag indicating whether the
@@ -287,6 +299,7 @@ have the values ``pyoasis.OasisParameters.OASIS_OUT`` or
 ``pyoasis.OasisParameters.OASIS_IN``. In the following example, we wish
 to send data to a process having the rank 1 and we use a partition that was
 previously created.::
+
     data_name = "name"
     variable = pyoasis.Var(data_name, partition,
                            pyoasis.OasisParameters.OASIS_OUT)
@@ -299,6 +312,7 @@ In the case of the receiving model, the code is: ::
 
 The property ``is_active`` can be tested to check if the variable is
 activated in the ``namcouple`` configuring file: ::
+
   variable2 = pyoasis.Var("NOTANAME", partition, OASIS.OUT)
   if variable2.is_active:
        print("{} is active".format(variable2))
@@ -308,6 +322,7 @@ activated in the ``namcouple`` configuring file: ::
 The coupling period(s) of the data, as defined in the ``namcouple``, can be
 accessed with the property ``cpl_freqs`` and the number of coupling exchanges in
 which the data is involved by ``len(cpl_freqs)``::
+
   var_1 = pyoasis.Var("FRECVATM_1", partition, OASIS.IN)
   print("Recv_one: coupling frequencies for {} = ".format(var_1.name),
   var_1.cpl_freqs)
@@ -327,7 +342,7 @@ OASIS3-MCT User Guide. ::
 
 
 Ending the definition phase
-+++++++++++++++++++++
++++++++++++++++++++++++++++
 
 We must end the definition of the component by calling the ``enddef()``
 method. ::
@@ -342,6 +357,7 @@ Sending and receiving data
 
 pyOASIS expects data to be provided as a **pyoasis.asarray** object:
 ::
+
      field = pyoasis.asarray(range(n_points))
 
 This is a Numpy array but ordered in the Fortran way.
@@ -353,18 +369,18 @@ use that ordering as well. Fortran, on the other hand, uses column-major
 order. In that case, contiguous elements are accessed by incrementing
 the leftmost index. **pyoasis.asarray** objects use the same ordering as
 Fortran. As a consequence, it is not necessary to transform data in order to
-use it in the OASIS3-MCT Fortran library. ::
+use it in the OASIS3-MCT Fortran library.
 
 The sending and receiving actions may be called by the component at
 each timestep. The date argument is automatically analysed and actions
 are actually performed only if date corresponds to a time for which it
 should be activated, given the period indicated by the user in the
-namcouple. See OASIS3-MCT User Guide section 2.2.7 for details. ::
+namcouple. See OASIS3-MCT User Guide section 2.2.7 for details.
 
 The data is sent with the following function. ::
 
-   date = int(0)
-   variable.put(date, field)
+    date = int(0)
+    variable.put(date, field)
 
 Conversely, it is received with the function ::
 
@@ -374,15 +390,16 @@ This will fill the
 **pyoasis.asarray** object.
 
 Termination
-++++++++++
++++++++++++
 
 Finally, the coupling is terminated in the destructor of
 the component: ::
-  del comp
+
+    del comp
 
 
 Exceptions and aborting
-++++++++++
++++++++++++++++++++++++
 
 When an error occurs in OASIS3-MCT, the code coupler returns an error
 code and an **OasisException** is raised. In practice, OASIS3-MCT will
@@ -577,7 +594,7 @@ API reference
 
 
 Correspondence with the OASIS3-MCT Fortran API
----------------------------------------
+----------------------------------------------
 
 These tables show the correspondence between the functions
 described in the OASIS3-MCT user guide and their analogue in pyoasis.
@@ -755,7 +772,7 @@ OASIS3-MCT Installation
 - Append the lines displayed at the end of the compilation to your .bashrc file or, alternatively, before using pyOASIS, source the script mentioned there.
 
 Virtual Python environment
-................
+..........................
 
 - Create a virtual environment (set ``VENVDIR`` as a directory of your choice containing the virtual environment): ::
 
