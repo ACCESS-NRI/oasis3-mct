@@ -265,7 +265,9 @@ contains
                                     prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
                                     abort=.false.,nampre=trim(vstring),&
                                     didread=pcpointer%aVon(2))
-          if (.not. pcpointer%aVon(2)) then
+          if (pcpointer%aVon(2)) then
+             pcpointer%aVonset = .true.
+          else
              call mct_aVect_clean(pcpointer%avect2)
           endif
 
@@ -276,7 +278,9 @@ contains
                                     prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
                                     abort=.false.,nampre=trim(vstring),&
                                     didread=pcpointer%aVon(3))
-          if (.not. pcpointer%aVon(3)) then
+          if (pcpointer%aVon(3)) then
+             pcpointer%aVonset = .true.
+          else
              call mct_aVect_clean(pcpointer%avect3)
           endif
 
@@ -287,7 +291,9 @@ contains
                                     prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
                                     abort=.false.,nampre=trim(vstring),&
                                     didread=pcpointer%aVon(4))
-          if (.not. pcpointer%aVon(4)) then
+          if (pcpointer%aVon(4)) then
+             pcpointer%aVonset = .true.
+          else
              call mct_aVect_clean(pcpointer%avect4)
           endif
 
@@ -298,7 +304,9 @@ contains
                                     prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
                                     abort=.false.,nampre=trim(vstring),&
                                     didread=pcpointer%aVon(5))
-          if (.not. pcpointer%aVon(5)) then
+          if (pcpointer%aVon(5)) then
+             pcpointer%aVonset = .true.
+          else
              call mct_aVect_clean(pcpointer%avect5)
           endif
 
@@ -309,7 +317,9 @@ contains
                                     prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
                                     abort=.false.,nampre=trim(vstring),&
                                     didread=pcpointer%aVonfw)
-          if (.not. pcpointer%aVonfw) then
+          if (pcpointer%aVonfw) then
+             pcpointer%aVonfwset = .true.
+          else
              call mct_aVect_clean(pcpointer%aVectfw)
           endif
 
@@ -376,7 +386,7 @@ contains
 !   ----------------------------------------------------------------
     character(len=ic_lvar):: vname
     INTEGER(kind=ip_i4_p) :: cplid,rouid,mapid,partid,part2
-    INTEGER(kind=ip_i4_p) :: nfav,nsav,nsa,n,nc,nf,npc
+    INTEGER(kind=ip_i4_p) :: nfav,nsav,nsa,n,nc,nf,npc,nv
     INTEGER(kind=ip_i4_p) :: lsize,nflds,ierr
     integer(kind=ip_i4_p) :: tag,dt,lag,getput,maxtime,conserv
     character(len=ic_med) :: consopt
@@ -901,6 +911,26 @@ contains
           call oasis_abort(file=__FILE__,line=__LINE__)
        endif
 
+       ! check consistent use of hot terms in bundles
+       if (pcpointer%aVonset) then
+          do nv = 2,5
+             if (arrayon(nv) .and. .not.pcpointer%aVon(nv)) then
+                write(nulprt,*) subname,estr,'at ',msec,mseclag,' for var = ',trim(vname),nv
+                write(nulprt,*) subname,estr,'arrayon true but avon already set to false'
+                write(nulprt,*) subname,estr,'higher order terms not set consistently for '
+                write(nulprt,*) subname,estr,'different fields in a bundle or at different timesteps'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+             if (.not.arrayon(nv) .and. pcpointer%aVon(nv)) then
+                write(nulprt,*) subname,estr,'at ',msec,mseclag,' for var = ',trim(vname),nv
+                write(nulprt,*) subname,estr,'arrayon false but avon already set to true'
+                write(nulprt,*) subname,estr,'higher order terms not set consistently for '
+                write(nulprt,*) subname,estr,'different fields in a bundle or at different timesteps'
+                call oasis_abort(file=__FILE__,line=__LINE__)
+             endif
+          enddo
+       endif
+
        ! With the current way of using oasis_advance_run, the next test is useless but we keep the test
        ! as someone might be later adding an interface call that would violate the consistency
        if ((arrayon(2) .and. .not.present(array2)) .or. &
@@ -918,10 +948,28 @@ contains
 
        ! With the current way of using oasis_advance_run, the next test is useless but we keep the test
        ! as someone might be later adding an interface call that would violate the consistency
-       if ((arrayonfw .and. .not.present(fracwgt))) then
+       if (arrayonfw .and. .not.present(fracwgt)) then
           write(nulprt,*) subname,estr,'at ',msec,mseclag,' for var = ',trim(vname)
-          write(nulprt,*) subname,estr,'arrayon true but array not sent for fracwgt'
+          write(nulprt,*) subname,estr,'arrayonfw true but array not sent for fracwgt'
           call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+
+       ! check consistent use of fracwgt in bundles
+       if (pcpointer%avonfwset) then
+          if (arrayonfw .and. .not.pcpointer%aVonfw) then
+             write(nulprt,*) subname,estr,'at ',msec,mseclag,' for var = ',trim(vname)
+             write(nulprt,*) subname,estr,'arrayonfw true but avonfw already set to false'
+             write(nulprt,*) subname,estr,'fracwgt not set consistently for '
+             write(nulprt,*) subname,estr,'different fields in a bundle or at different timesteps'
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
+          if (.not.arrayonfw .and. pcpointer%aVonfw) then
+             write(nulprt,*) subname,estr,'at ',msec,mseclag,' for var = ',trim(vname)
+             write(nulprt,*) subname,estr,'arrayonfw false but avonfw already set to true'
+             write(nulprt,*) subname,estr,'fracwgt not set consistently for '
+             write(nulprt,*) subname,estr,'different fields in a bundle or at different timesteps'
+             call oasis_abort(file=__FILE__,line=__LINE__)
+          endif
        endif
 
        if ((mapid > 0 .and. pcpointer%aVonfw .and. present(fracwgt)) .and. &
@@ -937,7 +985,14 @@ contains
 
        !------------------------------------------------
        ! initialize aVect2-5, aVectfw here if not already allocated
+       ! at this point, pcpointer avonset becomes true if not already
+       ! above checks will catch if inconsistency in bundles
        !------------------------------------------------
+
+       if (.not.lreadrest) then
+          pcpointer%aVonset = .true.
+          pcpointer%aVonfwset = .true.
+       endif
 
        if (arrayon(2) .and. .not. pcpointer%aVon(2)) then
           call mct_aVect_init(pcpointer%aVect2,pcpointer%aVect1,nsav)

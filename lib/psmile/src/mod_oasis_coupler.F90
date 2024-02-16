@@ -56,7 +56,9 @@ MODULE mod_oasis_coupler
      type(mct_aVect)       :: aVect5   !< higher order mapping data
      type(mct_aVect)       :: aVectfw  !< fraction weight
      logical               :: aVon(prism_coupler_avsmax)  !< flags indicating whether aVects 2-5 are active
+     logical               :: aVonset  !< has avon been set yet
      logical               :: aVonfw   !< flag indicating whether aVfw is active
+     logical               :: aVonfwset!< has aVonfw been set yet
      character(len=ic_xl)  :: rstfile  !< restart file
      logical               :: writrest !< flag to write a restart file
      character(len=ic_xl)  :: inpfile  !< input file if data is read
@@ -277,7 +279,9 @@ CONTAINS
      allocate(pcpointer%varid(1))
      pcpointer%varid(:) = ispval
      pcpointer%aVon(:) = .false.
+     pcpointer%aVonset = .false.
      pcpointer%aVonfw  = .false.
+     pcpointer%aVonfwset = .false.
      pcpointer%ops     = ispval
      pcpointer%comp    = ispval
      pcpointer%routerID  = ispval
