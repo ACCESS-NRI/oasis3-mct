@@ -74,13 +74,10 @@ class Var:
 
     def _check_size(self, field):
         if self.bundle_size == 1:
-            if field.ndim == 3:
-                if field.shape[-1] == 1 and field.size == self._partition_local_size:
-                    return True
-                else:
-                    return False
-            else:
+            if field.size == self._partition_local_size:
                 return True
+            else:
+                return False
         else:
             if field.ndim >= 2:
                 if field.shape[-1] == self.bundle_size:
