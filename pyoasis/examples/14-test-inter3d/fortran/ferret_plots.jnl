@@ -1,0 +1,28 @@
+palette caramel_bleu
+use FSENDA3D_sender-cube_04.nc
+use FRECVA3D_receiver_04.nc
+use ../../common_data/flats.nc
+
+set w 1
+go basemap x=-180:180
+go polymark poly/over/key 'nogtf.lon'[d=3] 'nogtf.lat'[d=3] ignore0(FSENDA3D[i=1:106428,d=1]*(1-'nol1f.msk'[d=3])) square .4
+
+set w 2
+go basemap x=0:360
+go polymark poly/over/key 'torcf.lon'[d=3] 'torcf.lat'[d=3] ignore0(FRECVA3D[i=1:27118,d=2]) square .4
+
+set w 3
+go basemap x=-180:180
+go polymark poly/over/key 'nogtf.lon'[d=3] 'nogtf.lat'[d=3] ignore0(FSENDA3D[i=106429:212856,d=1]*(1-'nol2f.msk'[d=3])) square .4
+
+set w 4
+go basemap x=0:360
+go polymark poly/over/key 'torcf.lon'[d=3] 'torcf.lat'[d=3] ignore0(FRECVA3D[i=27119:54236,d=2]) square .4
+
+set w 5
+go basemap x=-180:180
+go polymark poly/over/key 'nogtf.lon'[d=3] 'nogtf.lat'[d=3] ignore0(FSENDA3D[i=212857:319284,d=1]*(1-'nol3f.msk'[d=3])) square .4
+
+set w 6
+go basemap x=0:360
+go polymark poly/over/key 'torcf.lon'[d=3] 'torcf.lat'[d=3] ignore0(FRECVA3D[i=54237:81354,d=2]) square .4

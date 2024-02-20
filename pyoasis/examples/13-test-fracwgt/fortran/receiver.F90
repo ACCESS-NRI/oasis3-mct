@@ -101,9 +101,9 @@ program receiver
    end do
    success = error/dble(n_points) < epsilon
    if (success) then
-      print '(A,I0,A)',"Receiver: Data field is ok"
+      print '(A)',"Receiver: Data field is ok"
    else
-      print '(A,I0,A,E12.5)', "Receiver: Error is ",error
+      print '(A,E12.5)', "Receiver: Error is ",error
    end if
 
    if(success) print '(A)', "Receiver: Data received successfully"
