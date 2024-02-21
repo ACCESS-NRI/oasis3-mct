@@ -12,25 +12,25 @@ $NLOGPRT
 $END
 ############################################
 $STRINGS
-FSENDANA FRECVANA 1 7200 1 rst.nc EXPOUT
+FSENDLV1 FRECVLV1 1 7200 1 rst.nc EXPOUT
 362 294 182 149 nogt torc
 P 2 P 2
 MAPPING
 rmp_nogt_to_torc_CONSERV_FRACNNEI.nc
 ############################################
-FSENDAN2 FRECVAN2 1 7200 1 rst.nc EXPOUT
+FSENDLV2 FRECVLV2 1 7200 1 rst.nc EXPOUT
 362 294 182 149 nol2 tol2
 P 2 P 2
 MAPPING
 rmp_nol2_to_tol2_CONSERV_FRACNNEI.nc
 ############################################
-FSENDAN3 FRECVAN3 1 7200 1 rst.nc EXPOUT
+FSENDLV3 FRECVLV3 1 7200 1 rst.nc EXPOUT
 362 294 182 149 nol3 tol3
 P 2 P 2
 MAPPING
 rmp_nol3_to_tol3_CONSERV_FRACNNEI.nc
 ############################################
-FSENDA3D FRECVA3D 1 7200 1 rst.nc EXPOUT
+FSENDF3D FRECVF3D 1 7200 1 rst.nc EXPOUT
 no3d to3d
 P 2 P 2
 MAPPING

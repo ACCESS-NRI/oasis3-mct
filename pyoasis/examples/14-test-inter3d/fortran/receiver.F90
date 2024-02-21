@@ -8,10 +8,10 @@ program receiver
    integer :: part_params(OASIS_Serial_Params)
    integer :: var_nodims(2)
    character(len=8) :: comp_name = "receiver"
-   character(len=8) :: fl1_name = "FRECVANA"
-   character(len=8) :: fl2_name = "FRECVAN2"
-   character(len=8) :: fl3_name = "FRECVAN3"
-   character(len=8) :: f3d_name = "FRECVA3D"
+   character(len=8) :: fl1_name = "FRECVLV1"
+   character(len=8) :: fl2_name = "FRECVLV2"
+   character(len=8) :: fl3_name = "FRECVLV3"
+   character(len=8) :: f3d_name = "FRECVF3D"
    real(kind=8) :: error, epsilon
    integer, parameter :: nx_global = 182, ny_global = 149, nz_global = 3
    real(kind=8) ::  field(nx_global,ny_global,nz_global)

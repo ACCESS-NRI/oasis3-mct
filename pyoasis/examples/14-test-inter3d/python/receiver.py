@@ -58,8 +58,8 @@ gf = netCDF4.Dataset('grids.nc', 'r')
 lons = gf.variables[dgrid + '.lon'][:, :].flatten()
 lats = gf.variables[dgrid + '.lat'][:, :].flatten()
 n_levs = 3
-n_points = lons.size
-n_points_3d = n_points * n_levs
+n_points_2d = lons.size
+n_points_3d = n_points_2d * n_levs
 dgrid_corners = len(gf.dimensions['crn_' + dgrid])
 dlon = gf.variables[dgrid + '.clo'][:].reshape(dgrid_corners, -1)
 dlon = np.where(dlon > 180, dlon - 360, dlon)
@@ -88,39 +88,40 @@ component_name = "receiver"
 comp = pyoasis.Component(component_name, True, comm)
 
 print(comp, flush=True)
-print("n_points per level on destination side is {}".format(n_points), flush=True)
+print("n_points per level on destination side is {}".format(n_points_2d), flush=True)
+print("n_levs on destination side is {}".format(n_levs), flush=True)
 
-partition = pyoasis.SerialPartition(n_points)
+partition_2d = pyoasis.SerialPartition(n_points_2d)
 partition_3d = pyoasis.SerialPartition(n_points_3d)
 
-vrecvan1 = pyoasis.Var("FRECVANA", partition, OASIS.IN)
-vrecvan2 = pyoasis.Var("FRECVAN2", partition, OASIS.IN)
-vrecvan3 = pyoasis.Var("FRECVAN3", partition, OASIS.IN)
-vrecva3d = pyoasis.Var("FRECVA3D", partition_3d, OASIS.IN)
+frecvlv1_var = pyoasis.Var("FRECVLV1", partition_2d, OASIS.IN)
+frecvlv2_var = pyoasis.Var("FRECVLV2", partition_2d, OASIS.IN)
+frecvlv3_var = pyoasis.Var("FRECVLV3", partition_2d, OASIS.IN)
+frecvf3d_var = pyoasis.Var("FRECVF3D", partition_3d, OASIS.IN)
 comp.enddef()
 
 date = int(0)
 
-frecvan1 = pyoasis.asarray(np.zeros((n_points)))
-frecvan2 = pyoasis.asarray(np.zeros((n_points)))
-frecvan3 = pyoasis.asarray(np.zeros((n_points)))
-frecva3d = pyoasis.asarray(np.zeros((n_points, n_levs)))
+frecvlv1 = pyoasis.asarray(np.zeros((n_points_2d)))
+frecvlv2 = pyoasis.asarray(np.zeros((n_points_2d)))
+frecvlv3 = pyoasis.asarray(np.zeros((n_points_2d)))
+frecvf3d = pyoasis.asarray(np.zeros((n_points_2d, n_levs)))
 
-vrecvan1.get(date,frecvan1)
-vrecvan2.get(date,frecvan2)
-vrecvan3.get(date,frecvan3)
-vrecva3d.get(date,frecva3d)
+frecvlv1_var.get(date,frecvlv1)
+frecvlv2_var.get(date,frecvlv2)
+frecvlv3_var.get(date,frecvlv3)
+frecvf3d_var.get(date,frecvf3d)
 
-print('Receiver: shape of received 2d field', frecvan1.shape)
-print('Receiver: shape of received 3d field', frecva3d.shape)
+print('Receiver: shape of received 2d field', frecvlv1.shape)
+print('Receiver: shape of received 3d field', frecvf3d.shape)
 
-error = np.nanmean(np.abs(np.where(da_msk_l1, np.nan, frecvan1) - frecva3d[:,0]))
-error = max(error, np.nanmean(np.abs(np.where(da_msk_l2, np.nan, frecvan2) - frecva3d[:,1])))
-error = max(error, np.nanmean(np.abs(np.where(da_msk_l3, np.nan, frecvan3) - frecva3d[:,2])))
+error = np.nanmean(np.abs(np.where(da_msk_l1, np.nan, frecvlv1) - frecvf3d[:,0]))
+error = max(error, np.nanmean(np.abs(np.where(da_msk_l2, np.nan, frecvlv2) - frecvf3d[:,1])))
+error = max(error, np.nanmean(np.abs(np.where(da_msk_l3, np.nan, frecvlv3) - frecvf3d[:,2])))
 
-print("Average relative error is {}".format(error))
+print("Average relative error is {}".format(error),flush=True)
 if error < 1.e-3:
-    print("Data received successfully at time {}".format(date))
+    print("Data received successfully at time {}".format(date),flush=True)
 
 if not (has_graphics and ll_plot):
     exit()
@@ -144,9 +145,9 @@ for img in range(2):
 
     di_pc = matplotlib.collections.PolyCollection(da_lonlat)
     if img == 0:
-        field = frecvan1
+        field = frecvlv1
     else:
-        field = frecva3d[:,0]
+        field = frecvf3d[:,0]
     field = np.where(field == 0.0, np.nan, field)
     di_pc.set_array(field)
     di_pc.set_cmap(cmap)
@@ -165,9 +166,9 @@ for img in range(2):
 
     da_pc = matplotlib.collections.PolyCollection(da_lonlat)
     if img == 0:
-        field = frecvan2
+        field = frecvlv2
     else:
-        field = frecva3d[:,1]
+        field = frecvf3d[:,1]
     field = np.where(field == 0.0, np.nan, field)
     da_pc.set_array(np.array(field))
     da_pc.set_cmap(cmap)
@@ -186,9 +187,9 @@ for img in range(2):
 
     db_pc = matplotlib.collections.PolyCollection(da_lonlat)
     if img == 0:
-        field = frecvan3
+        field = frecvlv3
     else:
-        field = frecva3d[:,2]
+        field = frecvf3d[:,2]
     field = np.where(field == 0.0, np.nan, field)
     db_pc.set_array(np.array(field))
     db_pc.set_cmap(cmap)

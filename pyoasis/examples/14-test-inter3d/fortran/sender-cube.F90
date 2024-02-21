@@ -9,10 +9,10 @@ program sender_cube
    integer :: local_comm, comm_size, comm_rank, xdec, ydec, idx, idy
    integer :: var_nodims(2)
    character(len=13) :: comp_name = "sender-cube"
-   character(len=8) :: fl1_name = "FSENDANA"
-   character(len=8) :: fl2_name = "FSENDAN2"
-   character(len=8) :: fl3_name = "FSENDAN3"
-   character(len=8) :: f3d_name = "FSENDA3D"
+   character(len=8) :: fl1_name = "FSENDLV1"
+   character(len=8) :: fl2_name = "FSENDLV2"
+   character(len=8) :: fl3_name = "FSENDLV3"
+   character(len=8) :: f3d_name = "FSENDF3D"
    real(kind=8), allocatable :: field(:,:,:)
    integer, parameter :: nx_global = 362, ny_global = 294, nz_global = 3
    integer :: nx, ny

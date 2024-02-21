@@ -39,17 +39,18 @@ sgrid = comp.localcomm.bcast(sgrid, root=0)
 gf = netCDF4.Dataset('grids.nc', 'r')
 lons = gf.variables[sgrid + '.lon'][:, :].data.T
 lats = gf.variables[sgrid + '.lat'][:, :].data.T
-print(comm_rank, lons.shape, lats.shape, flush=True)
+
 nx_global = gf.dimensions['x_'+sgrid].size
 ny_global = gf.dimensions['y_'+sgrid].size
 nz_global = 3
-n_points = nx_global * ny_global
-n_points_3d = n_points * nz_global
+n_points_2d = nx_global * ny_global
+n_points_3d = n_points_2d * nz_global
 gf.close()
 
 if comm_rank == 0:
     print(comp)
-    print("n_points per level on source side is {}".format(n_points))
+    print("n_points per level on source side is {}".format(n_points_2d))
+    print("n_levs on source side is {}".format(nz_global))
 
 xdec = math.ceil(math.sqrt(comm_size))
 while xdec <= comm_size:
@@ -66,13 +67,14 @@ if idy + ny > ny_global:
     ny = ny_global - idy
 offset = nx_global * idy + idx
 
-partitionb = pyoasis.BoxPartition(offset, nx, ny, nx_global, global_size=n_points)
-partitionc = pyoasis.CubePartition(offset, nx, ny, nx_global, ny_global, nz_global, global_size=n_points_3d)
+partitionb = pyoasis.BoxPartition(offset, nx, ny, nx_global, global_size=n_points_2d)
+partitionc = pyoasis.CubePartition(offset, nx, ny, nx_global, ny_global, nz_global,
+                                   global_size=n_points_3d)
 
-vsendan1 = pyoasis.Var("FSENDANA", partitionb, OASIS.OUT)
-vsendan2 = pyoasis.Var("FSENDAN2", partitionb, OASIS.OUT)
-vsendan3 = pyoasis.Var("FSENDAN3", partitionb, OASIS.OUT)
-vsenda3d = pyoasis.Var("FSENDA3D", partitionc, OASIS.OUT)
+fsendlv1_var = pyoasis.Var("FSENDLV1", partitionb, OASIS.OUT)
+fsendlv2_var = pyoasis.Var("FSENDLV2", partitionb, OASIS.OUT)
+fsendlv3_var = pyoasis.Var("FSENDLV3", partitionb, OASIS.OUT)
+fsendf3d_var = pyoasis.Var("FSENDF3D", partitionc, OASIS.OUT)
 comp.enddef()
 
 local_size = nx * ny
@@ -94,9 +96,9 @@ field[:,:,2] = 2.0 - np.cos(math.pi *
 if comm_rank == 0:
     print("Sent data: at time {}".format(date))
 
-vsendan1.put(date, field[:,:,0])
-vsendan2.put(date, field[:,:,1])
-vsendan3.put(date, field[:,:,2])
-vsenda3d.put(date, field)
+fsendlv1_var.put(date, field[:,:,0])
+fsendlv2_var.put(date, field[:,:,1])
+fsendlv3_var.put(date, field[:,:,2])
+fsendf3d_var.put(date, field)
 
 del comp

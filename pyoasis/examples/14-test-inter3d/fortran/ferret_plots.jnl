@@ -1,28 +1,38 @@
 palette caramel_bleu
-use FSENDA3D_sender-cube_04.nc
-use FRECVA3D_receiver_04.nc
-use ../../common_data/flats.nc
+use "work/FSENDF3D_sender-cube_04.nc"
+use "work/FRECVF3D_receiver_04.nc"
+use "../common_data/flats.nc"
 
-set w 1
+set w/aspect=1.3624/size=1.25 1
+define viewport/xlim=0.,1/ylim= 0.,.45 v11
+define viewport/xlim=0.,1/ylim=.28,.73 v12
+define viewport/xlim=0.,1/ylim=.56,1.  v13
+
+set viewport v11
 go basemap x=-180:180
-go polymark poly/over/key 'nogtf.lon'[d=3] 'nogtf.lat'[d=3] ignore0(FSENDA3D[i=1:106428,d=1]*(1-'nol1f.msk'[d=3])) square .4
+go polymark poly/over/key/title="Source field from NOGT grid at 3500 mt depth" 'nogtf.lon'[d=3] 'nogtf.lat'[d=3] ignore0(FSENDF3D[i=212857:319284,d=1]*(1-'nol3f.msk'[d=3])) square .4
 
-set w 2
-go basemap x=0:360
-go polymark poly/over/key 'torcf.lon'[d=3] 'torcf.lat'[d=3] ignore0(FRECVA3D[i=1:27118,d=2]) square .4
-
-set w 3
+set viewport v12
 go basemap x=-180:180
-go polymark poly/over/key 'nogtf.lon'[d=3] 'nogtf.lat'[d=3] ignore0(FSENDA3D[i=106429:212856,d=1]*(1-'nol2f.msk'[d=3])) square .4
+go polymark poly/over/key/title="Source field from NOGT grid at 1000 mt depth" 'nogtf.lon'[d=3] 'nogtf.lat'[d=3] ignore0(FSENDF3D[i=106429:212856,d=1]*(1-'nol2f.msk'[d=3])) square .4
 
-set w 4
-go basemap x=0:360
-go polymark poly/over/key 'torcf.lon'[d=3] 'torcf.lat'[d=3] ignore0(FRECVA3D[i=27119:54236,d=2]) square .4
-
-set w 5
+set viewport v13
 go basemap x=-180:180
-go polymark poly/over/key 'nogtf.lon'[d=3] 'nogtf.lat'[d=3] ignore0(FSENDA3D[i=212857:319284,d=1]*(1-'nol3f.msk'[d=3])) square .4
+go polymark poly/over/key/title="Source field from NOGT grid at surface" 'nogtf.lon'[d=3] 'nogtf.lat'[d=3] ignore0(FSENDF3D[i=1:106428,d=1]*(1-'nol1f.msk'[d=3])) square .4
 
-set w 6
+set w/aspect=1.3624/size=1.25 2
+define viewport/xlim=0.,1/ylim= 0.,.45 v21
+define viewport/xlim=0.,1/ylim=.28,.73 v22
+define viewport/xlim=0.,1/ylim=.56,1.  v23
+
+set viewport v21
 go basemap x=0:360
-go polymark poly/over/key 'torcf.lon'[d=3] 'torcf.lat'[d=3] ignore0(FRECVA3D[i=54237:81354,d=2]) square .4
+go polymark poly/over/key/title="Received field on TORC grid at 3500 mt depth" 'torcf.lon'[d=3] 'torcf.lat'[d=3] ignore0(FRECVF3D[i=54237:81354,d=2]) square .4
+
+set viewport v22
+go basemap x=0:360
+go polymark poly/over/key/title="Received field on TORC grid at 1000 mt depth" 'torcf.lon'[d=3] 'torcf.lat'[d=3] ignore0(FRECVF3D[i=27119:54236,d=2]) square .4
+
+set viewport v23
+go basemap x=0:360
+go polymark poly/over/key/title="Received field on TORC grid at surface" 'torcf.lon'[d=3] 'torcf.lat'[d=3] ignore0(FRECVF3D[i=1:27118,d=2]) square .4
