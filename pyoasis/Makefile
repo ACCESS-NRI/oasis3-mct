@@ -103,8 +103,8 @@ example14_f:
 	cd $(PYOASIS)/examples/14-test-inter3d/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 
-examples_c: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c example9_c example10_c example11_c example13_c
-examples_c_nopython: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c example10_c example11_c example13_c
+examples_c: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c example9_c example10_c example11_c example13_c example14_c
+examples_c_nopython: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c example10_c example11_c example13_c example14_c
 
 example1_c:
 	cd $(PYOASIS)/examples/1-serial/C && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -141,3 +141,6 @@ example11_c:
 
 example13_c:
 	cd $(PYOASIS)/examples/13-test-fracwgt/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
+example14_c:
+	cd $(PYOASIS)/examples/14-test-inter3d/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt

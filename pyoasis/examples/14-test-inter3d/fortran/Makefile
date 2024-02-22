@@ -10,6 +10,6 @@ receiver: receiver.F90
 	${F90} receiver.F90 ${FLAGS} -o receiver -lpsmile.MPI1 -lscrip -lmct -lmpeu $(NETCDF_LIBRARY)
 
 clean:
-	rm -f sender-cube receiver
+	rm -f sender-cube receiver ferret.jnl
 	rm -f *~
 	rm -fr work

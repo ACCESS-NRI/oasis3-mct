@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in closing grids.nc",__FILE__, __LINE__));
 
   if (nc_open("masks.nc", 0, &ncid) != NC_NOERR)
-    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in opening grids.nc",
+    OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in opening masks.nc",
 				    __FILE__, __LINE__));
   int mask[ny_global][nx_global];
   if (nc_inq_varid(ncid, "bggd.msk", &varid) != NC_NOERR)

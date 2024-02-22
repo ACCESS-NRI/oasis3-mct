@@ -93,6 +93,7 @@ enum partition_params {
   OASIS_Serial_Params = 3,
   OASIS_Apple_Params  = 3,
   OASIS_Box_Params    = 5,
+  OASIS_Cube_Params   = 7,
   OASIS_No_Gsize      = 0
 };
 
