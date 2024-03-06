@@ -30,4 +30,6 @@ install: subdirs
 examples: subdirs
 	@cd $(EXAMPLEPATH) && $(MAKE)
 
+all : subdirs
 
+.PHONY: all
