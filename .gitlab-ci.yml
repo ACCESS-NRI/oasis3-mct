@@ -8,8 +8,7 @@ tests_toys_oasis_tioman:
      - master
                
      script:
-     - ssh tioman "rm -rf /space/jonville/OA3_MCT_RES ; mkdir /space/jonville/OA3_MCT_RES"
-     - ssh tioman "rm -rf /space/jonville/oasis3-mct"
-     - ssh tioman "cd /space/jonville; git clone git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
-     - ssh tioman "cd /space/jonville/oasis3-mct/util/nitrox;./sc_lc_nitrox.sh tioman_intel21.1.1_intelmpi2021.1.1 DEBUGT"
-     - ssh tioman "rm -rf /home/ttn/jonville/builds"
+     - ssh tioman "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
+     - ssh tioman "git clone git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git ${SCRATCHDIR}"
+     - ssh tioman "${SCRATCHDIR}/oasis3-mct/util/nitrox/sc_lc_nitrox.sh tioman_intel21.1.1_intelmpi2021.1.1 DEBUGT"
+     - ssh tioman "\rm -rf ${HOME}/builds"
