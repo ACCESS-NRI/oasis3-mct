@@ -1,14 +1,14 @@
 variables:
       GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/oasis3-mct
 
-tests_toys_oasis_tioman:
+tests_toys_oasis_stiff:
      tags:
      - sshjonvilleci.spike
-     only:        
+     only:
      - master
-               
+
      script:
-     - ssh tioman "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
-     - ssh tioman "cd ${SCRATCHDIR} ; git clone git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
-     - ssh tioman "cd ${SCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh tioman_intel21.1.1_intelmpi2021.1.1 DEBUGT"
-     - ssh tioman "\rm -rf ${HOME}/builds"
+     - ssh stiff "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
+     - ssh stiff "cd ${SCRATCHDIR} ; git clone git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
+     - ssh stiff "cd ${SCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh stiff_pgi20.4_openmpi3.1.3 DEBUGT"
+     - ssh stiff "\rm -rf $CI_PROJECT_DIR"
