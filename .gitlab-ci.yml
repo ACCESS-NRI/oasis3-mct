@@ -26,7 +26,7 @@ tests_toys_oasis_fundy:
      - ssh fundy "\rm -rf $CI_PROJECT_DIR"
 
 tests_toys_oasis_kraken:
-    tags:
+     tags:
      - sshjonvilleci.spike
      only:
      - master
