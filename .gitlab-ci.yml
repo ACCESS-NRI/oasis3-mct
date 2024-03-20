@@ -8,7 +8,7 @@ tests_toys_oasis_kraken:
      - master
 
      script:
-     - ssh kraken "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
-     - ssh kraken "cd ${SCRATCHDIR} ; git clone git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
-     - ssh kraken "cd ${SCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh kraken_intel18.0.1.163_intelmpi2018.1.163 DEBUGT"
+     - ssh kraken "\rm -rf ${KSCRATCHDIR}/oasis3-mct ${KSCRATCHDIR}/OA3_MCT_RES ; mkdir ${KSCRATCHDIR}/OA3_MCT_RES"
+     - ssh kraken "cd ${KSCRATCHDIR} ; git clone git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
+     - ssh kraken "cd ${KSCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh kraken_intel18.0.1.163_intelmpi2018.1.163 DEBUGT"
      - ssh kraken "\rm -rf $CI_PROJECT_DIR"
