@@ -1,14 +1,14 @@
 variables:
       GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/oasis3-mct
 
-tests_toys_oasis_fundy:
+tests_toys_oasis_kraken:
      tags:
      - sshjonvilleci.spike
      only:
      - master
 
      script:
-     - ssh fundy "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
-     - ssh fundy "cd ${SCRATCHDIR} ; git clone git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
-     - ssh fundy "cd ${SCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh fundy_gfortran10.2.0_openmpi4.1.0 DEBUGT"
-     - ssh fundy "\rm -rf $CI_PROJECT_DIR"
+     - ssh kraken "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
+     - ssh kraken "cd ${SCRATCHDIR} ; git clone git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
+     - ssh kraken "cd ${SCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh kraken_intel18.0.1.163_intelmpi2018.1.163 DEBUGT"
+     - ssh kraken "\rm -rf $CI_PROJECT_DIR"
