@@ -10,7 +10,7 @@ CHAN            = MPI1
 # Paths for libraries, object files and binaries
 #
 # COUPLE	: path for oasis3-mct main directory
-COUPLE          = /home/ext/cf/cglo/coquartl/work/oasis3-mct_training
+COUPLE          = ${HOME}/work/oasis3-mct_training
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/BEAUFIX_oa3-mct

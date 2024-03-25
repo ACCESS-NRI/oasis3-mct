@@ -6,14 +6,14 @@
 # We need at least grids.nc for each toy to calculate the analytical function
 ###########################################
 # OASIS_ROOT
-export OASIS_ROOT=/space/coquart
+export OASIS_ROOT=${SCRATCHDIR}
 # Repository with OASIS3-MCT sources
 export OASIS_COUPLE=${OASIS_ROOT}/oasis3-mct
 # OASIS_ENV used to launch the environment to test on different machines 
 # (see sc_launch_tests.sh)
 export OASIS_ENV=tioman_intel21.1.1_intelmpi2021.1.1
 # Repository with OASIS3-MCT toys
-export OASIS_TESTS=/space/coquart
+export OASIS_TESTS=${SCRATCHDIR}
 # To compile OASIS or not
 export OASIS_COMPILE=TRUE
 # Variables to defined the compilation options of OASIS3-MCT and the toys
@@ -29,4 +29,4 @@ export USER_TEST=("104")
 # Localization of the file paramater for each toy
 export USER_PARAMLOC=("${OASIS_TESTS}/oasis3-mct_tests/toy_interpolation")
 # To run the tests in USER_RUNDIR
-export USER_RUNDIR=${OASIS_ROOT}/OA3_MCT_RES
+export USER_RUNDIR=${OASIS_ROOT}/OA3_MCT_RES_${OASIS_ENV}

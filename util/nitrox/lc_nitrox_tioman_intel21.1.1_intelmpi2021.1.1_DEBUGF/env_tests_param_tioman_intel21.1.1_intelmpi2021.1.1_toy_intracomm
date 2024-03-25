@@ -6,11 +6,11 @@
 # We need at least grids.nc for each toy to calculate the analytical function
 ###########################################
 # OASIS_ROOT
-export OASIS_ROOT=/space/coquart
+export OASIS_ROOT=${SCRATCHDIR}
 # Repository with OASIS3-MCT sources
 export OASIS_COUPLE=${OASIS_ROOT}/oasis3-mct
 # Repository with OASIS3-MCT nitrox toys
-export OASIS_TESTS=/space/coquart
+export OASIS_TESTS=${SCRATCHDIR}
 # OASIS_ENV used to launch the environment to test on different machines 
 # (see sc_launch_tests.sh)
 export OASIS_ENV=tioman_intel21.1.1_intelmpi2021.1.1

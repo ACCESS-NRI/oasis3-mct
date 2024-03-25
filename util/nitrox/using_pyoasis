@@ -1,9 +1,9 @@
 #!/bin/bash
 # After compilation
-export VENVDIR=/space/coquart/INSTALL/PY_ENV/PyO
+export VENVDIR=${SCRATCHDIR}/INSTALL/PY_ENV/PyO
 export OA3ENV=tioman_intel21.1.1_intelmpi2021.1.1
 source $VENVDIR/bin/activate
-source /space/coquart/oasis3-mct/INSTALL_OASIS.${OA3ENV}/python/init.sh
-cd /space/coquart/oasis3-mct/pyoasis
+source ${SCRATCHDIR}/oasis3-mct/INSTALL_OASIS.${OA3ENV}/python/init.sh
+cd ${SCRATCHDIR}/oasis3-mct/pyoasis
 #make wrappertest
 make test
