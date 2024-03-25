@@ -30,6 +30,14 @@ MPIRUN      = $(MPIBIN)/mpirun --oversubscribe
 NETCDF_INCLUDE  = /usr/local/netcdf-fortran/4.4.4_pgi20.4/include
 NETCDF_LIBRARY  = -L/usr/local/netcdf-fortran/4.4.4_pgi20.4/lib -lnetcdff -L/usr/local/netcdf-c/4.6.1_pgi20.4/lib -lnetcdf -Wl,-rpath,/usr/local/netcdf-fortran/4.4.4_pgi20.4/lib -Wl,-rpath,/usr/local/netcdf-c/4.6.1_pgi20.4/lib
 #
+# YAC libraries
+YAXT_ROOT = $(OASIS_COUPLE)/../INSTALL/yaxt
+YAC_ROOT  = $(OASIS_COUPLE)/../INSTALL/yac-v3.1.0
+YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
+YAC_LIBRARY = -L $(YAC_ROOT)/lib \
+              -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \
+              -lyac_utils -lyac_core -lyaxt_c
+#
 # Compiling and other commands
 MAKE        = gmake
 F90         = $(MPIBIN)/mpif90 -I$(MPI_INCLUDE) 

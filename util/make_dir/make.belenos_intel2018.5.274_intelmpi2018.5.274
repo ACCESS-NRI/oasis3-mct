@@ -30,6 +30,14 @@ MPIRUN           = $(MPIBIN)/mpirun --oversubscribe
 NETCDF_INCLUDE  = /opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2/include
 NETCDF_LIBRARY  = -L/opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2/lib -lnetcdff 
 #
+# YAC libraries
+YAXT_ROOT = $(OASIS_COUPLE)/../INSTALL/yaxt
+YAC_ROOT  = $(OASIS_COUPLE)/../INSTALL/yac-v3.1.0
+YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
+YAC_LIBRARY = -L $(YAC_ROOT)/lib \
+              -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \
+              -lyac_utils -lyac_core -lyaxt_c
+#                            
 # Compiling and other commands
 # You may have to load the corresponding intel module to compile
 MAKE        = gmake
