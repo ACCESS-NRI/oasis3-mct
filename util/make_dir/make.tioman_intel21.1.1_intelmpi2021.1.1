@@ -54,7 +54,7 @@ F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 # CPP keys and compiler options
 # 
-CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
+CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY -DYAC_REMAP
 #
 # -g is necessary in F90FLAGS and LDFLAGS for pgf90 versions lower than 6.1
 # 

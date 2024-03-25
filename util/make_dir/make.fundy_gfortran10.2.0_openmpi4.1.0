@@ -47,7 +47,7 @@ F2C_LIBS    = -lmpi_mpifh -lgfortran -lm
 #
 # CPP keys and compiler options
 #  
-CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
+CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY -DYAC_REMAP
 #
 FCBASEFLAGS := -fallow-argument-mismatch -ffree-line-length-0 
 ifeq ($(OASIS_DEBUG), )
