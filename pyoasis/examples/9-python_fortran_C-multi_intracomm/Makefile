@@ -5,13 +5,13 @@ CFLAGS=$(CCFLAGS) -L$(ARCHDIR)/lib
 all: receiver xios nonactive
 
 receiver: receiver.F90
-	${F90} receiver.F90 ${FLAGS} -o receiver -lpsmile.MPI1 -lscrip -lmct -lmpeu $(NETCDF_LIBRARY)
+	${F90} receiver.F90 ${FLAGS} -o receiver -lpsmile.MPI1 -lscrip -lmct -lmpeu ${FLIBS}
 
 xios: xios.c
-	${CC} xios.c ${CFLAGS} -o xios -loasis.cbind -lpsmile.MPI1 -lscrip -lmct -lmpeu $(F2C_LDFLAGS) $(NETCDF_LIBRARY)
+	${CC} xios.c ${CFLAGS} -o xios -loasis.cbind -lpsmile.MPI1 -lscrip -lmct -lmpeu $(F2C_LDFLAGS) ${FLIBS}
 
 nonactive: nonactive.F90
-	${F90} nonactive.F90 ${FLAGS} -o nonactive -lpsmile.MPI1 -lscrip -lmct -lmpeu $(NETCDF_LIBRARY)
+	${F90} nonactive.F90 ${FLAGS} -o nonactive -lpsmile.MPI1 -lscrip -lmct -lmpeu ${FLIBS}
 
 clean:
 	rm -f receiver xios nonactive

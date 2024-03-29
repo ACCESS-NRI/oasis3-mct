@@ -4,7 +4,7 @@ CFLAGS=$(CCFLAGS) -L$(ARCHDIR)/lib
 all: writer
 
 writer: writer.c
-	${CC} writer.c ${CFLAGS} -o writer -loasis.cbind -lpsmile.MPI1 -lscrip -lmct -lmpeu $(F2C_LDFLAGS) $(NETCDF_LIBRARY)
+	${CC} writer.c ${CFLAGS} -o writer -loasis.cbind -lpsmile.MPI1 -lscrip -lmct -lmpeu $(F2C_LDFLAGS) ${FLIBS}
 
 clean:
 	rm -f writer
