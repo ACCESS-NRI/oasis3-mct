@@ -37,6 +37,9 @@ NETCDF_INCLUDE2=/softs/local_intel/netcdf-c/4.6.1_phdf5/include
 NETCDF_LIBRARY  =  -Wl,-rpath,/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib -L/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib -Wl,-rpath,/softs/local_intel/netcdf-c/4.6.1_phdf5/lib -L/softs/local_intel/netcdf-c/4.6.1_phdf5/lib -lnetcdff -lnetcdf
 #
 # YAC libraries
+YAXT_ROOT = $(ARCHDIR)/lib/yaxt
+YAC_DIR = $(OASIS_COUPLE)/lib/yac
+YAC_ROOT = $(ARCHDIR)/lib/yac
 YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
 YAC_LIBRARY = -L $(YAC_ROOT)/lib \
               -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \
