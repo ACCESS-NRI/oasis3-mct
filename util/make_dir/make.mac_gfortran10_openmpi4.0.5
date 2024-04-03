@@ -22,6 +22,14 @@ MPIRUN      = mpirun --oversubscribe
 NETCDF_INCLUDE = /usr/local/include
 NETCDF_LIBRARY = -L/usr/local/lib -lnetcdff -lnetcdf
 #
+# YAC libraries
+YAXT_ROOT = $(ARCHDIR)/lib/yaxt
+YAC_ROOT = $(ARCHDIR)/lib/yac
+YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
+YAC_LIBRARY = -L $(YAC_ROOT)/lib \
+              -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \
+              -lyac_utils -lyac_core -lyaxt_c
+#
 # Make command
 MAKE        = make
 # Compilers
@@ -55,6 +63,8 @@ endif
 #
 # INC_DIR : includes all *mod for each library
 INC_DIR = -I$(ARCHDIR)/include
+# FLIBS : for toys when linking in local Makefile
+FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY)
 #
 F90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 f90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
@@ -62,7 +72,6 @@ FFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 fFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 CCFLAGS  = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 LDFLAGS  = $(FCBASEFLAGS)
-FLIBS    = $(NETCDF_LIBRARY)
 F2C_LDFLAGS = -lmpi_mpifh -lgfortran
 #
 #############################################################################

@@ -7,6 +7,5 @@ LIBBUILD         ?= $(ARCHDIR)/build-static/lib
 # LIBBUILDSHARED : compilation directory for shared libraries
 LIBBUILDSHARED   ?= $(ARCHDIR)/build-shared/lib
 
-# FLIBS:         : fortran link options for oasis examples
-FLIBS		 ?= $(NETCDF_LIBRARY)
-
+# FLIBS          : fortran link options for oasis examples
+FLIBS		 ?= $(YAC_LIBRARY) $(NETCDF_LIBRARY)

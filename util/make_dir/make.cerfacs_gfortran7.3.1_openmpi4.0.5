@@ -28,6 +28,14 @@ NETCDF_INCLUDE = /usr/include
 NETCDF_MOD     = /usr/lib64/gfortran/modules
 NETCDF_LIBRARY = -L/usr/lib64 -lnetcdff -lnetcdf
 #
+# YAC libraries
+YAXT_ROOT = $(ARCHDIR)/lib/yaxt
+YAC_ROOT = $(ARCHDIR)/lib/yac
+YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
+YAC_LIBRARY = -L $(YAC_ROOT)/lib \
+              -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \
+              -lyac_utils -lyac_core -lyaxt_c
+#
 # Make command
 MAKE        = gmake
 # Compilers
@@ -61,6 +69,8 @@ endif
 #
 # INC_DIR : includes all *mod for each library
 INC_DIR = -I$(ARCHDIR)/include
+# FLIBS : for toys when linking in local Makefile
+FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY)
 #
 F90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)
 f90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)

@@ -31,8 +31,8 @@ NETCDF_INCLUDE  = /usr/local/netcdf-fortran/4.4.4_pgi20.4/include
 NETCDF_LIBRARY  = -L/usr/local/netcdf-fortran/4.4.4_pgi20.4/lib -lnetcdff -L/usr/local/netcdf-c/4.6.1_pgi20.4/lib -lnetcdf -Wl,-rpath,/usr/local/netcdf-fortran/4.4.4_pgi20.4/lib -Wl,-rpath,/usr/local/netcdf-c/4.6.1_pgi20.4/lib
 #
 # YAC libraries
-YAXT_ROOT = $(OASIS_COUPLE)/../INSTALL/yaxt
-YAC_ROOT  = $(OASIS_COUPLE)/../INSTALL/yac-v3.1.0
+YAXT_ROOT = $(ARCHDIR)/lib/yaxt
+YAC_ROOT = $(ARCHDIR)/lib/yac
 YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
 YAC_LIBRARY = -L $(YAC_ROOT)/lib \
               -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \
@@ -83,8 +83,7 @@ endif
 # INC_DIR : includes all *mod for each library
 INC_DIR = -I$(ARCHDIR)/include
 # FLIBS : for toys when linking in local Makefile
-FLIBS=${NETCDF_LIBRARY}
-###################
+FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY)
 #
 F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
