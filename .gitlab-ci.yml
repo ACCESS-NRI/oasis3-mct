@@ -5,7 +5,7 @@ tests_toys_oasis_tioman:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactive
+     - feature/yac_remap
 
      script:
      - ssh tioman "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
@@ -17,7 +17,7 @@ tests_toys_oasis_stiff:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactive
+     - feature/yac_remap
 
      script:
      - ssh stiff "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
@@ -29,7 +29,7 @@ tests_toys_oasis_fundy:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactive
+     - feature/yac_remap
 
      script:
      - ssh fundy "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
@@ -41,7 +41,7 @@ tests_toys_oasis_kraken:
      tags:
      - sshjonvilleci.spike
      only:
-     - feature/yac_remap
+     - noactive
 
      script:
      - ssh kglobc1 "\rm -rf ${KSCRATCHDIR}/oasis3-mct ${KSCRATCHDIR}/OA3_MCT_RES ; mkdir ${KSCRATCHDIR}/OA3_MCT_RES"
