@@ -81,7 +81,7 @@ endif
 # INC_DIR : includes all *mod for each library
 INC_DIR = -I$(ARCHDIR)/include
 # FLIBS : for toys when linking in local Makefile
-FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY)
+FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY) -lblas -llapack
 #
 F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) $(YAC_INCLUDE)
 f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) $(YAC_INCLUDE)

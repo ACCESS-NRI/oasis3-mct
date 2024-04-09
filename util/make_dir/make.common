@@ -8,4 +8,4 @@ LIBBUILD         ?= $(ARCHDIR)/build-static/lib
 LIBBUILDSHARED   ?= $(ARCHDIR)/build-shared/lib
 
 # FLIBS          : fortran link options for oasis examples
-FLIBS		 ?= $(YAC_LIBRARY) $(NETCDF_LIBRARY)
+FLIBS		 ?= $(YAC_LIBRARY) $(NETCDF_LIBRARY) -lblas -llapack
