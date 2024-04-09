@@ -38,6 +38,9 @@ YAC_LIBRARY = -L $(YAC_ROOT)/lib \
               -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \
               -lyac_utils -lyac_core -lyaxt_c
 #
+# LAPACK libraries
+LAPACK_LIBRARY = -llapack -lblas
+#
 # Compiling and other commands
 MAKE        = gmake
 F90         = $(MPIBIN)/mpif90 -I$(MPI_INCLUDE)
@@ -81,7 +84,7 @@ endif
 # INC_DIR : includes all *mod for each library
 INC_DIR = -I$(ARCHDIR)/include
 # FLIBS : for toys when linking in local Makefile
-FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY) -lblas -llapack
+FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY) $(LAPACK_LIBRARY)
 #
 F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) $(YAC_INCLUDE)
 f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) $(YAC_INCLUDE)
