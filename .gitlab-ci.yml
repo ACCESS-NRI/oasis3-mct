@@ -29,7 +29,7 @@ tests_toys_oasis_tioman:
      tags:
      - sshjonvilleci.spike
      only:
-     - feature/yac_remap
+     - noactive
 
      script:
      - ssh tioman "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
@@ -41,11 +41,11 @@ tests_toys_oasis_kraken:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactive
+     - noactivefeature/yac_remap
 
      script:
      - ssh kglobc1 "\rm -rf ${KSCRATCHDIR}/oasis3-mct ${KSCRATCHDIR}/OA3_MCT_RES ; mkdir ${KSCRATCHDIR}/OA3_MCT_RES"
-     - ssh kglobc1 "cd ${KSCRATCHDIR} ; git clone --branch feature/yac_remap git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
+     - ssh kglobc1 "cd ${KSCRATCHDIR} ; git clone --branch feature/yac_remap --recurse-submodules git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
      - ssh kglobc1 "cd ${KSCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh kraken_intel18.0.1.163_intelmpi2018.1.163 DEBUGT"
      - ssh kglobc1 "\rm -rf $CI_PROJECT_DIR"
 

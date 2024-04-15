@@ -1,0 +1,8 @@
+[submodule "lib/yaxt"]
+	path = lib/yaxt
+	url = https://gitlab.dkrz.de/dkrz-sw/yaxt.git
+	branch = release-0.10.0
+[submodule "lib/yac"]
+	path = lib/yac
+	url = https://gitlab.dkrz.de/dkrz-sw/yac.git
+	branch = release-3.1.0
