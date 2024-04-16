@@ -27,12 +27,13 @@ MPILIB           = -L$(MPIDIR)/lib
 MPIRUN           = $(MPIBIN)/mpirun
 #
 # NETCDF library
-NETCDF_INCLUDE=/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/include
-NETCDF_LIBRARY  =  -Wl,-rpath,/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib -L/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib -lnetcdff -lnetcdf
+NETCDF_DIR     = /softs/local_intel/netcdf/4.4.4_phdf5_1.10.4
+NETCDF_INCLUDE = $(NETCDF_DIR)/include
+NETCDF_LIBRARY = -Wl,-rpath,$(NETCDF_DIR)/lib -L$(NETCDF_DIR)/lib -lnetcdff -lnetcdf
 #
 # YAC libraries
-YAXT_ROOT = $(OASIS_COUPLE)/../INSTALL/yaxt
-YAC_ROOT  = $(OASIS_COUPLE)/../INSTALL/yac-v3.1.0
+YAXT_ROOT = $(ARCHDIR)/lib/yaxt
+YAC_ROOT  = $(ARCHDIR)/lib/yac
 YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
 YAC_LIBRARY = -L $(YAC_ROOT)/lib \
               -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \

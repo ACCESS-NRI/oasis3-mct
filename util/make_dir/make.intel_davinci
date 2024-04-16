@@ -31,10 +31,13 @@ else
 endif
 #
 # NETCDF library
+NETCDF_DIR     = $(NETCDF4_DIR)
 NETCDF_INCLUDE = $(NETCDF4_INCDIR)
-NETCDF_LIBRARY  = -Wl,-rpath,$(NETCDF4_LIBDIR) -L$(NETCDF4_LIBDIR) -lnetcdff -lnetcdf
+NETCDF_LIBRARY = -Wl,-rpath,$(NETCDF4_LIBDIR) -L$(NETCDF4_LIBDIR) -lnetcdff -lnetcdf
 #
 # YAC libraries
+YAXT_ROOT = $(ARCHDIR)/lib/yaxt
+YAC_ROOT  = $(ARCHDIR)/lib/yac
 YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
 YAC_LIBRARY = -L $(YAC_ROOT)/lib \
               -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \

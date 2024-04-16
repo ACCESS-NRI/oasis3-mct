@@ -24,13 +24,14 @@ ARCHDIR         = $(COUPLE)/INSTALL_OASIS.$(OASIS_ENV)
 MPIRUN      = mpirun --oversubscribe
 #
 # NETCDF library
+NETCDF_DIR     = /usr
 NETCDF_INCLUDE = /usr/include
 NETCDF_MOD     = /usr/lib64/gfortran/modules
 NETCDF_LIBRARY = -L/usr/lib64 -lnetcdff -lnetcdf
 #
 # YAC libraries
 YAXT_ROOT = $(ARCHDIR)/lib/yaxt
-YAC_ROOT = $(ARCHDIR)/lib/yac
+YAC_ROOT  = $(ARCHDIR)/lib/yac
 YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
 YAC_LIBRARY = -L $(YAC_ROOT)/lib \
               -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \

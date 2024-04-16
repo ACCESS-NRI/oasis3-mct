@@ -27,12 +27,13 @@ MPILIB           = -L$(MPIDIR)/lib
 MPIRUN           = $(MPIBIN)/mpirun --oversubscribe
 #
 # NETCDF library
-NETCDF_INCLUDE  = /opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2/include
-NETCDF_LIBRARY  = -L/opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2/lib -lnetcdff 
+NETCDF_DIR     = /opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2
+NETCDF_INCLUDE = $(NETCDF_DIR)/include
+NETCDF_LIBRARY = -L$(NETCDF_DIR)/lib -lnetcdff 
 #
 # YAC libraries
 YAXT_ROOT = $(ARCHDIR)/lib/yaxt
-YAC_ROOT = $(ARCHDIR)/lib/yac
+YAC_ROOT  = $(ARCHDIR)/lib/yac
 YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
 YAC_LIBRARY = -L $(YAC_ROOT)/lib \
               -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \

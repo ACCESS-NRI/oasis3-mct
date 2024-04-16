@@ -20,7 +20,6 @@ ARCHDIR         := $(COUPLE)/INSTALL_OASIS.$(OASIS_ENV)
 #
 # MPI library
 #MPIDIR           = ${MPICOMPILER}
-#GJ MPIDIR           = $(I_MPI_ROOT)
 MPIDIR           = /softs/intel/oneapi/mpi/2021.10.0
 MPIBIN           = $(MPIDIR)/bin
 MPI_INCLUDE      = $(MPIDIR)/include
@@ -28,18 +27,16 @@ MPILIB           = -L$(MPIDIR)/lib
 MPIRUN           = $(MPIBIN)/mpirun
 #
 # NETCDF library
-NETCDF_LIB_DIR1=/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib
-#GJ NETCDF_LIB_DIR1 = $(NETCDF4_LIBDIR)
-NETCDF_LIB_DIR2=/softs/local_intel/netcdf-c/4.6.1_phdf5/lib
-NETCDF_INCLUDE1=/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/include
-#GJ NETCDF_INCLUDE1 = $(NETCDF4_INCDIR)
-NETCDF_INCLUDE2=/softs/local_intel/netcdf-c/4.6.1_phdf5/include
-NETCDF_LIBRARY  =  -Wl,-rpath,/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib -L/softs/local_intel/netcdf/4.4.4_phdf5_1.10.4/lib -Wl,-rpath,/softs/local_intel/netcdf-c/4.6.1_phdf5/lib -L/softs/local_intel/netcdf-c/4.6.1_phdf5/lib -lnetcdff -lnetcdf
+NETCDF_DIR     = /softs/local_intel/netcdf/4.4.4_phdf5_1.10.4
+NETCDF_LIBDIR1 = $(NETCDF_DIR)/lib
+NETCDF_LIBDIR2 = /softs/local_intel/netcdf-c/4.6.1_phdf5/lib
+NETCDF_INCDIR1 = $(NETCDF_DIR)/include
+NETCDF_INCDIR2 = /softs/local_intel/netcdf-c/4.6.1_phdf5/include
+NETCDF_LIBRARY = -Wl,-rpath,$(NETCDF_LIBDIR1) -L$(NETCDF_LIBDIR1) -Wl,-rpath,$(NETCDF_LIBDIR2) -L$(NETCDF_LIBDIR2) -lnetcdff -lnetcdf
 #
 # YAC libraries
 YAXT_ROOT = $(ARCHDIR)/lib/yaxt
-YAC_DIR = $(OASIS_COUPLE)/lib/yac
-YAC_ROOT = $(ARCHDIR)/lib/yac
+YAC_ROOT  = $(ARCHDIR)/lib/yac
 YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
 YAC_LIBRARY = -L $(YAC_ROOT)/lib \
               -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \
@@ -89,11 +86,11 @@ INC_DIR = -I$(ARCHDIR)/include
 # FLIBS : for toys when linking in local Makefile
 FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY)
 #
-F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2) $(YAC_INCLUDE)
-f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2) $(YAC_INCLUDE)
-FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2) $(YAC_INCLUDE)
-fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2) $(YAC_INCLUDE)
-CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE1) -I$(NETCDF_INCLUDE2) $(YAC_INCLUDE)
+F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCDIR1) -I$(NETCDF_INCDIR2) $(YAC_INCLUDE)
+f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCDIR1) -I$(NETCDF_INCDIR2) $(YAC_INCLUDE)
+FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCDIR1) -I$(NETCDF_INCDIR2) $(YAC_INCLUDE)
+fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCDIR1) -I$(NETCDF_INCDIR2) $(YAC_INCLUDE)
+CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCDIR1) -I$(NETCDF_INCDIR2) $(YAC_INCLUDE)
 LDFLAGS     = $(FCBASEFLAGS)
 F2C_LDFLAGS = $(F2C_LIBS)
 #

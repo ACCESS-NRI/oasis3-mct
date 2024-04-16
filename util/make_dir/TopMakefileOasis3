@@ -33,6 +33,11 @@ ERRSTATIC = $(COUPLE)/util/make_dir/COMP.err
 # Log and error files for compiling the shared libraries
 LOGSHARED = $(COUPLE)/util/make_dir/COMP-shared.log
 ERRSHARED = $(COUPLE)/util/make_dir/COMP-shared.err
+# Log and error files for compiling OYAC
+LOGYAXT = $(COUPLE)/util/make_dir/COMP-yaxt.log
+ERRYAXT = $(COUPLE)/util/make_dir/COMP-yaxt.err
+LOGYAC = $(COUPLE)/util/make_dir/COMP-yac.log
+ERRYAC = $(COUPLE)/util/make_dir/COMP-yac.err
 # Log and error files for installing PyOasis
 LOGPYO = $(COUPLE)/util/make_dir/COMP-pyoasis.log
 ERRPYO = $(COUPLE)/util/make_dir/COMP-pyoasis.err
@@ -68,6 +73,7 @@ help:
 	@echo "TopMakefileOasis3 recommended targets:"
 	@echo "  static-libs         = static oasis libraries including fortran and c-bindings"
 	@echo "  shared-libs         = shared (dynamic) oasis libraries including fortran and c-bindings"
+	@echo "  oyac                = installs yaxt and yac static-libs"
 	@echo "  pyoasis             = builds and installs shared-libs plus higher and intermediate python classes"
 	@echo "  realclean           = cleans and resets the build"
 	@echo "TopMakefileOasis3 alternative targets:"
@@ -121,6 +127,21 @@ shared-libs: shared-libs-fortran
 	@$(MAKEf) makecbindings-shared
 	@(echo "DONE" ; echo "")
 
+oyac: check-vars
+	@echo ""
+	@echo "Compilation of the OASIS3-MCT static libraries"
+	@echo "Build output to $(LOGSTATIC)"
+	@echo "Build errors to $(ERRSTATIC)"
+	@rm -f $(LOGSTATIC) $(ERRSTATIC)
+	$(call check_defined, AR, static lib. archiver command)
+	$(call check_defined, ARFLAGS, static lib. archiver options)
+	@$(MAKEf) makedirs-static
+	@$(MAKEf) makemct-static
+	@$(MAKEf) makescrip-static
+	@$(MAKEf) makeoyac-static
+	@$(MAKEf) makepsmile-static
+	@(echo "DONE" ; echo "")
+
 pyoasis: shared-libs
 	@echo "Installation of PyOasis"
 	@echo "Build output to $(LOGPYO)"
@@ -132,7 +153,7 @@ pyoasis: shared-libs
 	@(echo "DONE" ; echo "")
 
 realclean: check-vars
-	$(MAKEf) clean-static clean-shared clean-pyoasis
+	$(MAKEf) clean-static clean-shared clean-oyac clean-pyoasis
 
 ########################################################################################
 # Rules for creating build and library directories
@@ -193,6 +214,11 @@ clean-shared:
 	rm -f $(ARCHDIR)/lib/libmpeu.so
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).so
 	rm -f $(ARCHDIR)/lib/liboasis.cbind.so
+
+clean-oyac:
+	@echo cleaning oyac
+	rm -r -f $(ARCHDIR)/lib/yaxt
+	rm -r -f $(ARCHDIR)/lib/yac
 
 clean-pyoasis:
 	@echo cleaning pyoasis
@@ -256,6 +282,19 @@ makescrip-shared:
 	@echo "=> Installing scrip modules"
 	@(cd $(LIBBUILDSHARED)/scrip ; \
          cp -f *.mod  $(ARCHDIR)/include/;)
+
+########################################################################################
+# Rules for compiling the libraries oyac (yaxt and yac)
+
+makeoyac-static:
+	@echo "=> Installing library yaxt"
+	@(cd $(COUPLE)/lib/yaxt; mkdir -p build; cd build; \
+	     ../configure --prefix=$(ARCHDIR)/lib/yaxt 1>> $(LOGYAXT) 2>> $(ERRYAXT); \
+	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGYAXT) 2>> $(ERRYAXT) )
+	@echo "=> Installing library yac"
+	@(cd $(COUPLE)/lib/yac; mkdir -p build; cd build; \
+	     ../configure --enable-lib-core-only --with-yaxt-root=$(ARCHDIR)/lib/yaxt --with-netcdf-root=$(NETCDF_DIR) --prefix=$(ARCHDIR)/lib/yac 1>> $(LOGYAC) 2>> $(ERRYAC); \
+	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGYAC) 2>> $(ERRYAC) )
 
 ########################################################################################
 # Rules for compiling the libraries psmile
