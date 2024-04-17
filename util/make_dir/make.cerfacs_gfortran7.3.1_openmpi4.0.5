@@ -71,6 +71,19 @@ else
 	CCBASEFLAGS  +=
 endif
 #
+# YAC compiler and options
+YCC = mpicc
+YFC = mpifort
+# optimisation safe
+YCFLAGS  = -O2
+YFCFLAGS = -O2
+# optimisation top
+#YCFLAGS  = -O3
+#YFCFLAGS = -O3
+# optimisation debug
+#YCFLAGS  = -O0 -g -fbacktrace
+#YFCFLAGS = -O0 -g -fbacktrace
+#
 # INC_DIR : includes all *mod for each library
 INC_DIR = -I$(ARCHDIR)/include
 # FLIBS : for toys when linking in local Makefile

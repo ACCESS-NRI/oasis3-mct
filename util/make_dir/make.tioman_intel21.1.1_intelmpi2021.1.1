@@ -86,6 +86,19 @@ else
 	endif
 endif
 #
+# YAC compiler and options
+YCC = $(MPIBIN)/mpiicc
+YFC = $(MPIBIN)/mpiifort
+# optimisation safe
+YCFLAGS  = -O2 -fp-model precise
+YFCFLAGS = -O2 -fp-model precise
+# optimisation top
+#YCFLAGS  = -O3 -xCORE-AVX2 -fp-model precise
+#YFCFLAGS = -O3 -xCORE-AVX2 -fp-model precise
+# optimisation debug
+#YCFLAGS  = -O0 -g -traceback
+#YFCFLAGS = -O0 -g -traceback
+#
 # INC_DIR : includes all *mod for each library
 INC_DIR = -I$(ARCHDIR)/include
 # FLIBS : for toys when linking in local Makefile
