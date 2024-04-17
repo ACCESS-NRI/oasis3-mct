@@ -289,11 +289,11 @@ makescrip-shared:
 makeoyac-static:
 	@echo "=> Installing library yaxt"
 	@(cd $(COUPLE)/lib/yaxt; mkdir -p build; cd build; \
-	     ../configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --prefix=$(ARCHDIR)/lib/yaxt 1>> $(LOGYAXT) 2>> $(ERRYAXT); \
+	     env I_MPI_HYDRA_BOOTSTRAP=ssh ../configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --prefix=$(ARCHDIR)/lib/yaxt 1>> $(LOGYAXT) 2>> $(ERRYAXT); \
 	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGYAXT) 2>> $(ERRYAXT) )
 	@echo "=> Installing library yac"
 	@(cd $(COUPLE)/lib/yac; mkdir -p build; cd build; \
-	     ../configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --enable-lib-core-only --with-yaxt-root=$(ARCHDIR)/lib/yaxt --with-netcdf-root=$(NETCDF_DIR) --prefix=$(ARCHDIR)/lib/yac 1>> $(LOGYAC) 2>> $(ERRYAC); \
+	     env I_MPI_HYDRA_BOOTSTRAP=ssh ../configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --enable-lib-core-only --with-yaxt-root=$(ARCHDIR)/lib/yaxt --with-netcdf-root=$(NETCDF_DIR) --prefix=$(ARCHDIR)/lib/yac 1>> $(LOGYAC) 2>> $(ERRYAC); \
 	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGYAC) 2>> $(ERRYAC) )
 
 ########################################################################################
