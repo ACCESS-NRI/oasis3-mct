@@ -4,6 +4,7 @@
 ##########################
 source /etc/profile.d/modules.sh
 module purge
+module load compiler/gcc/11.2.0
 module load compiler/intel/23.2.1
 module load mpi/intelmpi/2021.10.0
 echo `which mpirun`

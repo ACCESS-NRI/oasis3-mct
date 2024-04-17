@@ -4,6 +4,7 @@
 ##########################
 source /etc/profile.d/modules.sh
 module purge
+module load compiler/gcc/5.4.0
 module load compiler/intel/18.0.1.163
 
 if [ ${HOSTNAME} == kglobc1 ] ; then
