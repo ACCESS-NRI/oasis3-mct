@@ -1,13 +1,13 @@
 ##############################################################################
 
 # This is the top makefile for compiling OASIS3-MCT coupling library including
-#   static and shared versions of mct/mpeu, scrip, psmile 
-#   (i.e. interpolation and communication), and c-bindings 
-# Platform dependent settings, compiler options, cpp keys, 
+#   static and shared versions of mct/mpeu, scrip, psmile
+#   (i.e. interpolation and communication), and c-bindings
+# Platform dependent settings, compiler options, cpp keys,
 #   paths has to be set in an include file indicated in make.inc.
 # Extra targets and paths are defined in the automatically included make.common
 
-# for basic help: 
+# for basic help:
 # gmake -f TopMakefileOasis3 help
 
 ########################################################################################
@@ -33,11 +33,6 @@ ERRSTATIC = $(COUPLE)/util/make_dir/COMP.err
 # Log and error files for compiling the shared libraries
 LOGSHARED = $(COUPLE)/util/make_dir/COMP-shared.log
 ERRSHARED = $(COUPLE)/util/make_dir/COMP-shared.err
-# Log and error files for compiling OYAC
-LOGYAXT = $(COUPLE)/util/make_dir/COMP-yaxt.log
-ERRYAXT = $(COUPLE)/util/make_dir/COMP-yaxt.err
-LOGYAC = $(COUPLE)/util/make_dir/COMP-yac.log
-ERRYAC = $(COUPLE)/util/make_dir/COMP-yac.err
 # Log and error files for installing PyOasis
 LOGPYO = $(COUPLE)/util/make_dir/COMP-pyoasis.log
 ERRPYO = $(COUPLE)/util/make_dir/COMP-pyoasis.err
@@ -73,7 +68,6 @@ help:
 	@echo "TopMakefileOasis3 recommended targets:"
 	@echo "  static-libs         = static oasis libraries including fortran and c-bindings"
 	@echo "  shared-libs         = shared (dynamic) oasis libraries including fortran and c-bindings"
-	@echo "  oyac                = installs yaxt and yac static-libs"
 	@echo "  pyoasis             = builds and installs shared-libs plus higher and intermediate python classes"
 	@echo "  realclean           = cleans and resets the build"
 	@echo "TopMakefileOasis3 alternative targets:"
@@ -94,9 +88,17 @@ static-libs-fortran: check-vars
 	@rm -f $(LOGSTATIC) $(ERRSTATIC)
 	$(call check_defined, AR, static lib. archiver command)
 	$(call check_defined, ARFLAGS, static lib. archiver options)
+ifeq ($(ENABLE_YAC),YES)
+	$(call check_defined, YFC YCC, compiler command)
+	$(call check_defined, YCFLAGS YFCFLAGS, compilation options)
+endif
 	@$(MAKEf) makedirs-static
 	@$(MAKEf) makemct-static
 	@$(MAKEf) makescrip-static
+ifeq ($(ENABLE_YAC),YES)
+	@$(MAKEf) makeyaxt
+	@$(MAKEf) makeyac-static
+endif
 	@$(MAKEf) makepsmile-static
 	@(echo "DONE" ; echo "")
 
@@ -107,9 +109,17 @@ shared-libs-fortran: check-vars
 	@echo "Build errors to $(ERRSHARED)"
 	@rm -f $(LOGSHARED) $(ERRSHARED)
 	$(call check_defined, DYNOPT LDDYNOPT, shared lib. compilation options)
+ifeq ($(ENABLE_YAC),YES)
+	$(call check_defined, YFC YCC, compiler command)
+	$(call check_defined, YCFLAGS YFCFLAGS, compilation options)
+endif
 	@$(MAKEf) makedirs-shared
 	@$(MAKEf) makemct-shared
 	@$(MAKEf) makescrip-shared
+ifeq ($(ENABLE_YAC),YES)
+	@$(MAKEf) makeyaxt
+	@$(MAKEf) makeyac-shared
+endif
 	@$(MAKEf) makepsmile-shared
 	@(echo "DONE" ; echo "")
 
@@ -127,21 +137,6 @@ shared-libs: shared-libs-fortran
 	@$(MAKEf) makecbindings-shared
 	@(echo "DONE" ; echo "")
 
-oyac: check-vars
-	@echo ""
-	@echo "Compilation of the OASIS3-MCT static libraries"
-	@echo "Build output to $(LOGSTATIC)"
-	@echo "Build errors to $(ERRSTATIC)"
-	@rm -f $(LOGSTATIC) $(ERRSTATIC)
-	$(call check_defined, AR, static lib. archiver command)
-	$(call check_defined, ARFLAGS, static lib. archiver options)
-	@$(MAKEf) makedirs-static
-	@$(MAKEf) makemct-static
-	@$(MAKEf) makescrip-static
-	@$(MAKEf) makeoyac-static
-	@$(MAKEf) makepsmile-static
-	@(echo "DONE" ; echo "")
-
 pyoasis: shared-libs
 	@echo "Installation of PyOasis"
 	@echo "Build output to $(LOGPYO)"
@@ -153,7 +148,7 @@ pyoasis: shared-libs
 	@(echo "DONE" ; echo "")
 
 realclean: check-vars
-	$(MAKEf) clean-static clean-shared clean-oyac clean-pyoasis
+	$(MAKEf) clean-include clean-static clean-shared clean-pyoasis
 
 ########################################################################################
 # Rules for creating build and library directories
@@ -164,6 +159,10 @@ makedirs-static:
 	@mkdir -p $(LIBBUILD)/scrip
 	@mkdir -p $(LIBBUILD)/mctdir
 	@mkdir -p $(LIBBUILD)/mct
+ifeq ($(ENABLE_YAC),YES)
+	@mkdir -p $(LIBBUILD)/yaxt
+	@mkdir -p $(LIBBUILD)/yac
+endif
 	@mkdir -p $(LIBBUILD)/psmile.$(CHAN)
 	@mkdir -p $(LIBBUILD)/cbindings
 	@mkdir -p $(ARCHDIR)/include
@@ -175,6 +174,10 @@ makedirs-shared:
 	@mkdir -p $(LIBBUILDSHARED)/scrip
 	@mkdir -p $(LIBBUILDSHARED)/mctdir
 	@mkdir -p $(LIBBUILDSHARED)/mct
+ifeq ($(ENABLE_YAC),YES)
+	@mkdir -p $(LIBBUILD)/yaxt
+	@mkdir -p $(LIBBUILDSHARED)/yac
+endif
 	@mkdir -p $(LIBBUILDSHARED)/psmile.$(CHAN)
 	@mkdir -p $(LIBBUILDSHARED)/cbindings
 	@mkdir -p $(ARCHDIR)/include
@@ -187,17 +190,32 @@ makedirs-py:
 ########################################################################################
 # Rules for cleaning
 
+clean-include:
+	@echo cleaning oasis3-mct include files
+	rm -r -f $(ARCHDIR)/include/*
+
 clean-static:
 	@echo cleaning oasis3-mct static libraries
 	rm -r -f $(LIBBUILD)/scrip
 	rm -r -f $(LIBBUILD)/mct
 	rm -r -f $(LIBBUILD)/mctdir
+ifeq ($(ENABLE_YAC),YES)
+	rm -r -f $(LIBBUILD)/yaxt
+	rm -r -f $(LIBBUILD)/yac
+endif
 	rm -r -f $(LIBBUILD)/psmile.$(CHAN)
-	rm -r -f $(ARCHDIR)/include
 	rm -r -f $(LIBBUILD)/cbindings
 	rm -f $(ARCHDIR)/lib/libscrip.a
 	rm -f $(ARCHDIR)/lib/libmct.a
 	rm -f $(ARCHDIR)/lib/libmpeu.a
+ifeq ($(ENABLE_YAC),YES)
+	rm -f $(ARCHDIR)/lib/libyaxt.a
+	rm -f $(ARCHDIR)/lib/libyaxt_c.a
+	rm -f $(ARCHDIR)/lib/libyaxt.la
+	rm -f $(ARCHDIR)/lib/libyaxt_c.la
+	rm -f $(ARCHDIR)/lib/libyac_core.a
+	rm -f $(ARCHDIR)/lib/libyac_utils.a
+endif
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).a
 	rm -f $(ARCHDIR)/lib/liboasis.cbind.a
 
@@ -206,19 +224,25 @@ clean-shared:
 	rm -r -f $(LIBBUILDSHARED)/scrip
 	rm -r -f $(LIBBUILDSHARED)/mct
 	rm -r -f $(LIBBUILDSHARED)/mctdir
+ifeq ($(ENABLE_YAC),YES)
+	rm -r -f $(LIBBUILD)/yaxt
+	rm -r -f $(LIBBUILDSHARED)/yac
+endif
 	rm -r -f $(LIBBUILDSHARED)/psmile.$(CHAN)
 	rm -r -f $(LIBBUILDSHARED)/cbindings
-	rm -r -f $(ARCHDIR)/include
 	rm -f $(ARCHDIR)/lib/libscrip.so
 	rm -f $(ARCHDIR)/lib/libmct.so
 	rm -f $(ARCHDIR)/lib/libmpeu.so
+ifeq ($(ENABLE_YAC),YES)
+	rm -f $(ARCHDIR)/lib/libyaxt.so*
+	rm -f $(ARCHDIR)/lib/libyaxt_c.so*
+	rm -f $(ARCHDIR)/lib/libyaxt.la
+	rm -f $(ARCHDIR)/lib/libyaxt_c.la
+	rm -f $(ARCHDIR)/lib/libyac_core.so
+	rm -f $(ARCHDIR)/lib/libyac_utils.so
+endif
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).so
 	rm -f $(ARCHDIR)/lib/liboasis.cbind.so
-
-clean-oyac:
-	@echo cleaning oyac
-	rm -r -f $(ARCHDIR)/lib/yaxt
-	rm -r -f $(ARCHDIR)/lib/yac
 
 clean-pyoasis:
 	@echo cleaning pyoasis
@@ -228,10 +252,12 @@ clean-pyoasis:
 # Rules for compiling mpeu/mct library
 
 makemct-static:
+ifeq ($(RECONF),YES)
 	@echo "=> Configuring libraries mpeu and mct"
 	@(cd $(LIBBUILD)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
          ./configure MPIFC="$(F90) $(STATOPT)" FC="$(F90) $(STATOPT)" CC="$(CC)" \
          1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ;)
+endif
 	@echo "=> Compiling libraries mpeu and mct"
 	@(cd $(LIBBUILD)/mctdir; \
          $(MAKE) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ;)
@@ -243,10 +269,12 @@ makemct-static:
          cp -f ./*/*.mod  $(ARCHDIR)/include/;)
 
 makemct-shared:
+ifeq ($(RECONF),YES)
 	@echo "=> Configuring shared libraries mpeu and mct"
 	@(cd $(LIBBUILDSHARED)/mctdir; cp -f -r -p $(LIBSRC)/mct/* .;\
          ./configure MPIFC="$(F90) $(DYNOPT)" FC="$(F90) $(DYNOPT)" CC="$(CC) $(DYNOPT)" \
          1>> $(LOGSHARED) 2>> $(ERRSHARED) ;)
+endif
 	@echo "=> Compiling shared libraries mpeu and mct"
 	@(cd $(LIBBUILDSHARED)/mctdir; \
 	 $(MAKE) 1>> $(LOGSHARED) 2>> $(ERRSHARED) ; )
@@ -286,15 +314,49 @@ makescrip-shared:
 ########################################################################################
 # Rules for compiling the libraries oyac (yaxt and yac)
 
-makeoyac-static:
-	@echo "=> Installing library yaxt"
-	@(cd $(COUPLE)/lib/yaxt; mkdir -p build; cd build; \
-	     env I_MPI_HYDRA_BOOTSTRAP=ssh ../configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --prefix=$(ARCHDIR)/lib/yaxt 1>> $(LOGYAXT) 2>> $(ERRYAXT); \
-	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGYAXT) 2>> $(ERRYAXT) )
-	@echo "=> Installing library yac"
-	@(cd $(COUPLE)/lib/yac; mkdir -p build; cd build; \
-	     env I_MPI_HYDRA_BOOTSTRAP=ssh ../configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --enable-lib-core-only --with-yaxt-root=$(ARCHDIR)/lib/yaxt --with-netcdf-root=$(NETCDF_DIR) --prefix=$(ARCHDIR)/lib/yac 1>> $(LOGYAC) 2>> $(ERRYAC); \
-	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGYAC) 2>> $(ERRYAC) )
+makeyaxt:
+ifeq ($(RECONF),YES)
+	@echo "=> Configuring library yaxt"
+	@(cd $(LIBBUILD)/yaxt; \
+	     env I_MPI_HYDRA_BOOTSTRAP=ssh $(LIBSRC)/yaxt/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+endif
+	@echo "=> Compiling and installing library yaxt"
+	@(cd $(LIBBUILD)/yaxt; \
+	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+
+makeyac-static:
+ifeq ($(RECONF),YES)
+	@echo "=> Configuring static libraries yac_core and yac_utils"
+	@(cd $(LIBBUILD)/yac; \
+	     env I_MPI_HYDRA_BOOTSTRAP=ssh $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --enable-lib-core-only --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDF_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+endif
+	@echo "=> Compiling and installing static libraries yac_core and yac_utils"
+	@(cd $(LIBBUILD)/yac; \
+	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+
+makeyac-shared:
+ifeq ($(RECONF),YES)
+	@echo "=> Configuring shared libraries yac_core and yac_utils"
+	@(cd $(LIBBUILDSHARED)/yac; \
+	     env I_MPI_HYDRA_BOOTSTRAP=ssh $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --enable-lib-core-only --with-pic --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDF_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
+endif
+	@echo "=> Compiling shared objects for yac"
+	@(cd $(LIBBUILDSHARED)/yac; \
+	     make -j $(shell grep -c ^processor /proc/cpuinfo) 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
+	@echo "=> Creating shared library libyac_core.so"
+	@(cd $(LIBBUILDSHARED)/yac     ; \
+	    $(F90) $(DYNOPT) $(LDFLAGS) $(LDDYNOPT) \
+	    -o $(ARCHDIR)/lib/libyac_core.so ./src/core/ppm/*.o ./src/core/*.o $(NETCDF_LIBRARY) -L$(ARCHDIR)/lib -lyaxt; )
+	@echo "=> Creating shared library libyac_utils.so"
+	@(cd $(LIBBUILDSHARED)/yac ; \
+	    $(F90) $(DYNOPT) $(LDFLAGS) $(LDDYNOPT) \
+	    -o $(ARCHDIR)/lib/libyac_utils.so ./contrib/*.o -L$(ARCHDIR)/lib -lyac_core -lyaxt $(NETCDF_LIBRARY); )
+	@echo "=> Installing shared libraries yac_core and yac_utils"
+	@(cd $(LIBBUILDSHARED)/yac ; \
+	    cp -f $(LIBSRC)/yac/src/core/*.h  $(ARCHDIR)/include/; \
+	    cp -f ./src/core/mo_yac_core.mod  $(ARCHDIR)/include/; \
+	    cp -f $(LIBSRC)/yac/contrib/*.h   $(ARCHDIR)/include/; \
+	    cp -f ./contrib/mo_yac_utils.mod  $(ARCHDIR)/include/;)
 
 ########################################################################################
 # Rules for compiling the libraries psmile
@@ -369,7 +431,7 @@ makepyoasis:
 	@echo \"source ${ARCHDIR}/python/init.sh\"
 	@echo    or
 	@echo \"source ${ARCHDIR}/python/init.csh\"
-	@echo Alternatively, these lines could be added to your \"\~/.bashrc\" or \"\~/.cshrc\" file. 
+	@echo Alternatively, these lines could be added to your \"\~/.bashrc\" or \"\~/.cshrc\" file.
 	@echo =====================================================================
 	@echo
 
