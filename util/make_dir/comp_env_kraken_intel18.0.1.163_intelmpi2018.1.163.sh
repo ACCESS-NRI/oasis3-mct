@@ -7,7 +7,7 @@ module purge
 module load compiler/gcc/5.4.0
 module load compiler/intel/18.0.1.163
 
-if [ ${HOSTNAME} == kglobc1 ] ; then
+if [ `hostname` == kglobc1 ] ; then
   module load mpi/intelmpi/2018.1.163_ssh
   echo 'We work on kglobc1 node'
   export corespn=64
