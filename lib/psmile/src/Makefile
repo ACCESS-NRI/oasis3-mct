@@ -19,20 +19,14 @@ all:	$(LIBRARY)
 shared: $(DYNLIBRARY)
 
 $(LIBRARY): PREBUILTDIR := $(LIBBUILD)
-ifeq ($(ENABLE_YAC),YES)
-$(LIBRARY): YAC_DEPENDENCY := $(LIBBUILD)/yac/src/core/mo_yac_core.o
-endif
-$(LIBRARY): $(OBJS1) $(YAC_DEPENDENCY)
+$(LIBRARY): $(OBJS1)
 	$(AR) $(ARFLAGS) $(LIBRARY) $(OBJS1)
 
 $(DYNLIBRARY): PREBUILTDIR := $(LIBBUILDSHARED)
-ifeq ($(ENABLE_YAC),YES)
-$(DYNLIBRARY): YAC_DEPENDENCY := $(LIBBUILDSHARED)/yac/src/core/mo_yac_core.o
-endif
 $(DYNLIBRARY): F90FLAGS += $(DYNOPT)
 $(DYNLIBRARY): CCFLAGS += $(DYNOPT)
 $(DYNLIBRARY): LDFLAGS += $(DYNOPT) $(LDDYNOPT)
-$(DYNLIBRARY): $(OBJS1)  $(OBJS3) $(OBJS4) $(YAC_DEPENDENCY)
+$(DYNLIBRARY): $(OBJS1)  $(OBJS3) $(OBJS4)
 	$(F90) $(LDFLAGS) -o $(DYNLIBRARY) $(OBJS1) $(OBJS3) $(OBJS4) $(NETCDF_LIBRARY) -L$(ARCHDIR)/lib -lscrip -lmct -lmpeu
 
 INCLS = -I$(COUPLE)/lib/psmile/include \
@@ -42,6 +36,12 @@ INCLS = -I$(COUPLE)/lib/psmile/include \
 INCLSC = -I$(COUPLE)/lib/psmile/include
 
 ifeq ($(ENABLE_YAC),YES)
+ifeq ($(MODE),STATIC)
+YAC_DEPENDENCY = $(LIBBUILD)/yac/src/core/mo_yac_core.o
+endif
+ifeq ($(MODE),SHARED)
+YAC_DEPENDENCY = $(LIBBUILDSHARED)/yac/src/core/mo_yac_core.o
+endif
 YAC_CPP_DEF = -DYAC_REMAP
 INCLS += -I$(ARCHDIR)/include
 INCLSC += -I$(ARCHDIR)/include

@@ -365,7 +365,7 @@ makepsmile-static:
 	@echo "=> Compiling library psmile"
 	@(cd $(LIBBUILD)/psmile.$(CHAN) ; \
          cp -f $(LIBSRC)/psmile/src/Makefile . ; $(modifmakefile) ; \
-         $(MAKE) all 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ; )
+         $(MAKE) MODE=STATIC all 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ; )
 	@echo "=> Installing library psmile"
 	@(cd $(LIBBUILD)/psmile.$(CHAN) ; \
 	 cp -f *.mod $(ARCHDIR)/include ; )
@@ -374,7 +374,7 @@ makepsmile-shared:
 	@echo "=> Compiling shared library psmile"
 	@(cd $(LIBBUILDSHARED)/psmile.$(CHAN) ; \
          cp -f $(LIBSRC)/psmile/src/Makefile . ; $(modifmakefile) ; \
-         $(MAKE) shared 1>> $(LOGSHARED) 2>> $(ERRSHARED) ; )
+         $(MAKE) MODE=SHARED shared 1>> $(LOGSHARED) 2>> $(ERRSHARED) ; )
 	@echo "=> Installing shared library psmile"
 	@(cd $(LIBBUILDSHARED)/psmile.$(CHAN) ; \
 	 cp -f *.mod $(ARCHDIR)/include ; )
