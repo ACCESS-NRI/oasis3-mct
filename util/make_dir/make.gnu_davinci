@@ -39,8 +39,6 @@ F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
 CC          = mpicc
-# Linker (needed for shared libraries)
-LD          = $(F90)
 # YAC compiler and options
 YCC = $(CC)
 YFC = $(F90)
@@ -60,12 +58,14 @@ ifeq ($(ENABLE_YAC),YES)
 YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
               -lyac_utils -lyac_core -lyaxt_c -llapack -lblas
 endif
-# Shared libraries options
-DYNOPT      = -fPIC
-LDDYNOPT    = -shared
 # Static archiver
 AR          = ar
 ARFLAGS     = -ruv
+# Linker (needed for shared libraries)
+LD          = $(F90)
+# Shared libraries options
+DYNOPT      = -fPIC
+LDDYNOPT    = -shared
 #
 # CPP keys and compiler options
 #

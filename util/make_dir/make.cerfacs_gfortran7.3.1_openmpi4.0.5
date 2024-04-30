@@ -1,7 +1,7 @@
 #
-# Include file for OASIS3 Makefile for a Linux system using
-# Gnu compilers and OpenMPI
-# To use this, 
+# Include file for OASIS3 Makefile
+# for Gnu compilers and OpenMPI on a Linux system
+# To use this,
 # module purge
 # module load mpi/openmpi/405_gcc731
 # module load python/3.7.7
@@ -19,6 +19,9 @@ COUPLE          = $(OASIS_COUPLE)
 # ARCHDIR       : directory created when compiling
 ARCHDIR         = $(COUPLE)/INSTALL_OASIS.$(OASIS_ENV)
 #
+# ENABLE_YAC    : activate YAC based remapping libraries
+ENABLE_YAC      = YES
+#
 # MPI command (for pyoasis scripts)
 # MPI from /softs/local/openmpi405_gcc731/bin/mpirun by module load mpi/openmpi/405_gcc731
 MPIRUN      = mpirun --oversubscribe
@@ -28,14 +31,6 @@ NETCDF_DIR     = /usr
 NETCDF_INCLUDE = /usr/include
 NETCDF_MOD     = /usr/lib64/gfortran/modules
 NETCDF_LIBRARY = -L/usr/lib64 -lnetcdff -lnetcdf
-#
-# YAC libraries
-YAXT_ROOT = $(ARCHDIR)/lib/yaxt
-YAC_ROOT  = $(ARCHDIR)/lib/yac
-YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
-YAC_LIBRARY = -L $(YAC_ROOT)/lib \
-              -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \
-              -lyac_utils -lyac_core -lyaxt_c
 #
 # LAPACK libraries
 LAPACK_LIBRARY = -llapack -lblas
@@ -48,14 +43,33 @@ F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
 CC          = mpicc
+# YAC compiler and options
+YCC = $(CC)
+YFC = $(F90)
+ifeq ($(OASIS_DEBUG), )
+# optimisation safe
+YCFLAGS  = -O2
+YFCFLAGS = -O2
+else
+# optimisation debug
+YCFLAGS  = -O0 -g
+YFCFLAGS = -O0 -g
+endif
+#
+# YAC libraries options for models and toys link
+# Leave empty if YAC not enabled
+ifeq ($(ENABLE_YAC),YES)
+YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
+              -lyac_utils -lyac_core -lyaxt_c -llapack -lblas
+endif
+# Static archiver
+AR          = ar
+ARFLAGS     = -ruv
 # Linker (needed for shared libraries)
 LD          = $(F90)
 # Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
-# Static archiver
-AR          = ar
-ARFLAGS     = -ruv
 #
 # CPP keys and compiler options
 #
@@ -71,29 +85,16 @@ else
 	CCBASEFLAGS  +=
 endif
 #
-# YAC compiler and options
-YCC = mpicc
-YFC = mpifort
-# optimisation safe
-YCFLAGS  = -O2
-YFCFLAGS = -O2
-# optimisation top
-#YCFLAGS  = -O3
-#YFCFLAGS = -O3
-# optimisation debug
-#YCFLAGS  = -O0 -g -fbacktrace
-#YFCFLAGS = -O0 -g -fbacktrace
-#
 # INC_DIR : includes all *mod for each library
 INC_DIR = -I$(ARCHDIR)/include
 # FLIBS : for toys when linking in local Makefile
 FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY) $(LAPACK_LIBRARY)
 #
-F90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD) $(YAC_INCLUDE)
-f90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD) $(YAC_INCLUDE)
-FFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD) $(YAC_INCLUDE)
-fFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD) $(YAC_INCLUDE)
-CCFLAGS  = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD) $(YAC_INCLUDE)
+F90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)
+f90FLAGS = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)
+FFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)
+fFLAGS   = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)
+CCFLAGS  = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) -I$(NETCDF_MOD)
 LDFLAGS  = $(FCBASEFLAGS)
 F2C_LDFLAGS = -lmpi_mpifh -lgfortran -lm
 #

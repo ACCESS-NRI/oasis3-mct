@@ -1,6 +1,8 @@
 #
-# Include file for OASIS3 Makefile for Intel 21 on 
-# Linux computer  with OpenMP
+# Include file for OASIS3 Makefile
+# for Intel 21 and IntelMPI on Linux computer
+# To use this,
+# module purge
 # module load intel/21.1.1
 # module load intelmpi/2021.1.1
 # module load lib/netcdf-fortran/4.4.4_phdf5_1.10.4
@@ -19,6 +21,9 @@ COUPLE          := $(OASIS_COUPLE)
 # ARCHDIR       : directory created when compiling
 ARCHDIR         := $(COUPLE)/INSTALL_OASIS.$(OASIS_ENV)
 #
+# ENABLE_YAC    : activate YAC based remapping libraries
+ENABLE_YAC      = YES
+#
 # MPI library
 MPIDIR           = /softs/intel/oneapi/mpi/2021.1.1/
 MPIBIN           = $(MPIDIR)/bin
@@ -31,84 +36,83 @@ NETCDF_DIR     = /softs/local_intel/netcdf/4.4.4_phdf5_1.10.4
 NETCDF_INCLUDE = $(NETCDF_DIR)/include
 NETCDF_LIBRARY = -Wl,-rpath,$(NETCDF_DIR)/lib -L$(NETCDF_DIR)/lib -lnetcdff -lnetcdf
 #
-# YAC libraries
-YAXT_ROOT = $(ARCHDIR)/lib/yaxt
-YAC_ROOT  = $(ARCHDIR)/lib/yac
-YAC_INCLUDE = -I$(YAC_ROOT)/include -I$(YAXT_ROOT)/include
-YAC_LIBRARY = -L $(YAC_ROOT)/lib \
-              -L $(YAXT_ROOT)/lib -Wl,-rpath,$(YAXT_ROOT)/lib \
-              -lyac_utils -lyac_core -lyaxt_c
-#
-# Compiling and other commands
+# Make command
 MAKE        = gmake
+# Compilers
 F90         = $(MPIBIN)/mpiifort -I$(MPI_INCLUDE)
 F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
 CC          = $(MPIBIN)/mpiicc -I$(MPI_INCLUDE)
-LD          = $(MPIBIN)/mpiifort $(MPILIB)
+# YAC compiler and options
+YCC = $(MPIBIN)/mpiicc
+YFC = $(MPIBIN)/mpiifort
+ifeq ($(OASIS_DEBUG), )
+# optimisation safe
+YCFLAGS  = -O2 -fp-model precise
+YFCFLAGS = -O2 -fp-model precise
+else
+# optimisation debug
+YCFLAGS  = -O0 -g -traceback
+YFCFLAGS = -O0 -g -traceback
+endif
+#
+# YAC libraries options for models and toys link
+# Leave empty if YAC not enabled
+ifeq ($(ENABLE_YAC),YES)
+YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
+              -lyac_utils -lyac_core -lyaxt_c
+endif
+# Static archiver
+AR          = ar
+ARFLAGS     = -ruv
 # Static libraries compilation options
 ifeq ($(OASIS_DEBUG), )
         STATOPT =  -xAVX
 else
         STATOPT =
 endif
+# Linker (needed for shared libraries)
+LD          = $(MPIBIN)/mpiifort $(MPILIB)
 # Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
-AR          = ar
-ARFLAGS     = -ruv
 # Fortran libraries for C linking
 F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 # CPP keys and compiler options
-# 
-CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY -DYAC_REMAP
 #
-# -g is necessary in F90FLAGS and LDFLAGS for pgf90 versions lower than 6.1
-# 
+CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
+#
 FCBASEFLAGS := -I. -assume byterecl -mkl
 CCBASEFLAGS :=
 ifeq ($(OASIS_DEBUG), )
 	ifeq ($(OASIS_OPENMP), )
 		FCBASEFLAGS += -O2 -xAVX
-                CCBASEFLAGS += -O2 
+		CCBASEFLAGS += -O2
 	else
 		FCBASEFLAGS += -O2 -xAVX -mt_mpi -qopenmp
-                CCBASEFLAGS += -O2 -qopenmp
+		CCBASEFLAGS += -O2 -qopenmp
 	endif
 else
 	ifeq ($(OASIS_OPENMP), )
 		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created
 	else
 		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created -mt_mpi -qopenmp
-                CCBASEFLAGS += -qopenmp
+		CCBASEFLAGS += -qopenmp
 	endif
 endif
-#
-# YAC compiler and options
-YCC = $(MPIBIN)/mpiicc
-YFC = $(MPIBIN)/mpiifort
-# optimisation safe
-YCFLAGS  = -O2 -fp-model precise
-YFCFLAGS = -O2 -fp-model precise
-# optimisation top
-#YCFLAGS  = -O3 -xCORE-AVX2 -fp-model precise
-#YFCFLAGS = -O3 -xCORE-AVX2 -fp-model precise
-# optimisation debug
-#YCFLAGS  = -O0 -g -traceback
-#YFCFLAGS = -O0 -g -traceback
 #
 # INC_DIR : includes all *mod for each library
 INC_DIR = -I$(ARCHDIR)/include
 # FLIBS : for toys when linking in local Makefile
 FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY)
 #
-F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) $(YAC_INCLUDE)
-f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) $(YAC_INCLUDE)
-FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) $(YAC_INCLUDE)
-fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) $(YAC_INCLUDE)
-CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE) $(YAC_INCLUDE)
+F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
 LDFLAGS     = $(FCBASEFLAGS)
 F2C_LDFLAGS = $(F2C_LIBS)
 #

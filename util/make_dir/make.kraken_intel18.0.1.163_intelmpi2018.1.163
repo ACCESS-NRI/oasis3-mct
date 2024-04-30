@@ -1,6 +1,8 @@
 #
-# Include file for OASIS3 Makefile for Intel 18 on
-# kraken at Cerfacs with OpenMP
+# Include file for OASIS3 Makefile
+# for Intel 18 and IntelMPI on kraken machine at Cerfacs
+# To use this,
+# module purge
 # module load compiler/intel/18.0.1.163
 # module load mpi/intelmpi/2018.1.163
 # module load lib/phdf5/1.8.20_impi
@@ -19,6 +21,7 @@ COUPLE          := $(OASIS_COUPLE)
 #
 # ARCHDIR       : directory created when compiling
 ARCHDIR         := $(COUPLE)/INSTALL_OASIS.$(OASIS_ENV)
+#
 # ENABLE_YAC    : activate YAC based remapping libraries
 ENABLE_YAC      = YES
 #
@@ -38,15 +41,26 @@ NETCDF_INCDIR1 = $(NETCDF_DIR)/include
 NETCDF_INCDIR2 = /softs/local_intel/netcdf-c/4.6.1_phdf5/include
 NETCDF_LIBRARY = -Wl,-rpath,$(NETCDF_LIBDIR1) -L$(NETCDF_LIBDIR1) -Wl,-rpath,$(NETCDF_LIBDIR2) -L$(NETCDF_LIBDIR2) -lnetcdff -lnetcdf
 #
+# Make command
+MAKE        = gmake
+# Compilers
+F90         = $(MPIBIN)/mpiifort -I$(MPI_INCLUDE)
+F           = $(F90)
+f90         = $(F90)
+f           = $(F90)
+CC          = $(MPIBIN)/mpiicc -I$(MPI_INCLUDE)
 # YAC compiler and options
 YCC = $(MPIBIN)/mpiicc
 YFC = $(MPIBIN)/mpiifort
+ifeq ($(OASIS_DEBUG), )
 # optimisation safe
 YCFLAGS  = -O2 -fp-model precise
 YFCFLAGS = -O2 -fp-model precise
+else
 # optimisation debug
-#YCFLAGS  = -O0 -g -traceback
-#YFCFLAGS = -O0 -g -traceback
+YCFLAGS  = -O0 -g -traceback
+YFCFLAGS = -O0 -g -traceback
+endif
 #
 # YAC libraries options for models and toys link
 # Leave empty if YAC not enabled
@@ -54,28 +68,20 @@ ifeq ($(ENABLE_YAC),YES)
 YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
               -lyac_utils -lyac_core -lyaxt_c
 endif
-#
-# Compiling and other commands
-MAKE        = gmake
-F90         = $(MPIBIN)/mpiifort -I$(MPI_INCLUDE)
-F           = $(F90)
-f90         = $(F90)
-f           = $(F90)
-CC          = $(MPIBIN)/mpiicc -I$(MPI_INCLUDE)
+# Static archiver
+AR          = ar
+ARFLAGS     = -ruv
+# Linker (needed for shared libraries)
 LD          = $(MPIBIN)/mpiifort $(MPILIB)
 # Shared libraries options
 DYNOPT      = -fPIC
 LDDYNOPT    = -shared
-AR          = ar
-ARFLAGS     = -ruv
 # Fortran libraries for C linking
 F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 # CPP keys and compiler options
 #
 CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
-#
-# -g is necessary in F90FLAGS and LDFLAGS for pgf90 versions lower than 6.1
 #
 FCBASEFLAGS := -I. -assume byterecl -mkl
 CCBASEFLAGS :=
@@ -84,15 +90,15 @@ ifeq ($(OASIS_DEBUG), )
 		FCBASEFLAGS += -O2 -xCORE-AVX2
 	else
 		FCBASEFLAGS += -O2 -xCORE-AVX2 -mt_mpi -qopenmp
-                CCBASEFLAGS += -qopenmp
+		CCBASEFLAGS += -qopenmp
 	endif
 else
 	ifeq ($(OASIS_OPENMP), )
 		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created
-        else
+	else
 		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created -mt_mpi -qopenmp
 		CCBASEFLAGS += -qopenmp
-        endif
+	endif
 endif
 #
 # INC_DIR : includes all *mod for each library
