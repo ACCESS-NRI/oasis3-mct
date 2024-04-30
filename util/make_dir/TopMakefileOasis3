@@ -318,7 +318,7 @@ makeyaxt:
 ifeq ($(RECONF),YES)
 	@echo "=> Configuring library yaxt"
 	@(cd $(LIBBUILD)/yaxt; \
-	     $(LIBSRC)/yaxt/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+	     $(LIBSRC)/yaxt/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" "$(YAXTCONF)" --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
 endif
 	@echo "=> Compiling and installing library yaxt"
 	@(cd $(LIBBUILD)/yaxt; \
