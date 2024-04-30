@@ -5,10 +5,10 @@ tests_toys_oasis_fundy:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactive
+     - feature/yac_remap
 
      script:
-     - ssh fundy "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
+     - ssh fundy "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3-MCT_RES ; mkdir ${SCRATCHDIR}/OA3-MCT_RES"
      - ssh fundy "cd ${SCRATCHDIR} ; git clone --branch feature/yac_remap --recurse-submodules git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
      - ssh fundy "cd ${SCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh fundy_gfortran10.2.0_openmpi4.1.0 DEBUGT"
      - ssh fundy "\rm -rf $CI_PROJECT_DIR"
@@ -17,10 +17,10 @@ tests_toys_oasis_stiff:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactive
+     - feature/yac_remap
 
      script:
-     - ssh stiff "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
+     - ssh stiff "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3-MCT_RES ; mkdir ${SCRATCHDIR}/OA3-MCT_RES"
      - ssh stiff "cd ${SCRATCHDIR} ; git clone --branch feature/yac_remap --recurse-submodules git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
      - ssh stiff "cd ${SCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh stiff_pgi20.4_openmpi3.1.3 DEBUGT"
      - ssh stiff "\rm -rf $CI_PROJECT_DIR"
@@ -29,10 +29,10 @@ tests_toys_oasis_tioman:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactive
+     - feature/yac_remap
 
      script:
-     - ssh tioman "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3_MCT_RES ; mkdir ${SCRATCHDIR}/OA3_MCT_RES"
+     - ssh tioman "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3-MCT_RES ; mkdir ${SCRATCHDIR}/OA3-MCT_RES"
      - ssh tioman "cd ${SCRATCHDIR} ; git clone --branch feature/yac_remap --recurse-submodules git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
      - ssh tioman "cd ${SCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh tioman_intel21.1.1_intelmpi2021.1.1 DEBUGT"
      - ssh tioman "\rm -rf ${HOME}/builds"
@@ -44,7 +44,7 @@ tests_toys_oasis_kraken:
      - feature/yac_remap
 
      script:
-     - ssh kglobc1 "\rm -rf ${KSCRATCHDIR}/oasis3-mct ${KSCRATCHDIR}/OA3_MCT_RES ; mkdir ${KSCRATCHDIR}/OA3_MCT_RES"
+     - ssh kglobc1 "\rm -rf ${KSCRATCHDIR}/oasis3-mct ${KSCRATCHDIR}/OA3-MCT_RES ; mkdir ${KSCRATCHDIR}/OA3-MCT_RES"
      - ssh kglobc1 "cd ${KSCRATCHDIR} ; git clone --branch feature/yac_remap --recurse-submodules git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
      - ssh kglobc1 "cd ${KSCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh kraken_intel18.0.1.163_intelmpi2018.1.163 DEBUGT"
      - ssh kglobc1 "\rm -rf $CI_PROJECT_DIR"
