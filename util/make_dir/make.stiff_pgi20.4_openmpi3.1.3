@@ -49,8 +49,8 @@ f90         = $(F90)
 f           = $(F90)
 CC          = $(MPIBIN)/mpicc -I$(MPI_INCLUDE) -pgf90libs
 # YAC compiler and options
-YCC = $(MPIBIN)/mpiicc
-YFC = $(MPIBIN)/mpiifort
+YCC = $(MPIBIN)/mpicc
+YFC = $(MPIBIN)/mpif90
 ifeq ($(OASIS_DEBUG), )
 # optimisation safe
 YCFLAGS  = -O2
