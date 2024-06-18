@@ -5,7 +5,7 @@ tests_toys_oasis_fundy:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactivefeature/yac_remap
+     - feature/yac_remap
 
      script:
      - ssh fundy "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3-MCT_RES ; mkdir ${SCRATCHDIR}/OA3-MCT_RES"
@@ -17,7 +17,7 @@ tests_toys_oasis_stiff:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactivefeature/yac_remap
+     - feature/yac_remap
 
      script:
      - ssh stiff "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3-MCT_RES ; mkdir ${SCRATCHDIR}/OA3-MCT_RES"
@@ -29,7 +29,7 @@ tests_toys_oasis_tioman:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactivefeature/yac_remap
+     - feature/yac_remap
 
      script:
      - ssh tioman "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3-MCT_RES ; mkdir ${SCRATCHDIR}/OA3-MCT_RES"
@@ -41,7 +41,7 @@ tests_toys_oasis_kraken:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactivefeature/yac_remap
+     - feature/yac_remap
 
      script:
      - ssh kglobc1 "\rm -rf ${KSCRATCHDIR}/oasis3-mct ${KSCRATCHDIR}/OA3-MCT_RES ; mkdir ${KSCRATCHDIR}/OA3-MCT_RES"
@@ -53,7 +53,7 @@ tests_toys_oasis_belenos:
      tags:
      - sshjonvilleci.spike
      only:
-     - noactive
+     - feature/yac_remap
 
      script:
-     - ssh elnino "${HOME}/bin/nitrox_belenos_oas3mct_run belenos_intel2018.5.274_intelmpi2018.5.274 DEBUGT"
+     - ssh elnino "${HOME}/bin/log_belenos_torun_oasis_CI_yac_remap belenos_intel2018.5.274_intelmpi2018.5.274 DEBUGT"

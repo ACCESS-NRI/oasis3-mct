@@ -33,9 +33,12 @@ MPILIB           = -L$(MPIDIR)/lib
 MPIRUN           = $(MPIBIN)/mpirun --oversubscribe
 #
 # NETCDF library
-NETCDF_DIR     = /opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2
-NETCDF_INCLUDE = $(NETCDF_DIR)/include
-NETCDF_LIBRARY = -L$(NETCDF_DIR)/lib -lnetcdff 
+NETCDFF_DIR    = /opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2
+NETCDFC_DIR    = /opt/softs/libraries/ICC_2018.5.274/netcdf-c-4.7.1_V2
+NETCDFF_INC    = -I$(NETCDFF_DIR)/include
+NETCDFC_INC    = -I$(NETCDFC_DIR)/include
+NETCDFF_LIB    = $(NETCDFF_DIR)/lib
+NETCDF_LIBRARY = -Wl,-rpath,$(NETCDFF_LIB) -L$(NETCDFF_LIB) -lnetcdff -lnetcdf
 #
 # Make command
 MAKE        = gmake
@@ -44,7 +47,7 @@ F90         = $(MPIBIN)/mpiifort
 F           = $(F90)
 f90         = $(F90)
 f           = $(F90)
-CC          = $(MPIBIN)/mpiicc 
+CC          = $(MPIBIN)/mpiicc
 # YAC compiler and options
 YCC = $(CC)
 YFC = $(F90)
@@ -109,11 +112,11 @@ INC_DIR = -I$(ARCHDIR)/include
 # FLIBS : for toys when linking in local Makefile
 FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY)
 #
-F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
-f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
-FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
-fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
-CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCLUDE)
+F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFC_INC)
 LDFLAGS     = $(FCBASEFLAGS)
 F2C_LDFLAGS = $(F2C_LIBS)
 #

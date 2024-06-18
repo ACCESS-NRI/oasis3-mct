@@ -5,7 +5,6 @@
 # module purge
 # module load compiler/intel/18.0.1.163
 # module load mpi/intelmpi/2018.1.163
-# module load lib/phdf5/1.8.20_impi
 # module load lib/netcdf-fortran/4.4.4_impi
 # module load python/3.7.7
 #
@@ -34,12 +33,12 @@ MPILIB           = -L$(MPIDIR)/lib64
 MPIRUN           = $(MPIBIN)/mpirun
 #
 # NETCDF library
-NETCDF_DIR     = /softs/local_intel/netcdf-fortran/4.4.4_phdf5
-NETCDF_LIBDIR1 = $(NETCDF_DIR)/lib
-NETCDF_LIBDIR2 = /softs/local_intel/netcdf-c/4.6.1_phdf5/lib
-NETCDF_INCDIR1 = $(NETCDF_DIR)/include
-NETCDF_INCDIR2 = /softs/local_intel/netcdf-c/4.6.1_phdf5/include
-NETCDF_LIBRARY = -Wl,-rpath,$(NETCDF_LIBDIR1) -L$(NETCDF_LIBDIR1) -Wl,-rpath,$(NETCDF_LIBDIR2) -L$(NETCDF_LIBDIR2) -lnetcdff -lnetcdf
+NETCDFF_DIR    = /softs/local_intel/netcdf-fortran/4.4.4_phdf5
+NETCDFC_DIR    = /softs/local_intel/netcdf-c/4.6.1_phdf5
+NETCDFF_INC    = -I$(NETCDFF_DIR)/include
+NETCDFC_INC    = -I$(NETCDFC_DIR)/include
+NETCDFF_LIB    = $(NETCDFF_DIR)/lib
+NETCDF_LIBRARY = -Wl,-rpath,$(NETCDFF_LIB) -L$(NETCDFF_LIB) -lnetcdff -lnetcdf
 #
 # Make command
 MAKE        = gmake
@@ -106,11 +105,11 @@ INC_DIR = -I$(ARCHDIR)/include
 # FLIBS : for toys when linking in local Makefile
 FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY)
 #
-F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCDIR1) -I$(NETCDF_INCDIR2)
-f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCDIR1) -I$(NETCDF_INCDIR2)
-FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCDIR1) -I$(NETCDF_INCDIR2)
-fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCDIR1) -I$(NETCDF_INCDIR2)
-CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) -I$(NETCDF_INCDIR1) -I$(NETCDF_INCDIR2)
+F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFC_INC)
 LDFLAGS     = $(FCBASEFLAGS)
 F2C_LDFLAGS = $(F2C_LIBS)
 #
