@@ -19,7 +19,7 @@ MODULE mod_oasis_namcouple
   USE mod_oasis_string
 #ifdef YAC_REMAP
   ! Access to the YAC core utilities and definitions and to the remap toolbox
-  USE mo_yac_core
+  USE yac_core
   USE, INTRINSIC :: iso_c_binding
 #endif
 
@@ -121,6 +121,9 @@ MODULE mod_oasis_namcouple
      CHARACTER(LEN=:), ALLOCATABLE :: spm_meth !< Source point mapping method
      REAL(KIND=8) :: spm_spread     !< Spread index for the source point mapping
      REAL(KIND=8) :: spm_max_radius !< Radius of influence for the source point mapping
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_scale !< Source point mapping scale
+     REAL(KIND=8) :: spm_src_radius     !< Source grid sphere radius
+     REAL(KIND=8) :: spm_tgt_radius     !< Target grid sphere radius
      CHARACTER(LEN=:), ALLOCATABLE :: file_name !< Filename for the file precomputed interp.
   CONTAINS
      PROCEDURE :: to_string => yac_stack_line_to_string
@@ -2942,6 +2945,37 @@ SUBROUTINE inipar
                           namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
                              & namyacmet(jf)%yac_stack(ib_s)%spm_max_radius * deg2rad
                        END IF
+
+                       CALL parse(clline, clvari, 5, jpeighty, ILEN, __LINE__)
+                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                          namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
+                       ELSE
+                          READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_scale
+                       END IF
+
+                       CALL parse(clline, clvari, 6, jpeighty, ILEN, __LINE__)
+                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                          namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                             & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius)) &
+                             & * deg2rad
+                       ELSE
+                          READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_src_radius
+                          namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                             & namyacmet(jf)%yac_stack(ib_s)%spm_src_radius * deg2rad
+                       END IF
+
+                       CALL parse(clline, clvari, 7, jpeighty, ILEN, __LINE__)
+                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                          namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                             & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius)) &
+                             & * deg2rad
+                       ELSE
+                          READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius
+                          namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                             & namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius * deg2rad
+                       END IF
                     ELSE
                        namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
                           & REAL(YAC_INTERP_SPMAP_SPREAD_DISTANCE_DEFAULT_F, &
@@ -2950,6 +2984,15 @@ SUBROUTINE inipar
                        namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
                           & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
                           &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_radius)) &
+                          & * deg2rad
+                       namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
+                       namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                          & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius)) &
+                          & * deg2rad
+                       namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                          & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius)) &
                           & * deg2rad
                     END IF
                  CASE('FILE')
@@ -4529,6 +4572,15 @@ FUNCTION yac_stack_line_to_string(dtv, ib_s) RESULT(yac_str)
       WRITE(tmp_str,'(A,F10.3)') &
          & ' max radius',dtv%spm_max_radius
       yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      WRITE(tmp_str,'(2A)') &
+         & ' scale ',TRIM(dtv%spm_scale)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      WRITE(tmp_str,'(A,F10.3)') &
+         & ' source sphere radius',dtv%spm_src_radius
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      WRITE(tmp_str,'(A,F10.3)') &
+         & ' target sphere radius',dtv%spm_tgt_radius
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
    CASE('FILE')
       WRITE(tmp_str,'(2A)') &
          & ' precomputed weights file ',TRIM(dtv%file_name)
@@ -4619,6 +4671,12 @@ SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
             & ' source target map spread',dtv%yac_stack(ib_s)%spm_spread
          WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' source target map max radius',dtv%yac_stack(ib_s)%spm_max_radius
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' scale ',TRIM(dtv%yac_stack(ib_s)%spm_scale)
+         WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' source sphere radius',dtv%yac_stack(ib_s)%spm_src_radius
+         WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' target sphere radius',dtv%yac_stack(ib_s)%spm_tgt_radius
       CASE('FILE')
          WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' precomputed file name ',TRIM(dtv%yac_stack(ib_s)%file_name)

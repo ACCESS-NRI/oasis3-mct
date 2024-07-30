@@ -37,10 +37,10 @@ INCLSC = -I$(COUPLE)/lib/psmile/include
 
 ifeq ($(ENABLE_YAC),YES)
 ifeq ($(MODE),STATIC)
-YAC_DEPENDENCY = $(LIBBUILD)/yac/src/core/mo_yac_core.o
+YAC_DEPENDENCY = $(LIBBUILD)/yac/src/core/yac_core.o
 endif
 ifeq ($(MODE),SHARED)
-YAC_DEPENDENCY = $(LIBBUILDSHARED)/yac/src/core/mo_yac_core.o
+YAC_DEPENDENCY = $(LIBBUILDSHARED)/yac/src/core/yac_core.o
 endif
 YAC_CPP_DEF = -DYAC_REMAP
 INCLS += -I$(ARCHDIR)/include

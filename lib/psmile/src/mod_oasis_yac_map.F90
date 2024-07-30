@@ -15,8 +15,8 @@ MODULE mod_oasis_yac_map
    USE netcdf
 
    ! Access to the YAC core utilities and definitions and to the remap toolbox
-   USE mo_yac_core
-   USE mo_yac_utils, ONLY : yac_free_c, &
+   USE yac_core
+   USE yac_utils, ONLY : yac_free_c, &
       & yac_read_scrip_basic_grid_parallel_c, &
       & yac_duplicate_stencils_c
 
@@ -537,6 +537,7 @@ CONTAINS
       INTEGER(kind=c_int) :: i_ncc_partial
       INTEGER(kind=c_int) :: nnn_meth
       INTEGER(kind=c_int) :: spm_meth
+      INTEGER(kind=c_int) :: spm_scale
       INTEGER(kind=c_int) :: cons_order
       INTEGER(kind=c_int) :: cons_norm
 
@@ -685,11 +686,23 @@ CONTAINS
             CASE('DIST')
                spm_meth = YAC_INTERP_SPMAP_DIST
             END SELECT
+            SELECT CASE(TRIM(namyacmet(namID)%yac_stack(ib_s)%spm_scale))
+            CASE('NONE')
+               spm_scale = YAC_INTERP_SPMAP_NONE
+            CASE('SRCAREA')
+               spm_scale = YAC_INTERP_SPMAP_SRCAREA
+            CASE('INVTGTAREA')
+               spm_scale = YAC_INTERP_SPMAP_INVTGTAREA
+            CASE('FRACAREA')
+               spm_scale = YAC_INTERP_SPMAP_FRACAREA
+            END SELECT
             CALL yac_interp_stack_config_add_spmap_c( &
                & interp_stack_config, &
                & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_spread,c_double), &
                & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_max_radius,c_double), &
-               & spm_meth)
+               & spm_meth, spm_scale, &
+               & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_src_radius,c_double), &
+               & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_tgt_radius,c_double))
          CASE('FILE')
             CALL yac_interp_stack_config_add_user_file_c( &
                & interp_stack_config, &

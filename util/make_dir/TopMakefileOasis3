@@ -328,7 +328,7 @@ makeyac-static:
 ifeq ($(RECONF),YES)
 	@echo "=> Configuring static libraries yac_core and yac_utils"
 	@(cd $(LIBBUILD)/yac; \
-	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --enable-lib-core-only --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --disable-tools --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
 endif
 	@echo "=> Compiling and installing static libraries yac_core and yac_utils"
 	@(cd $(LIBBUILD)/yac; \
@@ -338,7 +338,7 @@ makeyac-shared:
 ifeq ($(RECONF),YES)
 	@echo "=> Configuring shared libraries yac_core and yac_utils"
 	@(cd $(LIBBUILDSHARED)/yac; \
-	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --enable-lib-core-only --with-pic --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
+	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --disable-tools --with-pic --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
 endif
 	@echo "=> Compiling shared objects for yac"
 	@(cd $(LIBBUILDSHARED)/yac; \
@@ -354,9 +354,9 @@ endif
 	@echo "=> Installing shared libraries yac_core and yac_utils"
 	@(cd $(LIBBUILDSHARED)/yac ; \
 	    cp -f $(LIBSRC)/yac/src/core/*.h  $(ARCHDIR)/include/; \
-	    cp -f ./src/core/mo_yac_core.mod  $(ARCHDIR)/include/; \
+	    cp -f ./src/core/yac_core.mod  $(ARCHDIR)/include/; \
 	    cp -f $(LIBSRC)/yac/contrib/*.h   $(ARCHDIR)/include/; \
-	    cp -f ./contrib/mo_yac_utils.mod  $(ARCHDIR)/include/;)
+	    cp -f ./contrib/yac_utils.mod  $(ARCHDIR)/include/;)
 
 ########################################################################################
 # Rules for compiling the libraries psmile
