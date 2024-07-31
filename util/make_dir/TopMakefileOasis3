@@ -350,13 +350,13 @@ endif
 	@echo "=> Creating shared library libyac_utils.so"
 	@(cd $(LIBBUILDSHARED)/yac ; \
 	    $(F90) $(DYNOPT) $(LDFLAGS) $(LDDYNOPT) \
-	    -o $(ARCHDIR)/lib/libyac_utils.so ./contrib/*.o -L$(ARCHDIR)/lib -lyac_core -lyaxt $(NETCDF_LIBRARY); )
+	    -o $(ARCHDIR)/lib/libyac_utils.so ./src/utils/*.o -L$(ARCHDIR)/lib -lyac_core -lyaxt $(NETCDF_LIBRARY); )
 	@echo "=> Installing shared libraries yac_core and yac_utils"
 	@(cd $(LIBBUILDSHARED)/yac ; \
 	    cp -f $(LIBSRC)/yac/src/core/*.h  $(ARCHDIR)/include/; \
 	    cp -f ./src/core/yac_core.mod  $(ARCHDIR)/include/; \
-	    cp -f $(LIBSRC)/yac/contrib/*.h   $(ARCHDIR)/include/; \
-	    cp -f ./contrib/yac_utils.mod  $(ARCHDIR)/include/;)
+	    cp -f $(LIBSRC)/yac/src/utils/*.h   $(ARCHDIR)/include/; \
+	    cp -f ./src/utils/yac_utils.mod  $(ARCHDIR)/include/;)
 
 ########################################################################################
 # Rules for compiling the libraries psmile
