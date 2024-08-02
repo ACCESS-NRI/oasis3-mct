@@ -29,3 +29,5 @@ export USER_TEST=("104")
 export USER_PARAMLOC=(${OASIS_TESTS}"/oasis3-mct_tests/toy_interpolation")
 # To run the tests in USER_RUNDIR
 export USER_RUNDIR=${OASIS_COUPLE}/../OA3_MCT_RES_${OASIS_ENV}
+# To allow for language interoperability
+export I_MPI_COLL_EXTERNAL=no

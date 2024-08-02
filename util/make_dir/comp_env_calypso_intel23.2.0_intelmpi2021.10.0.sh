@@ -19,5 +19,6 @@ else
 fi
 echo `which mpirun`
 export MPIRUN=mpirun
+export I_MPI_COLL_EXTERNAL=no
 module load lib/phdf5/1.12.0_impi
 module load lib/netcdf-fortran/4.4.4_phdf5_1.12.0
