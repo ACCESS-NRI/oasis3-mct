@@ -2957,24 +2957,18 @@ SUBROUTINE inipar
                        IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
                           namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
                              & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
-                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius)) &
-                             & * deg2rad
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
                        ELSE
                           READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_src_radius
-                          namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
-                             & namyacmet(jf)%yac_stack(ib_s)%spm_src_radius * deg2rad
                        END IF
 
                        CALL parse(clline, clvari, 7, jpeighty, ILEN, __LINE__)
                        IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
                           namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
                              & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
-                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius)) &
-                             & * deg2rad
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
                        ELSE
                           READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius
-                          namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
-                             & namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius * deg2rad
                        END IF
                     ELSE
                        namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
@@ -2988,12 +2982,10 @@ SUBROUTINE inipar
                        namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
                        namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
                           & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
-                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius)) &
-                          & * deg2rad
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
                        namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
                           & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
-                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius)) &
-                          & * deg2rad
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
                     END IF
                  CASE('FILE')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
@@ -4512,6 +4504,7 @@ FUNCTION yac_stack_line_to_string(dtv, ib_s) RESULT(yac_str)
    CHARACTER(LEN=1024) :: yac_str       !< output string
 
    CHARACTER(LEN=1024) :: tmp_str
+   REAL (kind=ip_realwp_p) :: deg2rad = 3.14159265358979323846_ip_realwp_p/180.0_ip_realwp_p
    WRITE(yac_str,'(A,I2,2A)') &
       & 'YAC stack method ',ib_s,': ',TRIM(ADJUSTL(dtv%method))
    SELECT CASE(TRIM(dtv%method))
@@ -4567,10 +4560,10 @@ FUNCTION yac_stack_line_to_string(dtv, ib_s) RESULT(yac_str)
          & ' source target map meth ',TRIM(dtv%spm_meth)
       yac_str = TRIM(yac_str) // TRIM(tmp_str)
       WRITE(tmp_str,'(A,F10.3)') &
-         & ' spread',dtv%spm_spread
+         & ' spread',dtv%spm_spread / deg2rad
       yac_str = TRIM(yac_str) // TRIM(tmp_str)
       WRITE(tmp_str,'(A,F10.3)') &
-         & ' max radius',dtv%spm_max_radius
+         & ' max radius',dtv%spm_max_radius / deg2rad
       yac_str = TRIM(yac_str) // TRIM(tmp_str)
       WRITE(tmp_str,'(2A)') &
          & ' scale ',TRIM(dtv%spm_scale)
@@ -4603,6 +4596,7 @@ SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
    CHARACTER(len=*), INTENT(INOUT) :: iomsg
 
    INTEGER :: ib_s, fmt_len
+   REAL (kind=ip_realwp_p) :: deg2rad = 3.14159265358979323846_ip_realwp_p/180.0_ip_realwp_p
 
    IF (iotype .NE. 'LISTDIRECTED' .AND. &
      & iotype .NE. 'NAMELIST' .AND. &
@@ -4668,9 +4662,9 @@ SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
          WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' source target map meth ',TRIM(dtv%yac_stack(ib_s)%spm_meth)
          WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
-            & ' source target map spread',dtv%yac_stack(ib_s)%spm_spread
+            & ' source target map spread',dtv%yac_stack(ib_s)%spm_spread / deg2rad
          WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
-            & ' source target map max radius',dtv%yac_stack(ib_s)%spm_max_radius
+            & ' source target map max radius',dtv%yac_stack(ib_s)%spm_max_radius / deg2rad
          WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' scale ',TRIM(dtv%yac_stack(ib_s)%spm_scale)
          WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
