@@ -2935,40 +2935,84 @@ SUBROUTINE inipar
                              & namyacmet(jf)%yac_stack(ib_s)%spm_spread * deg2rad
                        END IF
                        CALL parse(clline, clvari, 4, jpeighty, ILEN, __LINE__)
-                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                       IF (ILEN > 0 ) THEN
+                          IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                             namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
+                                & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_radius)) &
+                                & * deg2rad
+                          ELSE
+                             READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_max_radius
+                             namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
+                                & namyacmet(jf)%yac_stack(ib_s)%spm_max_radius * deg2rad
+                          END IF
+                          CALL parse(clline, clvari, 5, jpeighty, ILEN, __LINE__)
+                          IF (ILEN > 0 ) THEN
+                             SELECT CASE(uppercase(TRIM(clvari)))
+                             CASE('DEFAULT', 'NONE', 'SRCAREA', 'INVTGTAREA', 'FRACAREA')
+                                IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
+                                ELSE
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_scale = uppercase(TRIM(clvari))
+                                END IF
+                             CASE DEFAULT
+                                WRITE(tmpstr1,*) ' YAC SPMAP scale can only be DEFAULT, &
+                                   &NONE, SRCAREA, INVTGTAREA or FRACAREA not '//TRIM(clvari)
+                                WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                                CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                             END SELECT
+                             CALL parse(clline, clvari, 6, jpeighty, ILEN, __LINE__)
+                             IF (ILEN > 0 ) THEN
+                                IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                                      & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+                                      &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                                ELSE
+                                   READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_src_radius
+                                END IF
+                                CALL parse(clline, clvari, 7, jpeighty, ILEN, __LINE__)
+                                IF (ILEN > 0 ) THEN
+                                   IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                         & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                                         &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                   ELSE
+                                      READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius
+                                   END IF
+                                ELSE
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                      & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                                      &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                END IF
+                             ELSE
+                                namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                                   & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+                                   &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                                namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                   & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                                   &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                             END IF
+                          ELSE
+                             namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
+                             namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                                & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                             namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                          END IF
+                       ELSE
                           namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
                              & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
                              &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_radius)) &
                              & * deg2rad
-                       ELSE
-                          READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_max_radius
-                          namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
-                             & namyacmet(jf)%yac_stack(ib_s)%spm_max_radius * deg2rad
-                       END IF
-
-                       CALL parse(clline, clvari, 5, jpeighty, ILEN, __LINE__)
-                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
                           namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
-                       ELSE
-                          READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_scale
-                       END IF
-
-                       CALL parse(clline, clvari, 6, jpeighty, ILEN, __LINE__)
-                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
                           namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
                              & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
                              &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
-                       ELSE
-                          READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_src_radius
-                       END IF
-
-                       CALL parse(clline, clvari, 7, jpeighty, ILEN, __LINE__)
-                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
                           namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
                              & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
                              &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
-                       ELSE
-                          READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius
                        END IF
                     ELSE
                        namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
