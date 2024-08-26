@@ -672,6 +672,7 @@ CONTAINS
             CALL yac_interp_stack_config_add_nnn_c( &
                & interp_stack_config, nnn_meth, &
                & INT(namyacmet(namID)%yac_stack(ib_s)%nnn_points,c_size_t), &
+               & REAL(namyacmet(namID)%yac_stack(ib_s)%nnn_max_radius,c_double), &
                & REAL(namyacmet(namID)%yac_stack(ib_s)%nnn_scale,c_double))
          CASE('CREEP')
             CALL yac_interp_stack_config_add_creep_c( &
@@ -706,8 +707,7 @@ CONTAINS
          CASE('FILE')
             CALL yac_interp_stack_config_add_user_file_c( &
                & interp_stack_config, &
-               & TRIM(namyacmet(namID)%yac_stack(ib_s)%file_name)//c_null_char, &
-               & TRIM(namsrcgrd(namID))//c_null_char, TRIM(namdstgrd(namID))//c_null_char)
+               & TRIM(namyacmet(namID)%yac_stack(ib_s)%file_name)//c_null_char)
          END SELECT
          CALL yac_interp_stack_config_add_check_c( &
             &    interp_stack_config, YAC_INTERP_CHECK_CONSTRUCTOR_KEY_DEFAULT_F, &
