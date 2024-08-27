@@ -30,7 +30,7 @@ MPIDIR           = /opt/softs/intel/2018.04/impi/2018.5.274/intel64
 MPIBIN           = $(MPIDIR)/bin
 MPI_INCLUDE      = $(MPIDIR)/include
 MPILIB           = -L$(MPIDIR)/lib
-MPIRUN           = $(MPIBIN)/mpirun --oversubscribe
+MPIRUN           = $(MPIBIN)/mpirun
 #
 # NETCDF library
 NETCDFF_DIR    = /opt/softs/libraries/ICC_2018.5.274/netcdf-fortran-4.5.2_V2
