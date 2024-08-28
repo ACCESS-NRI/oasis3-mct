@@ -115,13 +115,13 @@ MODULE mod_oasis_namcouple
      CHARACTER(LEN=:), ALLOCATABLE :: ncc_meth   !< Weighting method for nearest corner cells interp.
      LOGICAL :: ncc_partial                      !< Use partial stencils for n.c.c. interp.
      CHARACTER(LEN=:), ALLOCATABLE :: nnn_meth   !< Weighting method for nearest neigbour interp.
-     REAL(KIND=8) :: nnn_max_radius !< Maximum search radius for nearest neigbour interp.
+     REAL(KIND=8) :: nnn_max_search_distance !< Maximum search distance on the sphere for nearest neigbour interp. (degrees)
      REAL(KIND=8) :: nnn_scale !< Scale for Gauss or Radial Basis func n.n. weights
      INTEGER :: nnn_points     !< Number of nearest neighbours to account for in n.n. interp
      INTEGER :: creep_iter     !< Number of iterations for the creep fill method
      CHARACTER(LEN=:), ALLOCATABLE :: spm_meth !< Source point mapping method
      REAL(KIND=8) :: spm_spread     !< Spread index for the source point mapping
-     REAL(KIND=8) :: spm_max_radius !< Radius of influence for the source point mapping
+     REAL(KIND=8) :: spm_max_search_distance !< Maximum search distance on the sphere of influence for the source point mapping (degrees)
      CHARACTER(LEN=:), ALLOCATABLE :: spm_scale !< Source point mapping scale
      REAL(KIND=8) :: spm_src_radius     !< Source grid sphere radius
      REAL(KIND=8) :: spm_tgt_radius     !< Target grid sphere radius
@@ -2841,25 +2841,25 @@ SUBROUTINE inipar
                     END SELECT
                     SELECT CASE(TRIM(namyacmet(jf)%yac_stack(ib_s)%nnn_meth))
                     CASE('ZERO')
-                       namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius = &
+                       namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance = &
                        & REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
-                       &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius))
+                       &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance))
                     CASE DEFAULT
                        CALL parse(clline, clvari, 4, jpeighty, ILEN, __LINE__)
                        IF (ILEN > 0) THEN
                           IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
-                             namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius = &
+                             namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance = &
                                 & REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
-                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius))
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance))
                           ELSE
-                             READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius
-                              namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius = &
-                                 &  namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius * deg2rad
+                             READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance
+                              namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance = &
+                                 &  namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance * deg2rad
                           END IF
                        ELSE
-                          namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius = &
+                          namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance = &
                              & REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
-                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius))
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance))
                        END IF
                     END SELECT
                     SELECT CASE(TRIM(namyacmet(jf)%yac_stack(ib_s)%nnn_meth))
@@ -2900,9 +2900,9 @@ SUBROUTINE inipar
                     namyacmet(jf)%yac_stack(ib_s)%method = 'NNN'
                     namyacmet(jf)%yac_stack(ib_s)%nnn_meth = 'ZERO'
                     namyacmet(jf)%yac_stack(ib_s)%nnn_points = 1
-                    namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius = &
+                    namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance = &
                        & REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
-                       &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_radius))
+                       &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance))
                     namyacmet(jf)%yac_stack(ib_s)%nnn_scale = 1.d0
                  CASE('RBF')
                     namyacmet(jf)%yac_stack(ib_s)%method = 'NNN'
@@ -2963,13 +2963,13 @@ SUBROUTINE inipar
                        CALL parse(clline, clvari, 4, jpeighty, ILEN, __LINE__)
                        IF (ILEN > 0 ) THEN
                           IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
-                             namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
+                             namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance = &
                                 & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
-                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_radius))
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance))
                           ELSE
-                             READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_max_radius
-                             namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
-                                & namyacmet(jf)%yac_stack(ib_s)%spm_max_radius * deg2rad
+                             READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance
+                             namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance = &
+                                & namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance * deg2rad
                           END IF
                           CALL parse(clline, clvari, 5, jpeighty, ILEN, __LINE__)
                           IF (ILEN > 0 ) THEN
@@ -3027,9 +3027,9 @@ SUBROUTINE inipar
                                 &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
                           END IF
                        ELSE
-                          namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
+                          namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance = &
                              & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
-                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_radius))
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance))
                           namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
                           namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
                              & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
@@ -3042,9 +3042,9 @@ SUBROUTINE inipar
                        namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
                           & REAL(YAC_INTERP_SPMAP_SPREAD_DISTANCE_DEFAULT_F, &
                           &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_spread))
-                       namyacmet(jf)%yac_stack(ib_s)%spm_max_radius = &
+                       namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance = &
                           & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
-                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_radius))
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance))
                        namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
                        namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
                           & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
@@ -4612,10 +4612,10 @@ FUNCTION yac_stack_line_to_string(dtv, ib_s) RESULT(yac_str)
       WRITE(tmp_str,'(A,I3)') &
          & ' nr of neighbours',dtv%nnn_points
       yac_str = TRIM(yac_str) // TRIM(tmp_str)
-      IF (dtv%nnn_max_radius /=  REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
-         &      KIND = KIND(dtv%nnn_max_radius))) THEN
+      IF (dtv%nnn_max_search_distance /=  REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+         &      KIND = KIND(dtv%nnn_max_search_distance))) THEN
          WRITE(tmp_str,'(A,F10.3)') &
-            & ' max radius',dtv%nnn_max_radius / deg2rad
+            & ' max radius',dtv%nnn_max_search_distance / deg2rad
          yac_str = TRIM(yac_str) // TRIM(tmp_str)
       END IF
       IF (TRIM(dtv%nnn_meth) == 'GAUSS' .OR. TRIM(dtv%nnn_meth) == 'RBF') THEN
@@ -4637,10 +4637,10 @@ FUNCTION yac_stack_line_to_string(dtv, ib_s) RESULT(yac_str)
             & ' spread',dtv%spm_spread / deg2rad
          yac_str = TRIM(yac_str) // TRIM(tmp_str)
       END IF
-      IF (dtv%spm_max_radius /=  REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
-         &      KIND = KIND(dtv%spm_max_radius))) THEN
+      IF (dtv%spm_max_search_distance /=  REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+         &      KIND = KIND(dtv%spm_max_search_distance))) THEN
          WRITE(tmp_str,'(A,F10.3)') &
-            & ' max radius',dtv%spm_max_radius / deg2rad
+            & ' max radius',dtv%spm_max_search_distance / deg2rad
          yac_str = TRIM(yac_str) // TRIM(tmp_str)
       END IF
       WRITE(tmp_str,'(2A)') &
@@ -4738,7 +4738,7 @@ SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
          WRITE(unit,'(A,I3/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' n next neighbour points',dtv%yac_stack(ib_s)%nnn_points
          WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
-            & ' n next neighbour max radius',dtv%yac_stack(ib_s)%nnn_max_radius
+            & ' n next neighbour max radius',dtv%yac_stack(ib_s)%nnn_max_search_distance
          WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' n next neighbour scale',dtv%yac_stack(ib_s)%nnn_scale
       CASE('CREEP')
@@ -4750,7 +4750,7 @@ SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
          WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' source target map spread',dtv%yac_stack(ib_s)%spm_spread / deg2rad
          WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
-            & ' source target map max radius',dtv%yac_stack(ib_s)%spm_max_radius / deg2rad
+            & ' source target map max radius',dtv%yac_stack(ib_s)%spm_max_search_distance / deg2rad
          WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' scale ',TRIM(dtv%yac_stack(ib_s)%spm_scale)
          WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &

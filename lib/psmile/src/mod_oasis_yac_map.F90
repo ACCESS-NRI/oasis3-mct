@@ -672,7 +672,7 @@ CONTAINS
             CALL yac_interp_stack_config_add_nnn_c( &
                & interp_stack_config, nnn_meth, &
                & INT(namyacmet(namID)%yac_stack(ib_s)%nnn_points,c_size_t), &
-               & REAL(namyacmet(namID)%yac_stack(ib_s)%nnn_max_radius,c_double), &
+               & REAL(namyacmet(namID)%yac_stack(ib_s)%nnn_max_search_distance,c_double), &
                & REAL(namyacmet(namID)%yac_stack(ib_s)%nnn_scale,c_double))
          CASE('CREEP')
             CALL yac_interp_stack_config_add_creep_c( &
@@ -700,7 +700,7 @@ CONTAINS
             CALL yac_interp_stack_config_add_spmap_c( &
                & interp_stack_config, &
                & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_spread,c_double), &
-               & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_max_radius,c_double), &
+               & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_max_search_distance,c_double), &
                & spm_meth, spm_scale, &
                & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_src_radius,c_double), &
                & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_tgt_radius,c_double))
