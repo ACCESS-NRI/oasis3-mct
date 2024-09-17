@@ -62,6 +62,21 @@ def grid_struct(grid):
     return grid_st[grid]
 
 
+def grid_type(grid):
+    grid_ty = {"torc": "GC",
+               "nogt": "GC",
+               "nogh": "GC",
+               "to25": "GC",
+               "bggd": "LL",
+               "ssea": "LL",
+               "sse7": "GC",
+               "t359": "GC",
+               "icos": "GC",
+               "icoh": "GC"}
+
+    return grid_ty[grid]
+
+
 valid_grids = ('torc', 'nogt', 'bggd', 'sse7', 'icos')
 ocean_grids = ('torc', 'nogt')
 
@@ -77,8 +92,10 @@ def grid_is_ocean(grid):
 def grid_is_hr(grid):
     return grid in ('icoh', 'to25', 'nogh')
 
+def lib_is_valid(lib):
+    return lib in ('scrip', 'yac')
 
-def write_namcouple(sgrid, dgrid, has_graphics):
+def write_namcouple(sgrid, dgrid, rmplib, has_graphics):
     namcouple = open("namcouple", "w")
     print("############################################", file=namcouple)
     print("$NFIELDS", file=namcouple)
@@ -104,8 +121,14 @@ def write_namcouple(sgrid, dgrid, has_graphics):
     print("{} {} {} {}".format(grid_perio(sgrid)[0], grid_perio(sgrid)[1],
                                grid_perio(dgrid)[0], grid_perio(dgrid)[1]),
                                file=namcouple)
-    print("SCRIPR", file=namcouple)
-    print("CONSERV {} SCALAR LATLON 1 FRACAREA FIRST".format(grid_struct(sgrid)),
-                                                             file=namcouple)
+    if rmplib == 'scrip':
+        print("SCRIPR", file=namcouple)
+        print("CONSERV {} SCALAR LATLON 1 FRACAREA FIRST".format(grid_struct(sgrid)),
+                                                                 file=namcouple)
+    elif rmplib == 'yac':
+        print("YAC", file=namcouple)
+        print("{} {} 1 YAC_CONSERV_FRACAREA 4".format(grid_type(sgrid),grid_type(dgrid)),
+                                                      file=namcouple)
+        print("CONSERV FIRST FRACAREA", file=namcouple)
     print("$END", file=namcouple)
     namcouple.close()

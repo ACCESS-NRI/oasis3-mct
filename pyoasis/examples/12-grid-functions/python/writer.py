@@ -157,6 +157,7 @@ date = int(0)
 field = pyoasis.asarray(msk)
 var_out.put(date, field)
 var_in.get(date, field)
+print("Writer: successfully ended writing grids")
 
 try:
     import netCDF4

@@ -53,6 +53,8 @@ has_graphics = comm.bcast(has_graphics, root=comm.rank)
 
 dgrid = None
 dgrid = comm.bcast(dgrid, root=0)
+rmplib = None
+rmplib = os.path.basename(os.getcwd()).upper()
 ll_plot = False
 ll_plot = comm.bcast(ll_plot, root=0)
 
@@ -149,7 +151,7 @@ for img in range(2):
                             linewidth=sd_lwdt, linestyle=':', color='gray')
     di_gl.top_labels = False
     di_gl.right_labels = False
-    di_ax.set_title('Interpolated function on {} grid'.format(grid_longname(dgrid)))
+    di_ax.set_title('{} interpolated function on {} grid'.format(rmplib, grid_longname(dgrid)))
     fig.colorbar(di_pc, ax=di_ax, shrink=.7)
 
     da_ax = plt.subplot(212, projection=sd_proj)

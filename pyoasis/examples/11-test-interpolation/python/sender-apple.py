@@ -16,6 +16,7 @@ has_graphics = comm.bcast(has_graphics, root=comm.size - 1)
 
 sgrid = None
 dgrid = None
+rmplib = None
 ll_plot = None
 if comm.rank == 0:
     sgrid = input('Enter the source grid code from {}:\n'.format(set(valid_grids)))
@@ -33,14 +34,20 @@ if comm.rank == 0:
     if grid_is_ocean(sgrid) and grid_is_ocean(dgrid):
         print('Only one grid can be for ocean', flush=True)
         comm.Abort()
+    rmplib = os.path.basename(os.getcwd())
+    if not lib_is_valid(rmplib):
+        print('{} is not a valid remapping library'.format(rmplib), flush=True)
+        comm.Abort()
+
     if sgrid == 'torc' or dgrid == 'torc':
-        os.symlink(os.path.join('..', '..', 'common_data', 'masks_torc_scrip.nc'),
+        os.symlink(os.path.join('..', '..', '..', 'common_data', 'masks_torc_'+rmplib+'.nc'),
                    'masks.nc')
     elif sgrid == 'nogt' or dgrid == 'nogt':
-        os.symlink(os.path.join('..', '..', 'common_data', 'masks_nogt_scrip.nc'),
+        os.symlink(os.path.join('..', '..', '..', 'common_data', 'masks_nogt_'+rmplib+'.nc'),
                    'masks.nc')
     else:
-        os.symlink(os.path.join('..', '..', 'common_data', 'masks_no_atm.nc'), 'masks.nc')
+        os.symlink(os.path.join('..', '..', '..', 'common_data', 'masks_no_atm.nc'), 'masks.nc')
+
     do_plot = input('Plot output [yes/no]\n')
     if (do_plot.lower() != 'yes' and do_plot.lower() != 'no'):
         print('{} is not a valid yes/no answer'.format(do_plot), flush=True)
@@ -48,7 +55,7 @@ if comm.rank == 0:
     else:
         ll_plot = do_plot.lower() == 'yes'
 
-    write_namcouple(sgrid, dgrid, has_graphics)
+    write_namcouple(sgrid, dgrid, rmplib, has_graphics)
 
 dgrid = comm.bcast(dgrid, root=0)
 ll_plot = comm.bcast(ll_plot, root=0)

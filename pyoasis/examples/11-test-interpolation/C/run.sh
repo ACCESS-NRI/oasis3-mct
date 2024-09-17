@@ -14,20 +14,24 @@ n2=1
 
 make || exit
 
-rundir=$srcdir/work
+rmplibs="scrip yac"
 
-rm -fr $rundir
-mkdir -p $rundir
-
-ln -sf $srcdir/$exe1 $rundir/.
-ln -sf $srcdir/$exe2 $rundir/.
-
-ln -sf $datadir/grids.nc $rundir/.
-ln -sf $datadir/areas.nc $rundir/.
-ln -sf $datadir/masks_nogt_scrip.nc $rundir/masks.nc
-
-ln -sf $datadir/namcouple $rundir/.
-
-cd $rundir
-
-${MPIRUN4PY} -np $n1 ./$exe1 : -np $n2 ./$exe2
+for rmplib in $rmplibs ; do
+   rundir=$srcdir/work/$rmplib
+   
+   rm -fr $rundir
+   mkdir -p $rundir
+   
+   ln -sf $srcdir/$exe1 $rundir/.
+   ln -sf $srcdir/$exe2 $rundir/.
+   
+   ln -sf $datadir/grids.nc $rundir/.
+   ln -sf $datadir/areas.nc $rundir/.
+   ln -sf $datadir/masks_nogt_${rmplib}.nc $rundir/masks.nc
+   
+   ln -sf $datadir/namcouple_$rmplib $rundir/namcouple
+   
+   cd $rundir
+   
+   ${MPIRUN4PY} -np $n1 ./$exe1 : -np $n2 ./$exe2
+done
