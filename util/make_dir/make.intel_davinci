@@ -34,10 +34,10 @@ else
 endif
 #
 # NETCDF library
-NETCDF_DIR     = $(NETCDF4_DIR)
+NETCDF_DIR     = $(NETCDFF_DIR)
 NETCDFC_DIR    = $(NETCDF4_DIR)
-NETCDF_INCLUDE = -I$(NETCDF4_INCDIR)
-NETCDF_LIBRARY = -Wl,-rpath,$(NETCDF4_LIBDIR) -L$(NETCDF4_LIBDIR) -lnetcdff -lnetcdf
+NETCDF_INCLUDE = -I$(NETCDFF_INCDIR) -I$(NETCDF4_INCDIR)
+NETCDF_LIBRARY = -Wl,-rpath,$(NETCDFF_LIBDIR) -L$(NETCDFF_LIBDIR) -Wl,-rpath,$(NETCDF4_LIBDIR) -L$(NETCDF4_LIBDIR) -lnetcdff -lnetcdf
 #
 # Make command
 MAKE        = gmake
@@ -87,7 +87,7 @@ F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
 #
-FCBASEFLAGS := -I. -assume byterecl -mkl
+FCBASEFLAGS := -I. -assume byterecl -qmkl
 CCBASEFLAGS :=
 ifeq ($(OASIS_DEBUG), )
 	ifeq ($(OASIS_OPENMP), )
