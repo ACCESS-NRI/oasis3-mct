@@ -4,13 +4,15 @@ import pyoasis
 from pyoasis import OASIS
 import numpy as np
 import math
+import sys
 
 comp = pyoasis.Component("writer")
 
-print(comp)
-
 comm_rank = comp.localcomm.rank
 comm_size = comp.localcomm.size
+
+if comm_rank == 0:
+    print(comp)
 
 nx_loc = 18
 ny_loc = 18
@@ -157,7 +159,8 @@ date = int(0)
 field = pyoasis.asarray(msk)
 var_out.put(date, field)
 var_in.get(date, field)
-print("Writer: successfully ended writing grids")
+if comm_rank == 0:
+    print("Writer: successfully ended writing grids", flush=True)
 
 try:
     import netCDF4
@@ -199,6 +202,15 @@ if comm_rank == 0:
         cm = np.transpose(cm)
         newmap = ListedColormap(cm, name='CaramelBleu')
         return newmap
+
+    class CloseEvent(object):
+        def __init__(self):
+            self.first = True
+        def __call__(self):
+            if self.first:
+                self.first = False
+                return
+            sys.exit(0)
 
     dgrid = 'pyoa'
     gf = netCDF4.Dataset('grids.nc', 'r')
@@ -245,6 +257,9 @@ if comm_rank == 0:
     di_ax.set_title('Precomputed mask')
 
     plt.subplots_adjust(left=0.10, right=0.90, wspace=0.05, hspace=0.)
+    timer = fig.canvas.new_timer(interval=2000)
+    timer.add_callback(CloseEvent())
+    timer.start()
     plt.show()
 
 del comp
