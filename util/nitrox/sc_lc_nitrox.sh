@@ -35,3 +35,5 @@ for nitrox_example in ${StringArrayv1[@]}; do
    ./sc_verif_monopara_lc_nitrox.sh ${nitrox_env}
    ./sc_verif_particular_lc_nitrox.sh ${nitrox_env}
 done
+
+./CI_checkoutput.sh ${nitrox_env}

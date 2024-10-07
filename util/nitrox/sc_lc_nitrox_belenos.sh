@@ -45,3 +45,5 @@ for nitrox_example in ${StringArrayv1[@]}; do
    ${oasis_belenos}/sc_verif_particular_lc_nitrox.sh ${nitrox_env}
    cd ${oasis_belenos}
 done
+
+${oasis_belenos}/CI_checkoutput.sh ${nitrox_env}
