@@ -162,6 +162,7 @@ makedirs-static:
 ifeq ($(ENABLE_YAC),YES)
 	@mkdir -p $(LIBBUILD)/yaxt
 	@mkdir -p $(LIBBUILD)/yac
+	@mkdir -p $(ARCHDIR)/bin
 endif
 	@mkdir -p $(LIBBUILD)/psmile.$(CHAN)
 	@mkdir -p $(LIBBUILD)/cbindings
@@ -177,6 +178,7 @@ makedirs-shared:
 ifeq ($(ENABLE_YAC),YES)
 	@mkdir -p $(LIBBUILD)/yaxt
 	@mkdir -p $(LIBBUILDSHARED)/yac
+	@mkdir -p $(ARCHDIR)/bin
 endif
 	@mkdir -p $(LIBBUILDSHARED)/psmile.$(CHAN)
 	@mkdir -p $(LIBBUILDSHARED)/cbindings
@@ -215,6 +217,10 @@ ifeq ($(ENABLE_YAC),YES)
 	rm -f $(ARCHDIR)/lib/libyaxt_c.la
 	rm -f $(ARCHDIR)/lib/libyac_core.a
 	rm -f $(ARCHDIR)/lib/libyac_utils.a
+	rm -f $(ARCHDIR)/lib/pkgconfig/y*.pc
+	rm -f $(ARCHDIR)/bin/plot_weights.py
+	rm -f $(ARCHDIR)/bin/grid_utils.py
+	rm -f $(ARCHDIR)/bin/weights2vtk.x
 endif
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).a
 	rm -f $(ARCHDIR)/lib/liboasis.cbind.a
@@ -240,6 +246,10 @@ ifeq ($(ENABLE_YAC),YES)
 	rm -f $(ARCHDIR)/lib/libyaxt_c.la
 	rm -f $(ARCHDIR)/lib/libyac_core.so
 	rm -f $(ARCHDIR)/lib/libyac_utils.so
+	rm -f $(ARCHDIR)/lib/pkgconfig/y*.pc
+	rm -f $(ARCHDIR)/bin/plot_weights.py
+	rm -f $(ARCHDIR)/bin/grid_utils.py
+	rm -f $(ARCHDIR)/bin/weights2vtk.x
 endif
 	rm -f $(ARCHDIR)/lib/libpsmile.$(CHAN).so
 	rm -f $(ARCHDIR)/lib/liboasis.cbind.so
@@ -328,17 +338,20 @@ makeyac-static:
 ifeq ($(RECONF),YES)
 	@echo "=> Configuring static libraries yac_core and yac_utils"
 	@(cd $(LIBBUILD)/yac; \
-	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --disable-tools --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
 endif
 	@echo "=> Compiling and installing static libraries yac_core and yac_utils"
 	@(cd $(LIBBUILD)/yac; \
-	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ; \
+	     cp -f $(LIBSRC)/yac/tools/plot_weights.py $(ARCHDIR)/bin ; \
+             cp -f $(LIBSRC)/yac/tools/grid_utils.py $(ARCHDIR)/bin ; \
+             cp -f $(LIBBUILD)/yac/tools/weights2vtk.x $(ARCHDIR)/bin )
 
 makeyac-shared:
 ifeq ($(RECONF),YES)
 	@echo "=> Configuring shared libraries yac_core and yac_utils"
 	@(cd $(LIBBUILDSHARED)/yac; \
-	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --disable-tools --with-pic --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
+	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --with-pic --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
 endif
 	@echo "=> Compiling shared objects for yac"
 	@(cd $(LIBBUILDSHARED)/yac; \
@@ -356,7 +369,10 @@ endif
 	    cp -f $(LIBSRC)/yac/src/core/*.h  $(ARCHDIR)/include/; \
 	    cp -f ./src/core/yac_core.mod  $(ARCHDIR)/include/; \
 	    cp -f $(LIBSRC)/yac/src/utils/*.h   $(ARCHDIR)/include/; \
-	    cp -f ./src/utils/yac_utils.mod  $(ARCHDIR)/include/;)
+	    cp -f ./src/utils/yac_utils.mod  $(ARCHDIR)/include/; \
+	    cp -f $(LIBSRC)/yac/tools/plot_weights.py $(ARCHDIR)/bin ; \
+            cp -f $(LIBSRC)/yac/tools/grid_utils.py $(ARCHDIR)/bin ; \
+            cp -f $(LIBBUILDSHARED)/yac/tools/weights2vtk.x $(ARCHDIR)/bin )
 
 ########################################################################################
 # Rules for compiling the libraries psmile
