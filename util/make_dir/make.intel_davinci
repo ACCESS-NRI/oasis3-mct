@@ -34,6 +34,11 @@ else
 endif
 #
 # NETCDF library
+ifeq ($(NETCDFF_DIR), )
+   NETCDFF_DIR    = $(NETCDF4_DIR)
+   NETCDFF_INCDIR = $(NETCDF4_INCDIR)
+   NETCDFF_LIBDIR = $(NETCDF4_LIBDIR)
+endif
 NETCDF_DIR     = $(NETCDFF_DIR)
 NETCDFC_DIR    = $(NETCDF4_DIR)
 NETCDF_INCLUDE = -I$(NETCDFF_INCDIR) -I$(NETCDF4_INCDIR)
@@ -87,7 +92,12 @@ F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
 #
-FCBASEFLAGS := -I. -assume byterecl -qmkl
+ifeq ($(CMPLR_ROOT), )
+        MKLOPT = -mkl
+else
+        MKLOPT = -qmkl
+endif
+FCBASEFLAGS := -I. -assume byterecl $(MKLOPT)
 CCBASEFLAGS :=
 ifeq ($(OASIS_DEBUG), )
 	ifeq ($(OASIS_OPENMP), )
