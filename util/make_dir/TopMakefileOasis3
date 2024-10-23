@@ -336,20 +336,21 @@ endif
 
 makeyac-static:
 ifeq ($(RECONF),YES)
-	@echo "=> Configuring static libraries yac_core and yac_utils"
+	@echo "=> Configuring static libraries yac_core and yac_utils, and building the yac tools"
 	@(cd $(LIBBUILD)/yac; \
 	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
 endif
-	@echo "=> Compiling and installing static libraries yac_core and yac_utils"
+	@echo "=> Compiling and installing static libraries yac_core and yac_utils, and copying the yac tools"
 	@(cd $(LIBBUILD)/yac; \
 	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ; \
 	     cp -f $(LIBSRC)/yac/tools/plot_weights.py $(ARCHDIR)/bin ; \
              cp -f $(LIBSRC)/yac/tools/grid_utils.py $(ARCHDIR)/bin ; \
              cp -f $(LIBBUILD)/yac/tools/weights2vtk.x $(ARCHDIR)/bin )
+	@$(MAKEf) print-yacinfo
 
 makeyac-shared:
 ifeq ($(RECONF),YES)
-	@echo "=> Configuring shared libraries yac_core and yac_utils"
+	@echo "=> Configuring shared libraries yac_core and yac_utils, and building the yac tools"
 	@(cd $(LIBBUILDSHARED)/yac; \
 	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --with-pic --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
 endif
@@ -364,7 +365,7 @@ endif
 	@(cd $(LIBBUILDSHARED)/yac ; \
 	    $(F90) $(DYNOPT) $(LDFLAGS) $(LDDYNOPT) \
 	    -o $(ARCHDIR)/lib/libyac_utils.so ./src/utils/*.o -L$(ARCHDIR)/lib -lyac_core -lyaxt $(NETCDF_LIBRARY); )
-	@echo "=> Installing shared libraries yac_core and yac_utils"
+	@echo "=> Installing shared libraries yac_core and yac_utils, and copying the yac tools"
 	@(cd $(LIBBUILDSHARED)/yac ; \
 	    cp -f $(LIBSRC)/yac/src/core/*.h  $(ARCHDIR)/include/; \
 	    cp -f ./src/core/yac_core.mod  $(ARCHDIR)/include/; \
@@ -373,6 +374,19 @@ endif
 	    cp -f $(LIBSRC)/yac/tools/plot_weights.py $(ARCHDIR)/bin ; \
             cp -f $(LIBSRC)/yac/tools/grid_utils.py $(ARCHDIR)/bin ; \
             cp -f $(LIBBUILDSHARED)/yac/tools/weights2vtk.x $(ARCHDIR)/bin )
+	@$(MAKEf) print-yacinfo
+
+print-yacinfo:
+	@echo '-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-'
+	@echo '    To plot grids and YAC weights file, use the YAC tool by:'
+	@echo '        Adding this line to your "~/.bashrc" or "~/.cshrc" file:'
+	@echo '        export PATH=$${OASIS_COUPLE}/INSTALL_OASIS.$${OASIS_ENV}/bin:$$PATH'
+	@echo '        or'
+	@echo '        set PATH=($${OASIS_COUPLE}/INSTALL_OASIS.$${OASIS_ENV}/bin $$PATH)'
+	@echo
+	@echo '        Learning how to use it with the command:'
+	@echo '        "plot_weights.py --help"'
+	@echo '-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-'
 
 ########################################################################################
 # Rules for compiling the libraries psmile
