@@ -373,7 +373,10 @@ MODULE mod_oasis_namcouple
      cldate, clhead, clprint, clmapdec, clcdftyp, clmatxrd, clunit, clrest, &
      clcal, clend, clwgtopt /)
   CHARACTER*512 :: tmpstr1, tmpstr2, tmpstr3, tmpstr4
-
+!--- propagate dimensions to all instances of a grid
+  LOGICAL, DIMENSION(:), ALLOCATABLE :: lla_trsrc, lla_trdst
+  INTEGER(kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: ila_nxsrc, ila_nxdst
+  INTEGER :: il_mxnx, il_mxny
 
 !------------------------------------------------------------
 CONTAINS
@@ -734,6 +737,82 @@ SUBROUTINE oasis_namcouple_init()
         ENDDO  ! ig_ntrans
      ENDIF   ! ig_number_field
   ENDDO   ! ig_final_nfield
+
+  ! Propagate grid sizes from namcouple lines with sizes to all lines
+  ALLOCATE(lla_trsrc(nnamcpl), lla_trdst(nnamcpl))
+  ALLOCATE(ila_nxsrc(nnamcpl), ila_nxdst(nnamcpl))
+  lla_trsrc(:) = .FALSE.
+  lla_trdst(:) = .FALSE.
+  DO n = 1,nnamcpl
+     IF (lla_trsrc(n)) CYCLE
+     WHERE(namsrcgrd == namsrcgrd(n))
+        ila_nxsrc = namsrc_nx
+     ELSEWHERE
+        ila_nxsrc = -1
+     END WHERE
+     WHERE(namdstgrd == namsrcgrd(n))
+        ila_nxdst = namdst_nx
+     ELSEWHERE
+        ila_nxdst = -1
+     END WHERE
+     il_mxnx = MAXVAL(ila_nxsrc)
+     il_mxny = namsrc_ny(MAXLOC(ila_nxsrc,dim=1))
+     IF (MAXVAL(ila_nxdst) > il_mxnx) THEN
+        il_mxnx = MAXVAL(ila_nxdst)
+        il_mxny = namdst_ny(MAXLOC(ila_nxdst,dim=1))
+     END IF
+     IF (.NOT.ALL(ila_nxsrc == il_mxnx .OR. ila_nxsrc <= 0) .OR.&
+        & .NOT.ALL(ila_nxdst == il_mxnx .OR. ila_nxdst <= 0)) THEN
+        WRITE(tmpstr1,*) 'ERROR: INCHOERENT GRID SIZES FOR ',TRIM(namsrcgrd(n))
+        CALL namcouple_abort(subname,__LINE__,tmpstr1)
+     END IF
+     WHERE(namsrcgrd == namsrcgrd(n))
+        namsrc_nx = il_mxnx
+        namsrc_ny = il_mxny
+        lla_trsrc = .TRUE.
+     END WHERE
+     WHERE(namdstgrd == namsrcgrd(n))
+        namdst_nx = il_mxnx
+        namdst_ny = il_mxny
+        lla_trdst = .TRUE.
+     END WHERE
+  END DO
+  DO n = 1,nnamcpl
+     IF (lla_trdst(n)) CYCLE
+     WHERE(namsrcgrd == namdstgrd(n))
+        ila_nxsrc = namsrc_nx
+     ELSEWHERE
+        ila_nxsrc = -1
+     END WHERE
+     WHERE(namdstgrd == namdstgrd(n))
+        ila_nxdst = namdst_nx
+     ELSEWHERE
+        ila_nxdst = -1
+     END WHERE
+     il_mxnx = MAXVAL(ila_nxsrc)
+     il_mxny = namsrc_ny(MAXLOC(ila_nxsrc,dim=1))
+     IF (MAXVAL(ila_nxdst) > il_mxnx) THEN
+        il_mxnx = MAXVAL(ila_nxdst)
+        il_mxny = namdst_ny(MAXLOC(ila_nxdst,dim=1))
+     END IF
+     IF (.NOT.ALL(ila_nxsrc == il_mxnx .OR. ila_nxsrc <= 0) .OR.&
+        & .NOT.ALL(ILA_nxdst == il_mxnx .OR. ila_nxdst <= 0)) THEN
+        WRITE(tmpstr1,*) 'ERROR: INCHOERENT GRID SIZES FOR ',TRIM(namdstgrd(n))
+        CALL namcouple_abort(subname,__LINE__,tmpstr1)
+     END IF
+     WHERE(namsrcgrd == namdstgrd(n))
+        namsrc_nx = il_mxnx
+        namsrc_ny = il_mxny
+        lla_trsrc = .TRUE.
+     END WHERE
+     WHERE(namdstgrd == namdstgrd(n))
+        namdst_nx = il_mxnx
+        namdst_ny = il_mxny
+        lla_trdst = .TRUE.
+     END WHERE
+  END DO
+  DEALLOCATE(lla_trsrc, lla_trdst)
+  DEALLOCATE(ila_nxsrc, ila_nxdst)
 
   IF (mpi_rank_global == 0) THEN
      WRITE(nulprt1,*) ' '
