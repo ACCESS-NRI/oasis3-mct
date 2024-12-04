@@ -703,7 +703,13 @@ CONTAINS
                & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_max_search_distance,c_double), &
                & spm_meth, spm_scale, &
                & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_src_radius,c_double), &
-               & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_tgt_radius,c_double))
+               & TRIM(ADJUSTL(namyacmet(namID)%yac_stack(ib_s)%spm_src_filename))//c_null_char, &
+               & TRIM(ADJUSTL(namyacmet(namID)%yac_stack(ib_s)%spm_src_varname))//c_null_char, &
+               & INT(namyacmet(namID)%yac_stack(ib_s)%spm_src_min_global_id,c_int), &
+               & REAL(namyacmet(namID)%yac_stack(ib_s)%spm_tgt_radius,c_double), &
+               & TRIM(ADJUSTL(namyacmet(namID)%yac_stack(ib_s)%spm_tgt_filename))//c_null_char, &
+               & TRIM(ADJUSTL(namyacmet(namID)%yac_stack(ib_s)%spm_tgt_varname))//c_null_char, &
+               & INT(namyacmet(namID)%yac_stack(ib_s)%spm_tgt_min_global_id,c_int))
          CASE('FILE')
             CALL yac_interp_stack_config_add_user_file_c( &
                & interp_stack_config, &

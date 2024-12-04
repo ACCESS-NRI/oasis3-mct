@@ -124,7 +124,13 @@ MODULE mod_oasis_namcouple
      REAL(KIND=8) :: spm_max_search_distance !< Maximum search distance on the sphere of influence for the source point mapping (degrees)
      CHARACTER(LEN=:), ALLOCATABLE :: spm_scale !< Source point mapping scale
      REAL(KIND=8) :: spm_src_radius     !< Source grid sphere radius
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_src_filename !< Source grid user surfaces filename
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_src_varname !< Source grid user surfaces varname
+     INTEGER :: spm_src_min_global_id !< Source grid minimum global id in file
      REAL(KIND=8) :: spm_tgt_radius     !< Target grid sphere radius
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_tgt_filename !< Target grid user surfaces filename
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_tgt_varname !< Target grid user surfaces varname
+     INTEGER :: spm_tgt_min_global_id !< Target grid minimum global id in file
      CHARACTER(LEN=:), ALLOCATABLE :: file_name !< Filename for the file precomputed interp.
   CONTAINS
      PROCEDURE :: to_string => yac_stack_line_to_string
@@ -3018,6 +3024,10 @@ SUBROUTINE inipar
                           &     KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%creep_iter))
                     END IF
                  CASE('SPMAP')
+                    namyacmet(jf)%yac_stack(ib_s)%spm_src_min_global_id = &
+                       & YAC_INTERP_SPMAP_MIN_GLOBAL_ID_DEFAULT_F
+                    namyacmet(jf)%yac_stack(ib_s)%spm_tgt_min_global_id = &
+                       & YAC_INTERP_SPMAP_MIN_GLOBAL_ID_DEFAULT_F
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
                     SELECT CASE(uppercase(TRIM(clvari)))
                     CASE('AVG', 'DIST')
@@ -3069,41 +3079,85 @@ SUBROUTINE inipar
                              IF (ILEN > 0 ) THEN
                                 IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
                                    namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
-                                      & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+                                      & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                                       &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
+                                ELSE IF (uppercase(TRIM(clvari)) == 'FILE' .OR. &
+                                   & uppercase(TRIM(clvari)) == 'USER') THEN
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                                      & REAL(0.0, &
+                                      &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = "areas.nc"
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = TRIM(cficbf(ig_number_field(jf)))//".srf"
+                                ELSE IF (uppercase(TRIM(clvari)) == 'EARTH') THEN
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                                      & REAL(eradius, &
+                                      &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
                                 ELSE
                                    READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_src_radius
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
                                 END IF
                                 CALL parse(clline, clvari, 7, jpeighty, ILEN, __LINE__)
                                 IF (ILEN > 0 ) THEN
                                    IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
                                       namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
-                                         & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                                         & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
+                                   ELSE IF (uppercase(TRIM(clvari)) == 'FILE' .OR. &
+                                      & uppercase(TRIM(clvari)) == 'USER') THEN
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                         & REAL(0.0, &
+                                         &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = "areas.nc"
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = TRIM(cficaf(ig_number_field(jf)))//".srf"
+                                   ELSE IF (uppercase(TRIM(clvari)) == 'EARTH') THEN
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                         & REAL(eradius, &
+                                         &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
                                    ELSE
                                       READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
                                    END IF
                                 ELSE
                                    namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
-                                      & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                                      & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                                       &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
                                 END IF
                              ELSE
                                 namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
-                                   & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+                                   & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                                    &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                                namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                                namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
                                 namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
-                                   & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                                   & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                                    &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                                namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
                              END IF
                           ELSE
                              namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
                              namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
-                                & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+                                & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                                 &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                             namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                             namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
                              namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
-                                & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                                & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                                 &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                             namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                             namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
                           END IF
                        ELSE
                           namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance = &
@@ -3111,11 +3165,15 @@ SUBROUTINE inipar
                              &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance))
                           namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
                           namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
-                             & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+                             & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                              &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                          namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                          namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
                           namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
-                             & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                             & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                              &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                          namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                          namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
                        END IF
                     ELSE
                        namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
@@ -3126,11 +3184,15 @@ SUBROUTINE inipar
                           &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance))
                        namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
                        namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
-                          & REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+                          & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                           &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                       namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                       namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
                        namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
-                          & REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+                          & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
                           &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                       namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                       namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
                     END IF
                  CASE('FILE')
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
@@ -4725,16 +4787,24 @@ FUNCTION yac_stack_line_to_string(dtv, ib_s) RESULT(yac_str)
       WRITE(tmp_str,'(2A)') &
          & ' scale ',TRIM(dtv%spm_scale)
       yac_str = TRIM(yac_str) // TRIM(tmp_str)
-      IF (dtv%spm_src_radius /=  REAL(YAC_INTERP_SPMAP_SRC_SPHERE_RADIUS_DEFAULT_F, &
+      IF (dtv%spm_src_radius /=  REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
          &      KIND = KIND(dtv%spm_src_radius))) THEN
-         WRITE(tmp_str,'(A,F10.3)') &
-            & ' source sphere radius',dtv%spm_src_radius
+         IF (dtv%spm_src_radius == REAL(0.0, KIND = KIND(dtv%spm_src_radius))) THEN
+            WRITE(tmp_str,'(A)') ' user provided source areas'
+         ELSE
+            WRITE(tmp_str,'(A,F10.1)') &
+               & ' source sphere radius',dtv%spm_src_radius
+         END IF
          yac_str = TRIM(yac_str) // TRIM(tmp_str)
       END IF
-      IF (dtv%spm_tgt_radius /=  REAL(YAC_INTERP_SPMAP_TGT_SPHERE_RADIUS_DEFAULT_F, &
+      IF (dtv%spm_tgt_radius /=  REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
          &      KIND = KIND(dtv%spm_tgt_radius))) THEN
-         WRITE(tmp_str,'(A,F10.3)') &
-            & ' target sphere radius',dtv%spm_tgt_radius
+         IF (dtv%spm_tgt_radius == REAL(0.0, KIND = KIND(dtv%spm_tgt_radius))) THEN
+            WRITE(tmp_str,'(A)') ' user provided target areas'
+         ELSE
+            WRITE(tmp_str,'(A,F10.1)') &
+               & ' target sphere radius',dtv%spm_tgt_radius
+         END IF
          yac_str = TRIM(yac_str) // TRIM(tmp_str)
       END IF
    CASE('FILE')
@@ -4832,10 +4902,21 @@ SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
             & ' source target map max radius',dtv%yac_stack(ib_s)%spm_max_search_distance / deg2rad
          WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' scale ',TRIM(dtv%yac_stack(ib_s)%spm_scale)
-         WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
-            & ' source sphere radius',dtv%yac_stack(ib_s)%spm_src_radius
-         WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
-            & ' target sphere radius',dtv%yac_stack(ib_s)%spm_tgt_radius
+         IF (dtv%yac_stack(ib_s)%spm_src_radius /= REAL(0.0, KIND(dtv%yac_stack(ib_s)%spm_src_radius))) THEN
+            WRITE(unit,'(A,F10.1/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' source sphere radius',dtv%yac_stack(ib_s)%spm_src_radius
+         ELSE
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' user provided source areas'
+         END IF
+         IF (dtv%yac_stack(ib_s)%spm_tgt_radius /= REAL(0.0, KIND(dtv%yac_stack(ib_s)%spm_tgt_radius))) THEN
+
+            WRITE(unit,'(A,F10.1/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' target sphere radius',dtv%yac_stack(ib_s)%spm_tgt_radius
+         ELSE
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' user provided target areas'
+         END IF
       CASE('FILE')
          WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
             & ' precomputed file name ',TRIM(dtv%yac_stack(ib_s)%file_name)
