@@ -1,0 +1,128 @@
+#
+# Include file for OASIS3 Makefile for Intel 2025 on
+# Linux computer  with OpenMP
+#
+###############################################################################
+#
+# CHAN	: communication technique used in OASIS3 (MPI1/MPI2)
+CHAN            = MPI1
+#
+# Paths for libraries, object files and binaries
+#
+# COUPLE	: path for oasis3-mct main directory
+COUPLE          := $(OASIS_COUPLE)
+#
+# ARCHDIR       : directory created when compiling
+ARCHDIR         := $(OASIS_BUILD_PATH)
+#
+# ENABLE_YAC    : activate YAC based remapping libraries
+ENABLE_YAC      = YES
+#
+# MPI library
+MPIDIR           = $(I_MPI_ROOT)
+MPIBIN           = $(MPIDIR)/bin
+MPI_INCLUDE      = $(MPIDIR)/include
+MPILIB           = -L$(MPIDIR)/lib
+ifeq ($(OASIS_DEBUG), )
+   MPIRUN           = $(MPIBIN)/mpirun
+else
+   MPIRUN           = $(MPIBIN)/mpirun -tv
+endif
+#
+# NETCDF library
+ifeq ($(NETCDFF_DIR), )
+   NETCDFF_DIR    = $(NETCDF4_DIR)
+   NETCDFF_INCDIR = $(NETCDF4_INCDIR)
+   NETCDFF_LIBDIR = $(NETCDF4_LIBDIR)
+endif
+NETCDF_DIR     = $(NETCDFF_DIR)
+NETCDFC_DIR    = $(NETCDF4_DIR)
+NETCDF_INCLUDE = -I$(NETCDFF_INCDIR) -I$(NETCDF4_INCDIR)
+NETCDF_LIBRARY = -Wl,-rpath,$(NETCDFF_LIBDIR) -L$(NETCDFF_LIBDIR) -Wl,-rpath,$(NETCDF4_LIBDIR) -L$(NETCDF4_LIBDIR) -lnetcdff -lnetcdf
+#
+# Make command
+MAKE        = gmake
+# Compilers
+F90         = $(MPIBIN)/mpiifx -I$(MPI_INCLUDE)
+F           = $(F90)
+f90         = $(F90)
+f           = $(F90)
+CC          = $(MPIBIN)/mpiicx -I$(MPI_INCLUDE)
+# YAC compiler and options
+YCC = $(MPIBIN)/mpiicx
+YFC = $(MPIBIN)/mpiifx
+ifeq ($(OASIS_DEBUG), )
+# optimisation safe
+YCFLAGS  = -O2 -fp-model precise
+YFCFLAGS = -O2 -fp-model precise
+else
+# optimisation debug
+YCFLAGS  = -O0 -g -traceback
+YFCFLAGS = -O0 -g -traceback
+endif
+#
+# YAC libraries options for models and toys link
+# Leave empty if YAC not enabled
+ifeq ($(ENABLE_YAC),YES)
+YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
+              -lyac_utils -lyac_core -lyaxt_c
+endif
+# Static archiver
+AR          = ar
+ARFLAGS     = -ruv
+# Static libraries compilation options
+ifeq ($(OASIS_DEBUG), )
+        STATOPT =  -xAVX
+else
+        STATOPT =
+endif
+# Linker (needed for shared libraries)
+LD          = $(MPIBIN)/mpiifx $(MPILIB)
+# Shared libraries options
+DYNOPT      = -fPIC
+LDDYNOPT    = -shared
+# Fortran libraries for C linking
+F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
+#
+# CPP keys and compiler options
+#
+CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
+#
+ifeq ($(CMPLR_ROOT), )
+        MKLOPT = -mkl
+else
+        MKLOPT = -qmkl
+endif
+FCBASEFLAGS := -I. -assume byterecl $(MKLOPT)
+CCBASEFLAGS :=
+ifeq ($(OASIS_DEBUG), )
+	ifeq ($(OASIS_OPENMP), )
+		FCBASEFLAGS += -O2 -xAVX
+                CCBASEFLAGS += -O2
+	else
+		FCBASEFLAGS += -O2 -xAVX -mt_mpi -qopenmp
+                CCBASEFLAGS += -O2 -qopenmp
+	endif
+else
+	ifeq ($(OASIS_OPENMP), )
+		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created
+	else
+		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created -mt_mpi -qopenmp
+                CCBASEFLAGS += -qopenmp
+	endif
+endif
+#
+# INC_DIR : includes all *mod for each library
+INC_DIR = -I$(ARCHDIR)/include
+# FLIBS : for toys when linking in local Makefile
+FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY)
+#
+F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDF_INCLUDE)
+f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDF_INCLUDE)
+FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDF_INCLUDE)
+fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDF_INCLUDE)
+CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDF_INCLUDE)
+LDFLAGS     = $(FCBASEFLAGS)
+F2C_LDFLAGS = $(F2C_LIBS)
+#
+#############################################################################
