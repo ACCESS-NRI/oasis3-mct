@@ -329,6 +329,37 @@ module list
 time mpirun ${mpistr}
 #
 EOF
+#
+###---------------------------------------------------------------------
+### ATOS ECMWF
+###---------------------------------------------------------------------
+#
+elif [ ${OASIS_ENV} == ECMWF.atos ]; then
+
+	  cat <<EOF > $rundir/run_$casename
+#!/bin/bash -l
+# #SBATCH --partition prod
+# Nom du job
+#SBATCH --job-name $casename
+# Temps limite du job
+#SBATCH --time=00:30:00
+#SBATCH --output=$rundir/$casename.o
+#SBATCH --error=$rundir/$casename.e
+# Nombre de noeuds et de processus
+#SBATCH --nodes=$nodes --ntasks-per-node=$corespn
+# #SBATCH --distribution cyclic
+
+cd $rundir
+
+ulimit -s unlimited
+. comp_env.sh
+# . ${OASIS_COUPLE}/util/make_dir/comp_env_${OASIS_ENV}.sh
+module list
+#
+#
+time mpirun ${mpistr}
+#
+EOF
 ###---------------------------------------------------------------------
 ### NEW COMPUTER
 ###---------------------------------------------------------------------
@@ -364,7 +395,7 @@ elif [ ${OASIS_ENV} == scylla_intel2018.4.274_intelmpi2018.4.274 ] ; then
         fi
       done
     fi
-elif [ ${OASIS_ENV} == belenos_intel2018.5.274_intelmpi2018.5.274 ] || [ ${OASIS_ENV} == nemo_intel18.0.1.163_intelmpi2018.1.163 ] || [ ${OASIS_ENV} == kraken_intel18.0.1.163_intelmpi2018.1.163 ]; then
+elif [ ${OASIS_ENV} == belenos_intel2018.5.274_intelmpi2018.5.274 ] || [ ${OASIS_ENV} == nemo_intel18.0.1.163_intelmpi2018.1.163 ] || [ ${OASIS_ENV} == kraken_intel18.0.1.163_intelmpi2018.1.163 ] || [ ${OASIS_ENV} == ECMWF.atos ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename
     squeue -u $username
