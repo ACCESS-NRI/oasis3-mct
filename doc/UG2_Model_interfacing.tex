@@ -400,6 +400,8 @@ Figure \ref{orange_partition} illustrates an Orange partition with 3
 segments for one process. The other process partitions are not
 illustrated.
 
+Note that each partition has to be defined with monotonically increasing global index values. 
+
 \begin{figure}
   \includegraphics[scale=.6]{figures/orange_new}
   \caption{Orange partition for one process. It is assumed here that
@@ -415,7 +417,9 @@ process.  The index naming
 is arbitrary but must be consistent between all processes involved
 in the partition description.  In
 this case, we have {\tt ig\_paral(1:N)} where {\tt N = 2 + number of
-  points}
+  points}.
+As for Orange, 
+each partition has to be defined with monotonically increasing global index values. 
 % \footnote{As for the Box partition, the maximum number of segments
 %   is presently 338; it can be increased by modifying the value of
 %   {\tt Clim\_MaxSegments}}.
