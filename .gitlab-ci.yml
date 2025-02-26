@@ -46,7 +46,7 @@ tests_toys_oasis_kraken:
      script:
      - ssh kglobc1 "\rm -rf ${KSCRATCHDIR}/oasis3-mct ${KSCRATCHDIR}/OA3-MCT_RES ; mkdir ${KSCRATCHDIR}/OA3-MCT_RES"
      - ssh kglobc1 "cd ${KSCRATCHDIR} ; git clone --branch master --recurse-submodules git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git ; cd oasis3-mct ; git submodule update --init --remote"
-     - ssh kglobc1 "cd ${KSCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh kraken_intel18.0.1.163_intelmpi2018.1.163 DEBUGT"
+     - ssh kglobc1 "cd ${KSCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh kraken_intel23.2.1_intelmpi2021.10.0 DEBUGT"
      - ssh kglobc1 "\rm -rf $CI_PROJECT_DIR"
 
 tests_toys_oasis_belenos:
