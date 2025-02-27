@@ -614,6 +614,8 @@ CONTAINS
    character(len=*),parameter :: subname = 'oasis_get_intercomm'
 !  ---------------------------------------------------------
 
+!  Added by MS to try to circumvent ifx ICE
+   CHARACTER(len=:), ALLOCATABLE :: trim_compnm
    call oasis_debug_enter(subname)
    if (present(kinfo)) then
       kinfo = OASIS_OK
@@ -649,7 +651,9 @@ CONTAINS
        CALL oasis_flush(nulprt)
    ENDIF
 
-   tag=ICHAR(TRIM(compnm))+ICHAR(TRIM(cdnam))
+   trim_compnm=TRIM(compnm)
+   tag=ICHAR(trim_compnm)
+   tag=tag+ICHAR(TRIM(cdnam))
    CALL mpi_intercomm_create(mpi_comm_local, 0, MPI_COMM_WORLD, &
                              mpi_root_global(il), tag, new_comm, ierr)
 
