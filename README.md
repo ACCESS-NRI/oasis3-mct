@@ -1,6 +1,6 @@
 | GitHub CI |
 |:----------------:|
-|[![Build](https://github.com/ACCESS-NRI/oasis3-mct/actions/workflows/build.yml/badge.svg)](https://github.com/ACCESS-NRI/oasis3-mct/actions/workflows/build.yml)|
+|[![Build](https://github.com/ACCESS-NRI/oasis3-mct/actions/workflows/model-build-test-ci.yml/badge.svg)](https://github.com/ACCESS-NRI/oasis3-mct/actions/workflows/model-build-test-ci.yml)|
 
 
 oasis3-mct
