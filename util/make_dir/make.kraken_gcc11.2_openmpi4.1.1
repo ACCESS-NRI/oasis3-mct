@@ -1,0 +1,121 @@
+#
+# Include file for OASIS3 Makefile
+# for Gnu compilers and OpenMPI on a Linux system
+# To use this,
+# module purge
+# module load compiler/gcc/11.2.0
+# module load mpi/openmpi/4.1.1_gcc112
+# module load lib/phdf5/1.10.8_gcc112_ompi411
+# module load lib/netcdf-fortran/4.4.4_phdf5_1.10.8_ompi_gcc112
+# module load python/3.7.7
+#
+###############################################################################
+#
+# CHAN	: communication technique used in OASIS3 (MPI1/MPI2)
+CHAN            = MPI1
+#
+# Paths for libraries, object files and binaries
+#
+# COUPLE        : path for oasis3-mct main directory
+COUPLE          := $(OASIS_COUPLE)
+#
+# ARCHDIR       : directory created when compiling
+ARCHDIR         := $(COUPLE)/INSTALL_OASIS.$(OASIS_ENV)
+#
+# ENABLE_YAC    : activate YAC based remapping libraries
+ENABLE_YAC      = YES
+#
+# MPI library
+MPIDIR      = /softs/local/openmpi/4.1.1_gcc112
+MPIBIN      = $(MPIDIR)/bin
+MPI_INCLUDE = $(MPIDIR)/include
+MPILIB      = -L$(MPIDIR)/lib -lmpi
+MPIRUN      = $(MPIBIN)/mpirun --oversubscribe
+#
+# NETCDF library
+NETCDFF_DIR    = /softs/local/netcdf/4.4.4_phdf5_1.10.8_gcc112_ompi411
+NETCDFC_DIR    = /softs/local/netcdf/4.4.4_phdf5_1.10.8_gcc112_ompi411
+NETCDFF_INC    = -I$(NETCDFF_DIR)/include
+NETCDFC_INC    = -I$(NETCDFC_DIR)/include
+NETCDFF_LIB    = $(NETCDFF_DIR)/lib
+NETCDF_LIBRARY = -Wl,-rpath,$(NETCDFF_LIB) -L$(NETCDFF_LIB) -lnetcdff -lnetcdf -lm
+#
+# LAPACK libraries
+LAPACK_LIBRARY = -llapack -lblas
+#
+# Make command
+MAKE        = gmake
+# Compilers
+F90         = $(MPIBIN)/mpif90 -I$(MPI_INCLUDE) # underlying gfortran from module load mpi/openmpi/4.1.1_gcc112
+F           = $(F90)
+f90         = $(F90)
+f           = $(F90)
+CC          = $(MPIBIN)/mpicc -I$(MPI_INCLUDE)
+# YAC compiler and options
+YCC = $(MPIBIN)/mpicc
+YFC = $(MPIBIN)/mpif90
+ifeq ($(OASIS_DEBUG), )
+# optimisation safe
+YCFLAGS  = -O2
+YFCFLAGS = -O2
+else
+# optimisation debug
+YCFLAGS  = -O0 -g
+YFCFLAGS = -O0 -g
+endif
+#
+# YAC libraries options for models and toys link
+# Leave empty if YAC not enabled
+ifeq ($(ENABLE_YAC),YES)
+YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
+              -lyac_utils -lyac_core -lyaxt_c -llapack -lblas
+endif
+# Static archiver
+AR          = ar
+ARFLAGS     = -ruv
+# Linker (needed for shared libraries)
+LD          = $(MPIBIN)/mpif90 $(MPILIB)
+# Shared libraries options
+DYNOPT      = -fPIC
+LDDYNOPT    = -shared
+# Fortran libraries for C linking
+F2C_LIBS    = -lmpi_mpifh -lgfortran -lm
+#
+# CPP keys and compiler options
+#
+CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
+#
+FCBASEFLAGS := -fallow-argument-mismatch -ffree-line-length-0
+CCBASEFLAGS :=
+ifeq ($(OASIS_DEBUG), )
+	ifeq ($(OASIS_OPENMP), )
+		FCBASEFLAGS += -O2
+		CCBASEFLAGS += -O2
+	else
+		FCBASEFLAGS += -O2 -fopenmp
+		CCBASEFLAGS += -O2 -fopenmp
+	endif
+else
+	ifeq ($(OASIS_OPENMP), )
+		FCBASEFLAGS += -g -fbounds-check
+		CCBASEFLAGS +=
+	else
+		FCBASEFLAGS += -g -fbounds-check -fopenmp
+		CCBASEFLAGS += -fopenmp
+	endif
+endif
+#
+# INC_DIR : includes all *mod for each library
+INC_DIR = -I$(ARCHDIR)/include
+# FLIBS : for toys when linking in local Makefile
+FLIBS = $(YAC_LIBRARY) $(NETCDF_LIBRARY) $(LAPACK_LIBRARY)
+#
+F90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+f90FLAGS    = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+FFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+fFLAGS      = $(FCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFF_INC)
+CCFLAGS     = $(CCBASEFLAGS) $(INC_DIR) $(CPPDEF) $(NETCDFC_INC)
+LDFLAGS     = $(FCBASEFLAGS)
+F2C_LDFLAGS = $(F2C_LIBS)
+#
+#############################################################################
