@@ -29,4 +29,4 @@ belenos_intel2018+intelmpi2018:
      only:
      - master
      script:
-     - ssh elnino "${HOME}/bin/log_belenos_torun_oasis_CI_yac_remap belenos_intel2018.5.274_intelmpi2018.5.274 DEBUGT"
+     - ssh elnino "${HOME}/bin/log_belenos_torun_oasis_CI_master belenos_intel2018.5.274_intelmpi2018.5.274 DEBUGT"

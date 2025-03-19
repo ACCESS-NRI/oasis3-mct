@@ -240,7 +240,7 @@ cd $rundir
 
 ulimit -s unlimited
 . ./comp_env.sh
-module list
+#module list
 #
 #
 time mpirun ${mpistr}
@@ -268,7 +268,7 @@ cd $rundir
 
 ulimit -s unlimited
 . ./comp_env.sh
-module list
+#module list
 #
 #
 time mpirun ${mpistr}
@@ -296,7 +296,7 @@ cd $rundir
 
 ulimit -s unlimited
 . ./comp_env.sh
-module list
+#module list
 #
 #
 time mpirun ${mpistr}
@@ -312,7 +312,7 @@ elif [ ${OASIS_ENV} == belenos_intel2018.5.274_intelmpi2018.5.274 ]; then
 # Nom du job
 #SBATCH --job-name $casename
 # Time limit for the job
-#SBATCH --time=00:30:00
+#SBATCH --time=00:10:00
 #SBATCH --partition=normal256        # partition/queue
 #SBATCH --nodes=$nodes --ntasks-per-node=${corespn} # number of nodes and  number of procs
 #SBATCH --output=$rundir/job.out%j
@@ -322,7 +322,7 @@ cd $rundir
 
 ulimit -s unlimited
 . ./comp_env.sh
-module list
+#module list
 #
 #
 time mpirun ${mpistr}
