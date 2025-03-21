@@ -40,8 +40,14 @@ then
 	#	`llvm-ar cq rvD ...` and llvm-ar crashes because of the two sets of flags.
 	# RANLIB is probably not necessary but included here for completeness.
 	# Manodeep Sinha - 21 Mar, 2025
-	export AR=`ifx --print-prog-name=llvm-ar`
-	echo "ARCHIVER (AR) = " $AR
+
+	# Older ifx suites (I tested 2022.0.0) do not recognize this pattern
+	# so redirecting error output to /dev/null, and setting the default
+	# AR. (MS, 21st Mar, 2025)
+	export AR=`ifx --print-prog-name=llvm-ar 2>/dev/null`
+	if [ -z "${AR}" ]; then
+		export AR=ar
+	fi
 	# export RANLIB=`ifx --print-prog-name=llvm-ranlib`
 fi
 
