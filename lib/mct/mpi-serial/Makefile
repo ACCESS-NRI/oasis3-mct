@@ -75,7 +75,7 @@ lib:
 lib$(MODULE).a: $(OBJS_ALL)
 	echo $(OBJS_ALL)
 	$(RM) $@
-	$(AR) $@ $(OBJS_ALL)
+	$(AR) cq $@ $(OBJS_ALL)
 
 
 LIB	= lib$(MODULE).a
