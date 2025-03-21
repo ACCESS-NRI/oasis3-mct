@@ -5,4 +5,4 @@
 [submodule "lib/yac"]
 	path = lib/yac
 	url = https://gitlab.dkrz.de/dkrz-sw/yac.git
-	branch = release-3.6.0_p1
+	branch = release-3.6.1
