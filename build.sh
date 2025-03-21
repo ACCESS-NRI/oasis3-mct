@@ -62,4 +62,4 @@ fi
 cd ${PROJDIR}/util/make_dir && \
 echo "include ${PROJDIR}/util/make_dir/make.${PLATFORM}" > make.inc && \
 OASIS_HOME=${PROJDIR} make -f TopMakefileOasis3 realclean && \
-OASIS_HOME=${PROJDIR} make -j$(nproc) -f TopMakefileOasis3
+OASIS_HOME=${PROJDIR} make -f TopMakefileOasis3
