@@ -52,7 +52,7 @@ example10:
 	cd $(PYOASIS)/examples/10-grid/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 example11:
-	cd $(PYOASIS)/examples/11-test-interpolation/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+	cd $(PYOASIS)/examples/11-test-interpolation/python && (bash run.sh | tee test_output.txt) && grep -iq "bggd.*scrip.*successfully" test_output.txt && grep -iq "bgnc.*scrip.*successfully" test_output.txt && grep -iq "bggd.*yac.*successfully" test_output.txt && grep -iq "bgnc.*yac.*successfully" test_output.txt && rm -f test_output.txt
 
 example12:
 	cd $(PYOASIS)/examples/12-grid-functions/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -91,7 +91,7 @@ example10_f:
 	cd $(PYOASIS)/examples/10-grid/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 example11_f:
-	cd $(PYOASIS)/examples/11-test-interpolation/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+	cd $(PYOASIS)/examples/11-test-interpolation/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "bggd.*scrip.*successfully" test_output.txt && grep -iq "bgnc.*scrip.*successfully" test_output.txt && grep -iq "bggd.*yac.*successfully" test_output.txt && grep -iq "bgnc.*yac.*successfully" test_output.txt && rm -f test_output.txt
 
 
 examples_c: example1_c example2_c example3_c example4_c example5_c example6_c example7_c example8_c example9_c example10_c example11_c
@@ -128,4 +128,4 @@ example10_c:
 	cd $(PYOASIS)/examples/10-grid/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 example11_c:
-	cd $(PYOASIS)/examples/11-test-interpolation/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+	cd $(PYOASIS)/examples/11-test-interpolation/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "bggd.*scrip.*successfully" test_output.txt && grep -iq "bgnc.*scrip.*successfully" test_output.txt && grep -iq "bggd.*yac.*successfully" test_output.txt && grep -iq "bgnc.*yac.*successfully" test_output.txt && rm -f test_output.txt

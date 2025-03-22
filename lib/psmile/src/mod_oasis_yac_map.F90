@@ -17,7 +17,7 @@ MODULE mod_oasis_yac_map
    ! Access to the YAC core utilities and definitions and to the remap toolbox
    USE yac_core
    USE yac_utils, ONLY : yac_free_c, &
-      & yac_read_scrip_basic_grid_parallel_c, &
+      & yac_read_scrip_generic_basic_grid_parallel_c, &
       & yac_duplicate_stencils_c
 
    IMPLICIT NONE
@@ -53,11 +53,12 @@ MODULE mod_oasis_yac_map
       CHARACTER(LEN=:), ALLOCATABLE :: id            !< identifier of the grid
       CHARACTER(LEN=:), ALLOCATABLE :: grid_filename !< grid file name
       CHARACTER(LEN=:), ALLOCATABLE :: mask_filename !< mask file name
-      TYPE(c_ptr) :: grid                       !< ptr to YAC grid structure (C)
-      TYPE(c_ptr) :: duplicated_cell_idx        !< ptr to YAC array of duplicated cells
-      TYPE(c_ptr) :: orig_cell_global_id        !< ptr to YAC array of the origin of dupl. cells
-      INTEGER(c_size_t) :: nbr_duplicated_cells !< number of duplicated cells
-      INTEGER(c_size_t) :: grid_size            !< total size of the grid
+      TYPE(c_ptr) :: grid                        !< ptr to YAC grid structure (C)
+      TYPE(c_ptr) :: duplicated_point_idx        !< ptr to YAC array of duplicated points
+      TYPE(c_ptr) :: orig_point_global_id        !< ptr to YAC array of the origin of dupl. points
+      INTEGER(c_size_t) :: nbr_duplicated_points !< number of duplicated points
+      INTEGER(c_size_t) :: point_size            !< total size of the grid
+      INTEGER(c_int) :: point_location !< location at which field values are stored in the grid
    END TYPE yac_grid_f
 
    !> Storage of YAC distributed grid pairs structures
@@ -78,14 +79,14 @@ MODULE mod_oasis_yac_map
       PROCEDURE, PUBLIC :: init => bg_init !< initialization
       PROCEDURE, PUBLIC :: get => bg_get   !< recover index if stored or read from file
       PROCEDURE, PUBLIC :: id => bg_id     !< get the grid name
-      PROCEDURE, PUBLIC :: grid_size => bg_grid_size !< get the grid size
+      PROCEDURE, PUBLIC :: point_size => bg_point_size !< get the grid size
       PROCEDURE, PUBLIC :: grid => bg_grid !< give F90 access to a grid structure
-      PROCEDURE, PUBLIC :: orig_cell_global_id => bg_orig_cell_global_id !< get the index of ref
-                                                                  !! cells for duplicated entries
-      PROCEDURE, PUBLIC :: duplicated_cell_idx => bg_duplicated_cell_idx !< get the index of
-                                                                         !! duplicated cells
-      PROCEDURE, PUBLIC :: nbr_duplicated_cells => bg_nbr_duplicated_cells !< get the number of
-                                                                           !!duplicated cells
+      PROCEDURE, PUBLIC :: orig_point_global_id => bg_orig_point_global_id !< get the index of ref
+                                                                           !! points for duplicated entries
+      PROCEDURE, PUBLIC :: duplicated_point_idx => bg_duplicated_point_idx !< get the index of
+                                                                           !! duplicated points
+      PROCEDURE, PUBLIC :: nbr_duplicated_points => bg_nbr_duplicated_points !< get the number of
+                                                                             !!duplicated points
       PROCEDURE, PUBLIC :: free => bg_free !< finalization
    END TYPE basic_grid_collection
 
@@ -154,8 +155,8 @@ CONTAINS
                     self%grids(i)%grid_filename, &
                     self%grids(i)%mask_filename)
          CALL yac_basic_grid_delete_c(self%grids(i)%grid)
-         CALL yac_free_c(self%grids(i)%duplicated_cell_idx)
-         CALL yac_free_c(self%grids(i)%orig_cell_global_id)
+         CALL yac_free_c(self%grids(i)%duplicated_point_idx)
+         CALL yac_free_c(self%grids(i)%orig_point_global_id)
       END DO
       IF (ALLOCATED(self%grids)) DEALLOCATE(self%grids)
       self%num_basic_grids = 0
@@ -185,7 +186,7 @@ CONTAINS
       INTEGER :: i
       INTEGER(kind=c_int) :: i_use_ll
       INTEGER(kind=c_size_t) :: coords_idx
-      INTEGER :: local_grid_size(1), global_grid_size(1), ierror
+      INTEGER :: local_point_size(1), global_point_size(1), ierror
 
       ! check whether the grid collection has already been initialized
       IF (.NOT. ALLOCATED(self%grids)) &
@@ -214,26 +215,27 @@ CONTAINS
 
       ! read the grid data from file
       self%grids(i)%grid = &
-         yac_read_scrip_basic_grid_parallel_c( &
+         yac_read_scrip_generic_basic_grid_parallel_c( &
             TRIM(grid_filename) //c_null_char, &
             TRIM(mask_filename) //c_null_char, &
             self%comm, TRIM(grid_name) //c_null_char, &
             0_c_int, TRIM(grid_name) //c_null_char, i_use_ll, coords_idx, &
-            self%grids(i)%duplicated_cell_idx, &
-            self%grids(i)%orig_cell_global_id, &
-            self%grids(i)%nbr_duplicated_cells)
+            self%grids(i)%duplicated_point_idx, &
+            self%grids(i)%orig_point_global_id, &
+            self%grids(i)%nbr_duplicated_points, &
+            self%grids(i)%point_location)
 
-      local_grid_size(1) = &
+      local_point_size(1) = &
          INT(yac_basic_grid_get_data_size_c( &
-             self%grids(i)%grid, YAC_LOC_CELL))
+             self%grids(i)%grid, self%grids(i)%point_location))
       CALL MPI_Allreduce( &
-         local_grid_size, global_grid_size, 1, MPI_INTEGER, &
+         local_point_size, global_point_size, 1, MPI_INTEGER, &
          MPI_SUM, self%comm, ierror)
 
       self%grids(i)%id = TRIM(grid_name)
       self%grids(i)%grid_filename = TRIM(grid_filename)
       self%grids(i)%mask_filename = TRIM(mask_filename)
-      self%grids(i)%grid_size = INT(global_grid_size(1), c_size_t)
+      self%grids(i)%point_size = INT(global_point_size(1), c_size_t)
 
    END FUNCTION bg_get
 
@@ -256,16 +258,16 @@ CONTAINS
    !! @param [in] self   the basic grid collection
    !! @param [in] idx    the basic grid index
    !! @return the size of the basic grid
-   PURE FUNCTION bg_grid_size(self, idx) RESULT(grid_size)
+   PURE FUNCTION bg_point_size(self, idx) RESULT(point_size)
 
       CLASS(basic_grid_collection), INTENT(IN) :: self
       INTEGER, INTENT(IN) :: idx
 
-      INTEGER(c_size_t) :: grid_size
+      INTEGER(c_size_t) :: point_size
 
-      grid_size = self%grids(idx)%grid_size
+      point_size = self%grids(idx)%point_size
 
-   END FUNCTION bg_grid_size
+   END FUNCTION bg_point_size
 
    !> Give F90 access to a basic grid type
    !! @param [in] self   the basic grid collection
@@ -282,50 +284,50 @@ CONTAINS
 
    END FUNCTION bg_grid
 
-   !> Give F90 access to the array of the reference cells for duplicated entries
+   !> Give F90 access to the array of the reference points for duplicated entries
    !! @param [in] self   the basic grid collection
    !! @param [in] idx    the basic grid index
-   !! @return the pointer to the YAC storage of the reference cells array
-   PURE FUNCTION bg_orig_cell_global_id(self, idx) RESULT(orig_cell_global_id)
+   !! @return the pointer to the YAC storage of the reference points array
+   PURE FUNCTION bg_orig_point_global_id(self, idx) RESULT(orig_point_global_id)
 
       CLASS(basic_grid_collection), INTENT(IN) :: self
       INTEGER, INTENT(IN) :: idx
 
-      TYPE(c_ptr) :: orig_cell_global_id
+      TYPE(c_ptr) :: orig_point_global_id
 
-      orig_cell_global_id = self%grids(idx)%orig_cell_global_id
+      orig_point_global_id = self%grids(idx)%orig_point_global_id
 
-   END FUNCTION bg_orig_cell_global_id
+   END FUNCTION bg_orig_point_global_id
 
-   !> Give F90 access to the array of the duplicated cells
+   !> Give F90 access to the array of the duplicated points
    !! @param [in] self   the basic grid collection
    !! @param [in] idx    the basic grid index
-   !! @return the pointer to the YAC storage of the duplicated cells array
-   PURE FUNCTION bg_duplicated_cell_idx(self, idx) RESULT(duplicated_cell_idx)
+   !! @return the pointer to the YAC storage of the duplicated points array
+   PURE FUNCTION bg_duplicated_point_idx(self, idx) RESULT(duplicated_point_idx)
 
       CLASS(basic_grid_collection), INTENT(IN) :: self
       INTEGER, INTENT(IN) :: idx
 
-      TYPE(c_ptr) :: duplicated_cell_idx
+      TYPE(c_ptr) :: duplicated_point_idx
 
-      duplicated_cell_idx = self%grids(idx)%duplicated_cell_idx
+      duplicated_point_idx = self%grids(idx)%duplicated_point_idx
 
-   END FUNCTION bg_duplicated_cell_idx
+   END FUNCTION bg_duplicated_point_idx
 
-   !> Recover the number of duplicated cells
+   !> Recover the number of duplicated points
    !! @param [in] self   the basic grid collection
    !! @param [in] idx    the basic grid index
-   !! @return the number of duplicated cells
-   PURE FUNCTION bg_nbr_duplicated_cells(self, idx) RESULT(nbr_duplicated_cells)
+   !! @return the number of duplicated points
+   PURE FUNCTION bg_nbr_duplicated_points(self, idx) RESULT(nbr_duplicated_points)
 
       CLASS(basic_grid_collection), INTENT(IN) :: self
       INTEGER, INTENT(IN) :: idx
 
-      INTEGER(c_size_t) :: nbr_duplicated_cells
+      INTEGER(c_size_t) :: nbr_duplicated_points
 
-      nbr_duplicated_cells = self%grids(idx)%nbr_duplicated_cells
+      nbr_duplicated_points = self%grids(idx)%nbr_duplicated_points
 
-   END FUNCTION bg_nbr_duplicated_cells
+   END FUNCTION bg_nbr_duplicated_points
 
    ! Manipulation of the YAC dist_grid_pair types
 
@@ -495,8 +497,8 @@ CONTAINS
    END SUBROUTINE oasis_map_yac_free
 
    !> Generation of the mapping (interpolation) weights and their output to a file.
-   !! It includes the treatment of the duplicated cells by replication of the
-   !! reference cell stecil, very much like in the TREAT_OVERLAY case for the SCRIP
+   !! It includes the treatment of the duplicated points by replication of the
+   !! reference point stecil, very much like in the TREAT_OVERLAY case for the SCRIP
    !! @param [in] mapID index of the prism_mapper for this transformation
    !! @param [in] namID index of the namcouple field for this transformation
    SUBROUTINE oasis_map_yac_genmap(mapID,namID)
@@ -596,8 +598,8 @@ CONTAINS
          yac_interp_grid_new_c(                                                      &
                & dist_grid_pair%pair(j_pair), basic_grid%id(j_src),                  &
                & basic_grid%id(j_tgt),  1_c_size_t,                                  &
-               & (/INT(YAC_LOC_CELL, c_int)/), (/0_c_size_t/), (/-1_c_size_t/), &
-               & INT(YAC_LOC_CELL, c_int), 0_c_size_t, -1_c_size_t)
+               & (/INT(basic_grid%grids(j_src)%point_location, c_int)/), (/0_c_size_t/), (/-1_c_size_t/), &
+               & INT(basic_grid%grids(j_tgt)%point_location, c_int), 0_c_size_t, -1_c_size_t)
 
       IF (OASIS_debug >= 12) WRITE(nulprt,'(2A)') TRIM(subname), &
          & ' Created the interpolation grid'
@@ -742,12 +744,13 @@ CONTAINS
       interp_weights = &
          & yac_interp_method_do_search_c(interp_method_stack, interp_grid)
 
-      ! deal with duplicated target cells
+      ! deal with duplicated target points
       CALL yac_duplicate_stencils_c( &
-         & interp_weights, basic_grid%grid(j_tgt), &
-         & basic_grid%orig_cell_global_id(j_tgt), &
-         & basic_grid%duplicated_cell_idx(j_tgt), &
-         & basic_grid%nbr_duplicated_cells(j_tgt), YAC_LOC_CELL)
+         &  interp_weights, basic_grid%grid(j_tgt), &
+         &  basic_grid%orig_point_global_id(j_tgt), &
+         &  basic_grid%duplicated_point_idx(j_tgt), &
+         &  basic_grid%nbr_duplicated_points(j_tgt), &
+         &  basic_grid%grids(j_tgt)%point_location)
 
       IF ( local_timers_on >=2 ) CALL oasis_timer_stop('cpl_yac_genmap_weights')
 
@@ -766,8 +769,8 @@ CONTAINS
          & interp_weights, TRIM(ADJUSTL(prism_mapper(mapID)%file))//c_null_char, &
          & basic_grid%id(j_src),        &
          & basic_grid%id(j_tgt),        &
-         & basic_grid%grid_size(j_src), &
-         & basic_grid%grid_size(j_tgt))
+         & basic_grid%point_size(j_src), &
+         & basic_grid%point_size(j_tgt))
 
       IF (comm_rank == 0) THEN
          ierror = nf90_open(TRIM(ADJUSTL(prism_mapper(mapID)%file)), NF90_WRITE, ncid)
