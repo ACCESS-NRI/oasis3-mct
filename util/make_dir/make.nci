@@ -37,6 +37,11 @@ AR          = $(shell $(F90) --print-prog-name=llvm-ar 2>/dev/null)
 ## Similarly, older oneAPI was showing warnings about the
 ## two flags `-qno-opt-dynamic-align` and `-axCORE-AVX2`
 ## -> only enable them for recent oneAPI. (MS: 21st Mar, 2025)
+
+## Intel did supply an ar - called `xiar`with such distributions.
+## I have checked that with oneAPI 2022.0.0 using both `xiar` and
+## regular `ar` works regardlesss of the presence/absence of flto
+## (MS: 24 Mar, 2025)
 ifeq ($(AR),)
   AR = ar
   EXTRA_FLAGS =

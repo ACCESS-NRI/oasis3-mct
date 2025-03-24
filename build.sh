@@ -44,10 +44,21 @@ then
 	# Older ifx suites (I tested 2022.0.0) do not recognize this pattern
 	# so redirecting error output to /dev/null, and setting the default
 	# AR. (MS, 21st Mar, 2025)
-	export AR=`ifx --print-prog-name=llvm-ar 2>/dev/null`
-	if [ -z "${AR}" ]; then
-		export AR=ar
-	fi
+
+	# CI was crashing with an error tht the compiler could not create an exe
+	# This was happening because in CI, the AR variable was not defined, and
+	# there was being set by configure to `ar cq` -> which then was interfering
+	# with the hardcoded `cq` flags in the relevant Makefiles
+	# i.e, the command being executed was `ar cq cq libName.a <list_of_files>`
+	# which naturally did not succeed. To avoid this behaviour discrepancy between
+	# the script and the CI, I have now commented out the env variable.
+	# However, I am leaving the series of notes to give a bit more
+	# context to future people (including myself). Manodeep Sinha 24 Mar, 2025
+	#
+	# export AR=`ifx --print-prog-name=llvm-ar 2>/dev/null`
+	# if [ -z "${AR}" ]; then
+	# 	export AR=ar
+	# fi
 	# export RANLIB=`ifx --print-prog-name=llvm-ranlib`
 fi
 

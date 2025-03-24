@@ -534,7 +534,7 @@ fi
 
 # ARCHIVE COMMAND SIMILAR ACROSS ALL PLATFORMS
 if test -z "$AR"; then
-   AR="ar cq"
+   AR="ar"
 fi
 
 # RANLIB
