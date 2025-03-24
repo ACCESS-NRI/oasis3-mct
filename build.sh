@@ -10,7 +10,7 @@ then
 	#       responsibility?
 	module purge
 	module load intel-compiler-llvm/2025.0.4
-	module load netcdf/4.9.2p
+	module load netcdf/4.9.2
 	# NOTE: The version of netcdf and netcdf-fortran may be different:
 	# /apps/netcdf/4.7.4/lib/Intel/pkgconfig/netcdf-fortran.pc
 	# Name: netcdf-fortran
