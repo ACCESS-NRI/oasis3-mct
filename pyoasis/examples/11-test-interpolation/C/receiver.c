@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include "netcdf.h"
 #include "mpi.h"
@@ -6,6 +7,16 @@
 
 int main(int argc, char *argv[])
 {
+  char llib[18];
+  char dgrid[5];
+  FILE *f = fopen("grid_lib", "r");
+  fgets(llib, 18, f);
+  fgets(dgrid, 5, f);
+  fclose(f);
+  char lib[strlen(llib)];
+  char ldgrid[9];
+  memcpy (lib, llib, strlen(llib)-1);
+
   char *comp_name = "receiver";
   fprintf(stdout,"Component name: %s\n", comp_name);
   fflush(stdout);
@@ -26,11 +37,15 @@ int main(int argc, char *argv[])
 
   double lon[ny_global][nx_global];
   double lat[ny_global][nx_global];
-  if (nc_inq_varid(ncid, "bggd.lon", &varid) != NC_NOERR)
+  strcpy(ldgrid,dgrid);
+  strcat(ldgrid,".lon");
+  if (nc_inq_varid(ncid, ldgrid, &varid) != NC_NOERR)
     OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.lon id",__FILE__, __LINE__));
   if (nc_get_var(ncid, varid, &lon[0][0]) != NC_NOERR)
     OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.lon values",__FILE__, __LINE__));
-  if (nc_inq_varid(ncid, "bggd.lat", &varid) != NC_NOERR)
+  strcpy(ldgrid,dgrid);
+  strcat(ldgrid,".lat");
+  if (nc_inq_varid(ncid, ldgrid, &varid) != NC_NOERR)
     OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.lat id",__FILE__, __LINE__));
   if (nc_get_var(ncid, varid, &lat[0][0]) != NC_NOERR)
     OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.lat values",__FILE__, __LINE__));
@@ -41,7 +56,9 @@ int main(int argc, char *argv[])
     OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in opening grids.nc",
 				    __FILE__, __LINE__));
   int mask[ny_global][nx_global];
-  if (nc_inq_varid(ncid, "bggd.msk", &varid) != NC_NOERR)
+  strcpy(ldgrid,dgrid);
+  strcat(ldgrid,".msk");
+  if (nc_inq_varid(ncid, ldgrid, &varid) != NC_NOERR)
     OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.msk id",__FILE__, __LINE__));
   if (nc_get_var(ncid, varid, &mask[0][0]) != NC_NOERR)
     OASIS_CHECK_ERR(oasis_c_abort(comp_id, comp_name, "Receiver: Error in getting bggd.msk values",__FILE__, __LINE__));
@@ -105,7 +122,7 @@ int main(int argc, char *argv[])
   }
 
   if (success) {
-      fprintf(stdout, "Receiver: Data received successfully\n");
+    fprintf(stdout, "Receiver: %s data via %s received successfully\n", dgrid, lib);
       fflush(stdout);
   }
 

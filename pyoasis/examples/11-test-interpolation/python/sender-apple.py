@@ -19,6 +19,10 @@ dgrid = None
 rmplib = None
 ll_plot = None
 if comm.rank == 0:
+    rmplib = input('Enter the remapping library from {}:\n'.format(set(valid_libs)))
+    if not lib_is_valid(rmplib):
+        print('{} is not a valid remapping library'.format(rmplib), flush=True)
+        comm.Abort()
     sgrid = input('Enter the source grid code from {}:\n'.format(set(valid_grids)))
     if not grid_is_valid(sgrid):
         print('{} is not a valid grid'.format(sgrid), flush=True)
@@ -33,10 +37,6 @@ if comm.rank == 0:
         comm.Abort()
     if grid_is_ocean(sgrid) and grid_is_ocean(dgrid):
         print('Only one grid can be for ocean', flush=True)
-        comm.Abort()
-    rmplib = os.path.basename(os.getcwd())
-    if not lib_is_valid(rmplib):
-        print('{} is not a valid remapping library'.format(rmplib), flush=True)
         comm.Abort()
 
     if sgrid == 'torc' or dgrid == 'torc':
@@ -58,6 +58,7 @@ if comm.rank == 0:
     write_namcouple(sgrid, dgrid, rmplib, has_graphics)
 
 dgrid = comm.bcast(dgrid, root=0)
+rmplib = comm.bcast(rmplib, root=0)
 ll_plot = comm.bcast(ll_plot, root=0)
 
 component_name = "sender-apple"
