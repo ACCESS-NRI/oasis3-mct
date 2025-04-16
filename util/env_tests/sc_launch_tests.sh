@@ -78,8 +78,8 @@ for imodel in {1..${#models[@]}}
 do
   let im=${imodel}-1
   if [ ${nproc} == 0 ]; then 
-    if [ ${OASIS_ENV} == stiff_pgi20.4_openmpi3.1.3 ] || [ ${OASIS_ENV} == fundy_gfortran10.2.0_openmpi4.1.0 ]; then
-       mpistr="${mpistr} -oversubscribe -n ${pecnts[$im]} ./${models[$im]}"
+    if [[ ${OASIS_ENV} == *"openmpi"* ]]; then
+       mpistr="${mpistr} --oversubscribe -n ${pecnts[$im]} ./${models[$im]}"
     else
        mpistr="${mpistr} -n ${pecnts[$im]} ./${models[$im]}"
     fi
