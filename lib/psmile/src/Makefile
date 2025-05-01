@@ -19,8 +19,8 @@ all:	$(LIBRARY)
 shared: $(DYNLIBRARY)
 
 $(LIBRARY): PREBUILTDIR := $(LIBBUILD)
-$(LIBRARY): $(OBJS1) 
-	$(AR) $(ARFLAGS) $(LIBRARY) $(OBJS1) 
+$(LIBRARY): $(OBJS1)
+	$(AR) $(ARFLAGS) $(LIBRARY) $(OBJS1)
 
 $(DYNLIBRARY): PREBUILTDIR := $(LIBBUILDSHARED)
 $(DYNLIBRARY): F90FLAGS += $(DYNOPT)
@@ -34,11 +34,24 @@ INCLS = -I$(COUPLE)/lib/psmile/include \
         -I$(PREBUILTDIR)/scrip
 
 INCLSC = -I$(COUPLE)/lib/psmile/include
+
+ifeq ($(ENABLE_YAC),YES)
+ifeq ($(MODE),STATIC)
+YAC_DEPENDENCY = $(LIBBUILD)/yac/src/core/yac_core.o
+endif
+ifeq ($(MODE),SHARED)
+YAC_DEPENDENCY = $(LIBBUILDSHARED)/yac/src/core/yac_core.o
+endif
+YAC_CPP_DEF = -DYAC_REMAP
+INCLS += -I$(ARCHDIR)/include
+INCLSC += -I$(ARCHDIR)/include
+endif
+
 .SUFFIXES:
 .SUFFIXES: .o .F90 .c
 
 %.o: %.F90
-	$(F90) $(F90FLAGS) $(INCLS)  -c   $<
+	$(F90) $(F90FLAGS) $(YAC_CPP_DEF) $(INCLS)  -c   $<
 
 %.o: %.c
 	$(CC) $(CCFLAGS) $(INCLSC) -c   $<
@@ -57,7 +70,7 @@ mod_psmile_io.o: mod_psmile_io.F90
 # need to add a check whether mct_mod.o has changed and only copy if it has.
 #mct_mod.o: $(ARCHDIR)/build/lib/mct/mct_mod.o
 #	cp -p $(ARCHDIR)/build/lib/mct/mct_mod.o .
-mct_mod.o: 
+mct_mod.o:
 	cp -p $(PREBUILTDIR)/mct/mct_mod.o .
 
 #
@@ -68,7 +81,7 @@ shr_reprosumx86.o:
 GPTLget_memusage.o:
 mod_oasis_kinds.o:
 mod_oasis_parameters.o: mod_oasis_kinds.o
-mod_oasis_data.o: mod_oasis_kinds.o 
+mod_oasis_data.o: mod_oasis_kinds.o
 mod_oasis_sys.o: mod_oasis_kinds.o mod_oasis_data.o
 mod_oasis_mem.o: mod_oasis_kinds.o GPTLget_memusage.o mod_oasis_sys.o
 mod_oasis_timer.o: mod_oasis_kinds.o mod_oasis_sys.o mod_oasis_data.o
@@ -79,7 +92,7 @@ mod_oasis_reprosum.o: mod_oasis_kinds.o mod_oasis_data.o mod_oasis_sys.o \
 mod_oasis_string.o: mod_oasis_kinds.o mod_oasis_data.o mod_oasis_sys.o \
         mod_oasis_parameters.o
 mod_oasis_namcouple.o: mod_oasis_kinds.o mod_oasis_data.o mod_oasis_sys.o \
-        mod_oasis_parameters.o mod_oasis_mpi.o mod_oasis_string.o
+        mod_oasis_parameters.o mod_oasis_mpi.o mod_oasis_string.o $(YAC_DEPENDENCY)
 mod_oasis_part.o: mod_oasis_kinds.o mod_oasis_data.o mod_oasis_sys.o \
         mod_oasis_parameters.o mod_oasis_timer.o mod_oasis_mpi.o mct_mod.o \
 	mod_oasis_load_balancing.o mod_oasis_io.o
@@ -94,10 +107,12 @@ mod_oasis_grid.o: mod_oasis_kinds.o mod_oasis_data.o mod_oasis_sys.o \
 mod_oasis_map.o: mod_oasis_kinds.o  mod_oasis_data.o mod_oasis_sys.o \
         mod_oasis_parameters.o mod_oasis_mpi.o mod_oasis_var.o mod_oasis_part.o  \
         mod_oasis_string.o mod_oasis_namcouple.o mod_oasis_timer.o mod_oasis_io.o  mct_mod.o
+mod_oasis_yac_map.o: mod_oasis_kinds.o mod_oasis_data.o mod_oasis_namcouple.o mod_oasis_map.o \
+        mod_oasis_sys.o mod_oasis_timer.o $(YAC_DEPENDENCY)
 mod_oasis_coupler.o: mod_oasis_kinds.o  mod_oasis_data.o mod_oasis_sys.o \
-        mod_oasis_map.o mod_oasis_parameters.o mod_oasis_mpi.o mod_oasis_var.o mod_oasis_part.o  \
+        mod_oasis_map.o mod_oasis_yac_map.o mod_oasis_parameters.o mod_oasis_mpi.o mod_oasis_var.o mod_oasis_part.o  \
         mod_oasis_string.o mod_oasis_namcouple.o mod_oasis_timer.o mod_oasis_io.o \
-        mod_oasis_mem.o mct_mod.o mod_oasis_load_balancing.o
+        mod_oasis_mem.o mct_mod.o mod_oasis_load_balancing.o $(YAC_DEPENDENCY)
 mod_oasis_advance.o: mod_oasis_kinds.o mod_oasis_data.o mod_oasis_sys.o \
         mod_oasis_parameters.o mod_oasis_var.o mod_oasis_part.o mod_oasis_mpi.o \
         mod_oasis_coupler.o mod_oasis_timer.o mod_oasis_io.o mod_oasis_mem.o mct_mod.o \
@@ -118,4 +133,3 @@ mod_prism.o: mod_oasis_kinds.o mod_oasis_part.o mod_oasis_sys.o \
 mod_oasis.o: mod_oasis_kinds.o mod_oasis_part.o mod_oasis_sys.o \
 	mod_oasis_getput_interface.o mod_oasis_parameters.o mod_oasis_auxiliary_routines.o \
 	mod_oasis_grid.o mod_oasis_method.o mod_oasis_var.o
-

@@ -1,8 +1,8 @@
 # Creation de l'environnement virtuel PyO pour
 # faire tourner pyoasis sur Linux
 
-mkdir -p /space/coquart/INSTALL/PY_ENV/PyO
-export VENVDIR=/space/coquart/INSTALL/PY_ENV/PyO
+mkdir -p ${SCRATCHDIR}/INSTALL/PY_ENV/PyO
+export VENVDIR=${SCRATCHDIR}/INSTALL/PY_ENV/PyO
 python3 -m venv ${VENVDIR}
 source ${VENVDIR}/bin/activate
 

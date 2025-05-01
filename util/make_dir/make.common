@@ -7,6 +7,20 @@ LIBBUILD         ?= $(ARCHDIR)/build-static/lib
 # LIBBUILDSHARED : compilation directory for shared libraries
 LIBBUILDSHARED   ?= $(ARCHDIR)/build-shared/lib
 
-# FLIBS:         : fortran link options for oasis examples
-FLIBS		 ?= $(NETCDF_LIBRARY)
+# FLIBS          : fortran link options for oasis examples
+FLIBS		 ?= $(YAC_LIBRARY) $(NETCDF_LIBRARY) $(LAPACK_LIBRARY)
 
+# ENABLE_YAC     : activate yac and yaxt compilation
+ENABLE_YAC       ?= NO
+ifeq ($(ENABLE_YAC),yes)
+ENABLE_YAC = YES
+endif
+ifeq ($(ENABLE_YAC),Y)
+ENABLE_YAC = YES
+endif
+ifeq ($(ENABLE_YAC),y)
+ENABLE_YAC = YES
+endif
+
+# RECONF         : developper option for recompiling without reconfiguring
+RECONF           ?= YES

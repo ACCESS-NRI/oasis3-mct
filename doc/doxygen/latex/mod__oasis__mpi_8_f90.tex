@@ -1,5 +1,5 @@
-\hypertarget{mod__oasis__mpi_8_f90}{}\section{/home/globc2/tcraig/oasis3-\/mct.trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+mpi.F90 File Reference}
-\label{mod__oasis__mpi_8_f90}\index{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+mpi.\+F90@{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+mpi.\+F90}}
+\hypertarget{mod__oasis__mpi_8_f90}{}\section{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+mpi.F90 File Reference}
+\label{mod__oasis__mpi_8_f90}\index{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+mpi.\+F90@{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+mpi.\+F90}}
 {\ttfamily \#include $<$mpif.\+h$>$}\newline
 \subsection*{Data Types}
 \begin{DoxyCompactItemize}
@@ -21,6 +21,10 @@ interface \hyperlink{interfacemod__oasis__mpi_1_1oasis__mpi__sum}{mod\+\_\+oasis
 interface \hyperlink{interfacemod__oasis__mpi_1_1oasis__mpi__min}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+min}
 \begin{DoxyCompactList}\small\item\em Generic overloaded interface into M\+PI min reduction. \end{DoxyCompactList}\item 
 interface \hyperlink{interfacemod__oasis__mpi_1_1oasis__mpi__max}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+max}
+\begin{DoxyCompactList}\small\item\em Generic overloaded interface into M\+PI max reduction. \end{DoxyCompactList}\item 
+interface \hyperlink{interfacemod__oasis__mpi_1_1oasis__mpi__minloc}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+minloc}
+\begin{DoxyCompactList}\small\item\em Generic overloaded interface into M\+PI min reduction. \end{DoxyCompactList}\item 
+interface \hyperlink{interfacemod__oasis__mpi_1_1oasis__mpi__maxloc}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+maxloc}
 \begin{DoxyCompactList}\small\item\em Generic overloaded interface into M\+PI max reduction. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Modules}
 \begin{DoxyCompactItemize}
@@ -120,6 +124,14 @@ subroutine \hyperlink{namespacemod__oasis__mpi_a7f46e23956ff948e039c5c1cdde0f6f3
 \begin{DoxyCompactList}\small\item\em Compute a global maximum for a scalar double. \end{DoxyCompactList}\item 
 subroutine \hyperlink{namespacemod__oasis__mpi_ae57151fc4714e33d7e0e1cf0aa65ae64}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+maxr1} (lvec, gvec, comm, string, all)
 \begin{DoxyCompactList}\small\item\em Compute an array of global maximums for an array of 1D doubles. \end{DoxyCompactList}\item 
+subroutine \hyperlink{namespacemod__oasis__mpi_a355bbf47408d38b356455c2368ec0f1b}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+minloci} (lvec, lveca, gvec, gveca, comm, string, all)
+\begin{DoxyCompactList}\small\item\em Compute a global minimum and location for a distrbuted array of integers. \end{DoxyCompactList}\item 
+subroutine \hyperlink{namespacemod__oasis__mpi_a103579b46cc544dc29fb6643bf23237c}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+maxloci} (lvec, lveca, gvec, gveca, comm, string, all)
+\begin{DoxyCompactList}\small\item\em Compute a global maximum and location for a distrbuted array of integers. \end{DoxyCompactList}\item 
+subroutine \hyperlink{namespacemod__oasis__mpi_a6808017043f4531bf0d470b25bdff94b}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+minlocr} (lvec, lveca, gvec, gveca, comm, string, all)
+\begin{DoxyCompactList}\small\item\em Compute a global minimum and location for a distrbuted array of reals. \end{DoxyCompactList}\item 
+subroutine \hyperlink{namespacemod__oasis__mpi_a915aaf2f2d17f9108e8d08c2e4976e49}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+maxlocr} (lvec, lveca, gvec, gveca, comm, string, all)
+\begin{DoxyCompactList}\small\item\em Compute a global maximum and location for a distrbuted array of reals. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__mpi_adac784196d7af85611752214137dd4db}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+commsize} (comm, size, string)
 \begin{DoxyCompactList}\small\item\em Get the total number of tasks associated with a communicator. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__mpi_a2690a841a331f4398cc4b5a244bbc52e}{mod\+\_\+oasis\+\_\+mpi\+::oasis\+\_\+mpi\+\_\+commrank} (comm, rank, string)

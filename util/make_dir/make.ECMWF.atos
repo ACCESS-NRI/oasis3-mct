@@ -1,0 +1,79 @@
+#
+# Include file for OASIS3 Makefile for a Linux system using
+# Gnu compilers and OpenMPI.
+# To use this, 
+#
+###############################################################################
+#
+# CHAN	: communication technique used in OASIS3 (MPI1/MPI2)
+CHAN            = MPI1
+#
+# Paths for libraries, object files and binaries
+#
+# COUPLE	: path for oasis3-mct main directory
+COUPLE          := $(OASIS_COUPLE)
+#
+# ARCHDIR       : directory created when compiling
+#ARCHDIR         := $(COUPLE)/INSTALL_OASIS.$(OASIS_ENV)
+ARCHDIR         = $(COUPLE)/atos_oa3-mct
+#
+# MPI command (for pyoasis scripts)
+MPIDIR      = ${MPI_HOME}
+MPIBIN      = $(MPIDIR)/bin 
+MPI_INCLUDE = -I$(MPIDIR)/include
+MPILIB      = -L$(MPIDIR)/lib -L$(MPIDIR)/openmpi/lib
+MPIRUN      = $(MPIBIN)/mpirun --oversubscribe
+#
+# NETCDF library
+NETCDF_INCLUDE = ${NETCDF4_INCLUDE} ${NETCDF4_PARALLEL_INCLUDE}
+NETCDF_LIBRARY = ${NETCDF4_LIB} ${NETCDF4_PARALLEL_LIB}
+
+#
+# Make command
+MAKE        = gmake
+# Compilers
+#F90         = $(MPIBIN)/mpif90 $(MPI_INCLUDE)
+F90         = mpif90 $(MPI_INCLUDE)
+F           = $(F90)
+f90         = $(F90)
+f           = $(F90)
+CC          = mpicc $(MPI_INCLUDE)
+LD          = $(F90) $(MPILIB)
+AR          = ar
+ARFLAGS     = -ruv
+# Static libraries compilation options
+STATOPT     =
+# Shared libraries options
+DYNOPT      = -fPIC
+LDDYNOPT    = -shared
+# Fortran libraries for C linking
+F2C_LIBS    = -lm 
+#
+# CPP keys and compiler options
+#
+CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
+#
+FCBASEFLAGS  = -O0 -ffree-line-length-0 -fopenmp 
+CCBASEFLAGS  = -fopenmp
+#
+# INC_DIR : includes all *mod for each library
+INC_DIR = -I$(ARCHDIR)/include
+# Additional definitions that should not be changed
+#
+FLIBS		= $(NETCDF_LIBRARY)
+# BINDIR        : directory for executables
+BINDIR          = $(ARCHDIR)/bin
+# LIBBUILD      : contains a directory for each library
+LIBBUILD        = $(ARCHDIR)/build/lib
+# INCPSMILE     : includes all *o and *mod for each library
+INCPSMILE       = -I$(LIBBUILD)/psmile.$(CHAN) -I$(LIBBUILD)/scrip -I$(LIBBUILD)/mct
+#
+F90FLAGS = $(FCBASEFLAGS) $(INCPSMILE) $(INC_DIR) $(CPPDEF) $(NETCDF_INCLUDE)
+f90FLAGS = $(FCBASEFLAGS) $(INCPSMILE) $(INC_DIR) $(CPPDEF) $(NETCDF_INCLUDE)
+FFLAGS   = $(FCBASEFLAGS) $(INCPSMILE) $(INC_DIR) $(CPPDEF) $(NETCDF_INCLUDE)
+fFLAGS   = $(FCBASEFLAGS) $(INCPSMILE) $(INC_DIR) $(CPPDEF) $(NETCDF_INCLUDE)
+CCFLAGS  = $(CCBASEFLAGS) $(INCPSMILE) $(INC_DIR) $(CPPDEF) $(NETCDF_INCLUDE)
+LDFLAGS  = $(FCBASEFLAGS)
+F2C_LDFLAGS = $(F2C_LIBS)
+#
+#############################################################################

@@ -1,5 +1,5 @@
-\hypertarget{mod__oasis__data_8_f90}{}\section{/home/globc2/tcraig/oasis3-\/mct.trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+data.F90 File Reference}
-\label{mod__oasis__data_8_f90}\index{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+data.\+F90@{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+data.\+F90}}
+\hypertarget{mod__oasis__data_8_f90}{}\section{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+data.F90 File Reference}
+\label{mod__oasis__data_8_f90}\index{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+data.\+F90@{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+data.\+F90}}
 {\ttfamily \#include $<$mpif.\+h$>$}\newline
 \subsection*{Modules}
 \begin{DoxyCompactItemize}
@@ -18,15 +18,17 @@ integer(kind=ip\+\_\+intwp\+\_\+p) \hyperlink{namespacemod__oasis__data_af0f17b7
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p) \hyperlink{namespacemod__oasis__data_a2b9f5c72f10178df0bda39000b151d24}{mod\+\_\+oasis\+\_\+data\+::nulprt1}
 \item 
-integer(kind=ip\+\_\+intwp\+\_\+p) \hyperlink{namespacemod__oasis__data_a46d81d5ac9efa619628264c5e45bac41}{mod\+\_\+oasis\+\_\+data\+::nullucia}
+integer(kind=ip\+\_\+intwp\+\_\+p) \hyperlink{namespacemod__oasis__data_a673f1cdeb400a5e3460a065310a492a1}{mod\+\_\+oasis\+\_\+data\+::nulet}
 \item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_a51f2f4f66476cf893f2507722cd65958}{mod\+\_\+oasis\+\_\+data\+::oasis\+\_\+debug}
 \item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_a320a34357de5c3049ccf102df7b97f5e}{mod\+\_\+oasis\+\_\+data\+::timer\+\_\+debug}
 \item 
-integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_a7c427f27ff231565a1ecc0caeb30c67c}{mod\+\_\+oasis\+\_\+data\+::lucia\+\_\+debug}
+character(len=ic\+\_\+med) \hyperlink{namespacemod__oasis__data_adf52e0e1baededb92201f7592811d00d}{mod\+\_\+oasis\+\_\+data\+::cdf\+\_\+filetype}
 \item 
 logical \hyperlink{namespacemod__oasis__data_a5341a9152ef540667f7fcaa4f04c6399}{mod\+\_\+oasis\+\_\+data\+::enddef\+\_\+called}
+\item 
+logical \hyperlink{namespacemod__oasis__data_aaffd695f4c3185d0ac798d0b63fe612c}{mod\+\_\+oasis\+\_\+data\+::et\+\_\+debug}
 \item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_aa8588b3be582de7f61aa318d45854483}{mod\+\_\+oasis\+\_\+data\+::size\+\_\+namfld}
 \item 
@@ -35,6 +37,8 @@ character(len=ic\+\_\+lvar), dimension(\+:), pointer \hyperlink{namespacemod__oa
 character(len=ic\+\_\+lvar), dimension(\+:), pointer \hyperlink{namespacemod__oasis__data_a81466361b20004007f221dd6a32041f9}{mod\+\_\+oasis\+\_\+data\+::total\+\_\+namdstfld}
 \item 
 integer(kind=ip\+\_\+i4\+\_\+p), parameter \hyperlink{namespacemod__oasis__data_a11c61975c048981f7e508f1b6caf16b6}{mod\+\_\+oasis\+\_\+data\+::prism\+\_\+mmodels} = 20
+\item 
+integer(kind=ip\+\_\+i4\+\_\+p), dimension(prism\+\_\+mmodels), parameter \hyperlink{namespacemod__oasis__data_a56cd74c9147ef028573f2d5eb5e06fdc}{mod\+\_\+oasis\+\_\+data\+::prime\+\_\+nbs} = (/ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71 /)
 \item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_a5915b02f461626d5a6cffbf037daa75e}{mod\+\_\+oasis\+\_\+data\+::prism\+\_\+nmodels}
 \item 
@@ -49,6 +53,12 @@ character(len=ic\+\_\+lvar) \hyperlink{namespacemod__oasis__data_a8379835615758c
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_ab53c9f7676f84fdf1050cea5efcd3e7f}{mod\+\_\+oasis\+\_\+data\+::compid}
 \item 
 logical \hyperlink{namespacemod__oasis__data_a5056590b195dc981725173c79e52de3b}{mod\+\_\+oasis\+\_\+data\+::oasis\+\_\+coupled}
+\item 
+integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_ade1a6490bdec114ed8e10eb47b2bdfe9}{mod\+\_\+oasis\+\_\+data\+::mpi\+\_\+comm\+\_\+global\+\_\+world}
+\item 
+integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_abcd9856ba23114a6dc7b823958aa43cb}{mod\+\_\+oasis\+\_\+data\+::mpi\+\_\+rank\+\_\+world}
+\item 
+integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_acec56337253693d37772a3a0054826e2}{mod\+\_\+oasis\+\_\+data\+::mpi\+\_\+size\+\_\+world}
 \item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_a4bbff51054fd1746849de9defb3d5252}{mod\+\_\+oasis\+\_\+data\+::mpi\+\_\+comm\+\_\+global}
 \item 
@@ -79,6 +89,10 @@ character(len=mpi\+\_\+max\+\_\+processor\+\_\+name) \hyperlink{namespacemod__oa
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__data_abd48a08a17f07ec656912d9b2b7b7922}{mod\+\_\+oasis\+\_\+data\+::mpi\+\_\+err}
 \item 
 integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), allocatable \hyperlink{namespacemod__oasis__data_a7f03d4afc0c91a42b13ddcf7ec082e51}{mod\+\_\+oasis\+\_\+data\+::mpi\+\_\+root\+\_\+global}
+\item 
+integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), allocatable \hyperlink{namespacemod__oasis__data_aac77b331ab5a1af2e2443d6e83c755e4}{mod\+\_\+oasis\+\_\+data\+::mpi\+\_\+comp\+\_\+size}
+\item 
+character(len=ic\+\_\+lvar), dimension(\+:), pointer \hyperlink{namespacemod__oasis__data_a8127239627205ac7d60ce6358e6028ae}{mod\+\_\+oasis\+\_\+data\+::compnmlist}
 \item 
 character(len= $\ast$), parameter \hyperlink{namespacemod__oasis__data_acfb160b3d147e7cb667b0dc0f5bb2960}{mod\+\_\+oasis\+\_\+data\+::cspval} = \char`\"{}spval\+\_\+undef\char`\"{}
 \item 

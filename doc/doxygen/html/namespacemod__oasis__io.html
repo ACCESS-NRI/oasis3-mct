@@ -59,7 +59,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">mod_oasis_io Module Reference</div>  </div>
 </div><!--header-->
@@ -76,6 +77,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a6c14bebb7b216218e25f599e3469ae0c"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#a6c14bebb7b216218e25f599e3469ae0c">oasis_io_read_avfld</a> (filename, av, gsmap, mpicom, avfld, filefld, fldtype)</td></tr>
 <tr class="memdesc:a6c14bebb7b216218e25f599e3469ae0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads single field from a file into an attribute Vector.  <a href="#a6c14bebb7b216218e25f599e3469ae0c">More...</a><br /></td></tr>
 <tr class="separator:a6c14bebb7b216218e25f599e3469ae0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9166ac9efbdf1146dc3c64677fd411b7"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#a9166ac9efbdf1146dc3c64677fd411b7">oasis_io_write_fldattr</a> (filename, fldname, keyword, value)</td></tr>
+<tr class="memdesc:a9166ac9efbdf1146dc3c64677fd411b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write an attribute keyword value pair to a field.  <a href="#a9166ac9efbdf1146dc3c64677fd411b7">More...</a><br /></td></tr>
+<tr class="separator:a9166ac9efbdf1146dc3c64677fd411b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad8a48d6c36e3fac637a8191c20e514f2"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#ad8a48d6c36e3fac637a8191c20e514f2">oasis_io_write_avfile</a> (rstfile, av, gsmap, mpicom, nx, ny, nampre)</td></tr>
 <tr class="memdesc:ad8a48d6c36e3fac637a8191c20e514f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes all fields from an attribute vector to a file.  <a href="#ad8a48d6c36e3fac637a8191c20e514f2">More...</a><br /></td></tr>
 <tr class="separator:ad8a48d6c36e3fac637a8191c20e514f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -106,10 +110,69 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aa967e930e5d6199bbc6ec9a4f3c7069e"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#aa967e930e5d6199bbc6ec9a4f3c7069e">oasis_io_write_3dgridfld_fromroot</a> (filename, fldname, fld, nx, ny, nc)</td></tr>
 <tr class="memdesc:aa967e930e5d6199bbc6ec9a4f3c7069e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a 3d real array named field from the root task to a file.  <a href="#aa967e930e5d6199bbc6ec9a4f3c7069e">More...</a><br /></td></tr>
 <tr class="separator:aa967e930e5d6199bbc6ec9a4f3c7069e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab82165daa65fd85a13d8fe5ec9e2293e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#ab82165daa65fd85a13d8fe5ec9e2293e">check_status</a> (stat, subn, file, line)</td></tr>
+<tr class="separator:ab82165daa65fd85a13d8fe5ec9e2293e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:afb3f1a32c9458479f33439c5c3a94115"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#afb3f1a32c9458479f33439c5c3a94115">oasis_io_64bit_offset</a> = nf90_64bit_offset</td></tr>
+<tr class="separator:afb3f1a32c9458479f33439c5c3a94115"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18f97049c0295ca8d358d996c69a805e"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#a18f97049c0295ca8d358d996c69a805e">oasis_io_64bit_data</a> = nf90_64bit_offset</td></tr>
+<tr class="separator:a18f97049c0295ca8d358d996c69a805e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Provides reusable IO routines for OASIS. </p>
 </div><h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="ab82165daa65fd85a13d8fe5ec9e2293e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab82165daa65fd85a13d8fe5ec9e2293e">&#9670;&nbsp;</a></span>check_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine mod_oasis_io::check_status </td>
+          <td>(</td>
+          <td class="paramtype">integer(ip_i4_p), intent(in)&#160;</td>
+          <td class="paramname"><em>stat</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>subn</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>file</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer(ip_i4_p), intent(in)&#160;</td>
+          <td class="paramname"><em>line</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l01708">1708</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+
+</div>
+</div>
 <a id="a8b604f89345d74c74c6bc3b4760b2e29"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8b604f89345d74c74c6bc3b4760b2e29">&#9670;&nbsp;</a></span>oasis_io_read_array()</h2>
 
@@ -180,7 +243,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00565">565</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00621">621</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
@@ -247,7 +310,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l01091">1091</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l01121">1121</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
@@ -321,7 +384,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00406">406</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00469">469</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
@@ -395,7 +458,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00078">78</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00088">88</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
@@ -476,7 +539,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l01254">1254</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l01273">1273</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
@@ -508,7 +571,7 @@ Functions/Subroutines</h2></td></tr>
 
 <p>Checks whether the var fldname is in the file. </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00042">42</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00050">50</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
@@ -568,7 +631,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l01397">1397</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l01405">1405</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
@@ -628,7 +691,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l01500">1500</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l01504">1504</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
@@ -762,7 +825,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00730">730</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00778">778</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
@@ -843,7 +906,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00877">877</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00920">920</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
@@ -917,14 +980,116 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00230">230</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00298">298</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+
+</div>
+</div>
+<a id="a9166ac9efbdf1146dc3c64677fd411b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9166ac9efbdf1146dc3c64677fd411b7">&#9670;&nbsp;</a></span>oasis_io_write_fldattr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine, public mod_oasis_io::oasis_io_write_fldattr </td>
+          <td>(</td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>fldname</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>keyword</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Write an attribute keyword value pair to a field. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>file name</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">fldname</td><td>field name</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">keyword</td><td>attribute name</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>attribute value </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00227">227</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a18f97049c0295ca8d358d996c69a805e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18f97049c0295ca8d358d996c69a805e">&#9670;&nbsp;</a></span>oasis_io_64bit_data</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(kind=ip_i4_p) mod_oasis_io::oasis_io_64bit_data = nf90_64bit_offset</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00038">38</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
+
+</div>
+</div>
+<a id="afb3f1a32c9458479f33439c5c3a94115"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb3f1a32c9458479f33439c5c3a94115">&#9670;&nbsp;</a></span>oasis_io_64bit_offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(kind=ip_i4_p) mod_oasis_io::oasis_io_64bit_offset = nf90_64bit_offset</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__io_8_f90_source.html#l00034">34</a> of file <a class="el" href="mod__oasis__io_8_f90_source.html">mod_oasis_io.F90</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 29 2018 20:52:29 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 3 2023 16:29:05 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

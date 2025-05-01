@@ -1,0 +1,32 @@
+variables:
+      GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/oasis3-mct
+
+kraken_gcc11+openmpi4:
+     tags:
+     - sshjonvilleci.spike
+     only:
+     - master
+     script:
+     - ssh kglobc1 "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3-MCT_RES ; mkdir ${SCRATCHDIR}/OA3-MCT_RES"
+     - ssh kglobc1 "cd ${SCRATCHDIR} ; git clone --branch master --recurse-submodules git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
+     - ssh kglobc1 "cd ${SCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh kraken_gcc11.2_openmpi4.1.1 DEBUGT"
+     - ssh kglobc1 "\rm -rf $CI_PROJECT_DIR"
+
+calypso_intel23+intelmpi2021:
+     tags:
+     - sshjonvilleci.spike
+     only:
+     - master
+     script:
+     - ssh calypso "\rm -rf ${SCRATCHDIR}/oasis3-mct ${SCRATCHDIR}/OA3-MCT_RES ; mkdir ${SCRATCHDIR}/OA3-MCT_RES"
+     - ssh calypso "cd ${SCRATCHDIR} ; git clone --branch master --recurse-submodules git@nitrox.cerfacs.fr:globc/OASIS3-MCT/oasis3-mct.git"
+     - ssh calypso "cd ${SCRATCHDIR}/oasis3-mct/util/nitrox ; ./sc_lc_nitrox.sh calypso_intel23.2.0_intelmpi2021.10.0 DEBUGT"
+     - ssh calypso "\rm -rf $CI_PROJECT_DIR"
+
+belenos_intel2018+intelmpi2018:
+     tags:
+     - sshjonvilleci.spike
+     only:
+     - master
+     script:
+     - ssh elnino "${HOME}/bin/log_belenos_torun_oasis_CI_master belenos_intel2018.5.274_intelmpi2018.5.274 DEBUGT"

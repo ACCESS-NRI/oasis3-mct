@@ -19,21 +19,27 @@ program receiver
    integer :: imsk(nx_global,ny_global)
    real(kind=8) :: dp_conv
    logical :: success
+   CHARACTER(len=5) :: lib_name
+   CHARACTER(len=4) :: grid_name
 
+   open(149, file='grid_lib')
+   read(149, '(A)') lib_name
+   read(149, '(A4)') grid_name
+   close(149)
    call oasis_init_comp(comp_id, comp_name, kinfo)
    if(kinfo<0) call oasis_abort(comp_id, comp_name, &
       & "Error in oasis_init_comp: ", rcode=kinfo)
    print '(A,I0)', "receiver: Component ID: ", comp_id
 
    kinfo = nf90_open('grids.nc',NF90_NOWRITE,ncid)
-   kinfo = nf90_inq_varid(ncid,'bggd.lon',varid)
+   kinfo = nf90_inq_varid(ncid,grid_name//'.lon',varid)
    kinfo = nf90_get_var(ncid,varid,lon)
-   kinfo = nf90_inq_varid(ncid,'bggd.lat',varid)
+   kinfo = nf90_inq_varid(ncid,grid_name//'.lat',varid)
    kinfo = nf90_get_var(ncid,varid,lat)
    kinfo = nf90_close(ncid)
 
    kinfo = nf90_open('masks.nc',NF90_NOWRITE,ncid)
-   kinfo = nf90_inq_varid(ncid,'bggd.msk',varid)
+   kinfo = nf90_inq_varid(ncid,grid_name//'.msk',varid)
    kinfo = nf90_get_var(ncid,varid,imsk)
    kinfo = nf90_close(ncid)
 
@@ -95,6 +101,6 @@ program receiver
       end if
    end do
 
-   if(success) print '(A)', "Receiver: Data received successfully"
+   IF(success) PRINT '(A)', "Receiver: "//grid_name//" data via "//TRIM(lib_name)//" received successfully"
 
 end program receiver

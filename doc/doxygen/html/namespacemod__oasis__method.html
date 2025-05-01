@@ -90,8 +90,6 @@ Variables</h2></td></tr>
 <tr class="separator:a390290b92b6af57b2732cb7521532f1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a405af91a0535e4ce70d55513bb4c3867"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__method.html#a405af91a0535e4ce70d55513bb4c3867">lg_mpiflag</a></td></tr>
 <tr class="separator:a405af91a0535e4ce70d55513bb4c3867"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff65fa61d2762374419fe4c44c0f9282"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_intwp_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__method.html#aff65fa61d2762374419fe4c44c0f9282">mpi_comm_global_world</a></td></tr>
-<tr class="separator:aff65fa61d2762374419fe4c44c0f9282"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>High level OASIS user interfaces. </p>
@@ -121,7 +119,7 @@ Variables</h2></td></tr>
 
 <p>Local method to compute each models' global task ids, exists for reuse in enddef. </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__method_8_f90_source.html#l00939">939</a> of file <a class="el" href="mod__oasis__method_8_f90_source.html">mod_oasis_method.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__method_8_f90_source.html#l00944">944</a> of file <a class="el" href="mod__oasis__method_8_f90_source.html">mod_oasis_method.F90</a>.</p>
 
 </div>
 </div>
@@ -160,12 +158,13 @@ Variables</h2></td></tr>
 <li>Write grid info to files one model at a time</li>
 <li>MCT Initialization</li>
 <li>Initialize coupling via call to coupler_setup</li>
+<li>Initialize partition grid data call to part_readgrid</li>
 <li>Call advance_init to initialize coupling fields from restarts </li>
 </ul>
 </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__method_8_f90_source.html#l00730">730</a> of file <a class="el" href="mod__oasis__method_8_f90_source.html">mod_oasis_method.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__method_8_f90_source.html#l00711">711</a> of file <a class="el" href="mod__oasis__method_8_f90_source.html">mod_oasis_method.F90</a>.</p>
 
 </div>
 </div>
@@ -273,11 +272,12 @@ Variables</h2></td></tr>
 </dl>
 <ul>
 <li>Print timer information</li>
+<li>Print load balancing information</li>
 <li>Call MPI finalize</li>
 <li>Write SUCCESSFUL RUN </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__method_8_f90_source.html#l00663">663</a> of file <a class="el" href="mod__oasis__method_8_f90_source.html">mod_oasis_method.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__method_8_f90_source.html#l00633">633</a> of file <a class="el" href="mod__oasis__method_8_f90_source.html">mod_oasis_method.F90</a>.</p>
 
 </div>
 </div>
@@ -302,7 +302,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__method_8_f90_source.html#l00034">34</a> of file <a class="el" href="mod__oasis__method_8_f90_source.html">mod_oasis_method.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__method_8_f90_source.html#l00035">35</a> of file <a class="el" href="mod__oasis__method_8_f90_source.html">mod_oasis_method.F90</a>.</p>
 
 </div>
 </div>
@@ -326,30 +326,6 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__method_8_f90_source.html#l00036">36</a> of file <a class="el" href="mod__oasis__method_8_f90_source.html">mod_oasis_method.F90</a>.</p>
-
-</div>
-</div>
-<a id="aff65fa61d2762374419fe4c44c0f9282"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff65fa61d2762374419fe4c44c0f9282">&#9670;&nbsp;</a></span>mpi_comm_global_world</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">integer(kind=ip_intwp_p) mod_oasis_method::mpi_comm_global_world</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
 <p class="definition">Definition at line <a class="el" href="mod__oasis__method_8_f90_source.html#l00037">37</a> of file <a class="el" href="mod__oasis__method_8_f90_source.html">mod_oasis_method.F90</a>.</p>
 
 </div>
@@ -357,7 +333,7 @@ Variables</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 29 2018 20:52:29 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 3 2023 16:29:05 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

@@ -17,6 +17,11 @@ MODULE mod_oasis_namcouple
   USE mod_oasis_sys
   USE mod_oasis_mpi
   USE mod_oasis_string
+#ifdef YAC_REMAP
+  ! Access to the YAC core utilities and definitions and to the remap toolbox
+  USE yac_core
+  USE, INTRINSIC :: iso_c_binding
+#endif
 
   IMPLICIT NONE
 
@@ -94,6 +99,65 @@ MODULE mod_oasis_namcouple
   REAL (kind=ip_realwp_p) ,public,pointer :: namscrnth(:)  !< scrip conserv north threshold
   REAL (kind=ip_realwp_p) ,public,pointer :: namscrsth(:)  !< scrip conserv south threshold
   INTEGER(kind=ip_i4_p)   ,public,pointer :: namscrbin(:)  !< script number of search bins
+
+  LOGICAL :: is_scr_rmp, is_yac_rmp
+
+#ifdef YAC_REMAP
+  !--- yac remapper related entities
+
+  !> Description of a single line of the stack
+  TYPE yac_stack_line
+     CHARACTER(LEN=:), ALLOCATABLE :: method     !< Identifier of the YAC method
+     CHARACTER(LEN=:), ALLOCATABLE :: cons_order !< Order for the conservative interpolations
+     CHARACTER(LEN=:), ALLOCATABLE :: cons_norm  !< Kind of normalisation for the conserv int.
+     CHARACTER(LEN=:), ALLOCATABLE :: avg_meth   !< Weighting method for average interp.
+     LOGICAL :: avg_partial                      !< Use partial stencils for average interp.
+     CHARACTER(LEN=:), ALLOCATABLE :: ncc_meth   !< Weighting method for nearest corner cells interp.
+     LOGICAL :: ncc_partial                      !< Use partial stencils for n.c.c. interp.
+     CHARACTER(LEN=:), ALLOCATABLE :: nnn_meth   !< Weighting method for nearest neigbour interp.
+     REAL(KIND=8) :: nnn_max_search_distance !< Maximum search distance on the sphere for nearest neigbour interp. (degrees)
+     REAL(KIND=8) :: nnn_scale !< Scale for Gauss or Radial Basis func n.n. weights
+     INTEGER :: nnn_points     !< Number of nearest neighbours to account for in n.n. interp
+     INTEGER :: creep_iter     !< Number of iterations for the creep fill method
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_meth !< Source point mapping method
+     REAL(KIND=8) :: spm_spread     !< Spread index for the source point mapping
+     REAL(KIND=8) :: spm_max_search_distance !< Maximum search distance on the sphere of influence for the source point mapping (degrees)
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_scale !< Source point mapping scale
+     REAL(KIND=8) :: spm_src_radius     !< Source grid sphere radius
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_src_filename !< Source grid user surfaces filename
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_src_varname !< Source grid user surfaces varname
+     INTEGER :: spm_src_min_global_id !< Source grid minimum global id in file
+     REAL(KIND=8) :: spm_tgt_radius     !< Target grid sphere radius
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_tgt_filename !< Target grid user surfaces filename
+     CHARACTER(LEN=:), ALLOCATABLE :: spm_tgt_varname !< Target grid user surfaces varname
+     INTEGER :: spm_tgt_min_global_id !< Target grid minimum global id in file
+     CHARACTER(LEN=:), ALLOCATABLE :: file_name !< Filename for the file precomputed interp.
+  CONTAINS
+     PROCEDURE :: to_string => yac_stack_line_to_string
+  END TYPE yac_stack_line
+
+  !> Storage for the parsed entry of a YAC channel for a namcouple field
+  TYPE yac_parse
+     LOGICAL :: active  !< Whether this file has an active YAC channel or not
+     CHARACTER(LEN=:), ALLOCATABLE :: src_grid_type !< Edges representation for the source grid
+                                                    !! (LonLat or GreatCircles)
+     CHARACTER(LEN=:), ALLOCATABLE :: dst_grid_type !< Edges representation for the target grid
+                                                    !! (LonLat or GreatCircles)
+     LOGICAL :: src_use_ll !< Toggle for the LonLat edges representation for the source grid
+     LOGICAL :: dst_use_ll !< Toggle for the LonLat edges representation for the target grid
+     INTEGER :: stacksize  !< Number of treatments in the stack
+     CHARACTER(LEN=:), ALLOCATABLE :: filename !< Interpolation weights output file name
+     CHARACTER(LEN=:), ALLOCATABLE :: io_ranks_per_node !< Optimization of the I/O parallelism
+                                                        !! Refer to the OASIS or YAC manuals.
+     TYPE(yac_stack_line), DIMENSION(:), ALLOCATABLE :: yac_stack !< The stack lines storage
+  CONTAINS
+     PROCEDURE :: write_yac => write_yac_fmt !< Output procedure of the whole collection
+     GENERIC, PUBLIC :: WRITE(formatted) => write_yac !< Overloading of the F90 write functions
+  END TYPE yac_parse
+
+  TYPE(yac_parse) ,PUBLIC,POINTER :: namyacmet(:) !< The storage of the YAC fields in the namcouple
+  LOGICAL, PUBLIC :: namcouple_has_yac !< Toggle YAC related treatments if any field has a YAC channel
+#endif
 
   !--- derived ---
   INTEGER(kind=ip_i4_p)   ,public,pointer :: namsort2nn(:) !< sorted namcpl for sort, define nn order, computed later
@@ -292,6 +356,8 @@ MODULE mod_oasis_namcouple
     clfield  = '$NFIELDS ', &
     clchan   = '$CHANNEL ', &
     clstring = '$STRINGS ', &
+    clyacstr = '$YAC_STR ', &
+    clscrstr = '$SCR_STR ', &
     clmod    = '$NBMODEL ', &
     cljob    = '$JOBNAME ', &
     cltime   = '$RUNTIME ', &
@@ -307,13 +373,16 @@ MODULE mod_oasis_namcouple
     clrest   = '$NNOREST ', &
     clcal    = '$CALTYPE ', &
     clend    = '$END     '
-  INTEGER (kind=ip_intwp_p),parameter :: nkeywords = 18
+  INTEGER (kind=ip_intwp_p),PARAMETER :: nkeywords = 20
   CHARACTER*9, parameter :: keyword_list(nkeywords) = &
-    (/clfield, clchan, clstring, clmod, cljob, cltime, clseq, &
+    (/clfield, clchan, clstring, clyacstr, clscrstr, clmod, cljob, cltime, clseq, &
      cldate, clhead, clprint, clmapdec, clcdftyp, clmatxrd, clunit, clrest, &
      clcal, clend, clwgtopt /)
   CHARACTER*512 :: tmpstr1, tmpstr2, tmpstr3, tmpstr4
-
+!--- propagate dimensions to all instances of a grid
+  LOGICAL, DIMENSION(:), ALLOCATABLE :: lla_trsrc, lla_trdst
+  INTEGER(kind=ip_intwp_p), DIMENSION(:), ALLOCATABLE :: ila_nxsrc, ila_nxdst
+  INTEGER :: il_mxnx, il_mxny
 
 !------------------------------------------------------------
 CONTAINS
@@ -592,7 +661,19 @@ SUBROUTINE oasis_namcouple_init()
                    & supported only for SCALAR mapping, not '//TRIM(namscrtyp(jf))
                  CALL namcouple_abort(subname,__LINE__,tmpstr1)
               ENDIF
-
+#ifdef YAC_REMAP
+              IF ( namyacmet(jf)%active ) THEN
+                 WRITE(tmpstr1,*) subname,jf,'ERROR: SCRIPR and YAC methods&
+                   & cannot be prescribed together for the same field'
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1)
+              END IF
+           ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'YAC') THEN
+              IF ( TRIM(namscrmet(jf)) /= TRIM(cspval) ) THEN
+                 WRITE(tmpstr1,*) subname,jf,'ERROR: SCRIPR and YAC methods&
+                   & cannot be prescribed together for the same field'
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1)
+              END IF
+#endif
            ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'MAPPING') THEN
               nammapfil(jf) = TRIM(cmap_file(ig_number_field(jf)))
               nammaploc(jf) = TRIM(cmaptyp(ig_number_field(jf)))
@@ -663,6 +744,82 @@ SUBROUTINE oasis_namcouple_init()
      ENDIF   ! ig_number_field
   ENDDO   ! ig_final_nfield
 
+  ! Propagate grid sizes from namcouple lines with sizes to all lines
+  ALLOCATE(lla_trsrc(nnamcpl), lla_trdst(nnamcpl))
+  ALLOCATE(ila_nxsrc(nnamcpl), ila_nxdst(nnamcpl))
+  lla_trsrc(:) = .FALSE.
+  lla_trdst(:) = .FALSE.
+  DO n = 1,nnamcpl
+     IF (lla_trsrc(n)) CYCLE
+     WHERE(namsrcgrd == namsrcgrd(n))
+        ila_nxsrc = namsrc_nx
+     ELSEWHERE
+        ila_nxsrc = -1
+     END WHERE
+     WHERE(namdstgrd == namsrcgrd(n))
+        ila_nxdst = namdst_nx
+     ELSEWHERE
+        ila_nxdst = -1
+     END WHERE
+     il_mxnx = MAXVAL(ila_nxsrc)
+     il_mxny = namsrc_ny(MAXLOC(ila_nxsrc,dim=1))
+     IF (MAXVAL(ila_nxdst) > il_mxnx) THEN
+        il_mxnx = MAXVAL(ila_nxdst)
+        il_mxny = namdst_ny(MAXLOC(ila_nxdst,dim=1))
+     END IF
+     IF (.NOT.ALL(ila_nxsrc == il_mxnx .OR. ila_nxsrc <= 0) .OR.&
+        & .NOT.ALL(ila_nxdst == il_mxnx .OR. ila_nxdst <= 0)) THEN
+        WRITE(tmpstr1,*) 'ERROR: INCHOERENT GRID SIZES FOR ',TRIM(namsrcgrd(n))
+        CALL namcouple_abort(subname,__LINE__,tmpstr1)
+     END IF
+     WHERE(namsrcgrd == namsrcgrd(n))
+        namsrc_nx = il_mxnx
+        namsrc_ny = il_mxny
+        lla_trsrc = .TRUE.
+     END WHERE
+     WHERE(namdstgrd == namsrcgrd(n))
+        namdst_nx = il_mxnx
+        namdst_ny = il_mxny
+        lla_trdst = .TRUE.
+     END WHERE
+  END DO
+  DO n = 1,nnamcpl
+     IF (lla_trdst(n)) CYCLE
+     WHERE(namsrcgrd == namdstgrd(n))
+        ila_nxsrc = namsrc_nx
+     ELSEWHERE
+        ila_nxsrc = -1
+     END WHERE
+     WHERE(namdstgrd == namdstgrd(n))
+        ila_nxdst = namdst_nx
+     ELSEWHERE
+        ila_nxdst = -1
+     END WHERE
+     il_mxnx = MAXVAL(ila_nxsrc)
+     il_mxny = namsrc_ny(MAXLOC(ila_nxsrc,dim=1))
+     IF (MAXVAL(ila_nxdst) > il_mxnx) THEN
+        il_mxnx = MAXVAL(ila_nxdst)
+        il_mxny = namdst_ny(MAXLOC(ila_nxdst,dim=1))
+     END IF
+     IF (.NOT.ALL(ila_nxsrc == il_mxnx .OR. ila_nxsrc <= 0) .OR.&
+        & .NOT.ALL(ILA_nxdst == il_mxnx .OR. ila_nxdst <= 0)) THEN
+        WRITE(tmpstr1,*) 'ERROR: INCHOERENT GRID SIZES FOR ',TRIM(namdstgrd(n))
+        CALL namcouple_abort(subname,__LINE__,tmpstr1)
+     END IF
+     WHERE(namsrcgrd == namdstgrd(n))
+        namsrc_nx = il_mxnx
+        namsrc_ny = il_mxny
+        lla_trsrc = .TRUE.
+     END WHERE
+     WHERE(namdstgrd == namdstgrd(n))
+        namdst_nx = il_mxnx
+        namdst_ny = il_mxny
+        lla_trdst = .TRUE.
+     END WHERE
+  END DO
+  DEALLOCATE(lla_trsrc, lla_trdst)
+  DEALLOCATE(ila_nxsrc, ila_nxdst)
+
   IF (mpi_rank_global == 0) THEN
      WRITE(nulprt1,*) ' '
      WRITE(nulprt1,*) subname,'namlogprt,t,lb',namlogprt, namtlogprt, namlblogprt
@@ -714,6 +871,9 @@ SUBROUTINE oasis_namcouple_init()
         WRITE(nulprt1,*) subname,n,'namscrnth ',namscrnth(n)
         WRITE(nulprt1,*) subname,n,'namscrsth ',namscrsth(n)
         WRITE(nulprt1,*) subname,n,'namscrbin ',namscrbin(n)
+#ifdef YAC_REMAP
+        WRITE(nulprt1,*) subname,n,'namyacmet ',namyacmet(n)
+#endif
         WRITE(nulprt1,*) ' '
         CALL oasis_flush(nulprt1)
      ENDDO
@@ -816,7 +976,7 @@ SUBROUTINE inipar_alloc()
   INTEGER (kind=ip_intwp_p) :: ig_clim_maxport
   LOGICAL :: lg_bsend,endflag
   LOGICAL :: found, readfile
-  CHARACTER(len=*),parameter :: subname='(mod_oasis_namcouple:inipar_alloc)'
+  CHARACTER(len=*),PARAMETER :: subname='(mod_oasis_namcouple:inipar_alloc)'
 
   !* ---------------------------- Poema verses --------------------------
 
@@ -845,6 +1005,10 @@ SUBROUTINE inipar_alloc()
   ig_direct_nfield = 0
   ig_nfield = 0
   lg_oasis_field = .true.
+
+  !* Detect remapper mode
+
+  is_remapper = compnm == '_oasis_remapper_py'
 
   !* Check for typos in keywords, read all lines until file is at end
 
@@ -982,12 +1146,27 @@ SUBROUTINE inipar_alloc()
 
   !* Get information for all fields
 
-  keyword = clstring
-  CALL findkeyword (keyword, clline, found)
-  IF (.not.found) THEN
-     WRITE(tmpstr1,*) TRIM(keyword)//' not found in namcouple'
-     CALL namcouple_abort(subname,__LINE__,tmpstr1)
-  ENDIF
+  IF (is_remapper) THEN
+     keyword = clscrstr
+     CALL findkeyword (keyword, clline, is_scr_rmp)
+     keyword = clyacstr
+     CALL findkeyword (keyword, clline, is_yac_rmp)
+     IF (.NOT.(is_scr_rmp.OR.is_yac_rmp)) THEN
+        WRITE(tmpstr1,*) 'Remapper mode please use '//TRIM(clscrstr)//' or '//TRIM(clyacstr)
+        CALL namcouple_abort(subname,__LINE__,tmpstr1)
+     ENDIF
+     IF (is_scr_rmp.AND.is_yac_rmp) THEN
+        WRITE(tmpstr1,*) TRIM(clscrstr)//' and '//TRIM(clyacstr)//' are mutually exclusive'
+        CALL namcouple_abort(subname,__LINE__,tmpstr1)
+     ENDIF
+  ELSE
+     keyword = clstring
+     CALL findkeyword (keyword, clline, found)
+     IF (.NOT.found) THEN
+        WRITE(tmpstr1,*) TRIM(keyword)//' not found in namcouple'
+        CALL namcouple_abort(subname,__LINE__,tmpstr1)
+     ENDIF
+  END IF
 
   !* Loop on total number of fields
 
@@ -1138,6 +1317,21 @@ SUBROUTINE inipar_alloc()
                     READ(nulin, FMT=rform) clline
                     CALL skip(clline, jpeighty, ios=ios)
                  ENDDO
+              ELSEIF (clvari.EQ.'YAC') THEN
+#ifdef YAC_REMAP
+                 READ(nulin, FMT=rform) clline
+                 CALL skip(clline, jpeighty, ios=ios)
+                 CALL parse(clline, clvari, 3, jpeighty, ilen, __LINE__)
+                 READ(clvari, FMT=2003) il_aux
+                 DO ib = 1, il_aux
+                    READ(nulin, FMT=rform) clline
+                    CALL skip(clline, jpeighty, ios=ios)
+                 ENDDO
+#else
+                 WRITE(tmpstr1,*) subname,jf,'ERROR: YAC weights generation&
+                   & supported only if -DYAC_REMAP activated at compilation'
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1)
+#endif
               ELSEIF (clvari.eq.'NOINTERP') THEN
                  CONTINUE
               ELSE
@@ -1479,11 +1673,12 @@ SUBROUTINE inipar_alloc()
               !*                    Get root name for grid-related files (final field)
               IF (lg_state(jf)) cficaf(ig_number_field(jf)) = clvari
               cga_locatoraf(jf) = clvari(1:4)
-              nlonbf(ig_number_field(jf)) = nlonbf_notnc
-              nlatbf(ig_number_field(jf)) = nlatbf_notnc
-              nlonaf(ig_number_field(jf)) = nlonaf_notnc
-              nlataf(ig_number_field(jf)) = nlataf_notnc
-
+              IF (lg_state(jf)) THEN
+                 nlonbf(ig_number_field(jf)) = nlonbf_notnc
+                 nlatbf(ig_number_field(jf)) = nlatbf_notnc
+                 nlonaf(ig_number_field(jf)) = nlonaf_notnc
+                 nlataf(ig_number_field(jf)) = nlataf_notnc
+              END IF
            ENDIF
         ENDIF
 
@@ -1527,6 +1722,16 @@ SUBROUTINE inipar_alloc()
                     !* Get field type (scalar/vector)
                     CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
                     READ(clvari, FMT=2009) clstrg
+#ifdef YAC_REMAP
+                 ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'YAC')THEN
+                    CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                    !* Get number of additional fields in YAC stack
+                    READ(clvari, FMT='(I4)') il_aux
+                    DO ib = 1, il_aux
+                       READ(nulin, FMT=rform) clline
+                       CALL skip(clline, jpeighty, ios=ios)
+                    END DO
+#endif
                  ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'BLASOLD') THEN
                     CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
                     !* Get number of additional fields in linear formula
@@ -1663,6 +1868,11 @@ SUBROUTINE inipar
   CHARACTER(len=32) :: keyword
   LOGICAL :: found
   CHARACTER(len=*),parameter :: subname='(mod_oasis_namcouple:inipar)'
+#ifdef YAC_REMAP
+  INTEGER(kind=ip_i4_p) :: ib_s
+  REAL (kind=ip_realwp_p) :: deg2rad = 3.14159265358979323846_ip_realwp_p/180.0_ip_realwp_p
+  ! Degrees to radians conversion as in SCRIP (not as in YAC)
+#endif
 
 !* ---------------------------- Poema verses --------------------------
 
@@ -2572,6 +2782,433 @@ SUBROUTINE inipar
                  ENDIF
               ENDIF
 
+#ifdef YAC_REMAP
+           ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'YAC') THEN
+!* Get the YAC remapping method straight in the final storage
+              namyacmet(jf)%active = .TRUE.
+              CALL parse(clline, clvari, 1, jpeighty, ILEN, __LINE__)
+              namyacmet(jf)%src_grid_type = TRIM(ADJUSTL(clvari))
+              IF ( uppercase(TRIM(namyacmet(jf)%src_grid_type)) /= 'LL' .AND. &
+                 & uppercase(TRIM(namyacmet(jf)%src_grid_type)) /= 'GC') THEN
+                 WRITE(tmpstr1,*) ' YAC src grid type can only be LL or GC &
+                    &not '//TRIM(namyacmet(jf)%src_grid_type)
+                 WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+              END IF
+              namyacmet(jf)%src_use_ll = uppercase(TRIM(namyacmet(jf)%src_grid_type)) == 'LL'
+              CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+              namyacmet(jf)%dst_grid_type = TRIM(ADJUSTL(clvari))
+              IF ( uppercase(TRIM(namyacmet(jf)%dst_grid_type)) /= 'LL' .AND. &
+                 & uppercase(TRIM(namyacmet(jf)%dst_grid_type)) /= 'GC') THEN
+                 WRITE(tmpstr1,*) ' YAC dst grid type can only be LL or GC &
+                    &not '//TRIM(namyacmet(jf)%dst_grid_type)
+                 WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                 CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+              END IF
+              namyacmet(jf)%dst_use_ll = uppercase(TRIM(namyacmet(jf)%dst_grid_type)) == 'LL'
+              CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+              READ(clvari, FMT='(I4)') namyacmet(jf)%stacksize
+              CALL parse(clline, clvari, 4, jpeighty, ILEN, __LINE__)
+              namyacmet(jf)%filename = TRIM(ADJUSTL(clvari))
+              CALL parse(clline, clvari, 5, jpeighty, ILEN, __LINE__)
+              IF (ILEN > 0) THEN
+                 namyacmet(jf)%io_ranks_per_node = TRIM(ADJUSTL(clvari))
+                 IF (TRIM(namyacmet(jf)%io_ranks_per_node) == "0") &
+                    &     namyacmet(jf)%io_ranks_per_node = cspval
+                 IF (uppercase(TRIM(namyacmet(jf)%io_ranks_per_node)) == "DEFAULT") &
+                    &     namyacmet(jf)%io_ranks_per_node = cspval
+                 IF (TRIM(namyacmet(jf)%io_ranks_per_node) == "*") &
+                    &     namyacmet(jf)%io_ranks_per_node = "-1"
+                 IF (uppercase(TRIM(namyacmet(jf)%io_ranks_per_node)) == "ALL") &
+                    &     namyacmet(jf)%io_ranks_per_node = "-1"
+              ELSE
+                 namyacmet(jf)%io_ranks_per_node = cspval
+              END IF
+              ALLOCATE(namyacmet(jf)%yac_stack(namyacmet(jf)%stacksize))
+              DO ib_s = 1, namyacmet(jf)%stacksize
+                 READ(nulin, FMT=rform) clline
+                 CALL skip(clline, jpeighty, ios=ios)
+                 CALL parse(clline, clvari, 1, jpeighty, ILEN, __LINE__)
+                 namyacmet(jf)%yac_stack(ib_s)%method = uppercase(TRIM(ADJUSTL(clvari)))
+                 SELECT CASE(TRIM(namyacmet(jf)%yac_stack(ib_s)%method))
+                 CASE('CONSERV')
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('FIRST', 'SECOND')
+                       namyacmet(jf)%yac_stack(ib_s)%cons_order = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC conservative order can only be FIRST &
+                          &or SECOND not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
+                    CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('DESTAREA', 'FRACAREA')
+                       namyacmet(jf)%yac_stack(ib_s)%cons_norm = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC conservative normalisation can only be &
+                          &DESTAREA or FRACAREA not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
+                 CASE('AVG')
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('ARITHMETIC', 'DIST', 'BARY')
+                       namyacmet(jf)%yac_stack(ib_s)%avg_meth = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC average method can only be &
+                          &ARITHMETIC, DIST or BARY not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
+                    namyacmet(jf)%yac_stack(ib_s)%avg_partial = .FALSE.
+                    ! Since OASIS only uses YAC core masks for defining both the removal of
+                    ! duplicated or overlapping cells and for the sea land masks (that should
+                    ! ideally be described as YAC field masks) the next option is uneffective.
+                    ! Lines are kept in a comment in case of a future change.
+                    ! CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                    ! SELECT CASE(uppercase(TRIM(clvari)))
+                    ! CASE('PARTIAL', 'FULL')
+                    !    namyacmet(jf)%yac_stack(ib_s)%avg_partial = &
+                    !       & uppercase(TRIM(clvari)) == "PARTIAL"
+                    ! CASE DEFAULT
+                    !    WRITE(tmpstr1,*) ' YAC average partial stencil can only be &
+                    !       &PARTIAL or FULL not '//TRIM(clvari)
+                    !    WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                    !    CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    ! END SELECT
+                 CASE('NCC')
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('AVG', 'DIST')
+                       namyacmet(jf)%yac_stack(ib_s)%ncc_meth = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC nearest corner cells method can only be &
+                          &AVG or DIST not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
+                    namyacmet(jf)%yac_stack(ib_s)%ncc_partial = .FALSE.
+                    ! Since OASIS only uses YAC core masks for defining both the removal of
+                    ! duplicated or overlapping cells and for the sea land masks (that should
+                    ! ideally be described as YAC field masks) the next option is uneffective.
+                    ! Lines are kept in a comment in case of a future change.
+                    ! CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                    ! SELECT CASE(uppercase(TRIM(clvari)))
+                    ! CASE('PARTIAL', 'FULL')
+                    !    namyacmet(jf)%yac_stack(ib_s)%ncc_partial = &
+                    !       & uppercase(TRIM(clvari)) == "PARTIAL"
+                    ! CASE DEFAULT
+                    !    WRITE(tmpstr1,*) ' YAC n.c.c. partial stencil can only be &
+                    !       &PARTIAL or FULL not '//TRIM(clvari)
+                    !    WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                    !    CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    ! END SELECT
+                 CASE('NNN')
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('AVG', 'DIST', 'GAUSS', 'RBF', 'ZERO')
+                       namyacmet(jf)%yac_stack(ib_s)%nnn_meth = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC NNN method can only be AVG, &
+                          &DIST, GAUSS, ZERO or RBF not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
+                    SELECT CASE(TRIM(namyacmet(jf)%yac_stack(ib_s)%nnn_meth))
+                    CASE('ZERO')
+                       namyacmet(jf)%yac_stack(ib_s)%nnn_points = 1
+                    CASE DEFAULT
+                       CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                       READ(clvari,'(I4)') namyacmet(jf)%yac_stack(ib_s)%nnn_points
+                    END SELECT
+                    SELECT CASE(TRIM(namyacmet(jf)%yac_stack(ib_s)%nnn_meth))
+                    CASE('ZERO')
+                       namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance = &
+                       & REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+                       &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance))
+                    CASE DEFAULT
+                       CALL parse(clline, clvari, 4, jpeighty, ILEN, __LINE__)
+                       IF (ILEN > 0) THEN
+                          IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                             namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance = &
+                                & REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance))
+                          ELSE
+                             READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance
+                              namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance = &
+                                 &  namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance * deg2rad
+                          END IF
+                       ELSE
+                          namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance = &
+                             & REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance))
+                       END IF
+                    END SELECT
+                    SELECT CASE(TRIM(namyacmet(jf)%yac_stack(ib_s)%nnn_meth))
+                    CASE('GAUSS')
+                       CALL parse(clline, clvari, 5, jpeighty, ILEN, __LINE__)
+                       IF (ILEN > 0) THEN
+                          IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                             namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                                & REAL(YAC_INTERP_NNN_GAUSS_SCALE_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
+                          ELSE
+                             READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%nnn_scale
+                          END IF
+                       ELSE
+                          namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                             & REAL(YAC_INTERP_NNN_GAUSS_SCALE_DEFAULT_F, &
+                             &     KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
+                       END IF
+                    CASE('RBF')
+                       CALL parse(clline, clvari, 5, jpeighty, ILEN, __LINE__)
+                       IF (ILEN > 0) THEN
+                          IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                             namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                                & REAL(YAC_INTERP_RBF_SCALE_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
+                          ELSE
+                             READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%nnn_scale
+                          END IF
+                       ELSE
+                          namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                             & REAL(YAC_INTERP_RBF_SCALE_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
+                       END IF
+                    CASE DEFAULT
+                       namyacmet(jf)%yac_stack(ib_s)%nnn_scale = 1.d0
+                    END SELECT
+                 CASE('ZERO')
+                    namyacmet(jf)%yac_stack(ib_s)%method = 'NNN'
+                    namyacmet(jf)%yac_stack(ib_s)%nnn_meth = 'ZERO'
+                    namyacmet(jf)%yac_stack(ib_s)%nnn_points = 1
+                    namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance = &
+                       & REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+                       &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_max_search_distance))
+                    namyacmet(jf)%yac_stack(ib_s)%nnn_scale = 1.d0
+                 CASE('RBF')
+                    namyacmet(jf)%yac_stack(ib_s)%method = 'NNN'
+                    namyacmet(jf)%yac_stack(ib_s)%nnn_meth = 'RBF'
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    READ(clvari,'(I4)') namyacmet(jf)%yac_stack(ib_s)%nnn_points
+                    CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                    IF (ILEN > 0) THEN
+                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                          namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                             & REAL(YAC_INTERP_RBF_SCALE_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
+                       ELSE
+                          READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%nnn_scale
+                       END IF
+                    ELSE
+                       namyacmet(jf)%yac_stack(ib_s)%nnn_scale = &
+                          & REAL(YAC_INTERP_RBF_SCALE_DEFAULT_F, &
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%nnn_scale))
+                    END IF
+                 CASE('CREEP')
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    IF (ILEN > 0 ) THEN
+                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                          namyacmet(jf)%yac_stack(ib_s)%creep_iter = &
+                             & INT(YAC_INTERP_CREEP_DISTANCE_DEFAULT_F, &
+                             &     KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%creep_iter))
+                       ELSE
+                          READ(clvari,'(I4)') namyacmet(jf)%yac_stack(ib_s)%creep_iter
+                       END IF
+                    ELSE
+                       namyacmet(jf)%yac_stack(ib_s)%creep_iter = &
+                          & INT(YAC_INTERP_CREEP_DISTANCE_DEFAULT_F, &
+                          &     KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%creep_iter))
+                    END IF
+                 CASE('SPMAP')
+                    namyacmet(jf)%yac_stack(ib_s)%spm_src_min_global_id = &
+                       & YAC_INTERP_SPMAP_MIN_GLOBAL_ID_DEFAULT_F
+                    namyacmet(jf)%yac_stack(ib_s)%spm_tgt_min_global_id = &
+                       & YAC_INTERP_SPMAP_MIN_GLOBAL_ID_DEFAULT_F
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    SELECT CASE(uppercase(TRIM(clvari)))
+                    CASE('AVG', 'DIST')
+                       namyacmet(jf)%yac_stack(ib_s)%spm_meth = uppercase(TRIM(clvari))
+                    CASE DEFAULT
+                       WRITE(tmpstr1,*) ' YAC SPMAP method can only be AVG &
+                          &or DIST not '//TRIM(clvari)
+                       WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                       CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                    END SELECT
+                    CALL parse(clline, clvari, 3, jpeighty, ILEN, __LINE__)
+                    IF (ILEN > 0 ) THEN
+                       IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                          namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
+                             & REAL(YAC_INTERP_SPMAP_SPREAD_DISTANCE_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_spread))
+                       ELSE
+                          READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_spread
+                          namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
+                             & namyacmet(jf)%yac_stack(ib_s)%spm_spread * deg2rad
+                       END IF
+                       CALL parse(clline, clvari, 4, jpeighty, ILEN, __LINE__)
+                       IF (ILEN > 0 ) THEN
+                          IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                             namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance = &
+                                & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance))
+                          ELSE
+                             READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance
+                             namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance = &
+                                & namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance * deg2rad
+                          END IF
+                          CALL parse(clline, clvari, 5, jpeighty, ILEN, __LINE__)
+                          IF (ILEN > 0 ) THEN
+                             SELECT CASE(uppercase(TRIM(clvari)))
+                             CASE('DEFAULT', 'NONE', 'SRCAREA', 'INVTGTAREA', 'FRACAREA')
+                                IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
+                                ELSE
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_scale = uppercase(TRIM(clvari))
+                                END IF
+                             CASE DEFAULT
+                                WRITE(tmpstr1,*) ' YAC SPMAP scale can only be DEFAULT, &
+                                   &NONE, SRCAREA, INVTGTAREA or FRACAREA not '//TRIM(clvari)
+                                WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                                CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                             END SELECT
+                             CALL parse(clline, clvari, 6, jpeighty, ILEN, __LINE__)
+                             IF (ILEN > 0 ) THEN
+                                IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                                      & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                                      &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
+                                ELSE IF (uppercase(TRIM(clvari)) == 'FILE' .OR. &
+                                   & uppercase(TRIM(clvari)) == 'USER') THEN
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                                      & REAL(0.0, &
+                                      &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = "areas.nc"
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = TRIM(cficbf(ig_number_field(jf)))//".srf"
+                                ELSE IF (uppercase(TRIM(clvari)) == 'EARTH') THEN
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                                      & REAL(eradius, &
+                                      &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
+                                ELSE
+                                   READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_src_radius
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
+                                END IF
+                                CALL parse(clline, clvari, 7, jpeighty, ILEN, __LINE__)
+                                IF (ILEN > 0 ) THEN
+                                   IF (uppercase(TRIM(clvari)) == 'DEFAULT') THEN
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                         & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                                         &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
+                                   ELSE IF (uppercase(TRIM(clvari)) == 'FILE' .OR. &
+                                      & uppercase(TRIM(clvari)) == 'USER') THEN
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                         & REAL(0.0, &
+                                         &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = "areas.nc"
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = TRIM(cficaf(ig_number_field(jf)))//".srf"
+                                   ELSE IF (uppercase(TRIM(clvari)) == 'EARTH') THEN
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                         & REAL(eradius, &
+                                         &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
+                                   ELSE
+                                      READ(clvari,*) namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                                      namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
+                                   END IF
+                                ELSE
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                      & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                                      &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                                   namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
+                                END IF
+                             ELSE
+                                namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                                   & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                                   &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                                namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                                namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
+                                namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                   & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                                   &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                                namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                                namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
+                             END IF
+                          ELSE
+                             namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
+                             namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                                & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                             namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                             namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
+                             namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                                & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                                &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                             namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                             namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
+                          END IF
+                       ELSE
+                          namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance = &
+                             & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance))
+                          namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
+                          namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                             & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                          namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                          namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
+                          namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                             & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                             &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                          namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                          namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
+                       END IF
+                    ELSE
+                       namyacmet(jf)%yac_stack(ib_s)%spm_spread = &
+                          & REAL(YAC_INTERP_SPMAP_SPREAD_DISTANCE_DEFAULT_F, &
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_spread))
+                       namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance = &
+                          & REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_max_search_distance))
+                       namyacmet(jf)%yac_stack(ib_s)%spm_scale = 'NONE'
+                       namyacmet(jf)%yac_stack(ib_s)%spm_src_radius = &
+                          & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_src_radius))
+                       namyacmet(jf)%yac_stack(ib_s)%spm_src_filename = ""
+                       namyacmet(jf)%yac_stack(ib_s)%spm_src_varname = ""
+                       namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius = &
+                          & REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+                          &      KIND = KIND(namyacmet(jf)%yac_stack(ib_s)%spm_tgt_radius))
+                       namyacmet(jf)%yac_stack(ib_s)%spm_tgt_filename = ""
+                       namyacmet(jf)%yac_stack(ib_s)%spm_tgt_varname = ""
+                    END IF
+                 CASE('FILE')
+                    CALL parse(clline, clvari, 2, jpeighty, ILEN, __LINE__)
+                    namyacmet(jf)%yac_stack(ib_s)%file_name = TRIM(clvari)
+                 CASE('HCSBB')
+                    ! Nothing to do. Just here for the sanity check
+                 CASE DEFAULT
+                    WRITE(tmpstr1,*) ' YAC interpolation &
+                       &method '//TRIM(namyacmet(jf)%yac_stack(ib_s)%method)//' not &
+                       &implemented'
+                    WRITE(tmpstr2,*) ' with ja = ', ja, ' jf = ', jf
+                    CALL namcouple_abort(subname,__LINE__,tmpstr1,tmpstr2)
+                 END SELECT
+              END DO
+#endif
+
            ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'FILLING') THEN
               CALL parse(clline, clvari, 1, jpeighty, ilen, __LINE__)
 !     * Get data file name (used to complete the initial field array)
@@ -2650,7 +3287,7 @@ SUBROUTINE inipar
 !        FLD c_mult c_add
 !        FLD c_mult c_add
 !  where c_mult, c_add are multiplicative and addition constants
-!  f_number is the number of extra lines.  If f_number > 0 then 
+!  f_number is the number of extra lines.  If f_number > 0 then
 !  the first line MUST be CONSTANT c_add (even if c_add = 0.0)
 !  FLD is the field name for lines f_number > 1.
 !     * Get linear combination parameters for final fields
@@ -2713,7 +3350,16 @@ SUBROUTINE inipar
 
 !* Minimum coupling period
 
-  ig_total_frqmin = minval(ig_freq)
+  ig_total_frqmin = MINVAL(ig_freq)
+
+#ifdef YAC_REMAP
+!* Need of yac data structures
+  namcouple_has_yac = .FALSE.
+  DO jf = 1,  ig_final_nfield
+     namcouple_has_yac = namcouple_has_yac .OR. namyacmet(jf)%active
+     if (namcouple_has_yac) EXIT
+  END DO
+#endif
 
 !* Formats
 
@@ -2845,6 +3491,10 @@ SUBROUTINE inipar
                        WRITE(nulprt1, FMT=3049) anthresh(ig_number_field(jf))
                        WRITE(nulprt1, FMT=3050) asthresh(ig_number_field(jf))
                     ENDIF
+#ifdef YAC_REMAP
+                 ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'YAC') THEN
+                    WRITE(nulprt1,*) namyacmet(jf)
+#endif
                  ELSEIF (canal(ja,ig_number_field(jf)) .EQ. 'CONSERV') THEN
                     WRITE(nulprt1, FMT=3025)  &
                        TRIM(cconmet(ig_number_field(jf))),  &
@@ -3170,6 +3820,14 @@ SUBROUTINE alloc()
   ALLOCATE (asthresh(ig_nfield),stat=il_err)
   IF (il_err.NE.0) CALL prtout('Error in "asthresh"allocation of '//TRIM(subname),il_err,1)
   asthresh(:)= -2.0_ip_realwp_p
+#ifdef YAC_REMAP
+!
+!* Alloc array needed for YAC (already in final storage)
+!
+  ALLOCATE(namyacmet(ig_final_nfield), stat=il_err)
+  IF (il_err.NE.0) CALL prtout('Error in "namyacmet" allocation of '//TRIM(subname),il_err,1)
+  namyacmet(:)%active = .FALSE.
+#endif
 !
   !--- alloc_extrapol1
   ALLOCATE (niwtn(ig_nfield), stat=il_err)
@@ -3998,6 +4656,274 @@ SUBROUTINE namcouple_abort(isubname,lineno,string1,string2,string3,string4)
   RETURN
 
 END SUBROUTINE namcouple_abort
+
+#ifdef YAC_REMAP
+!*======================================================================
+
+!> Function for converting strings to uppercase
+!! @param[in] cd_s1 string to be converted
+!! @return the uppercase string
+FUNCTION uppercase(cd_s1)  RESULT (cd_s2)
+   !!-----------------------------------------------------------------------
+   !!                  ***  FUNCTION  uppercase  ***
+   !!
+   !! ** Purpose : Convert a string so that all letters are in uppercase
+   !!-----------------------------------------------------------------------
+   !! * Arguments
+
+   CHARACTER(*), INTENT(IN) :: &
+      & cd_s1
+
+   CHARACTER(LEN(cd_s1)) :: &
+      & cd_s2
+
+   !! * Local declarations
+
+   CHARACTER :: &
+      & cl_ch
+
+   INTEGER :: &
+      & ji
+
+   INTEGER, PARAMETER  :: &
+      & DUC = ICHAR('A') - ICHAR('a')
+
+   DO ji = 1, LEN(cd_s1)
+
+      cl_ch = cd_s1(ji:ji)
+
+      IF ( ( cl_ch >= 'a' ).AND.( cl_ch <= 'z' ) ) cl_ch = CHAR(ICHAR(cl_ch)+DUC)
+
+      cd_s2(ji:ji) = cl_ch
+
+   END DO
+
+END FUNCTION uppercase
+
+!*========================================================================
+
+!> Function for descrbing the YAC stack lines in a string to be used as NF90 attr
+FUNCTION yac_stack_line_to_string(dtv, ib_s) RESULT(yac_str)
+
+   IMPLICIT NONE
+   CLASS(yac_stack_line), INTENT(IN) :: dtv !< the stack line object
+   INTEGER, INTENT(IN) :: ib_s              !< the position in the stack
+   CHARACTER(LEN=1024) :: yac_str       !< output string
+
+   CHARACTER(LEN=1024) :: tmp_str
+   REAL (kind=ip_realwp_p) :: deg2rad = 3.14159265358979323846_ip_realwp_p/180.0_ip_realwp_p
+   WRITE(yac_str,'(A,I2,2A)') &
+      & 'YAC stack method ',ib_s,': ',TRIM(ADJUSTL(dtv%method))
+   SELECT CASE(TRIM(dtv%method))
+   CASE('CONSERV')
+      WRITE(tmp_str,'(3A)') &
+         & ' ', TRIM(dtv%cons_order), ' order '
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      WRITE(tmp_str,'(2A)') &
+         & ' norm. ',TRIM(dtv%cons_norm)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   CASE('AVG')
+      WRITE(tmp_str,'(2A)') &
+         & ' weigthing ',TRIM(dtv%avg_meth)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      IF (dtv%avg_partial) THEN
+         WRITE(tmp_str,'(A)') &
+            & ' (allows for partial stencils)'
+      ELSE
+         WRITE(tmp_str,'(A)') &
+            & ' (uses full stencils only)'
+      END IF
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   CASE('NCC')
+      WRITE(tmp_str,'(2A)') &
+         & ' weigthing ',TRIM(dtv%ncc_meth)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      IF (dtv%ncc_partial) THEN
+         WRITE(tmp_str,'(A)') &
+            & ' (allows for partial stencils)'
+      ELSE
+         WRITE(tmp_str,'(A)') &
+            & ' (uses full stencils only)'
+      END IF
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   CASE('NNN')
+      WRITE(tmp_str,'(2A)') &
+         & ' weighting ',TRIM(dtv%nnn_meth)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      WRITE(tmp_str,'(A,I3)') &
+         & ' nr of neighbours',dtv%nnn_points
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      IF (dtv%nnn_max_search_distance /=  REAL(YAC_INTERP_NNN_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+         &      KIND = KIND(dtv%nnn_max_search_distance))) THEN
+         WRITE(tmp_str,'(A,F10.3)') &
+            & ' max radius',dtv%nnn_max_search_distance / deg2rad
+         yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      END IF
+      IF (TRIM(dtv%nnn_meth) == 'GAUSS' .OR. TRIM(dtv%nnn_meth) == 'RBF') THEN
+         WRITE(tmp_str,'(3A,F10.3)') &
+            & ' ',TRIM(dtv%nnn_meth), ' scale',dtv%nnn_scale
+         yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      END IF
+   CASE('CREEP')
+      WRITE(tmp_str,'(A,I3)') &
+         & ' creep fill iterations',dtv%creep_iter
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   CASE('SPMAP')
+      WRITE(tmp_str,'(2A)') &
+         & ' source target map meth ',TRIM(dtv%spm_meth)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      IF (dtv%spm_spread /=  REAL(YAC_INTERP_SPMAP_SPREAD_DISTANCE_DEFAULT_F, &
+         &      KIND = KIND(dtv%spm_spread))) THEN
+         WRITE(tmp_str,'(A,F10.3)') &
+            & ' spread',dtv%spm_spread / deg2rad
+         yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      END IF
+      IF (dtv%spm_max_search_distance /=  REAL(YAC_INTERP_SPMAP_MAX_SEARCH_DISTANCE_DEFAULT_F, &
+         &      KIND = KIND(dtv%spm_max_search_distance))) THEN
+         WRITE(tmp_str,'(A,F10.3)') &
+            & ' max radius',dtv%spm_max_search_distance / deg2rad
+         yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      END IF
+      WRITE(tmp_str,'(2A)') &
+         & ' scale ',TRIM(dtv%spm_scale)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      IF (dtv%spm_src_radius /=  REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+         &      KIND = KIND(dtv%spm_src_radius))) THEN
+         IF (dtv%spm_src_radius == REAL(0.0, KIND = KIND(dtv%spm_src_radius))) THEN
+            WRITE(tmp_str,'(A)') ' user provided source areas'
+         ELSE
+            WRITE(tmp_str,'(A,F10.1)') &
+               & ' source sphere radius',dtv%spm_src_radius
+         END IF
+         yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      END IF
+      IF (dtv%spm_tgt_radius /=  REAL(YAC_INTERP_SPMAP_SPHERE_RADIUS_DEFAULT_F, &
+         &      KIND = KIND(dtv%spm_tgt_radius))) THEN
+         IF (dtv%spm_tgt_radius == REAL(0.0, KIND = KIND(dtv%spm_tgt_radius))) THEN
+            WRITE(tmp_str,'(A)') ' user provided target areas'
+         ELSE
+            WRITE(tmp_str,'(A,F10.1)') &
+               & ' target sphere radius',dtv%spm_tgt_radius
+         END IF
+         yac_str = TRIM(yac_str) // TRIM(tmp_str)
+      END IF
+   CASE('FILE')
+      WRITE(tmp_str,'(2A)') &
+         & ' precomputed weights file ',TRIM(dtv%file_name)
+      yac_str = TRIM(yac_str) // TRIM(tmp_str)
+   END SELECT
+
+END FUNCTION yac_stack_line_to_string
+
+
+!> Subroutine for the output of yac configurations.
+!! The parameter list is imposed by the F90 standard. Refer to it.
+SUBROUTINE write_yac_fmt(dtv, unit, iotype, v_list, iostat, iomsg)
+
+   IMPLICIT NONE
+   CLASS(yac_parse), INTENT(IN)    :: dtv
+   INTEGER, INTENT(IN)             :: unit
+   CHARACTER(len=*), INTENT(IN)    :: iotype
+   INTEGER, INTENT(IN)             :: v_list(:)
+   INTEGER, INTENT(OUT)            :: iostat
+   CHARACTER(len=*), INTENT(INOUT) :: iomsg
+
+   INTEGER :: ib_s, fmt_len
+   REAL (kind=ip_realwp_p) :: deg2rad = 3.14159265358979323846_ip_realwp_p/180.0_ip_realwp_p
+
+   IF (iotype .NE. 'LISTDIRECTED' .AND. &
+     & iotype .NE. 'NAMELIST' .AND. &
+     & iotype .NE. 'DT') THEN
+      iostat = 1
+      iomsg = 'write yac struct: Unexpected iotype'
+      RETURN
+   END IF
+   IF (.NOT. dtv%active) THEN
+      WRITE(unit,'(A)',IOSTAT=iostat,IOMSG=iomsg) 'Inactive yac struct entry'
+      RETURN
+   END IF
+   fmt_len = SIZE(v_list)
+   WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+      & 'src grid type ', TRIM(dtv%src_grid_type)
+   WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+      & 'dst grid type ', TRIM(dtv%dst_grid_type)
+   WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+      & 'output file suffix ', TRIM(dtv%filename)
+   IF (TRIM(dtv%io_ranks_per_node) /= TRIM(cspval))&
+      &  WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+      & 'max io ranks per node ', TRIM(dtv%io_ranks_per_node)
+   DO ib_s = 1, dtv%stacksize
+      WRITE(unit,'(A,I2,2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+         & 'stack line',ib_s,' ',TRIM(ADJUSTL(dtv%yac_stack(ib_s)%method))
+      SELECT CASE(TRIM(dtv%yac_stack(ib_s)%method))
+      CASE('CONSERV')
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' conservative order ',TRIM(dtv%yac_stack(ib_s)%cons_order)
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' conservative norm. ',TRIM(dtv%yac_stack(ib_s)%cons_norm)
+      CASE('AVG')
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' average meth ',TRIM(dtv%yac_stack(ib_s)%avg_meth)
+         IF (dtv%yac_stack(ib_s)%avg_partial) THEN
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' average meth allows for partial stencils'
+         ELSE
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' average meth uses full stencils only'
+         END IF
+      CASE('NCC')
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' n.c.c. meth ',TRIM(dtv%yac_stack(ib_s)%ncc_meth)
+         IF (dtv%yac_stack(ib_s)%ncc_partial) THEN
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' n.c.c. meth allows for partial stencils'
+         ELSE
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' n.c.c. meth uses full stencils only'
+         END IF
+      CASE('NNN')
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' n next neighbour meth ',TRIM(dtv%yac_stack(ib_s)%nnn_meth)
+         WRITE(unit,'(A,I3/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' n next neighbour points',dtv%yac_stack(ib_s)%nnn_points
+         WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' n next neighbour max radius',dtv%yac_stack(ib_s)%nnn_max_search_distance
+         WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' n next neighbour scale',dtv%yac_stack(ib_s)%nnn_scale
+      CASE('CREEP')
+         WRITE(unit,'(A,I3/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' creep fill iterations',dtv%yac_stack(ib_s)%creep_iter
+      CASE('SPMAP')
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' source target map meth ',TRIM(dtv%yac_stack(ib_s)%spm_meth)
+         WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' source target map spread',dtv%yac_stack(ib_s)%spm_spread / deg2rad
+         WRITE(unit,'(A,F10.3/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' source target map max radius',dtv%yac_stack(ib_s)%spm_max_search_distance / deg2rad
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' scale ',TRIM(dtv%yac_stack(ib_s)%spm_scale)
+         IF (dtv%yac_stack(ib_s)%spm_src_radius /= REAL(0.0, KIND(dtv%yac_stack(ib_s)%spm_src_radius))) THEN
+            WRITE(unit,'(A,F10.1/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' source sphere radius',dtv%yac_stack(ib_s)%spm_src_radius
+         ELSE
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' user provided source areas'
+         END IF
+         IF (dtv%yac_stack(ib_s)%spm_tgt_radius /= REAL(0.0, KIND(dtv%yac_stack(ib_s)%spm_tgt_radius))) THEN
+
+            WRITE(unit,'(A,F10.1/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' target sphere radius',dtv%yac_stack(ib_s)%spm_tgt_radius
+         ELSE
+            WRITE(unit,'(A/)',IOSTAT=iostat,IOMSG=iomsg) &
+               & ' user provided target areas'
+         END IF
+      CASE('FILE')
+         WRITE(unit,'(2A/)',IOSTAT=iostat,IOMSG=iomsg) &
+            & ' precomputed file name ',TRIM(dtv%yac_stack(ib_s)%file_name)
+      END SELECT
+   END DO
+END SUBROUTINE write_yac_fmt
+#endif
 
 !===============================================================================
 !===============================================================================

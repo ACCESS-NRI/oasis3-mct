@@ -278,7 +278,7 @@
 !$OMP SHARED(grid1_mask) &
 !$OMP SHARED(bin_addr1,nulou,sga_remap,num_wts) &
 !$OMP SHARED(nmap,dl_test) &
-!$OMP PRIVATE(nlogprt, il_err) &
+!$OMP PRIVATE(nlogprt) &
 !$OMP SHARED(coslat,coslon,sinlat,sinlon) &
 !$OMP PRIVATE(wgts,sum_wgts,dst_add,icount) &
 !$OMP PRIVATE(coslat_dst,coslon_dst,sinlat_dst,sinlon_dst) &
@@ -287,9 +287,9 @@
 !$OMP PRIVATE(dth1,dth2,dth3,dph1,dph2,dph3,iguess,jguess,iter,dthp,dphp) &
 !$OMP PRIVATE(mat1,mat2,mat3,mat4,determinant,deli,delj,d_dist) &
 !$OMP PRIVATE(distance,dist_min,n,srch_add,src_latsnn) &
+!$OMP PRIVATE(il_err) &
 !$OMP SHARED(il_nbthreads) &
-!$OMP SHARED(mpi_comm_map) &
-!$OMP SHARED(mpi_rank_map,mpi_root_map,ila_mpi_mn,ila_mpi_mx) &
+!$OMP SHARED(mpi_comm_map,mpi_rank_map,mpi_root_map,ila_mpi_mn,ila_mpi_mx) &
 !$OMP SHARED(ila_thr_sz,ila_thr_mn,ila_thr_mx) &
 !$OMP SHARED(grid1_dims,grid1_size) &
 !$OMP SHARED(ll_nnei,ll_gaussreduced_grid,ll_bicubic) &

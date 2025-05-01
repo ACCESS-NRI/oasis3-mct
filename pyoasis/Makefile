@@ -19,7 +19,7 @@ test-nopython: examples_f_nopython examples_c_nopython
 wrappertest:
 	cd $(PYOASIS)/tests && ./run_pytest.sh
 
-examples: example1 example2 example3 example4 example5 example6 example8 example7 example9 example10 example11 example13 example14
+examples: example1 example2 example3 example4 example5 example6 example8 example7 example9 example10 example11 example12 example13 example14
 
 example1:
 	cd $(PYOASIS)/examples/1-serial/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -52,13 +52,17 @@ example10:
 	cd $(PYOASIS)/examples/10-grid/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 example11:
-	cd $(PYOASIS)/examples/11-test-interpolation/python && (bash run.sh < test_input.in | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+	cd $(PYOASIS)/examples/11-test-interpolation/python && (bash run.sh < test_input.in | tee test_output.txt) && grep -iq "bggd.*scrip.*successfully" test_output.txt && grep -iq "bgnc.*scrip.*successfully" test_output.txt && grep -iq "bggd.*yac.*successfully" test_output.txt && grep -iq "bgnc.*yac.*successfully" test_output.txt && rm -f test_output.txt
+
+example12:
+	cd $(PYOASIS)/examples/12-grid-functions/python && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 example13:
 	cd $(PYOASIS)/examples/13-test-fracwgt/python && (bash run.sh < test_input.in | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 example14:
 	cd $(PYOASIS)/examples/14-test-inter3d/python && (bash run.sh < test_input.in | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+
 
 examples_f: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example8_f example9_f example10_f example11_f example13_f example14_f
 examples_f_nopython: example1_f example2_f example3_f example4_f example5_f example6_f example7_f example10_f example11_f example13_f example14_f
@@ -94,7 +98,7 @@ example10_f:
 	cd $(PYOASIS)/examples/10-grid/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 example11_f:
-	cd $(PYOASIS)/examples/11-test-interpolation/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+	cd $(PYOASIS)/examples/11-test-interpolation/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "bggd.*scrip.*successfully" test_output.txt && grep -iq "bgnc.*scrip.*successfully" test_output.txt && grep -iq "bggd.*yac.*successfully" test_output.txt && grep -iq "bgnc.*yac.*successfully" test_output.txt && rm -f test_output.txt
 
 example13_f:
 	cd $(PYOASIS)/examples/13-test-fracwgt/fortran  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
@@ -137,7 +141,7 @@ example10_c:
 	cd $(PYOASIS)/examples/10-grid/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
 
 example11_c:
-	cd $(PYOASIS)/examples/11-test-interpolation/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt
+	cd $(PYOASIS)/examples/11-test-interpolation/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "bggd.*scrip.*successfully" test_output.txt && grep -iq "bgnc.*scrip.*successfully" test_output.txt && grep -iq "bggd.*yac.*successfully" test_output.txt && grep -iq "bgnc.*yac.*successfully" test_output.txt && rm -f test_output.txt
 
 example13_c:
 	cd $(PYOASIS)/examples/13-test-fracwgt/C  && make clean && (bash run.sh | tee test_output.txt) && grep -iq "successfully" test_output.txt && rm -f test_output.txt

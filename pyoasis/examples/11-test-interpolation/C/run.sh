@@ -14,20 +14,30 @@ n2=1
 
 make || exit
 
-rundir=$srcdir/work
+rmplibs=("scrip" "yac")
+tgtgrids=("bggd" "bgnc")
 
-rm -fr $rundir
-mkdir -p $rundir
+for rmplib in ${rmplibs[@]} ; do
+   for tgtgrid in ${tgtgrids[@]} ; do
+      rundir=$srcdir/work/$rmplib/$tgtgrid
 
-ln -sf $srcdir/$exe1 $rundir/.
-ln -sf $srcdir/$exe2 $rundir/.
+      rm -fr $rundir
+      mkdir -p $rundir
 
-ln -sf $datadir/grids.nc $rundir/.
-ln -sf $datadir/areas.nc $rundir/.
-ln -sf $datadir/masks_nogt_scrip.nc $rundir/masks.nc
+      ln -sf $srcdir/$exe1 $rundir/.
+      ln -sf $srcdir/$exe2 $rundir/.
 
-ln -sf $datadir/namcouple $rundir/.
+      ln -sf $datadir/grids.nc $rundir/.
+      ln -sf $datadir/areas.nc $rundir/.
+      ln -sf $datadir/masks_nogt_${rmplib}.nc $rundir/masks.nc
 
-cd $rundir
+      ln -sf $datadir/namcouple_${rmplib}_$tgtgrid $rundir/namcouple
 
-${MPIRUN4PY} -np $n1 ./$exe1 : -np $n2 ./$exe2
+      cd $rundir
+      cat > grid_lib <<EOF
+${rmplib}
+${tgtgrid}
+EOF
+      ${MPIRUN4PY} -np $n1 ./$exe1 : -np $n2 ./$exe2
+   done
+done

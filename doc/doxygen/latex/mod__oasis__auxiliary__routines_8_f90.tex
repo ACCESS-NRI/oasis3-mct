@@ -1,5 +1,5 @@
-\hypertarget{mod__oasis__auxiliary__routines_8_f90}{}\section{/home/globc2/tcraig/oasis3-\/mct.trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.F90 File Reference}
-\label{mod__oasis__auxiliary__routines_8_f90}\index{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90@{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90}}
+\hypertarget{mod__oasis__auxiliary__routines_8_f90}{}\section{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.F90 File Reference}
+\label{mod__oasis__auxiliary__routines_8_f90}\index{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90@{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90}}
 {\ttfamily \#include \char`\"{}oasis\+\_\+os.\+h\char`\"{}}\newline
 \subsection*{Modules}
 \begin{DoxyCompactItemize}
@@ -20,9 +20,11 @@ subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_a94077706
 subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_a71bf70a87b2d4ce86016bbb93d9edd73}{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines\+::oasis\+\_\+set\+\_\+debug} (debug, kinfo)
 \begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to set debug level. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_a589021c0f1427f8e5edb1c7efcd7fa2c}{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines\+::oasis\+\_\+get\+\_\+intercomm} (new\+\_\+comm, cdnam, kinfo)
-\begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to establish an intercomm communicator between the root of two models. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to establish an M\+PI intercomm communicator between two models. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_aa1959db40e8c27dea289b97458929526}{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines\+::oasis\+\_\+get\+\_\+intracomm} (new\+\_\+comm, cdnam, kinfo)
-\begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to establish an intracomm communicator between the root of two models. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to establish an intracomm communicator between two components. \end{DoxyCompactList}\item 
+subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_aaab3f229e1733a7d48ac0cc44d344c7f}{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines\+::oasis\+\_\+get\+\_\+multi\+\_\+intracomm} (new\+\_\+comm, cdnam, root\+\_\+ranks, kinfo)
+\begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to establish an intracomm communicator between two or more components. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_a154d3345ef9691e378afdc871086f7eb}{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines\+::oasis\+\_\+get\+\_\+ncpl} (varid, ncpl, kinfo)
 \begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user query for the number of unique couplings associated with a variable. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_a62d1c98c05bcc4bd5e8796866bcce2db}{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines\+::oasis\+\_\+get\+\_\+freqs} (varid, mop, ncpl, cpl\+\_\+freqs, kinfo)

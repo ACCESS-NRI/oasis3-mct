@@ -1,5 +1,5 @@
-\hypertarget{mod__oasis__grid_8_f90}{}\section{/home/globc2/tcraig/oasis3-\/mct.trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+grid.F90 File Reference}
-\label{mod__oasis__grid_8_f90}\index{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+grid.\+F90@{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+grid.\+F90}}
+\hypertarget{mod__oasis__grid_8_f90}{}\section{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+grid.F90 File Reference}
+\label{mod__oasis__grid_8_f90}\index{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+grid.\+F90@{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+grid.\+F90}}
 {\ttfamily \#include \char`\"{}oasis\+\_\+os.\+h\char`\"{}}\newline
 \subsection*{Data Types}
 \begin{DoxyCompactItemize}
@@ -11,6 +11,8 @@ interface \hyperlink{interfacemod__oasis__grid_1_1oasis__write__angle}{mod\+\_\+
 interface \hyperlink{interfacemod__oasis__grid_1_1oasis__write__corner}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write\+\_\+corner}
 \begin{DoxyCompactList}\small\item\em Generic interface to support writing 4 or 8 byte reals. \end{DoxyCompactList}\item 
 interface \hyperlink{interfacemod__oasis__grid_1_1oasis__write__area}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write\+\_\+area}
+\begin{DoxyCompactList}\small\item\em Generic interface to support writing 4 or 8 byte reals. \end{DoxyCompactList}\item 
+interface \hyperlink{interfacemod__oasis__grid_1_1oasis__write__frac}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write\+\_\+frac}
 \begin{DoxyCompactList}\small\item\em Generic interface to support writing 4 or 8 byte reals. \end{DoxyCompactList}\item 
 type \hyperlink{structmod__oasis__grid_1_1prism__grid__type}{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}
 \begin{DoxyCompactList}\small\item\em Model grid data for creating mapping data and conserving fields. \end{DoxyCompactList}\end{DoxyCompactItemize}
@@ -38,12 +40,16 @@ subroutine \hyperlink{namespacemod__oasis__grid_af6953999aa6fb1d0190187052bf5267
 \begin{DoxyCompactList}\small\item\em User interface to set corner latitudes and longitudes for 8 byte reals. \end{DoxyCompactList}\item 
 subroutine \hyperlink{namespacemod__oasis__grid_a30e5d9c4766b2f323d4b930499e0f23b}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write\+\_\+corner\+\_\+r4} (cgrid, nx, ny, nc, clon, clat, partid)
 \begin{DoxyCompactList}\small\item\em User interface to set corner latitudes and longitudes for 4 byte reals. \end{DoxyCompactList}\item 
-subroutine, public \hyperlink{namespacemod__oasis__grid_a16906db2b252a3a5ce85e21aa1336e3b}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write\+\_\+mask} (cgrid, nx, ny, mask, partid)
+subroutine, public \hyperlink{namespacemod__oasis__grid_ae8c451c5d0190f1077107419283d2a6a}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write\+\_\+mask} (cgrid, nx, ny, mask, partid, companion)
 \begin{DoxyCompactList}\small\item\em User interface to set integer mask values. \end{DoxyCompactList}\item 
 subroutine \hyperlink{namespacemod__oasis__grid_ae54eaec7b4e9d4877af0ce8537b0b256}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write\+\_\+area\+\_\+r8} (cgrid, nx, ny, area, partid)
 \begin{DoxyCompactList}\small\item\em User interface to set area values for 8 byte reals. \end{DoxyCompactList}\item 
 subroutine \hyperlink{namespacemod__oasis__grid_ad1d3e95cf63a2277b82167ec6c8148d4}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write\+\_\+area\+\_\+r4} (cgrid, nx, ny, area, partid)
 \begin{DoxyCompactList}\small\item\em User interface to set area values for 4 byte reals. \end{DoxyCompactList}\item 
+subroutine \hyperlink{namespacemod__oasis__grid_acf5aadf5df317f065c5ced3de9662aac}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write\+\_\+frac\+\_\+r8} (cgrid, nx, ny, frac, partid, companion)
+\begin{DoxyCompactList}\small\item\em User interface to set frac values for 8 byte reals. \end{DoxyCompactList}\item 
+subroutine \hyperlink{namespacemod__oasis__grid_ac6cd6ea8952c6e6df18a80d36c1f95f9}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write\+\_\+frac\+\_\+r4} (cgrid, nx, ny, frac, partid, companion)
+\begin{DoxyCompactList}\small\item\em User interface to set frac values for 4 byte reals. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__grid_a59755e271ccdd0c98807b5938ef33e78}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+terminate\+\_\+grids\+\_\+writing} ()
 \begin{DoxyCompactList}\small\item\em User interface to indicate user defined grids are done. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__grid_a275791c512cefae9799e188d92b6f9d4}{mod\+\_\+oasis\+\_\+grid\+::oasis\+\_\+write2files} ()

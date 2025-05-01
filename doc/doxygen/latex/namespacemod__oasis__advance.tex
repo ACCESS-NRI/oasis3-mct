@@ -16,7 +16,7 @@ subroutine \hyperlink{namespacemod__oasis__advance_a0514c843d051b8ee16adfb349eae
 \begin{DoxyCompactList}\small\item\em Provides interpolation functionality. \end{DoxyCompactList}\item 
 subroutine \hyperlink{namespacemod__oasis__advance_acf8f4a02082ba2d9f32f0835ad14e11d}{oasis\+\_\+advance\+\_\+avsum} (av, sum, gsmap, mpicom, mask, wts, consopt)
 \begin{DoxyCompactList}\small\item\em A generic method for summing fields in an attribute vector. \end{DoxyCompactList}\item 
-subroutine \hyperlink{namespacemod__oasis__advance_af611b26fe4601ded488fd5d3c03b12a2}{oasis\+\_\+advance\+\_\+avdiag} (av, mpicom, mask, wts)
+subroutine \hyperlink{namespacemod__oasis__advance_a6faf6ac09dd35d44e62daad5e09d7b24}{oasis\+\_\+advance\+\_\+avdiag} (av, partid)
 \begin{DoxyCompactList}\small\item\em A generic method for writing the global sums of fields in an attribute vector. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
@@ -31,11 +31,11 @@ logical, parameter \hyperlink{namespacemod__oasis__advance_aad8e5c2e16b0270a7da0
 Advances the O\+A\+S\+IS coupling. 
 
 \subsection{Function/\+Subroutine Documentation}
-\mbox{\Hypertarget{namespacemod__oasis__advance_af611b26fe4601ded488fd5d3c03b12a2}\label{namespacemod__oasis__advance_af611b26fe4601ded488fd5d3c03b12a2}} 
+\mbox{\Hypertarget{namespacemod__oasis__advance_a6faf6ac09dd35d44e62daad5e09d7b24}\label{namespacemod__oasis__advance_a6faf6ac09dd35d44e62daad5e09d7b24}} 
 \index{mod\+\_\+oasis\+\_\+advance@{mod\+\_\+oasis\+\_\+advance}!oasis\+\_\+advance\+\_\+avdiag@{oasis\+\_\+advance\+\_\+avdiag}}
 \index{oasis\+\_\+advance\+\_\+avdiag@{oasis\+\_\+advance\+\_\+avdiag}!mod\+\_\+oasis\+\_\+advance@{mod\+\_\+oasis\+\_\+advance}}
 \subsubsection{\texorpdfstring{oasis\+\_\+advance\+\_\+avdiag()}{oasis\_advance\_avdiag()}}
-{\footnotesize\ttfamily subroutine mod\+\_\+oasis\+\_\+advance\+::oasis\+\_\+advance\+\_\+avdiag (\begin{DoxyParamCaption}\item[{type(mct\+\_\+avect), intent(in)}]{av,  }\item[{integer(kind=ip\+\_\+i4\+\_\+p), intent(in)}]{mpicom,  }\item[{integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), intent(in), optional}]{mask,  }\item[{real(kind=ip\+\_\+r8\+\_\+p), dimension(\+:), intent(in), optional}]{wts }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+{\footnotesize\ttfamily subroutine mod\+\_\+oasis\+\_\+advance\+::oasis\+\_\+advance\+\_\+avdiag (\begin{DoxyParamCaption}\item[{type(mct\+\_\+avect), intent(in)}]{av,  }\item[{integer(kind=ip\+\_\+i4\+\_\+p), intent(in)}]{partid }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
 
 
 
@@ -43,7 +43,7 @@ A generic method for writing the global sums of fields in an attribute vector.
 
 
 
-Definition at line 2150 of file mod\+\_\+oasis\+\_\+advance.\+F90.
+Definition at line 2371 of file mod\+\_\+oasis\+\_\+advance.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__advance_acf8f4a02082ba2d9f32f0835ad14e11d}\label{namespacemod__oasis__advance_acf8f4a02082ba2d9f32f0835ad14e11d}} 
 \index{mod\+\_\+oasis\+\_\+advance@{mod\+\_\+oasis\+\_\+advance}!oasis\+\_\+advance\+\_\+avsum@{oasis\+\_\+advance\+\_\+avsum}}
@@ -57,7 +57,7 @@ A generic method for summing fields in an attribute vector.
 
 
 
-Definition at line 2002 of file mod\+\_\+oasis\+\_\+advance.\+F90.
+Definition at line 2223 of file mod\+\_\+oasis\+\_\+advance.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__advance_a480bfe5b333300c1084af8f9c239a81d}\label{namespacemod__oasis__advance_a480bfe5b333300c1084af8f9c239a81d}} 
 \index{mod\+\_\+oasis\+\_\+advance@{mod\+\_\+oasis\+\_\+advance}!oasis\+\_\+advance\+\_\+init@{oasis\+\_\+advance\+\_\+init}}
@@ -136,7 +136,7 @@ oasis\+\_\+advance\+\_\+map does the following
 \item enforce conservation 
 \end{DoxyItemize}
 
-Definition at line 1651 of file mod\+\_\+oasis\+\_\+advance.\+F90.
+Definition at line 1655 of file mod\+\_\+oasis\+\_\+advance.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__advance_a932b0cbe5d1f5fa27c283c6472be7baf}\label{namespacemod__oasis__advance_a932b0cbe5d1f5fa27c283c6472be7baf}} 
 \index{mod\+\_\+oasis\+\_\+advance@{mod\+\_\+oasis\+\_\+advance}!oasis\+\_\+advance\+\_\+run@{oasis\+\_\+advance\+\_\+run}}
@@ -230,7 +230,7 @@ oasis\+\_\+advance\+\_\+run does the following
 \end{DoxyItemize}
 \end{DoxyItemize}
 
-Definition at line 324 of file mod\+\_\+oasis\+\_\+advance.\+F90.
+Definition at line 319 of file mod\+\_\+oasis\+\_\+advance.\+F90.
 
 
 

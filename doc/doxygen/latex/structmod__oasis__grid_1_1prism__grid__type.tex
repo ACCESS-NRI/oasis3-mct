@@ -26,12 +26,18 @@ logical \hyperlink{structmod__oasis__grid_1_1prism__grid__type_a4a357fd1eb4b19d1
 \begin{DoxyCompactList}\small\item\em flag to track user calls for angle \end{DoxyCompactList}\item 
 logical \hyperlink{structmod__oasis__grid_1_1prism__grid__type_a369c091ef9af0281c5b4f92390f4265f}{area\+\_\+set}
 \begin{DoxyCompactList}\small\item\em flag to track user calls for area \end{DoxyCompactList}\item 
+logical \hyperlink{structmod__oasis__grid_1_1prism__grid__type_a427bc608d8a2123c973bee9abe8fde09}{frac\+\_\+set}
+\begin{DoxyCompactList}\small\item\em flag to track user calls for frac \end{DoxyCompactList}\item 
 logical \hyperlink{structmod__oasis__grid_1_1prism__grid__type_ae44525ecb0b2dfe8d4a4a8cf4abd4e1f}{mask\+\_\+set}
 \begin{DoxyCompactList}\small\item\em flag to track user calls for mask \end{DoxyCompactList}\item 
 logical \hyperlink{structmod__oasis__grid_1_1prism__grid__type_a48d243ede1b306ac35bb9bbeff48785a}{written}
 \begin{DoxyCompactList}\small\item\em flag to indicate grid has been written \end{DoxyCompactList}\item 
 logical \hyperlink{structmod__oasis__grid_1_1prism__grid__type_a2dcbbc51a20f881a1d06609688d72734}{terminated}
 \begin{DoxyCompactList}\small\item\em flag to indicate user grid calls complete \end{DoxyCompactList}\item 
+character(len=ic\+\_\+med) \hyperlink{structmod__oasis__grid_1_1prism__grid__type_a45c318b88ceaf6db5d5181c13e75abe0}{mask\+\_\+companion}
+\begin{DoxyCompactList}\small\item\em mask companion grid name \end{DoxyCompactList}\item 
+character(len=ic\+\_\+med) \hyperlink{structmod__oasis__grid_1_1prism__grid__type_a559e35e3bb8a820a101677c1da8f1934}{frac\+\_\+companion}
+\begin{DoxyCompactList}\small\item\em frac companion grid name \end{DoxyCompactList}\item 
 real(kind=ip\+\_\+realwp\+\_\+p), dimension(\+:,\+:), allocatable \hyperlink{structmod__oasis__grid_1_1prism__grid__type_a4f7fb8a71335506209709cfbe939ef7b}{lon}
 \begin{DoxyCompactList}\small\item\em user specified longitudes \end{DoxyCompactList}\item 
 real(kind=ip\+\_\+realwp\+\_\+p), dimension(\+:,\+:), allocatable \hyperlink{structmod__oasis__grid_1_1prism__grid__type_aa3a8ae208948be24ac3964c9d660afed}{lat}
@@ -44,6 +50,8 @@ real(kind=ip\+\_\+realwp\+\_\+p), dimension(\+:,\+:), allocatable \hyperlink{str
 \begin{DoxyCompactList}\small\item\em user specified angle \end{DoxyCompactList}\item 
 real(kind=ip\+\_\+realwp\+\_\+p), dimension(\+:,\+:), allocatable \hyperlink{structmod__oasis__grid_1_1prism__grid__type_a7dad88f99d9648097a29b6b6f1e25d2e}{area}
 \begin{DoxyCompactList}\small\item\em user specified area \end{DoxyCompactList}\item 
+real(kind=ip\+\_\+realwp\+\_\+p), dimension(\+:,\+:), allocatable \hyperlink{structmod__oasis__grid_1_1prism__grid__type_ad29eea089d1c004db94828eba6f3003a}{frac}
+\begin{DoxyCompactList}\small\item\em user specified frac \end{DoxyCompactList}\item 
 integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:,\+:), allocatable \hyperlink{structmod__oasis__grid_1_1prism__grid__type_ae50e83035d6214d862be48a5060887ae}{mask}
 \begin{DoxyCompactList}\small\item\em user specified mask \end{DoxyCompactList}\end{DoxyCompactItemize}
 
@@ -51,7 +59,7 @@ integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:,\+:), allocatable \hyperlink{stru
 \subsection{Detailed Description}
 Model grid data for creating mapping data and conserving fields. 
 
-Definition at line 117 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 130 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 
 
@@ -68,7 +76,7 @@ user specified angle
 
 
 
-Definition at line 134 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 150 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a4a357fd1eb4b19d1beea5968dd783882}\label{structmod__oasis__grid_1_1prism__grid__type_a4a357fd1eb4b19d1beea5968dd783882}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!angle\+\_\+set@{angle\+\_\+set}}
@@ -82,7 +90,7 @@ flag to track user calls for angle
 
 
 
-Definition at line 125 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 138 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a7dad88f99d9648097a29b6b6f1e25d2e}\label{structmod__oasis__grid_1_1prism__grid__type_a7dad88f99d9648097a29b6b6f1e25d2e}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!area@{area}}
@@ -96,7 +104,7 @@ user specified area
 
 
 
-Definition at line 135 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 151 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a369c091ef9af0281c5b4f92390f4265f}\label{structmod__oasis__grid_1_1prism__grid__type_a369c091ef9af0281c5b4f92390f4265f}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!area\+\_\+set@{area\+\_\+set}}
@@ -110,7 +118,7 @@ flag to track user calls for area
 
 
 
-Definition at line 126 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 139 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a59d5122daaab45ad6578c7cc8f4fffc8}\label{structmod__oasis__grid_1_1prism__grid__type_a59d5122daaab45ad6578c7cc8f4fffc8}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!clat@{clat}}
@@ -124,7 +132,7 @@ user specified corner latitudes
 
 
 
-Definition at line 133 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 149 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a7aac140b1875e0ecae3a816c0cd6d45e}\label{structmod__oasis__grid_1_1prism__grid__type_a7aac140b1875e0ecae3a816c0cd6d45e}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!clon@{clon}}
@@ -138,7 +146,7 @@ user specified corner longitudes
 
 
 
-Definition at line 132 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 148 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a852b381de47913b96e3fa28ade472579}\label{structmod__oasis__grid_1_1prism__grid__type_a852b381de47913b96e3fa28ade472579}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!corner\+\_\+set@{corner\+\_\+set}}
@@ -152,7 +160,49 @@ flag to track user calls for corner
 
 
 
-Definition at line 124 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 137 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_ad29eea089d1c004db94828eba6f3003a}\label{structmod__oasis__grid_1_1prism__grid__type_ad29eea089d1c004db94828eba6f3003a}} 
+\index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!frac@{frac}}
+\index{frac@{frac}!mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}}
+\subsubsection{\texorpdfstring{frac}{frac}}
+{\footnotesize\ttfamily real(kind=ip\+\_\+realwp\+\_\+p), dimension(\+:,\+:), allocatable mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type\+::frac\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+user specified frac 
+
+
+
+Definition at line 152 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a559e35e3bb8a820a101677c1da8f1934}\label{structmod__oasis__grid_1_1prism__grid__type_a559e35e3bb8a820a101677c1da8f1934}} 
+\index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!frac\+\_\+companion@{frac\+\_\+companion}}
+\index{frac\+\_\+companion@{frac\+\_\+companion}!mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}}
+\subsubsection{\texorpdfstring{frac\+\_\+companion}{frac\_companion}}
+{\footnotesize\ttfamily character(len=ic\+\_\+med) mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type\+::frac\+\_\+companion\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+frac companion grid name 
+
+
+
+Definition at line 145 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a427bc608d8a2123c973bee9abe8fde09}\label{structmod__oasis__grid_1_1prism__grid__type_a427bc608d8a2123c973bee9abe8fde09}} 
+\index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!frac\+\_\+set@{frac\+\_\+set}}
+\index{frac\+\_\+set@{frac\+\_\+set}!mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}}
+\subsubsection{\texorpdfstring{frac\+\_\+set}{frac\_set}}
+{\footnotesize\ttfamily logical mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type\+::frac\+\_\+set\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+flag to track user calls for frac 
+
+
+
+Definition at line 140 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a41b62a294b04765a04f6f0d70c261df7}\label{structmod__oasis__grid_1_1prism__grid__type_a41b62a294b04765a04f6f0d70c261df7}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!grid\+\_\+set@{grid\+\_\+set}}
@@ -166,7 +216,7 @@ flag to track user calls for grid
 
 
 
-Definition at line 123 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 136 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a51bf2e1319c04ec74a7787da72a0535b}\label{structmod__oasis__grid_1_1prism__grid__type_a51bf2e1319c04ec74a7787da72a0535b}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!gridname@{gridname}}
@@ -180,7 +230,7 @@ grid name
 
 
 
-Definition at line 118 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 131 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_aa3a8ae208948be24ac3964c9d660afed}\label{structmod__oasis__grid_1_1prism__grid__type_aa3a8ae208948be24ac3964c9d660afed}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!lat@{lat}}
@@ -194,7 +244,7 @@ user specified latitudes
 
 
 
-Definition at line 131 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 147 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a4f7fb8a71335506209709cfbe939ef7b}\label{structmod__oasis__grid_1_1prism__grid__type_a4f7fb8a71335506209709cfbe939ef7b}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!lon@{lon}}
@@ -208,7 +258,7 @@ user specified longitudes
 
 
 
-Definition at line 130 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 146 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_ae50e83035d6214d862be48a5060887ae}\label{structmod__oasis__grid_1_1prism__grid__type_ae50e83035d6214d862be48a5060887ae}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!mask@{mask}}
@@ -222,7 +272,21 @@ user specified mask
 
 
 
-Definition at line 136 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 153 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a45c318b88ceaf6db5d5181c13e75abe0}\label{structmod__oasis__grid_1_1prism__grid__type_a45c318b88ceaf6db5d5181c13e75abe0}} 
+\index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!mask\+\_\+companion@{mask\+\_\+companion}}
+\index{mask\+\_\+companion@{mask\+\_\+companion}!mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}}
+\subsubsection{\texorpdfstring{mask\+\_\+companion}{mask\_companion}}
+{\footnotesize\ttfamily character(len=ic\+\_\+med) mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type\+::mask\+\_\+companion\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+mask companion grid name 
+
+
+
+Definition at line 144 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_ae44525ecb0b2dfe8d4a4a8cf4abd4e1f}\label{structmod__oasis__grid_1_1prism__grid__type_ae44525ecb0b2dfe8d4a4a8cf4abd4e1f}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!mask\+\_\+set@{mask\+\_\+set}}
@@ -236,7 +300,7 @@ flag to track user calls for mask
 
 
 
-Definition at line 127 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 141 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a9a562f1211ac03c0b308f156a9c88e39}\label{structmod__oasis__grid_1_1prism__grid__type_a9a562f1211ac03c0b308f156a9c88e39}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!nc@{nc}}
@@ -250,7 +314,7 @@ number of corners per gridcell
 
 
 
-Definition at line 122 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 135 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_ad27a1fc4d01d2b69f95d7cf9bcdbe571}\label{structmod__oasis__grid_1_1prism__grid__type_ad27a1fc4d01d2b69f95d7cf9bcdbe571}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!nx@{nx}}
@@ -264,7 +328,7 @@ global nx size
 
 
 
-Definition at line 120 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 133 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_ad12673fd6c928ed6441e5584c16d0a3e}\label{structmod__oasis__grid_1_1prism__grid__type_ad12673fd6c928ed6441e5584c16d0a3e}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!ny@{ny}}
@@ -278,7 +342,7 @@ global ny size
 
 
 
-Definition at line 121 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 134 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a8638cf8b735e72872be089682d0f8340}\label{structmod__oasis__grid_1_1prism__grid__type_a8638cf8b735e72872be089682d0f8340}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!partid@{partid}}
@@ -292,7 +356,7 @@ partition ID
 
 
 
-Definition at line 119 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 132 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a2dcbbc51a20f881a1d06609688d72734}\label{structmod__oasis__grid_1_1prism__grid__type_a2dcbbc51a20f881a1d06609688d72734}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!terminated@{terminated}}
@@ -306,7 +370,7 @@ flag to indicate user grid calls complete
 
 
 
-Definition at line 129 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 143 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__grid_1_1prism__grid__type_a48d243ede1b306ac35bb9bbeff48785a}\label{structmod__oasis__grid_1_1prism__grid__type_a48d243ede1b306ac35bb9bbeff48785a}} 
 \index{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type@{mod\+\_\+oasis\+\_\+grid\+::prism\+\_\+grid\+\_\+type}!written@{written}}
@@ -320,10 +384,10 @@ flag to indicate grid has been written
 
 
 
-Definition at line 128 of file mod\+\_\+oasis\+\_\+grid.\+F90.
+Definition at line 142 of file mod\+\_\+oasis\+\_\+grid.\+F90.
 
 
 
 The documentation for this type was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/\hyperlink{mod__oasis__grid_8_f90}{mod\+\_\+oasis\+\_\+grid.\+F90}\end{DoxyCompactItemize}
+/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/\hyperlink{mod__oasis__grid_8_f90}{mod\+\_\+oasis\+\_\+grid.\+F90}\end{DoxyCompactItemize}

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['timer_5fdetails',['timer_details',['../structmod__oasis__timer_1_1timer__details.html',1,'mod_oasis_timer']]]
+  ['gptlget_5fmemusage',['gptlget_memusage',['../interfacemod__oasis__mem_1_1gptlget__memusage.html',1,'mod_oasis_mem']]]
 ];

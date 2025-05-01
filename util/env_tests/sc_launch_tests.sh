@@ -2,13 +2,11 @@
 #set -xv
 
 ### 0. Machine (see sc_top.sh)
-#OASIS_ENV=tioman_intel21.1.1_intelmpi2021.1.1
-#OASIS_ENV=nemo_intel18.0.1.163_intelmpi2018.1.163
 #OASIS_ENV=scylla_intel2018.4.274_intelmpi2018.4.274
 #OASIS_ENV=belenos_intel2018.5.274_intelmpi2018.5.274
-#OASIS_ENV=stiff_pgi20.4_openmpi3.1.3 
-#OASIS_ENV=fundy_gfortran10.2.0_openmpi4.1.0
-#OASIS_ENV=kraken_intel18.0.1.163_intelmpi2018.1.163
+#OASIS_ENV=kraken_intel23.2.1_intelmpi2021.10.0
+#OASIS_ENV=kraken_gcc11.2_openmpi4.1.1
+#OASIS_ENV=calypso_intel23.2.0_intelmpi2021.10.0
 
 export username=`whoami`
 export host=`uname -n`
@@ -80,8 +78,8 @@ for imodel in {1..${#models[@]}}
 do
   let im=${imodel}-1
   if [ ${nproc} == 0 ]; then 
-    if [ ${OASIS_ENV} == stiff_pgi20.4_openmpi3.1.3 ] || [ ${OASIS_ENV} == fundy_gfortran10.2.0_openmpi4.1.0 ]; then
-       mpistr="${mpistr} -oversubscribe -n ${pecnts[$im]} ./${models[$im]}"
+    if [[ ${OASIS_ENV} == *"openmpi"* ]]; then
+       mpistr="${mpistr} --oversubscribe -n ${pecnts[$im]} ./${models[$im]}"
     else
        mpistr="${mpistr} -n ${pecnts[$im]} ./${models[$im]}"
     fi
@@ -179,7 +177,11 @@ if [ -z ${USER_AUXLOC} ]; then
 else
    cp ${USER_AUXLOC}/grids.nc ${rundir}/grids.nc
    cp ${USER_AUXLOC}/areas.nc ${rundir}/areas.nc
-   cp ${USER_AUXLOC}/masks.nc ${rundir}/masks.nc
+   if [ -z ${USER_MASKFILE} ] ; then
+       cp ${USER_AUXLOC}/masks.nc ${rundir}/masks.nc
+   else
+       cp ${USER_AUXLOC}/${USER_MASKFILE} ${rundir}/masks.nc
+   fi
 fi
 if [ -z ${USER_MESHLOC} ]; then
    echo "No model files for this toy"
@@ -219,36 +221,9 @@ cd $rundir
 ### 4. Creation of configuration scripts
 
 ###---------------------------------------------------------------------
-### NEMO_LENOVO_INTELMPI_MPICH
-###---------------------------------------------------------------------
-if [ ${OASIS_ENV} == nemo_intel18.0.1.163_intelmpi2018.1.163 ]; then
-
-  cat <<EOF > $rundir/run_$casename
-#!/bin/bash -l
-# Nom du job
-#SBATCH --job-name ${casename}
-# Temps limite du job
-#SBATCH --time=${batchhour}:${batchmin}:00
-#SBATCH --output=$rundir/$casename.o
-#SBATCH --error=$rundir/$casename.e
-# Nombre de noeuds et de processus
-#SBATCH --nodes=${nodes} --ntasks-per-node=${corespn}
-#SBATCH --distribution cyclic
-
-cd $rundir
-
-ulimit -s unlimited
-. ./comp_env.sh
-module list
-#
-#
-time mpirun ${mpistr}
-#
-EOF
-###---------------------------------------------------------------------
 ### SCYLLA_INTEL_INTELMPI 
 ###---------------------------------------------------------------------
-elif [ ${OASIS_ENV} == scylla_intel2018.4.274_intelmpi2018.4.274 ]; then
+if [ ${OASIS_ENV} == scylla_intel2018.4.274_intelmpi2018.4.274 ]; then
 
   cat <<EOF > $rundir/run_$casename
 #!/bin/bash -l
@@ -265,16 +240,16 @@ cd $rundir
 
 ulimit -s unlimited
 . ./comp_env.sh
-module list
+#module list
 #
 #
 time mpirun ${mpistr}
 #
 EOF
 ###---------------------------------------------------------------------
-### KRAKEN_INTEL_INTELMPI 
+### KRAKEN_INTEL_INTELMPI or KRAKEN_GNU_OPENMPI
 ###---------------------------------------------------------------------
-elif [ ${OASIS_ENV} == kraken_intel18.0.1.163_intelmpi2018.1.163 ]; then
+elif [ ${OASIS_ENV} == kraken_intel23.2.1_intelmpi2021.10.0 ] || [ ${OASIS_ENV} == kraken_gcc11.2_openmpi4.1.1 ]; then
 
 	  cat <<EOF > $rundir/run_$casename
 #!/bin/bash -l
@@ -293,7 +268,35 @@ cd $rundir
 
 ulimit -s unlimited
 . ./comp_env.sh
-module list
+#module list
+#
+#
+time mpirun ${mpistr}
+#
+EOF
+###---------------------------------------------------------------------
+### CALYPSO_INTEL_INTELMPI
+###---------------------------------------------------------------------
+elif [ ${OASIS_ENV} == calypso_intel23.2.0_intelmpi2021.10.0 ]; then
+
+          cat <<EOF > $rundir/run_$casename
+#!/bin/bash -l
+#SBATCH --partition debug
+# Nom du job
+#SBATCH --job-name $casename
+# Temps limite du job
+#SBATCH --time=00:10:00
+#SBATCH --output=$rundir/$casename.o
+#SBATCH --error=$rundir/$casename.e
+# Nombre de noeuds et de processus
+#SBATCH --nodes=$nodes --ntasks-per-node=$corespn
+#SBATCH --distribution cyclic
+
+cd $rundir
+
+ulimit -s unlimited
+. ./comp_env.sh
+#module list
 #
 #
 time mpirun ${mpistr}
@@ -309,7 +312,7 @@ elif [ ${OASIS_ENV} == belenos_intel2018.5.274_intelmpi2018.5.274 ]; then
 # Nom du job
 #SBATCH --job-name $casename
 # Time limit for the job
-#SBATCH --time=00:30:00
+#SBATCH --time=00:10:00
 #SBATCH --partition=normal256        # partition/queue
 #SBATCH --nodes=$nodes --ntasks-per-node=${corespn} # number of nodes and  number of procs
 #SBATCH --output=$rundir/job.out%j
@@ -319,6 +322,37 @@ cd $rundir
 
 ulimit -s unlimited
 . ./comp_env.sh
+#module list
+#
+#
+time mpirun ${mpistr}
+#
+EOF
+#
+###---------------------------------------------------------------------
+### ATOS ECMWF
+###---------------------------------------------------------------------
+#
+elif [ ${OASIS_ENV} == ECMWF.atos ]; then
+
+	  cat <<EOF > $rundir/run_$casename
+#!/bin/bash -l
+# #SBATCH --partition prod
+# Nom du job
+#SBATCH --job-name $casename
+# Temps limite du job
+#SBATCH --time=00:30:00
+#SBATCH --output=$rundir/$casename.o
+#SBATCH --error=$rundir/$casename.e
+# Nombre de noeuds et de processus
+#SBATCH --nodes=$nodes --ntasks-per-node=$corespn
+# #SBATCH --distribution cyclic
+
+cd $rundir
+
+ulimit -s unlimited
+. comp_env.sh
+# . ${OASIS_COUPLE}/util/make_dir/comp_env_${OASIS_ENV}.sh
 module list
 #
 #
@@ -336,7 +370,7 @@ fi
 ######################################################################
 ### 5. Execute/Submit the model
 
-if [ ${OASIS_ENV} == tioman_intel21.1.1_intelmpi2021.1.1 ] || [ ${OASIS_ENV} == stiff_pgi20.4_openmpi3.1.3 ] || [ ${OASIS_ENV} == fundy_gfortran10.2.0_openmpi4.1.0 ]; then
+if [ `hostname` == kglobc1 ] || [ ${OASIS_ENV} == gnu_davinci ] || [ ${OASIS_ENV} == intel_davinci ]; then
     echo "Executing the model using "`which mpirun`
     echo "${mpistr}"
     . ./comp_env.sh
@@ -360,7 +394,7 @@ elif [ ${OASIS_ENV} == scylla_intel2018.4.274_intelmpi2018.4.274 ] ; then
         fi
       done
     fi
-elif [ ${OASIS_ENV} == belenos_intel2018.5.274_intelmpi2018.5.274 ] || [ ${OASIS_ENV} == nemo_intel18.0.1.163_intelmpi2018.1.163 ] || [ ${OASIS_ENV} == kraken_intel18.0.1.163_intelmpi2018.1.163 ]; then
+elif [ ${OASIS_ENV} == kraken_intel23.2.1_intelmpi2021.10.0 ] || [ ${OASIS_ENV} == kraken_gcc11.2_openmpi4.1.1 ] || [ ${OASIS_ENV} == calypso_intel23.2.0_intelmpi2021.10.0 ] || [ ${OASIS_ENV} == belenos_intel2018.5.274_intelmpi2018.5.274 ] || [ ${OASIS_ENV} == ECMWF.atos ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename
     squeue -u $username
@@ -370,12 +404,12 @@ elif [ ${OASIS_ENV} == belenos_intel2018.5.274_intelmpi2018.5.274 ] || [ ${OASIS
       while [ $texist == 0 ] ; do
         squeue -u $USER > $file
         lines=`wc -l < $file`
-        echo "nb lines in $file $lines"
+        #echo "nb lines in $file $lines"
         if [ $lines == 1 ]; then
           texist=1
         else
           echo "Waiting for running ending..."
-          sleep 30
+          sleep 5
         fi
       done
     fi

@@ -1,5 +1,5 @@
-\hypertarget{mod__oasis__part_8_f90}{}\section{/home/globc2/tcraig/oasis3-\/mct.trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+part.F90 File Reference}
-\label{mod__oasis__part_8_f90}\index{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+part.\+F90@{/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/mod\+\_\+oasis\+\_\+part.\+F90}}
+\hypertarget{mod__oasis__part_8_f90}{}\section{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+part.F90 File Reference}
+\label{mod__oasis__part_8_f90}\index{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+part.\+F90@{/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/mod\+\_\+oasis\+\_\+part.\+F90}}
 \subsection*{Data Types}
 \begin{DoxyCompactItemize}
 \item 
@@ -21,6 +21,12 @@ subroutine \hyperlink{namespacemod__oasis__part_a17c747bc29d25b558df42524bd63ac9
 \begin{DoxyCompactList}\small\item\em Zero partition information. \end{DoxyCompactList}\item 
 subroutine \hyperlink{namespacemod__oasis__part_a12edb4b0248a3f562fe5f6e16eede06a}{mod\+\_\+oasis\+\_\+part\+::oasis\+\_\+part\+\_\+write} (s\+\_\+prism\+\_\+part, npart)
 \begin{DoxyCompactList}\small\item\em Print parition information. \end{DoxyCompactList}\item 
+subroutine, public \hyperlink{namespacemod__oasis__part_ae5c72886d4078ff0cc8e4c87a4dfd43c}{mod\+\_\+oasis\+\_\+part\+::oasis\+\_\+part\+\_\+readgrid} ()
+\begin{DoxyCompactList}\small\item\em Read grid data into partition. \end{DoxyCompactList}\item 
+subroutine, public \hyperlink{namespacemod__oasis__part_aabbc667e6db4ed0a0d593749a396f392}{mod\+\_\+oasis\+\_\+part\+::oasis\+\_\+part\+\_\+copy} (partbase, partnew)
+\begin{DoxyCompactList}\small\item\em Copy base partition to new partition. \end{DoxyCompactList}\item 
+subroutine, public \hyperlink{namespacemod__oasis__part_ac0db50937fb4217da43edcd1d1536535}{mod\+\_\+oasis\+\_\+part\+::oasis\+\_\+part\+\_\+find} (partbase, partnew, nx, ny, gridname)
+\begin{DoxyCompactList}\small\item\em Find matching base partition to new partition. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__part_aacc20c24f42edbef4ec2610bf98aadfc}{mod\+\_\+oasis\+\_\+part\+::oasis\+\_\+part\+\_\+create} (id\+\_\+part, T\+Y\+PE, gsize, nx, ny, gridname, gscomm, mpicom, grid\+ID)
 \begin{DoxyCompactList}\small\item\em Create a new partition internally, needed for mapping. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}

@@ -53,6 +53,9 @@ has_graphics = comm.bcast(has_graphics, root=comm.rank)
 
 dgrid = None
 dgrid = comm.bcast(dgrid, root=0)
+rgrid = grid_ref(dgrid)
+rmplib = None
+rmplib = comm.bcast(rmplib, root=0)
 ll_plot = False
 ll_plot = comm.bcast(ll_plot, root=0)
 
@@ -60,10 +63,10 @@ gf = netCDF4.Dataset('grids.nc', 'r')
 lons = gf.variables[dgrid + '.lon'][:, :].flatten()
 lats = gf.variables[dgrid + '.lat'][:, :].flatten()
 n_points = lons.size
-dgrid_corners = len(gf.dimensions['crn_' + dgrid])
-dlon = gf.variables[dgrid + '.clo'][:].reshape(dgrid_corners, -1)
+dgrid_corners = len(gf.dimensions['crn_' + rgrid])
+dlon = gf.variables[rgrid + '.clo'][:].reshape(dgrid_corners, -1)
 dlon = np.where(dlon > 180, dlon - 360, dlon)
-dlat = gf.variables[dgrid + '.cla'][:].reshape(dgrid_corners, -1)
+dlat = gf.variables[rgrid + '.cla'][:].reshape(dgrid_corners, -1)
 lonspan = np.abs(np.max(dlon, axis=0) - np.min(dlon, axis=0))
 for i, span in enumerate(lonspan):
     if span > 180:
@@ -118,8 +121,11 @@ expected_field = np.array([expected_field1, expected_field2]).transpose()
 
 error = np.average(np.abs((field - expected_field)/expected_field))
 print("Average relative error is {}".format(error))
-if error < 1.e-3:
-    print("Data received successfully at time {}".format(date))
+threshold = 1.e-3
+if grid_is_cornerless(dgrid):
+    threshold = 5.e-3
+if error < threshold:
+    print("Data on {} received via {} successfully at time {}".format(dgrid, rmplib, date))
 
 if not (has_graphics and ll_plot):
     exit()
@@ -149,7 +155,7 @@ for img in range(2):
                             linewidth=sd_lwdt, linestyle=':', color='gray')
     di_gl.top_labels = False
     di_gl.right_labels = False
-    di_ax.set_title('Interpolated function on {} grid'.format(grid_longname(dgrid)))
+    di_ax.set_title('{} interpolated function on {} grid'.format(rmplib, grid_longname(dgrid)))
     fig.colorbar(di_pc, ax=di_ax, shrink=.7)
 
     da_ax = plt.subplot(212, projection=sd_proj)

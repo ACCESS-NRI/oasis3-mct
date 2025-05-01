@@ -5,6 +5,17 @@
 Defines parameters for O\+A\+S\+IS.  
 
 
+\subsection*{Functions/\+Subroutines}
+\begin{DoxyCompactItemize}
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p) function \hyperlink{namespacemod__oasis__parameters_abf6fb2dbeee19674bef02b0c1fc7dc2f}{clim\+\_\+orange\+\_\+params} (n\+\_\+segments)
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p) function \hyperlink{namespacemod__oasis__parameters_a1f4f746e95fc0b05147aaa0b82a77a54}{clim\+\_\+points\+\_\+params} (n\+\_\+points)
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p) function \hyperlink{namespacemod__oasis__parameters_a3f85c99a22ed2a7ac207c8f21c1a363c}{oasis\+\_\+orange\+\_\+params} (n\+\_\+segments)
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p) function \hyperlink{namespacemod__oasis__parameters_a4fe64d20b93b278465a4842c6a844501}{oasis\+\_\+points\+\_\+params} (n\+\_\+points)
+\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
@@ -128,13 +139,19 @@ integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__pa
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_aec700ad0c6a11dd35e5d6c2afb745fd0}{ip\+\_\+cglbpos} = 2
 \item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a49f38ac3b4cada9ce9b7f5aa8b57f4a0}{ip\+\_\+cgsspos} = 6
+\item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_aaa7ead98ff7d53acfd539a32fca9e2c7}{ip\+\_\+cbasbal} = 4
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a3b96d31bbe142d84df2b93880498936f}{ip\+\_\+cbaspos} = 5
 \item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a2199bfd0d49116fed576cec76f63372b}{ip\+\_\+cbsspos} = 7
+\item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a611cae6f3c65a75f26e76b2f88f34037}{clim\+\_\+strategy} = 1
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a7427036a6530871a0f49c0fb75f2b3ef}{clim\+\_\+segments} = 2
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a6c376f3049b7af988e71a2e50a1c50ba}{clim\+\_\+npoints} = 2
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a5c410369e763f9156d0ce1c82e866265}{clim\+\_\+serial} = 0
 \item 
@@ -156,6 +173,44 @@ integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__pa
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a3407c11054d24782182c649307808e47}{clim\+\_\+ldx} = 5
 \item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a03d86f9ce8a47debbd60515fa94e5b11}{clim\+\_\+serial\+\_\+params} = 3
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a9c8bcc73b1daadd3dd4814b2dfe5e649}{clim\+\_\+apple\+\_\+params} = 3
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_ad1b7c8ebf0654b72d75292821cf54bc9}{clim\+\_\+box\+\_\+params} = 5
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_aa6a71a0b20dacca6f3263d8619eb9fca}{oasis\+\_\+strategy} = C\+L\+I\+M\+\_\+\+Strategy
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_abea28ab92f0119c9beadce9c1461b88b}{oasis\+\_\+segments} = C\+L\+I\+M\+\_\+\+Segments
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_ac8f73bfed8f7b03f17cd72e7b95b4646}{oasis\+\_\+npoints} = C\+L\+I\+M\+\_\+\+Npoints
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a6d75932f0d32fb81f74a14ff2236552a}{oasis\+\_\+serial} = C\+L\+I\+M\+\_\+\+Serial
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a3ea72dd64e62c99227513c14b909b11c}{oasis\+\_\+apple} = C\+L\+I\+M\+\_\+\+Apple
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_aaec8bc9377ee93b6ff19e68dd1c629c1}{oasis\+\_\+box} = C\+L\+I\+M\+\_\+\+Box
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_abb1fb57f8d75a98957e6d3e1c85d0096}{oasis\+\_\+orange} = C\+L\+I\+M\+\_\+\+Orange
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_ac3b3c12b4455e1baab14dd39820586e8}{oasis\+\_\+points} = C\+L\+I\+M\+\_\+\+Points
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a854ff4345b9a9676b39f7f30233a55d2}{oasis\+\_\+offset} = C\+L\+I\+M\+\_\+\+Offset
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a631ca32860a10f8134985ad8db4667d2}{oasis\+\_\+length} = C\+L\+I\+M\+\_\+\+Length
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a58295a6037954bd96e350f0077810529}{oasis\+\_\+sizex} = C\+L\+I\+M\+\_\+\+SizeX
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_ac3441e0815500ea5d38d80a48c4c7474}{oasis\+\_\+sizey} = C\+L\+I\+M\+\_\+\+SizeY
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a70aa19a7931c1ef1a371fb9be8379421}{oasis\+\_\+ldx} = C\+L\+I\+M\+\_\+\+LdX
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a021091fc3ff43fdd8699d810bc18b6be}{oasis\+\_\+serial\+\_\+params} = C\+L\+I\+M\+\_\+\+Serial\+\_\+\+Params
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a4e80e06d524bff6a98d2dbb856d0b92d}{oasis\+\_\+apple\+\_\+params} = C\+L\+I\+M\+\_\+\+Apple\+\_\+\+Params
+\item 
+integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a5796610110f6707828b7626f03ad93b3}{oasis\+\_\+box\+\_\+params} = C\+L\+I\+M\+\_\+\+Box\+\_\+\+Params
+\item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_a02e0627219e7769df37e3d55da46f65d}{prism\+\_\+real} = 4
 \item 
 integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__parameters_ae7760fcfae19d2f3cbf759688cd35193}{oasis\+\_\+real} = P\+R\+I\+S\+M\+\_\+\+Real
@@ -169,6 +224,49 @@ integer(kind=ip\+\_\+intwp\+\_\+p), parameter \hyperlink{namespacemod__oasis__pa
 \subsection{Detailed Description}
 Defines parameters for O\+A\+S\+IS. 
 
+\subsection{Function/\+Subroutine Documentation}
+\mbox{\Hypertarget{namespacemod__oasis__parameters_abf6fb2dbeee19674bef02b0c1fc7dc2f}\label{namespacemod__oasis__parameters_abf6fb2dbeee19674bef02b0c1fc7dc2f}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+orange\+\_\+params@{clim\+\_\+orange\+\_\+params}}
+\index{clim\+\_\+orange\+\_\+params@{clim\+\_\+orange\+\_\+params}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{clim\+\_\+orange\+\_\+params()}{clim\_orange\_params()}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p) function mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+orange\+\_\+params (\begin{DoxyParamCaption}\item[{integer (kind=ip\+\_\+intwp\+\_\+p), intent(in)}]{n\+\_\+segments }\end{DoxyParamCaption})}
+
+
+
+Definition at line 187 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a1f4f746e95fc0b05147aaa0b82a77a54}\label{namespacemod__oasis__parameters_a1f4f746e95fc0b05147aaa0b82a77a54}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+points\+\_\+params@{clim\+\_\+points\+\_\+params}}
+\index{clim\+\_\+points\+\_\+params@{clim\+\_\+points\+\_\+params}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{clim\+\_\+points\+\_\+params()}{clim\_points\_params()}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p) function mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+points\+\_\+params (\begin{DoxyParamCaption}\item[{integer (kind=ip\+\_\+intwp\+\_\+p), intent(in)}]{n\+\_\+points }\end{DoxyParamCaption})}
+
+
+
+Definition at line 192 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a3f85c99a22ed2a7ac207c8f21c1a363c}\label{namespacemod__oasis__parameters_a3f85c99a22ed2a7ac207c8f21c1a363c}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+orange\+\_\+params@{oasis\+\_\+orange\+\_\+params}}
+\index{oasis\+\_\+orange\+\_\+params@{oasis\+\_\+orange\+\_\+params}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+orange\+\_\+params()}{oasis\_orange\_params()}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p) function mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+orange\+\_\+params (\begin{DoxyParamCaption}\item[{integer (kind=ip\+\_\+intwp\+\_\+p), intent(in)}]{n\+\_\+segments }\end{DoxyParamCaption})}
+
+
+
+Definition at line 197 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a4fe64d20b93b278465a4842c6a844501}\label{namespacemod__oasis__parameters_a4fe64d20b93b278465a4842c6a844501}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+points\+\_\+params@{oasis\+\_\+points\+\_\+params}}
+\index{oasis\+\_\+points\+\_\+params@{oasis\+\_\+points\+\_\+params}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+points\+\_\+params()}{oasis\_points\_params()}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p) function mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+points\+\_\+params (\begin{DoxyParamCaption}\item[{integer (kind=ip\+\_\+intwp\+\_\+p), intent(in)}]{n\+\_\+points }\end{DoxyParamCaption})}
+
+
+
+Definition at line 202 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+
+
 \subsection{Variable Documentation}
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a3cfd98fdd1c2fac653b182454c87f4aa}\label{namespacemod__oasis__parameters_a3cfd98fdd1c2fac653b182454c87f4aa}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+apple@{clim\+\_\+apple}}
@@ -178,7 +276,17 @@ Defines parameters for O\+A\+S\+IS.
 
 
 
-Definition at line 104 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 107 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a9c8bcc73b1daadd3dd4814b2dfe5e649}\label{namespacemod__oasis__parameters_a9c8bcc73b1daadd3dd4814b2dfe5e649}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+apple\+\_\+params@{clim\+\_\+apple\+\_\+params}}
+\index{clim\+\_\+apple\+\_\+params@{clim\+\_\+apple\+\_\+params}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{clim\+\_\+apple\+\_\+params}{clim\_apple\_params}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+apple\+\_\+params = 3}
+
+
+
+Definition at line 119 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a9a8b38629274e3a38a37f329ce9d2aa2}\label{namespacemod__oasis__parameters_a9a8b38629274e3a38a37f329ce9d2aa2}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+box@{clim\+\_\+box}}
@@ -188,7 +296,17 @@ Definition at line 104 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 105 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 108 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_ad1b7c8ebf0654b72d75292821cf54bc9}\label{namespacemod__oasis__parameters_ad1b7c8ebf0654b72d75292821cf54bc9}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+box\+\_\+params@{clim\+\_\+box\+\_\+params}}
+\index{clim\+\_\+box\+\_\+params@{clim\+\_\+box\+\_\+params}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{clim\+\_\+box\+\_\+params}{clim\_box\_params}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+box\+\_\+params = 5}
+
+
+
+Definition at line 120 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a3407c11054d24782182c649307808e47}\label{namespacemod__oasis__parameters_a3407c11054d24782182c649307808e47}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+ldx@{clim\+\_\+ldx}}
@@ -198,7 +316,7 @@ Definition at line 105 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 113 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 116 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a984896e821cbbb8c4a91e86ff19d54de}\label{namespacemod__oasis__parameters_a984896e821cbbb8c4a91e86ff19d54de}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+length@{clim\+\_\+length}}
@@ -208,7 +326,17 @@ Definition at line 113 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 110 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 113 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a6c376f3049b7af988e71a2e50a1c50ba}\label{namespacemod__oasis__parameters_a6c376f3049b7af988e71a2e50a1c50ba}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+npoints@{clim\+\_\+npoints}}
+\index{clim\+\_\+npoints@{clim\+\_\+npoints}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{clim\+\_\+npoints}{clim\_npoints}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+npoints = 2}
+
+
+
+Definition at line 104 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a4cd07733eaf5d8c8148986c0c4217772}\label{namespacemod__oasis__parameters_a4cd07733eaf5d8c8148986c0c4217772}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+offset@{clim\+\_\+offset}}
@@ -218,7 +346,7 @@ Definition at line 110 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 109 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 112 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a17c74cc8141b595e448588b1add0f6bf}\label{namespacemod__oasis__parameters_a17c74cc8141b595e448588b1add0f6bf}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+orange@{clim\+\_\+orange}}
@@ -228,7 +356,7 @@ Definition at line 109 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 106 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 109 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_aa9d90a3d7d5b21d2081a578dfea42fd4}\label{namespacemod__oasis__parameters_aa9d90a3d7d5b21d2081a578dfea42fd4}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+points@{clim\+\_\+points}}
@@ -238,7 +366,7 @@ Definition at line 106 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 107 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 110 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a7427036a6530871a0f49c0fb75f2b3ef}\label{namespacemod__oasis__parameters_a7427036a6530871a0f49c0fb75f2b3ef}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+segments@{clim\+\_\+segments}}
@@ -248,7 +376,7 @@ Definition at line 107 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 101 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 103 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a5c410369e763f9156d0ce1c82e866265}\label{namespacemod__oasis__parameters_a5c410369e763f9156d0ce1c82e866265}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+serial@{clim\+\_\+serial}}
@@ -258,7 +386,17 @@ Definition at line 101 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 103 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 106 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a03d86f9ce8a47debbd60515fa94e5b11}\label{namespacemod__oasis__parameters_a03d86f9ce8a47debbd60515fa94e5b11}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+serial\+\_\+params@{clim\+\_\+serial\+\_\+params}}
+\index{clim\+\_\+serial\+\_\+params@{clim\+\_\+serial\+\_\+params}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{clim\+\_\+serial\+\_\+params}{clim\_serial\_params}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::clim\+\_\+serial\+\_\+params = 3}
+
+
+
+Definition at line 118 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a4fb35a666ab4cec927a2ae9244535cb0}\label{namespacemod__oasis__parameters_a4fb35a666ab4cec927a2ae9244535cb0}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+sizex@{clim\+\_\+sizex}}
@@ -268,7 +406,7 @@ Definition at line 103 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 111 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 114 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a206910560c246db3404224a04cfd4319}\label{namespacemod__oasis__parameters_a206910560c246db3404224a04cfd4319}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+sizey@{clim\+\_\+sizey}}
@@ -278,7 +416,7 @@ Definition at line 111 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 112 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 115 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a611cae6f3c65a75f26e76b2f88f34037}\label{namespacemod__oasis__parameters_a611cae6f3c65a75f26e76b2f88f34037}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!clim\+\_\+strategy@{clim\+\_\+strategy}}
@@ -288,7 +426,7 @@ Definition at line 112 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 100 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 102 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_adfaf98517b8396e4ba667f2f8bcd0ed5}\label{namespacemod__oasis__parameters_adfaf98517b8396e4ba667f2f8bcd0ed5}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!ip\+\_\+accumul@{ip\+\_\+accumul}}
@@ -328,7 +466,7 @@ Definition at line 85 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 95 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 96 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a3b96d31bbe142d84df2b93880498936f}\label{namespacemod__oasis__parameters_a3b96d31bbe142d84df2b93880498936f}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!ip\+\_\+cbaspos@{ip\+\_\+cbaspos}}
@@ -338,7 +476,17 @@ Definition at line 95 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 96 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 97 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a2199bfd0d49116fed576cec76f63372b}\label{namespacemod__oasis__parameters_a2199bfd0d49116fed576cec76f63372b}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!ip\+\_\+cbsspos@{ip\+\_\+cbsspos}}
+\index{ip\+\_\+cbsspos@{ip\+\_\+cbsspos}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{ip\+\_\+cbsspos}{ip\_cbsspos}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::ip\+\_\+cbsspos = 7}
+
+
+
+Definition at line 98 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_aec700ad0c6a11dd35e5d6c2afb745fd0}\label{namespacemod__oasis__parameters_aec700ad0c6a11dd35e5d6c2afb745fd0}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!ip\+\_\+cglbpos@{ip\+\_\+cglbpos}}
@@ -359,6 +507,16 @@ Definition at line 94 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 Definition at line 93 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a49f38ac3b4cada9ce9b7f5aa8b57f4a0}\label{namespacemod__oasis__parameters_a49f38ac3b4cada9ce9b7f5aa8b57f4a0}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!ip\+\_\+cgsspos@{ip\+\_\+cgsspos}}
+\index{ip\+\_\+cgsspos@{ip\+\_\+cgsspos}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{ip\+\_\+cgsspos}{ip\_cgsspos}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::ip\+\_\+cgsspos = 6}
+
+
+
+Definition at line 95 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_ae043e4e2c2b7f04fec7d8c061ef52934}\label{namespacemod__oasis__parameters_ae043e4e2c2b7f04fec7d8c061ef52934}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!ip\+\_\+cnone@{ip\+\_\+cnone}}
@@ -480,6 +638,46 @@ Definition at line 70 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 Definition at line 68 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a3ea72dd64e62c99227513c14b909b11c}\label{namespacemod__oasis__parameters_a3ea72dd64e62c99227513c14b909b11c}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+apple@{oasis\+\_\+apple}}
+\index{oasis\+\_\+apple@{oasis\+\_\+apple}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+apple}{oasis\_apple}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+apple = C\+L\+I\+M\+\_\+\+Apple}
+
+
+
+Definition at line 127 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a4e80e06d524bff6a98d2dbb856d0b92d}\label{namespacemod__oasis__parameters_a4e80e06d524bff6a98d2dbb856d0b92d}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+apple\+\_\+params@{oasis\+\_\+apple\+\_\+params}}
+\index{oasis\+\_\+apple\+\_\+params@{oasis\+\_\+apple\+\_\+params}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+apple\+\_\+params}{oasis\_apple\_params}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+apple\+\_\+params = C\+L\+I\+M\+\_\+\+Apple\+\_\+\+Params}
+
+
+
+Definition at line 139 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_aaec8bc9377ee93b6ff19e68dd1c629c1}\label{namespacemod__oasis__parameters_aaec8bc9377ee93b6ff19e68dd1c629c1}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+box@{oasis\+\_\+box}}
+\index{oasis\+\_\+box@{oasis\+\_\+box}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+box}{oasis\_box}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+box = C\+L\+I\+M\+\_\+\+Box}
+
+
+
+Definition at line 128 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a5796610110f6707828b7626f03ad93b3}\label{namespacemod__oasis__parameters_a5796610110f6707828b7626f03ad93b3}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+box\+\_\+params@{oasis\+\_\+box\+\_\+params}}
+\index{oasis\+\_\+box\+\_\+params@{oasis\+\_\+box\+\_\+params}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+box\+\_\+params}{oasis\_box\_params}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+box\+\_\+params = C\+L\+I\+M\+\_\+\+Box\+\_\+\+Params}
+
+
+
+Definition at line 140 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a8484e196ef7469adbeaef850787d7502}\label{namespacemod__oasis__parameters_a8484e196ef7469adbeaef850787d7502}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+comm\+\_\+ready@{oasis\+\_\+comm\+\_\+ready}}
 \index{oasis\+\_\+comm\+\_\+ready@{oasis\+\_\+comm\+\_\+ready}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
@@ -508,7 +706,7 @@ Definition at line 66 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 120 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 147 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_aa0584909970d34364b7ec319292b1682}\label{namespacemod__oasis__parameters_aa0584909970d34364b7ec319292b1682}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+fromrest@{oasis\+\_\+fromrest}}
@@ -560,6 +758,26 @@ Definition at line 33 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 Definition at line 51 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a70aa19a7931c1ef1a371fb9be8379421}\label{namespacemod__oasis__parameters_a70aa19a7931c1ef1a371fb9be8379421}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+ldx@{oasis\+\_\+ldx}}
+\index{oasis\+\_\+ldx@{oasis\+\_\+ldx}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+ldx}{oasis\_ldx}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+ldx = C\+L\+I\+M\+\_\+\+LdX}
+
+
+
+Definition at line 136 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a631ca32860a10f8134985ad8db4667d2}\label{namespacemod__oasis__parameters_a631ca32860a10f8134985ad8db4667d2}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+length@{oasis\+\_\+length}}
+\index{oasis\+\_\+length@{oasis\+\_\+length}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+length}{oasis\_length}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+length = C\+L\+I\+M\+\_\+\+Length}
+
+
+
+Definition at line 133 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a8b206cc178182e3526d400ea7a6587b5}\label{namespacemod__oasis__parameters_a8b206cc178182e3526d400ea7a6587b5}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+loctrans@{oasis\+\_\+loctrans}}
 \index{oasis\+\_\+loctrans@{oasis\+\_\+loctrans}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
@@ -590,6 +808,26 @@ Definition at line 62 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 Definition at line 26 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
+\mbox{\Hypertarget{namespacemod__oasis__parameters_ac8f73bfed8f7b03f17cd72e7b95b4646}\label{namespacemod__oasis__parameters_ac8f73bfed8f7b03f17cd72e7b95b4646}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+npoints@{oasis\+\_\+npoints}}
+\index{oasis\+\_\+npoints@{oasis\+\_\+npoints}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+npoints}{oasis\_npoints}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+npoints = C\+L\+I\+M\+\_\+\+Npoints}
+
+
+
+Definition at line 124 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a854ff4345b9a9676b39f7f30233a55d2}\label{namespacemod__oasis__parameters_a854ff4345b9a9676b39f7f30233a55d2}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+offset@{oasis\+\_\+offset}}
+\index{oasis\+\_\+offset@{oasis\+\_\+offset}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+offset}{oasis\_offset}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+offset = C\+L\+I\+M\+\_\+\+Offset}
+
+
+
+Definition at line 132 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a3ea125963822918ce37fd3cfd9658c9f}\label{namespacemod__oasis__parameters_a3ea125963822918ce37fd3cfd9658c9f}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+ok@{oasis\+\_\+ok}}
 \index{oasis\+\_\+ok@{oasis\+\_\+ok}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
@@ -599,6 +837,16 @@ Definition at line 26 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 Definition at line 21 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_abb1fb57f8d75a98957e6d3e1c85d0096}\label{namespacemod__oasis__parameters_abb1fb57f8d75a98957e6d3e1c85d0096}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+orange@{oasis\+\_\+orange}}
+\index{oasis\+\_\+orange@{oasis\+\_\+orange}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+orange}{oasis\_orange}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+orange = C\+L\+I\+M\+\_\+\+Orange}
+
+
+
+Definition at line 129 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a76a150fa8ef6ed0b35183e627d757439}\label{namespacemod__oasis__parameters_a76a150fa8ef6ed0b35183e627d757439}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+out@{oasis\+\_\+out}}
@@ -620,6 +868,16 @@ Definition at line 29 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 Definition at line 43 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
+\mbox{\Hypertarget{namespacemod__oasis__parameters_ac3b3c12b4455e1baab14dd39820586e8}\label{namespacemod__oasis__parameters_ac3b3c12b4455e1baab14dd39820586e8}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+points@{oasis\+\_\+points}}
+\index{oasis\+\_\+points@{oasis\+\_\+points}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+points}{oasis\_points}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+points = C\+L\+I\+M\+\_\+\+Points}
+
+
+
+Definition at line 130 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
 \mbox{\Hypertarget{namespacemod__oasis__parameters_ae7760fcfae19d2f3cbf759688cd35193}\label{namespacemod__oasis__parameters_ae7760fcfae19d2f3cbf759688cd35193}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+real@{oasis\+\_\+real}}
 \index{oasis\+\_\+real@{oasis\+\_\+real}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
@@ -628,7 +886,7 @@ Definition at line 43 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 118 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 145 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a50fc92036d81ca0ea23918e1feddfe75}\label{namespacemod__oasis__parameters_a50fc92036d81ca0ea23918e1feddfe75}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+recvd@{oasis\+\_\+recvd}}
@@ -650,6 +908,16 @@ Definition at line 35 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 Definition at line 53 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
+\mbox{\Hypertarget{namespacemod__oasis__parameters_abea28ab92f0119c9beadce9c1461b88b}\label{namespacemod__oasis__parameters_abea28ab92f0119c9beadce9c1461b88b}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+segments@{oasis\+\_\+segments}}
+\index{oasis\+\_\+segments@{oasis\+\_\+segments}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+segments}{oasis\_segments}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+segments = C\+L\+I\+M\+\_\+\+Segments}
+
+
+
+Definition at line 123 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
 \mbox{\Hypertarget{namespacemod__oasis__parameters_af739945ec2da833423cdc6e220e1c847}\label{namespacemod__oasis__parameters_af739945ec2da833423cdc6e220e1c847}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+sent@{oasis\+\_\+sent}}
 \index{oasis\+\_\+sent@{oasis\+\_\+sent}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
@@ -669,6 +937,56 @@ Definition at line 37 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 Definition at line 45 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a6d75932f0d32fb81f74a14ff2236552a}\label{namespacemod__oasis__parameters_a6d75932f0d32fb81f74a14ff2236552a}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+serial@{oasis\+\_\+serial}}
+\index{oasis\+\_\+serial@{oasis\+\_\+serial}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+serial}{oasis\_serial}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+serial = C\+L\+I\+M\+\_\+\+Serial}
+
+
+
+Definition at line 126 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a021091fc3ff43fdd8699d810bc18b6be}\label{namespacemod__oasis__parameters_a021091fc3ff43fdd8699d810bc18b6be}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+serial\+\_\+params@{oasis\+\_\+serial\+\_\+params}}
+\index{oasis\+\_\+serial\+\_\+params@{oasis\+\_\+serial\+\_\+params}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+serial\+\_\+params}{oasis\_serial\_params}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+serial\+\_\+params = C\+L\+I\+M\+\_\+\+Serial\+\_\+\+Params}
+
+
+
+Definition at line 138 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_a58295a6037954bd96e350f0077810529}\label{namespacemod__oasis__parameters_a58295a6037954bd96e350f0077810529}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+sizex@{oasis\+\_\+sizex}}
+\index{oasis\+\_\+sizex@{oasis\+\_\+sizex}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+sizex}{oasis\_sizex}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+sizex = C\+L\+I\+M\+\_\+\+SizeX}
+
+
+
+Definition at line 134 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_ac3441e0815500ea5d38d80a48c4c7474}\label{namespacemod__oasis__parameters_ac3441e0815500ea5d38d80a48c4c7474}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+sizey@{oasis\+\_\+sizey}}
+\index{oasis\+\_\+sizey@{oasis\+\_\+sizey}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+sizey}{oasis\_sizey}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+sizey = C\+L\+I\+M\+\_\+\+SizeY}
+
+
+
+Definition at line 135 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__parameters_aa6a71a0b20dacca6f3263d8619eb9fca}\label{namespacemod__oasis__parameters_aa6a71a0b20dacca6f3263d8619eb9fca}} 
+\index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+strategy@{oasis\+\_\+strategy}}
+\index{oasis\+\_\+strategy@{oasis\+\_\+strategy}!mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}}
+\subsubsection{\texorpdfstring{oasis\+\_\+strategy}{oasis\_strategy}}
+{\footnotesize\ttfamily integer (kind=ip\+\_\+intwp\+\_\+p), parameter mod\+\_\+oasis\+\_\+parameters\+::oasis\+\_\+strategy = C\+L\+I\+M\+\_\+\+Strategy}
+
+
+
+Definition at line 122 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_a875abcc1cc679cb72f20d42d3dbfac97}\label{namespacemod__oasis__parameters_a875abcc1cc679cb72f20d42d3dbfac97}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!oasis\+\_\+torest@{oasis\+\_\+torest}}
@@ -738,7 +1056,7 @@ Definition at line 65 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 119 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 146 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_ad77e6f35280cf4e306f818f9ec815441}\label{namespacemod__oasis__parameters_ad77e6f35280cf4e306f818f9ec815441}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!prism\+\_\+fromrest@{prism\+\_\+fromrest}}
@@ -878,7 +1196,7 @@ Definition at line 67 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 
 
-Definition at line 117 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
+Definition at line 144 of file mod\+\_\+oasis\+\_\+parameters.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__parameters_aa0bc3b208a1f962e5ec08916b36cae2d}\label{namespacemod__oasis__parameters_aa0bc3b208a1f962e5ec08916b36cae2d}} 
 \index{mod\+\_\+oasis\+\_\+parameters@{mod\+\_\+oasis\+\_\+parameters}!prism\+\_\+recvd@{prism\+\_\+recvd}}

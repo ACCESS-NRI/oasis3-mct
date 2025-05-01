@@ -19,9 +19,11 @@ subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_a94077706
 subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_a71bf70a87b2d4ce86016bbb93d9edd73}{oasis\+\_\+set\+\_\+debug} (debug, kinfo)
 \begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to set debug level. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_a589021c0f1427f8e5edb1c7efcd7fa2c}{oasis\+\_\+get\+\_\+intercomm} (new\+\_\+comm, cdnam, kinfo)
-\begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to establish an intercomm communicator between the root of two models. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to establish an M\+PI intercomm communicator between two models. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_aa1959db40e8c27dea289b97458929526}{oasis\+\_\+get\+\_\+intracomm} (new\+\_\+comm, cdnam, kinfo)
-\begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to establish an intracomm communicator between the root of two models. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to establish an intracomm communicator between two components. \end{DoxyCompactList}\item 
+subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_aaab3f229e1733a7d48ac0cc44d344c7f}{oasis\+\_\+get\+\_\+multi\+\_\+intracomm} (new\+\_\+comm, cdnam, root\+\_\+ranks, kinfo)
+\begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user interface to establish an intracomm communicator between two or more components. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_a154d3345ef9691e378afdc871086f7eb}{oasis\+\_\+get\+\_\+ncpl} (varid, ncpl, kinfo)
 \begin{DoxyCompactList}\small\item\em O\+A\+S\+IS user query for the number of unique couplings associated with a variable. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__auxiliary__routines_a62d1c98c05bcc4bd5e8796866bcce2db}{oasis\+\_\+get\+\_\+freqs} (varid, mop, ncpl, cpl\+\_\+freqs, kinfo)
@@ -62,7 +64,7 @@ O\+A\+S\+IS user call to create a new communicator.
 \end{DoxyParams}
 
 
-Definition at line 113 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
+Definition at line 116 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__auxiliary__routines_a940777065691d5eab0402b0bb40464c7}\label{namespacemod__oasis__auxiliary__routines_a940777065691d5eab0402b0bb40464c7}} 
 \index{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines@{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines}!oasis\+\_\+get\+\_\+debug@{oasis\+\_\+get\+\_\+debug}}
@@ -110,7 +112,7 @@ O\+A\+S\+IS user query for the coupling periods for a given variable.
 \end{DoxyParams}
 
 
-Definition at line 339 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
+Definition at line 546 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__auxiliary__routines_a589021c0f1427f8e5edb1c7efcd7fa2c}\label{namespacemod__oasis__auxiliary__routines_a589021c0f1427f8e5edb1c7efcd7fa2c}} 
 \index{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines@{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines}!oasis\+\_\+get\+\_\+intercomm@{oasis\+\_\+get\+\_\+intercomm}}
@@ -120,7 +122,7 @@ Definition at line 339 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90
 
 
 
-O\+A\+S\+IS user interface to establish an intercomm communicator between the root of two models. 
+O\+A\+S\+IS user interface to establish an M\+PI intercomm communicator between two models. 
 
 
 \begin{DoxyParams}[1]{Parameters}
@@ -143,7 +145,7 @@ Definition at line 211 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90
 
 
 
-O\+A\+S\+IS user interface to establish an intracomm communicator between the root of two models. 
+O\+A\+S\+IS user interface to establish an intracomm communicator between two components. 
 
 
 \begin{DoxyParams}[1]{Parameters}
@@ -156,7 +158,7 @@ O\+A\+S\+IS user interface to establish an intracomm communicator between the ro
 \end{DoxyParams}
 
 
-Definition at line 265 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
+Definition at line 304 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__auxiliary__routines_a905dc11bc7613c7ac94054cf92fc2736}\label{namespacemod__oasis__auxiliary__routines_a905dc11bc7613c7ac94054cf92fc2736}} 
 \index{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines@{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines}!oasis\+\_\+get\+\_\+localcomm@{oasis\+\_\+get\+\_\+localcomm}}
@@ -177,7 +179,32 @@ O\+A\+S\+IS user query for the local M\+PI communicator.
 \end{DoxyParams}
 
 
-Definition at line 43 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
+Definition at line 44 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__auxiliary__routines_aaab3f229e1733a7d48ac0cc44d344c7f}\label{namespacemod__oasis__auxiliary__routines_aaab3f229e1733a7d48ac0cc44d344c7f}} 
+\index{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines@{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines}!oasis\+\_\+get\+\_\+multi\+\_\+intracomm@{oasis\+\_\+get\+\_\+multi\+\_\+intracomm}}
+\index{oasis\+\_\+get\+\_\+multi\+\_\+intracomm@{oasis\+\_\+get\+\_\+multi\+\_\+intracomm}!mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines@{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines}}
+\subsubsection{\texorpdfstring{oasis\+\_\+get\+\_\+multi\+\_\+intracomm()}{oasis\_get\_multi\_intracomm()}}
+{\footnotesize\ttfamily subroutine, public mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines\+::oasis\+\_\+get\+\_\+multi\+\_\+intracomm (\begin{DoxyParamCaption}\item[{integer (kind=ip\+\_\+intwp\+\_\+p), intent(out)}]{new\+\_\+comm,  }\item[{character(len=$\ast$), dimension(\+:), intent(in)}]{cdnam,  }\item[{integer (kind=ip\+\_\+intwp\+\_\+p), dimension(\+:), intent(out)}]{root\+\_\+ranks,  }\item[{integer (kind=ip\+\_\+intwp\+\_\+p), intent(out)}]{kinfo }\end{DoxyParamCaption})}
+
+
+
+O\+A\+S\+IS user interface to establish an intracomm communicator between two or more components. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em new\+\_\+comm} & output M\+PI communicator\\
+\hline
+\mbox{\tt in}  & {\em cdnam} & other model names\\
+\hline
+\mbox{\tt out}  & {\em root\+\_\+ranks} & root rank of each model in cdnam in new comm\\
+\hline
+\mbox{\tt out}  & {\em kinfo} & return code \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 335 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__auxiliary__routines_a154d3345ef9691e378afdc871086f7eb}\label{namespacemod__oasis__auxiliary__routines_a154d3345ef9691e378afdc871086f7eb}} 
 \index{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines@{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines}!oasis\+\_\+get\+\_\+ncpl@{oasis\+\_\+get\+\_\+ncpl}}
@@ -200,7 +227,7 @@ O\+A\+S\+IS user query for the number of unique couplings associated with a vari
 \end{DoxyParams}
 
 
-Definition at line 295 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
+Definition at line 502 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__auxiliary__routines_a7a95eb579171b6c2f06ff532c7823e2e}\label{namespacemod__oasis__auxiliary__routines_a7a95eb579171b6c2f06ff532c7823e2e}} 
 \index{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines@{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines}!oasis\+\_\+put\+\_\+inquire@{oasis\+\_\+put\+\_\+inquire}}
@@ -223,7 +250,7 @@ O\+A\+S\+IS user query to indicate put return code expected at a specified time 
 \end{DoxyParams}
 
 
-Definition at line 409 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
+Definition at line 616 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__auxiliary__routines_a42c3fe19a188de66499094e988c51938}\label{namespacemod__oasis__auxiliary__routines_a42c3fe19a188de66499094e988c51938}} 
 \index{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines@{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines}!oasis\+\_\+set\+\_\+couplcomm@{oasis\+\_\+set\+\_\+couplcomm}}
@@ -244,7 +271,7 @@ O\+A\+S\+IS user call to specify a local communicator.
 \end{DoxyParams}
 
 
-Definition at line 72 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
+Definition at line 73 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__auxiliary__routines_a71bf70a87b2d4ce86016bbb93d9edd73}\label{namespacemod__oasis__auxiliary__routines_a71bf70a87b2d4ce86016bbb93d9edd73}} 
 \index{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines@{mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines}!oasis\+\_\+set\+\_\+debug@{oasis\+\_\+set\+\_\+debug}}
@@ -278,5 +305,5 @@ Definition at line 183 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90
 
 
 
-Definition at line 34 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
+Definition at line 35 of file mod\+\_\+oasis\+\_\+auxiliary\+\_\+routines.\+F90.
 

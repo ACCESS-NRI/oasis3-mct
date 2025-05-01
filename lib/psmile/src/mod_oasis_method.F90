@@ -146,6 +146,7 @@ CONTAINS
    !>   read the namcouple file independently.
    !------------------------
 
+   compnm = trim(cdnam)
    IF (mpi_rank_world == 0) THEN
       call oasis_namcouple_init()
    endif

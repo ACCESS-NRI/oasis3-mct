@@ -138,10 +138,6 @@ int gptlget_memusage (int *size, int *rss, int *share, int *text, int *datastack
   */
 
   pid = (int) getpid ();
-  if (pid > 999999) {
-    fprintf (stderr, "get_memusage: pid %d is too large\n", pid);
-    return -1;
-  }
 
   sprintf (file, "%s%d%s", head, pid, tail);
   if ((fd = fopen (file, "r")) < 0) {

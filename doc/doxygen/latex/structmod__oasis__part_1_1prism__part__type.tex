@@ -12,6 +12,8 @@ character(len=ic\+\_\+lvar2) \hyperlink{structmod__oasis__part_1_1prism__part__t
 \begin{DoxyCompactList}\small\item\em partition name \end{DoxyCompactList}\item 
 type(mct\+\_\+gsmap) \hyperlink{structmod__oasis__part_1_1prism__part__type_a3d605216cf9bdf556416419ee8ec5993}{gsmap}
 \begin{DoxyCompactList}\small\item\em gsmap on mpi\+\_\+comm\+\_\+local \end{DoxyCompactList}\item 
+integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{structmod__oasis__part_1_1prism__part__type_a907a511655abcbb184be5bba51ea1edb}{part0}
+\begin{DoxyCompactList}\small\item\em if copied, from this part \end{DoxyCompactList}\item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{structmod__oasis__part_1_1prism__part__type_aaa2c19e53815eaf5df431612eadabfa4}{gsize}
 \begin{DoxyCompactList}\small\item\em global size of grid \end{DoxyCompactList}\item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{structmod__oasis__part_1_1prism__part__type_a7d857ca94b6eef3642bb6fd1ffeff551}{lsize}
@@ -25,11 +27,27 @@ character(len=ic\+\_\+lvar) \hyperlink{structmod__oasis__part_1_1prism__part__ty
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{structmod__oasis__part_1_1prism__part__type_a5aaf8efdc7391d2a64f269dd97055612}{mpicom}
 \begin{DoxyCompactList}\small\item\em mpicom for partition tasks only \end{DoxyCompactList}\item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{structmod__oasis__part_1_1prism__part__type_a3f129d8d5ee4ccf7b071febc1c3f37c3}{npes}
-\begin{DoxyCompactList}\small\item\em tasks count associated with partition \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em tasks count associated with mpicom partition \end{DoxyCompactList}\item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{structmod__oasis__part_1_1prism__part__type_a1bf56b7dcc55c07cab5d1be13d33cfdd}{rank}
-\begin{DoxyCompactList}\small\item\em rank of each task \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em rank of each task for mpicom partition \end{DoxyCompactList}\item 
 type(mct\+\_\+gsmap) \hyperlink{structmod__oasis__part_1_1prism__part__type_ace66d3bf592452e56ffe202df3a09310}{pgsmap}
 \begin{DoxyCompactList}\small\item\em same gsmap but on partition mpicom \end{DoxyCompactList}\item 
+logical \hyperlink{structmod__oasis__part_1_1prism__part__type_a8882d67fead7e4843f65c3dfc711cb18}{indxflag}
+\begin{DoxyCompactList}\small\item\em has indx field been defined \end{DoxyCompactList}\item 
+logical \hyperlink{structmod__oasis__part_1_1prism__part__type_af5364a2d4cedd391abdae414b8a69d47}{maskflag}
+\begin{DoxyCompactList}\small\item\em has mask field been defined \end{DoxyCompactList}\item 
+logical \hyperlink{structmod__oasis__part_1_1prism__part__type_aca6f14d9776b986665a732b66405e252}{areaflag}
+\begin{DoxyCompactList}\small\item\em has area field been defined \end{DoxyCompactList}\item 
+logical \hyperlink{structmod__oasis__part_1_1prism__part__type_af4a24cb69c1fcaa0ad62700c63e458ea}{fracflag}
+\begin{DoxyCompactList}\small\item\em has frac field been defined \end{DoxyCompactList}\item 
+integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__oasis__part_1_1prism__part__type_a0cfca06ede21cbcbc1884c9c1ca59326}{indx}
+\begin{DoxyCompactList}\small\item\em global index data \end{DoxyCompactList}\item 
+integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__oasis__part_1_1prism__part__type_ac18ac2f9bb610cc6d5b2010ddd55104e}{mask}
+\begin{DoxyCompactList}\small\item\em mask data \end{DoxyCompactList}\item 
+real(kind=ip\+\_\+r8\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__oasis__part_1_1prism__part__type_ad8094acbe70644467444a8af6d0901e8}{area}
+\begin{DoxyCompactList}\small\item\em area data \end{DoxyCompactList}\item 
+real(kind=ip\+\_\+r8\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__oasis__part_1_1prism__part__type_a7c4c3a1f31baa775401a067db8fa696f}{frac}
+\begin{DoxyCompactList}\small\item\em frac data \end{DoxyCompactList}\item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{structmod__oasis__part_1_1prism__part__type_a68188f6203fd3a54b307f3074cd01957}{ig\+\_\+size}
 \begin{DoxyCompactList}\small\item\em def\+\_\+part setting \end{DoxyCompactList}\item 
 integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__oasis__part_1_1prism__part__type_a32de1a0439c69db4f6b4d42839ad4202}{kparal}
@@ -39,11 +57,67 @@ integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__o
 \subsection{Detailed Description}
 Partition (decomposition) data for variables. 
 
-Definition at line 29 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 34 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 
 
 \subsection{Member Data Documentation}
+\mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_ad8094acbe70644467444a8af6d0901e8}\label{structmod__oasis__part_1_1prism__part__type_ad8094acbe70644467444a8af6d0901e8}} 
+\index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!area@{area}}
+\index{area@{area}!mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}}
+\subsubsection{\texorpdfstring{area}{area}}
+{\footnotesize\ttfamily real (kind=ip\+\_\+r8\+\_\+p), dimension(\+:), pointer mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type\+::area\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+area data 
+
+
+
+Definition at line 53 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_aca6f14d9776b986665a732b66405e252}\label{structmod__oasis__part_1_1prism__part__type_aca6f14d9776b986665a732b66405e252}} 
+\index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!areaflag@{areaflag}}
+\index{areaflag@{areaflag}!mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}}
+\subsubsection{\texorpdfstring{areaflag}{areaflag}}
+{\footnotesize\ttfamily logical mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type\+::areaflag\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+has area field been defined 
+
+
+
+Definition at line 49 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a7c4c3a1f31baa775401a067db8fa696f}\label{structmod__oasis__part_1_1prism__part__type_a7c4c3a1f31baa775401a067db8fa696f}} 
+\index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!frac@{frac}}
+\index{frac@{frac}!mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}}
+\subsubsection{\texorpdfstring{frac}{frac}}
+{\footnotesize\ttfamily real (kind=ip\+\_\+r8\+\_\+p), dimension(\+:), pointer mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type\+::frac\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+frac data 
+
+
+
+Definition at line 54 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_af4a24cb69c1fcaa0ad62700c63e458ea}\label{structmod__oasis__part_1_1prism__part__type_af4a24cb69c1fcaa0ad62700c63e458ea}} 
+\index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!fracflag@{fracflag}}
+\index{fracflag@{fracflag}!mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}}
+\subsubsection{\texorpdfstring{fracflag}{fracflag}}
+{\footnotesize\ttfamily logical mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type\+::fracflag\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+has frac field been defined 
+
+
+
+Definition at line 50 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a4507d4efc53b93149a44bf44d12c9e56}\label{structmod__oasis__part_1_1prism__part__type_a4507d4efc53b93149a44bf44d12c9e56}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!gridname@{gridname}}
 \index{gridname@{gridname}!mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}}
@@ -56,7 +130,7 @@ grid name
 
 
 
-Definition at line 36 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 42 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_aaa2c19e53815eaf5df431612eadabfa4}\label{structmod__oasis__part_1_1prism__part__type_aaa2c19e53815eaf5df431612eadabfa4}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!gsize@{gsize}}
@@ -70,7 +144,7 @@ global size of grid
 
 
 
-Definition at line 32 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 38 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a3d605216cf9bdf556416419ee8ec5993}\label{structmod__oasis__part_1_1prism__part__type_a3d605216cf9bdf556416419ee8ec5993}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!gsmap@{gsmap}}
@@ -84,7 +158,7 @@ gsmap on mpi\+\_\+comm\+\_\+local
 
 
 
-Definition at line 31 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 36 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a68188f6203fd3a54b307f3074cd01957}\label{structmod__oasis__part_1_1prism__part__type_a68188f6203fd3a54b307f3074cd01957}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!ig\+\_\+size@{ig\+\_\+size}}
@@ -98,7 +172,35 @@ def\+\_\+part setting
 
 
 
-Definition at line 42 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 56 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a0cfca06ede21cbcbc1884c9c1ca59326}\label{structmod__oasis__part_1_1prism__part__type_a0cfca06ede21cbcbc1884c9c1ca59326}} 
+\index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!indx@{indx}}
+\index{indx@{indx}!mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}}
+\subsubsection{\texorpdfstring{indx}{indx}}
+{\footnotesize\ttfamily integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type\+::indx\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+global index data 
+
+
+
+Definition at line 51 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a8882d67fead7e4843f65c3dfc711cb18}\label{structmod__oasis__part_1_1prism__part__type_a8882d67fead7e4843f65c3dfc711cb18}} 
+\index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!indxflag@{indxflag}}
+\index{indxflag@{indxflag}!mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}}
+\subsubsection{\texorpdfstring{indxflag}{indxflag}}
+{\footnotesize\ttfamily logical mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type\+::indxflag\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+has indx field been defined 
+
+
+
+Definition at line 47 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a32de1a0439c69db4f6b4d42839ad4202}\label{structmod__oasis__part_1_1prism__part__type_a32de1a0439c69db4f6b4d42839ad4202}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!kparal@{kparal}}
@@ -112,7 +214,7 @@ def\+\_\+part setting
 
 
 
-Definition at line 43 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 57 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a7d857ca94b6eef3642bb6fd1ffeff551}\label{structmod__oasis__part_1_1prism__part__type_a7d857ca94b6eef3642bb6fd1ffeff551}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!lsize@{lsize}}
@@ -126,7 +228,35 @@ local size of grid
 
 
 
-Definition at line 33 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 39 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_ac18ac2f9bb610cc6d5b2010ddd55104e}\label{structmod__oasis__part_1_1prism__part__type_ac18ac2f9bb610cc6d5b2010ddd55104e}} 
+\index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!mask@{mask}}
+\index{mask@{mask}!mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}}
+\subsubsection{\texorpdfstring{mask}{mask}}
+{\footnotesize\ttfamily integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type\+::mask\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+mask data 
+
+
+
+Definition at line 52 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_af5364a2d4cedd391abdae414b8a69d47}\label{structmod__oasis__part_1_1prism__part__type_af5364a2d4cedd391abdae414b8a69d47}} 
+\index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!maskflag@{maskflag}}
+\index{maskflag@{maskflag}!mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}}
+\subsubsection{\texorpdfstring{maskflag}{maskflag}}
+{\footnotesize\ttfamily logical mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type\+::maskflag\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+has mask field been defined 
+
+
+
+Definition at line 48 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a5aaf8efdc7391d2a64f269dd97055612}\label{structmod__oasis__part_1_1prism__part__type_a5aaf8efdc7391d2a64f269dd97055612}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!mpicom@{mpicom}}
@@ -140,7 +270,7 @@ mpicom for partition tasks only
 
 
 
-Definition at line 37 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 43 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a3f129d8d5ee4ccf7b071febc1c3f37c3}\label{structmod__oasis__part_1_1prism__part__type_a3f129d8d5ee4ccf7b071febc1c3f37c3}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!npes@{npes}}
@@ -150,11 +280,11 @@ Definition at line 37 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 
 
-tasks count associated with partition 
+tasks count associated with mpicom partition 
 
 
 
-Definition at line 38 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 44 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a7640ce8e1943f2fc70c8b072795502b2}\label{structmod__oasis__part_1_1prism__part__type_a7640ce8e1943f2fc70c8b072795502b2}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!nx@{nx}}
@@ -168,7 +298,7 @@ global nx size
 
 
 
-Definition at line 34 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 40 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a4169783dee96aa9c60d43826daf6000c}\label{structmod__oasis__part_1_1prism__part__type_a4169783dee96aa9c60d43826daf6000c}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!ny@{ny}}
@@ -182,7 +312,21 @@ global ny size
 
 
 
-Definition at line 35 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 41 of file mod\+\_\+oasis\+\_\+part.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a907a511655abcbb184be5bba51ea1edb}\label{structmod__oasis__part_1_1prism__part__type_a907a511655abcbb184be5bba51ea1edb}} 
+\index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!part0@{part0}}
+\index{part0@{part0}!mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}}
+\subsubsection{\texorpdfstring{part0}{part0}}
+{\footnotesize\ttfamily integer(kind=ip\+\_\+i4\+\_\+p) mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type\+::part0\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+if copied, from this part 
+
+
+
+Definition at line 37 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_ae53180c23d73bf1f4930e24171dba0a2}\label{structmod__oasis__part_1_1prism__part__type_ae53180c23d73bf1f4930e24171dba0a2}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!partname@{partname}}
@@ -196,7 +340,7 @@ partition name
 
 
 
-Definition at line 30 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 35 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_ace66d3bf592452e56ffe202df3a09310}\label{structmod__oasis__part_1_1prism__part__type_ace66d3bf592452e56ffe202df3a09310}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!pgsmap@{pgsmap}}
@@ -210,7 +354,7 @@ same gsmap but on partition mpicom
 
 
 
-Definition at line 40 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 46 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__part_1_1prism__part__type_a1bf56b7dcc55c07cab5d1be13d33cfdd}\label{structmod__oasis__part_1_1prism__part__type_a1bf56b7dcc55c07cab5d1be13d33cfdd}} 
 \index{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type@{mod\+\_\+oasis\+\_\+part\+::prism\+\_\+part\+\_\+type}!rank@{rank}}
@@ -220,14 +364,14 @@ Definition at line 40 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 
 
-rank of each task 
+rank of each task for mpicom partition 
 
 
 
-Definition at line 39 of file mod\+\_\+oasis\+\_\+part.\+F90.
+Definition at line 45 of file mod\+\_\+oasis\+\_\+part.\+F90.
 
 
 
 The documentation for this type was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/\hyperlink{mod__oasis__part_8_f90}{mod\+\_\+oasis\+\_\+part.\+F90}\end{DoxyCompactItemize}
+/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/\hyperlink{mod__oasis__part_8_f90}{mod\+\_\+oasis\+\_\+part.\+F90}\end{DoxyCompactItemize}

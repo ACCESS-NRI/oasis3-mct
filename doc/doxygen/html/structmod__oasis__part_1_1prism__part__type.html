@@ -81,6 +81,9 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a3d605216cf9bdf556416419ee8ec5993"><td class="memItemLeft" align="right" valign="top">type(mct_gsmap)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#a3d605216cf9bdf556416419ee8ec5993">gsmap</a></td></tr>
 <tr class="memdesc:a3d605216cf9bdf556416419ee8ec5993"><td class="mdescLeft">&#160;</td><td class="mdescRight">gsmap on mpi_comm_local  <a href="#a3d605216cf9bdf556416419ee8ec5993">More...</a><br /></td></tr>
 <tr class="separator:a3d605216cf9bdf556416419ee8ec5993"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a907a511655abcbb184be5bba51ea1edb"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#a907a511655abcbb184be5bba51ea1edb">part0</a></td></tr>
+<tr class="memdesc:a907a511655abcbb184be5bba51ea1edb"><td class="mdescLeft">&#160;</td><td class="mdescRight">if copied, from this part  <a href="#a907a511655abcbb184be5bba51ea1edb">More...</a><br /></td></tr>
+<tr class="separator:a907a511655abcbb184be5bba51ea1edb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa2c19e53815eaf5df431612eadabfa4"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#aaa2c19e53815eaf5df431612eadabfa4">gsize</a></td></tr>
 <tr class="memdesc:aaa2c19e53815eaf5df431612eadabfa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">global size of grid  <a href="#aaa2c19e53815eaf5df431612eadabfa4">More...</a><br /></td></tr>
 <tr class="separator:aaa2c19e53815eaf5df431612eadabfa4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -100,14 +103,38 @@ Private Attributes</h2></td></tr>
 <tr class="memdesc:a5aaf8efdc7391d2a64f269dd97055612"><td class="mdescLeft">&#160;</td><td class="mdescRight">mpicom for partition tasks only  <a href="#a5aaf8efdc7391d2a64f269dd97055612">More...</a><br /></td></tr>
 <tr class="separator:a5aaf8efdc7391d2a64f269dd97055612"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f129d8d5ee4ccf7b071febc1c3f37c3"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#a3f129d8d5ee4ccf7b071febc1c3f37c3">npes</a></td></tr>
-<tr class="memdesc:a3f129d8d5ee4ccf7b071febc1c3f37c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">tasks count associated with partition  <a href="#a3f129d8d5ee4ccf7b071febc1c3f37c3">More...</a><br /></td></tr>
+<tr class="memdesc:a3f129d8d5ee4ccf7b071febc1c3f37c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">tasks count associated with mpicom partition  <a href="#a3f129d8d5ee4ccf7b071febc1c3f37c3">More...</a><br /></td></tr>
 <tr class="separator:a3f129d8d5ee4ccf7b071febc1c3f37c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1bf56b7dcc55c07cab5d1be13d33cfdd"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#a1bf56b7dcc55c07cab5d1be13d33cfdd">rank</a></td></tr>
-<tr class="memdesc:a1bf56b7dcc55c07cab5d1be13d33cfdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">rank of each task  <a href="#a1bf56b7dcc55c07cab5d1be13d33cfdd">More...</a><br /></td></tr>
+<tr class="memdesc:a1bf56b7dcc55c07cab5d1be13d33cfdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">rank of each task for mpicom partition  <a href="#a1bf56b7dcc55c07cab5d1be13d33cfdd">More...</a><br /></td></tr>
 <tr class="separator:a1bf56b7dcc55c07cab5d1be13d33cfdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace66d3bf592452e56ffe202df3a09310"><td class="memItemLeft" align="right" valign="top">type(mct_gsmap)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#ace66d3bf592452e56ffe202df3a09310">pgsmap</a></td></tr>
 <tr class="memdesc:ace66d3bf592452e56ffe202df3a09310"><td class="mdescLeft">&#160;</td><td class="mdescRight">same gsmap but on partition mpicom  <a href="#ace66d3bf592452e56ffe202df3a09310">More...</a><br /></td></tr>
 <tr class="separator:ace66d3bf592452e56ffe202df3a09310"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8882d67fead7e4843f65c3dfc711cb18"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#a8882d67fead7e4843f65c3dfc711cb18">indxflag</a></td></tr>
+<tr class="memdesc:a8882d67fead7e4843f65c3dfc711cb18"><td class="mdescLeft">&#160;</td><td class="mdescRight">has indx field been defined  <a href="#a8882d67fead7e4843f65c3dfc711cb18">More...</a><br /></td></tr>
+<tr class="separator:a8882d67fead7e4843f65c3dfc711cb18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5364a2d4cedd391abdae414b8a69d47"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#af5364a2d4cedd391abdae414b8a69d47">maskflag</a></td></tr>
+<tr class="memdesc:af5364a2d4cedd391abdae414b8a69d47"><td class="mdescLeft">&#160;</td><td class="mdescRight">has mask field been defined  <a href="#af5364a2d4cedd391abdae414b8a69d47">More...</a><br /></td></tr>
+<tr class="separator:af5364a2d4cedd391abdae414b8a69d47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca6f14d9776b986665a732b66405e252"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#aca6f14d9776b986665a732b66405e252">areaflag</a></td></tr>
+<tr class="memdesc:aca6f14d9776b986665a732b66405e252"><td class="mdescLeft">&#160;</td><td class="mdescRight">has area field been defined  <a href="#aca6f14d9776b986665a732b66405e252">More...</a><br /></td></tr>
+<tr class="separator:aca6f14d9776b986665a732b66405e252"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4a24cb69c1fcaa0ad62700c63e458ea"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#af4a24cb69c1fcaa0ad62700c63e458ea">fracflag</a></td></tr>
+<tr class="memdesc:af4a24cb69c1fcaa0ad62700c63e458ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">has frac field been defined  <a href="#af4a24cb69c1fcaa0ad62700c63e458ea">More...</a><br /></td></tr>
+<tr class="separator:af4a24cb69c1fcaa0ad62700c63e458ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cfca06ede21cbcbc1884c9c1ca59326"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p), dimension(:), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#a0cfca06ede21cbcbc1884c9c1ca59326">indx</a></td></tr>
+<tr class="memdesc:a0cfca06ede21cbcbc1884c9c1ca59326"><td class="mdescLeft">&#160;</td><td class="mdescRight">global index data  <a href="#a0cfca06ede21cbcbc1884c9c1ca59326">More...</a><br /></td></tr>
+<tr class="separator:a0cfca06ede21cbcbc1884c9c1ca59326"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac18ac2f9bb610cc6d5b2010ddd55104e"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p), dimension(:), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#ac18ac2f9bb610cc6d5b2010ddd55104e">mask</a></td></tr>
+<tr class="memdesc:ac18ac2f9bb610cc6d5b2010ddd55104e"><td class="mdescLeft">&#160;</td><td class="mdescRight">mask data  <a href="#ac18ac2f9bb610cc6d5b2010ddd55104e">More...</a><br /></td></tr>
+<tr class="separator:ac18ac2f9bb610cc6d5b2010ddd55104e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8094acbe70644467444a8af6d0901e8"><td class="memItemLeft" align="right" valign="top">real(kind=ip_r8_p), dimension(:), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#ad8094acbe70644467444a8af6d0901e8">area</a></td></tr>
+<tr class="memdesc:ad8094acbe70644467444a8af6d0901e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">area data  <a href="#ad8094acbe70644467444a8af6d0901e8">More...</a><br /></td></tr>
+<tr class="separator:ad8094acbe70644467444a8af6d0901e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c4c3a1f31baa775401a067db8fa696f"><td class="memItemLeft" align="right" valign="top">real(kind=ip_r8_p), dimension(:), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#a7c4c3a1f31baa775401a067db8fa696f">frac</a></td></tr>
+<tr class="memdesc:a7c4c3a1f31baa775401a067db8fa696f"><td class="mdescLeft">&#160;</td><td class="mdescRight">frac data  <a href="#a7c4c3a1f31baa775401a067db8fa696f">More...</a><br /></td></tr>
+<tr class="separator:a7c4c3a1f31baa775401a067db8fa696f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68188f6203fd3a54b307f3074cd01957"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmod__oasis__part_1_1prism__part__type.html#a68188f6203fd3a54b307f3074cd01957">ig_size</a></td></tr>
 <tr class="memdesc:a68188f6203fd3a54b307f3074cd01957"><td class="mdescLeft">&#160;</td><td class="mdescRight">def_part setting  <a href="#a68188f6203fd3a54b307f3074cd01957">More...</a><br /></td></tr>
 <tr class="separator:a68188f6203fd3a54b307f3074cd01957"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -118,8 +145,112 @@ Private Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Partition (decomposition) data for variables. </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00029">29</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00034">34</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 </div><h2 class="groupheader">Member Data Documentation</h2>
+<a id="ad8094acbe70644467444a8af6d0901e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8094acbe70644467444a8af6d0901e8">&#9670;&nbsp;</a></span>area</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">real (kind=ip_r8_p), dimension(:), pointer mod_oasis_part::prism_part_type::area</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>area data </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00053">53</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="aca6f14d9776b986665a732b66405e252"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca6f14d9776b986665a732b66405e252">&#9670;&nbsp;</a></span>areaflag</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">logical mod_oasis_part::prism_part_type::areaflag</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>has area field been defined </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00049">49</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="a7c4c3a1f31baa775401a067db8fa696f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c4c3a1f31baa775401a067db8fa696f">&#9670;&nbsp;</a></span>frac</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">real (kind=ip_r8_p), dimension(:), pointer mod_oasis_part::prism_part_type::frac</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>frac data </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00054">54</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="af4a24cb69c1fcaa0ad62700c63e458ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af4a24cb69c1fcaa0ad62700c63e458ea">&#9670;&nbsp;</a></span>fracflag</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">logical mod_oasis_part::prism_part_type::fracflag</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>has frac field been defined </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00050">50</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
 <a id="a4507d4efc53b93149a44bf44d12c9e56"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4507d4efc53b93149a44bf44d12c9e56">&#9670;&nbsp;</a></span>gridname</h2>
 
@@ -142,7 +273,7 @@ Private Attributes</h2></td></tr>
 
 <p>grid name </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00036">36</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00042">42</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -168,7 +299,7 @@ Private Attributes</h2></td></tr>
 
 <p>global size of grid </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00032">32</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00038">38</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -194,7 +325,7 @@ Private Attributes</h2></td></tr>
 
 <p>gsmap on mpi_comm_local </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00031">31</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00036">36</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -220,7 +351,59 @@ Private Attributes</h2></td></tr>
 
 <p>def_part setting </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00042">42</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00056">56</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="a0cfca06ede21cbcbc1884c9c1ca59326"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0cfca06ede21cbcbc1884c9c1ca59326">&#9670;&nbsp;</a></span>indx</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(kind=ip_i4_p), dimension(:), pointer mod_oasis_part::prism_part_type::indx</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>global index data </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00051">51</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="a8882d67fead7e4843f65c3dfc711cb18"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8882d67fead7e4843f65c3dfc711cb18">&#9670;&nbsp;</a></span>indxflag</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">logical mod_oasis_part::prism_part_type::indxflag</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>has indx field been defined </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00047">47</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -246,7 +429,7 @@ Private Attributes</h2></td></tr>
 
 <p>def_part setting </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00043">43</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00057">57</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -272,7 +455,59 @@ Private Attributes</h2></td></tr>
 
 <p>local size of grid </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00033">33</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00039">39</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="ac18ac2f9bb610cc6d5b2010ddd55104e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac18ac2f9bb610cc6d5b2010ddd55104e">&#9670;&nbsp;</a></span>mask</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(kind=ip_i4_p), dimension(:), pointer mod_oasis_part::prism_part_type::mask</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>mask data </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00052">52</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="af5364a2d4cedd391abdae414b8a69d47"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af5364a2d4cedd391abdae414b8a69d47">&#9670;&nbsp;</a></span>maskflag</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">logical mod_oasis_part::prism_part_type::maskflag</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>has mask field been defined </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00048">48</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -298,7 +533,7 @@ Private Attributes</h2></td></tr>
 
 <p>mpicom for partition tasks only </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00037">37</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00043">43</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -322,9 +557,9 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>tasks count associated with partition </p>
+<p>tasks count associated with mpicom partition </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00038">38</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00044">44</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -350,7 +585,7 @@ Private Attributes</h2></td></tr>
 
 <p>global nx size </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00034">34</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00040">40</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -376,7 +611,33 @@ Private Attributes</h2></td></tr>
 
 <p>global ny size </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00035">35</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00041">41</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="a907a511655abcbb184be5bba51ea1edb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a907a511655abcbb184be5bba51ea1edb">&#9670;&nbsp;</a></span>part0</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(kind=ip_i4_p) mod_oasis_part::prism_part_type::part0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>if copied, from this part </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00037">37</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -402,7 +663,7 @@ Private Attributes</h2></td></tr>
 
 <p>partition name </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00030">30</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00035">35</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -428,7 +689,7 @@ Private Attributes</h2></td></tr>
 
 <p>same gsmap but on partition mpicom </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00040">40</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00046">46</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -452,19 +713,19 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>rank of each task </p>
+<p>rank of each task for mpicom partition </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00039">39</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00045">45</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this type was generated from the following file:<ul>
-<li>/home/globc2/tcraig/oasis3-mct.trunk/lib/psmile/src/<a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a></li>
+<li>/home/globc/andrea/WORK/OASIS3-MCT/oasis3-mct/lib/psmile/src/<a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 29 2018 20:52:30 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 3 2023 16:29:05 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

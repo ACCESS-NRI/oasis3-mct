@@ -90,6 +90,15 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a12edb4b0248a3f562fe5f6e16eede06a"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__part.html#a12edb4b0248a3f562fe5f6e16eede06a">oasis_part_write</a> (s_prism_part, npart)</td></tr>
 <tr class="memdesc:a12edb4b0248a3f562fe5f6e16eede06a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print parition information.  <a href="#a12edb4b0248a3f562fe5f6e16eede06a">More...</a><br /></td></tr>
 <tr class="separator:a12edb4b0248a3f562fe5f6e16eede06a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5c72886d4078ff0cc8e4c87a4dfd43c"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__part.html#ae5c72886d4078ff0cc8e4c87a4dfd43c">oasis_part_readgrid</a> ()</td></tr>
+<tr class="memdesc:ae5c72886d4078ff0cc8e4c87a4dfd43c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read grid data into partition.  <a href="#ae5c72886d4078ff0cc8e4c87a4dfd43c">More...</a><br /></td></tr>
+<tr class="separator:ae5c72886d4078ff0cc8e4c87a4dfd43c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabbc667e6db4ed0a0d593749a396f392"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__part.html#aabbc667e6db4ed0a0d593749a396f392">oasis_part_copy</a> (partbase, partnew)</td></tr>
+<tr class="memdesc:aabbc667e6db4ed0a0d593749a396f392"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy base partition to new partition.  <a href="#aabbc667e6db4ed0a0d593749a396f392">More...</a><br /></td></tr>
+<tr class="separator:aabbc667e6db4ed0a0d593749a396f392"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0db50937fb4217da43edcd1d1536535"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__part.html#ac0db50937fb4217da43edcd1d1536535">oasis_part_find</a> (partbase, partnew, nx, ny, gridname)</td></tr>
+<tr class="memdesc:ac0db50937fb4217da43edcd1d1536535"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find matching base partition to new partition.  <a href="#ac0db50937fb4217da43edcd1d1536535">More...</a><br /></td></tr>
+<tr class="separator:ac0db50937fb4217da43edcd1d1536535"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aacc20c24f42edbef4ec2610bf98aadfc"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__part.html#aacc20c24f42edbef4ec2610bf98aadfc">oasis_part_create</a> (id_part, TYPE, gsize, nx, ny, gridname, gscomm, mpicom, gridID)</td></tr>
 <tr class="memdesc:aacc20c24f42edbef4ec2610bf98aadfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new partition internally, needed for mapping.  <a href="#aacc20c24f42edbef4ec2610bf98aadfc">More...</a><br /></td></tr>
 <tr class="separator:aacc20c24f42edbef4ec2610bf98aadfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -171,7 +180,46 @@ Variables</h2></td></tr>
 <li>Increment partition number and store user values </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00060">60</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00074">74</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="aabbc667e6db4ed0a0d593749a396f392"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aabbc667e6db4ed0a0d593749a396f392">&#9670;&nbsp;</a></span>oasis_part_copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine, public mod_oasis_part::oasis_part_copy </td>
+          <td>(</td>
+          <td class="paramtype">integer(ip_i4_p), intent(in)&#160;</td>
+          <td class="paramname"><em>partbase</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer(ip_i4_p), intent(out)&#160;</td>
+          <td class="paramname"><em>partnew</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy base partition to new partition. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">partbase</td><td>base partition id</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">partnew</td><td>new partition id </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00565">565</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -268,7 +316,88 @@ Variables</h2></td></tr>
 </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00444">444</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00676">676</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="ac0db50937fb4217da43edcd1d1536535"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0db50937fb4217da43edcd1d1536535">&#9670;&nbsp;</a></span>oasis_part_find()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine, public mod_oasis_part::oasis_part_find </td>
+          <td>(</td>
+          <td class="paramtype">integer(ip_i4_p), intent(in)&#160;</td>
+          <td class="paramname"><em>partbase</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer(ip_i4_p), intent(inout)&#160;</td>
+          <td class="paramname"><em>partnew</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer(ip_i4_p), intent(in)&#160;</td>
+          <td class="paramname"><em>nx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer(ip_i4_p), intent(in)&#160;</td>
+          <td class="paramname"><em>ny</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>gridname</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Find matching base partition to new partition. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">partbase</td><td>base partition id</td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">partnew</td><td>new partition id</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">nx</td><td>new partition nx</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ny</td><td>new partition ny</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">gridname</td><td>new partition gridname </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00638">638</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+
+</div>
+</div>
+<a id="ae5c72886d4078ff0cc8e4c87a4dfd43c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5c72886d4078ff0cc8e4c87a4dfd43c">&#9670;&nbsp;</a></span>oasis_part_readgrid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine, public mod_oasis_part::oasis_part_readgrid </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read grid data into partition. </p>
+
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00480">480</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -295,7 +424,7 @@ Variables</h2></td></tr>
 <li>Initialize the local gsmap and partition gsmap </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00142">142</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00160">160</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -335,7 +464,7 @@ Variables</h2></td></tr>
 
 <p>Print parition information. </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00390">390</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00418">418</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -365,7 +494,7 @@ Variables</h2></td></tr>
 
 <p>Zero partition information. </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00361">361</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00383">383</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -392,7 +521,7 @@ Variables</h2></td></tr>
 
 <p>maximum number of partitions allowed </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00026">26</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00031">31</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -418,7 +547,7 @@ Variables</h2></td></tr>
 
 <p>used to define partition names internally </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00051">51</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00065">65</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -436,7 +565,7 @@ Variables</h2></td></tr>
 
 <p>number of partitions defined </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00046">46</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00060">60</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
@@ -454,14 +583,14 @@ Variables</h2></td></tr>
 
 <p>list of defined partitions </p>
 
-<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00047">47</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="mod__oasis__part_8_f90_source.html#l00061">61</a> of file <a class="el" href="mod__oasis__part_8_f90_source.html">mod_oasis_part.F90</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 29 2018 20:52:30 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 3 2023 16:29:05 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

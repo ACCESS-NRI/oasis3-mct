@@ -233,11 +233,10 @@ CONTAINS
 !$OMP SHARED(bin_addr1_r,num_srch_red,sga_remap,num_wts) &
 !$OMP SHARED(nulou) &
 !$OMP SHARED(il_nbthreads) &
-!$OMP SHARED(mpi_comm_map) &
-!$OMP SHARED(mpi_rank_map,mpi_root_map,ila_mpi_mn,ila_mpi_mx) &
+!$OMP SHARED(mpi_comm_map,mpi_rank_map,mpi_root_map,ila_mpi_mn,ila_mpi_mx) &
 !$OMP SHARED(ila_thr_sz,ila_thr_mn,ila_thr_mx) &
 !$OMP SHARED(grid1_dims,grid1_size) &
-!$OMP PRIVATE(nlogprt,il_err) &
+!$OMP PRIVATE(nlogprt) &
 !$OMP PRIVATE(ib_dst_add) &
 !$OMP PRIVATE(ila_src_add) &
 !$OMP PRIVATE(rl_coslat_dst,rl_coslon_dst,rl_sinlat_dst,rl_sinlon_dst) &
@@ -246,6 +245,7 @@ CONTAINS
 !$OMP PRIVATE(ila_nbr_found,ila_add_dist,bin,il_min,il_max,ib_i,ll_linear) &
 !$OMP PRIVATE(rla_dist,rla_wght_lon,rla_wght_lat,rla_wght_temp,rla_lats_temp) &
 !$OMP PRIVATE(d_dist) &
+!$OMP PRIVATE(il_err) &
 !$OMP PRIVATE(rla_weight,rl_distance,il_count) &
 !$OMP SHARED(coslat,coslon,sinlat,sinlon) &
 !$OMP SHARED(ll_nnei) &

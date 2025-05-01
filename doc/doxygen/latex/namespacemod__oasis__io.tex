@@ -12,6 +12,8 @@ logical function, public \hyperlink{namespacemod__oasis__io_a4d0f5cb29eabc798e85
 \begin{DoxyCompactList}\small\item\em Checks whether the var fldname is in the file. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__io_a6c14bebb7b216218e25f599e3469ae0c}{oasis\+\_\+io\+\_\+read\+\_\+avfld} (filename, av, gsmap, mpicom, avfld, filefld, fldtype)
 \begin{DoxyCompactList}\small\item\em Reads single field from a file into an attribute Vector. \end{DoxyCompactList}\item 
+subroutine, public \hyperlink{namespacemod__oasis__io_a9166ac9efbdf1146dc3c64677fd411b7}{oasis\+\_\+io\+\_\+write\+\_\+fldattr} (filename, fldname, keyword, value)
+\begin{DoxyCompactList}\small\item\em Write an attribute keyword value pair to a field. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__io_ad8a48d6c36e3fac637a8191c20e514f2}{oasis\+\_\+io\+\_\+write\+\_\+avfile} (rstfile, av, gsmap, mpicom, nx, ny, nampre)
 \begin{DoxyCompactList}\small\item\em Writes all fields from an attribute vector to a file. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__io_a65e17e4a065e8e4dea33754fb9c1d32c}{oasis\+\_\+io\+\_\+read\+\_\+avfile} (rstfile, av, gsmap, mpicom, abort, nampre, didread)
@@ -31,13 +33,32 @@ subroutine, public \hyperlink{namespacemod__oasis__io_a18912324646473cf8fedd7138
 subroutine, public \hyperlink{namespacemod__oasis__io_a432ecb26e0e2d8387c1601ea6cc68668}{oasis\+\_\+io\+\_\+write\+\_\+2dgridint\+\_\+fromroot} (filename, fldname, fld, nx, ny)
 \begin{DoxyCompactList}\small\item\em Write an integer array named field from the root task to a file. \end{DoxyCompactList}\item 
 subroutine, public \hyperlink{namespacemod__oasis__io_aa967e930e5d6199bbc6ec9a4f3c7069e}{oasis\+\_\+io\+\_\+write\+\_\+3dgridfld\+\_\+fromroot} (filename, fldname, fld, nx, ny, nc)
-\begin{DoxyCompactList}\small\item\em Write a 3d real array named field from the root task to a file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Write a 3d real array named field from the root task to a file. \end{DoxyCompactList}\item 
+subroutine \hyperlink{namespacemod__oasis__io_ab82165daa65fd85a13d8fe5ec9e2293e}{check\+\_\+status} (stat, subn, file, line)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__io_afb3f1a32c9458479f33439c5c3a94115}{oasis\+\_\+io\+\_\+64bit\+\_\+offset} = nf90\+\_\+64bit\+\_\+offset
+\item 
+integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{namespacemod__oasis__io_a18f97049c0295ca8d358d996c69a805e}{oasis\+\_\+io\+\_\+64bit\+\_\+data} = nf90\+\_\+64bit\+\_\+offset
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
 Provides reusable IO routines for O\+A\+S\+IS. 
 
 \subsection{Function/\+Subroutine Documentation}
+\mbox{\Hypertarget{namespacemod__oasis__io_ab82165daa65fd85a13d8fe5ec9e2293e}\label{namespacemod__oasis__io_ab82165daa65fd85a13d8fe5ec9e2293e}} 
+\index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!check\+\_\+status@{check\+\_\+status}}
+\index{check\+\_\+status@{check\+\_\+status}!mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}}
+\subsubsection{\texorpdfstring{check\+\_\+status()}{check\_status()}}
+{\footnotesize\ttfamily subroutine mod\+\_\+oasis\+\_\+io\+::check\+\_\+status (\begin{DoxyParamCaption}\item[{integer(ip\+\_\+i4\+\_\+p), intent(in)}]{stat,  }\item[{character(len=$\ast$), intent(in)}]{subn,  }\item[{character(len=$\ast$), intent(in)}]{file,  }\item[{integer(ip\+\_\+i4\+\_\+p), intent(in)}]{line }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 1708 of file mod\+\_\+oasis\+\_\+io.\+F90.
+
 \mbox{\Hypertarget{namespacemod__oasis__io_a8b604f89345d74c74c6bc3b4760b2e29}\label{namespacemod__oasis__io_a8b604f89345d74c74c6bc3b4760b2e29}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+read\+\_\+array@{oasis\+\_\+io\+\_\+read\+\_\+array}}
 \index{oasis\+\_\+io\+\_\+read\+\_\+array@{oasis\+\_\+io\+\_\+read\+\_\+array}!mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}}
@@ -67,7 +88,7 @@ Reads an integer or real field from a file into an array.
 \end{DoxyParams}
 
 
-Definition at line 565 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 621 of file mod\+\_\+oasis\+\_\+io.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__io_ac4a465a698824fb473074bfbd3d92f79}\label{namespacemod__oasis__io_ac4a465a698824fb473074bfbd3d92f79}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+read\+\_\+avfbf@{oasis\+\_\+io\+\_\+read\+\_\+avfbf}}
@@ -96,7 +117,7 @@ Read each field in an attribute vector from individual files.
 \end{DoxyParams}
 
 
-Definition at line 1091 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 1121 of file mod\+\_\+oasis\+\_\+io.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__io_a65e17e4a065e8e4dea33754fb9c1d32c}\label{namespacemod__oasis__io_a65e17e4a065e8e4dea33754fb9c1d32c}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+read\+\_\+avfile@{oasis\+\_\+io\+\_\+read\+\_\+avfile}}
@@ -127,7 +148,7 @@ Reads all fields for an attribute vector from a file.
 \end{DoxyParams}
 
 
-Definition at line 406 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 469 of file mod\+\_\+oasis\+\_\+io.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__io_a6c14bebb7b216218e25f599e3469ae0c}\label{namespacemod__oasis__io_a6c14bebb7b216218e25f599e3469ae0c}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+read\+\_\+avfld@{oasis\+\_\+io\+\_\+read\+\_\+avfld}}
@@ -158,7 +179,7 @@ Reads single field from a file into an attribute Vector.
 \end{DoxyParams}
 
 
-Definition at line 78 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 88 of file mod\+\_\+oasis\+\_\+io.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__io_af080505b4678a5c68916a700f54ac6e6}\label{namespacemod__oasis__io_af080505b4678a5c68916a700f54ac6e6}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+read\+\_\+field\+\_\+fromroot@{oasis\+\_\+io\+\_\+read\+\_\+field\+\_\+fromroot}}
@@ -191,7 +212,7 @@ Read a field on the root task from a file into an array.
 \end{DoxyParams}
 
 
-Definition at line 1254 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 1273 of file mod\+\_\+oasis\+\_\+io.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__io_a4d0f5cb29eabc798e857127c8c174d85}\label{namespacemod__oasis__io_a4d0f5cb29eabc798e857127c8c174d85}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+varexists@{oasis\+\_\+io\+\_\+varexists}}
@@ -205,7 +226,7 @@ Checks whether the var fldname is in the file.
 
 
 
-Definition at line 42 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 50 of file mod\+\_\+oasis\+\_\+io.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__io_a18912324646473cf8fedd7138cc59a79}\label{namespacemod__oasis__io_a18912324646473cf8fedd7138cc59a79}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+write\+\_\+2dgridfld\+\_\+fromroot@{oasis\+\_\+io\+\_\+write\+\_\+2dgridfld\+\_\+fromroot}}
@@ -232,7 +253,7 @@ Write a real array named field from the root task to a file.
 \end{DoxyParams}
 
 
-Definition at line 1397 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 1405 of file mod\+\_\+oasis\+\_\+io.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__io_a432ecb26e0e2d8387c1601ea6cc68668}\label{namespacemod__oasis__io_a432ecb26e0e2d8387c1601ea6cc68668}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+write\+\_\+2dgridint\+\_\+fromroot@{oasis\+\_\+io\+\_\+write\+\_\+2dgridint\+\_\+fromroot}}
@@ -259,7 +280,7 @@ Write an integer array named field from the root task to a file.
 \end{DoxyParams}
 
 
-Definition at line 1500 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 1504 of file mod\+\_\+oasis\+\_\+io.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__io_aa967e930e5d6199bbc6ec9a4f3c7069e}\label{namespacemod__oasis__io_aa967e930e5d6199bbc6ec9a4f3c7069e}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+write\+\_\+3dgridfld\+\_\+fromroot@{oasis\+\_\+io\+\_\+write\+\_\+3dgridfld\+\_\+fromroot}}
@@ -317,7 +338,7 @@ Writes a real or integer array to a file.
 \end{DoxyParams}
 
 
-Definition at line 730 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 778 of file mod\+\_\+oasis\+\_\+io.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__io_a42b325557a774b08d4cba24f387f8b01}\label{namespacemod__oasis__io_a42b325557a774b08d4cba24f387f8b01}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+write\+\_\+avfbf@{oasis\+\_\+io\+\_\+write\+\_\+avfbf}}
@@ -350,7 +371,7 @@ Write each field in an attribute vector to an individual files.
 \end{DoxyParams}
 
 
-Definition at line 877 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 920 of file mod\+\_\+oasis\+\_\+io.\+F90.
 
 \mbox{\Hypertarget{namespacemod__oasis__io_ad8a48d6c36e3fac637a8191c20e514f2}\label{namespacemod__oasis__io_ad8a48d6c36e3fac637a8191c20e514f2}} 
 \index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+write\+\_\+avfile@{oasis\+\_\+io\+\_\+write\+\_\+avfile}}
@@ -381,5 +402,53 @@ Writes all fields from an attribute vector to a file.
 \end{DoxyParams}
 
 
-Definition at line 230 of file mod\+\_\+oasis\+\_\+io.\+F90.
+Definition at line 298 of file mod\+\_\+oasis\+\_\+io.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__io_a9166ac9efbdf1146dc3c64677fd411b7}\label{namespacemod__oasis__io_a9166ac9efbdf1146dc3c64677fd411b7}} 
+\index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+write\+\_\+fldattr@{oasis\+\_\+io\+\_\+write\+\_\+fldattr}}
+\index{oasis\+\_\+io\+\_\+write\+\_\+fldattr@{oasis\+\_\+io\+\_\+write\+\_\+fldattr}!mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}}
+\subsubsection{\texorpdfstring{oasis\+\_\+io\+\_\+write\+\_\+fldattr()}{oasis\_io\_write\_fldattr()}}
+{\footnotesize\ttfamily subroutine, public mod\+\_\+oasis\+\_\+io\+::oasis\+\_\+io\+\_\+write\+\_\+fldattr (\begin{DoxyParamCaption}\item[{character(len=$\ast$), intent(in)}]{filename,  }\item[{character(len=$\ast$), intent(in)}]{fldname,  }\item[{character(len=$\ast$), intent(in)}]{keyword,  }\item[{character(len=$\ast$), intent(in)}]{value }\end{DoxyParamCaption})}
+
+
+
+Write an attribute keyword value pair to a field. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em filename} & file name\\
+\hline
+\mbox{\tt in}  & {\em fldname} & field name\\
+\hline
+\mbox{\tt in}  & {\em keyword} & attribute name\\
+\hline
+\mbox{\tt in}  & {\em value} & attribute value \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 227 of file mod\+\_\+oasis\+\_\+io.\+F90.
+
+
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{namespacemod__oasis__io_a18f97049c0295ca8d358d996c69a805e}\label{namespacemod__oasis__io_a18f97049c0295ca8d358d996c69a805e}} 
+\index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+64bit\+\_\+data@{oasis\+\_\+io\+\_\+64bit\+\_\+data}}
+\index{oasis\+\_\+io\+\_\+64bit\+\_\+data@{oasis\+\_\+io\+\_\+64bit\+\_\+data}!mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}}
+\subsubsection{\texorpdfstring{oasis\+\_\+io\+\_\+64bit\+\_\+data}{oasis\_io\_64bit\_data}}
+{\footnotesize\ttfamily integer(kind=ip\+\_\+i4\+\_\+p) mod\+\_\+oasis\+\_\+io\+::oasis\+\_\+io\+\_\+64bit\+\_\+data = nf90\+\_\+64bit\+\_\+offset\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 38 of file mod\+\_\+oasis\+\_\+io.\+F90.
+
+\mbox{\Hypertarget{namespacemod__oasis__io_afb3f1a32c9458479f33439c5c3a94115}\label{namespacemod__oasis__io_afb3f1a32c9458479f33439c5c3a94115}} 
+\index{mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}!oasis\+\_\+io\+\_\+64bit\+\_\+offset@{oasis\+\_\+io\+\_\+64bit\+\_\+offset}}
+\index{oasis\+\_\+io\+\_\+64bit\+\_\+offset@{oasis\+\_\+io\+\_\+64bit\+\_\+offset}!mod\+\_\+oasis\+\_\+io@{mod\+\_\+oasis\+\_\+io}}
+\subsubsection{\texorpdfstring{oasis\+\_\+io\+\_\+64bit\+\_\+offset}{oasis\_io\_64bit\_offset}}
+{\footnotesize\ttfamily integer(kind=ip\+\_\+i4\+\_\+p) mod\+\_\+oasis\+\_\+io\+::oasis\+\_\+io\+\_\+64bit\+\_\+offset = nf90\+\_\+64bit\+\_\+offset\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Definition at line 34 of file mod\+\_\+oasis\+\_\+io.\+F90.
 

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Oasis3-MCT: /home/globc2/tcraig/oasis3-mct.trunk/lib/psmile/src/mod_oasis_mpi.F90 File Reference</title>
+<title>Oasis3-MCT: /home/globc/andrea/WORK/OASIS3-MCT/oasis3-mct/lib/psmile/src/mod_oasis_mpi.F90 File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -102,6 +102,12 @@ Data Types</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfacemod__oasis__mpi_1_1oasis__mpi__max.html">mod_oasis_mpi::oasis_mpi_max</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic overloaded interface into MPI max reduction.  <a href="interfacemod__oasis__mpi_1_1oasis__mpi__max.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfacemod__oasis__mpi_1_1oasis__mpi__minloc.html">mod_oasis_mpi::oasis_mpi_minloc</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic overloaded interface into MPI min reduction.  <a href="interfacemod__oasis__mpi_1_1oasis__mpi__minloc.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfacemod__oasis__mpi_1_1oasis__mpi__maxloc.html">mod_oasis_mpi::oasis_mpi_maxloc</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic overloaded interface into MPI max reduction.  <a href="interfacemod__oasis__mpi_1_1oasis__mpi__maxloc.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
@@ -247,6 +253,18 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ae57151fc4714e33d7e0e1cf0aa65ae64"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__mpi.html#ae57151fc4714e33d7e0e1cf0aa65ae64">mod_oasis_mpi::oasis_mpi_maxr1</a> (lvec, gvec, comm, string, all)</td></tr>
 <tr class="memdesc:ae57151fc4714e33d7e0e1cf0aa65ae64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute an array of global maximums for an array of 1D doubles.  <a href="namespacemod__oasis__mpi.html#ae57151fc4714e33d7e0e1cf0aa65ae64">More...</a><br /></td></tr>
 <tr class="separator:ae57151fc4714e33d7e0e1cf0aa65ae64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a355bbf47408d38b356455c2368ec0f1b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__mpi.html#a355bbf47408d38b356455c2368ec0f1b">mod_oasis_mpi::oasis_mpi_minloci</a> (lvec, lveca, gvec, gveca, comm, string, all)</td></tr>
+<tr class="memdesc:a355bbf47408d38b356455c2368ec0f1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a global minimum and location for a distrbuted array of integers.  <a href="namespacemod__oasis__mpi.html#a355bbf47408d38b356455c2368ec0f1b">More...</a><br /></td></tr>
+<tr class="separator:a355bbf47408d38b356455c2368ec0f1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a103579b46cc544dc29fb6643bf23237c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__mpi.html#a103579b46cc544dc29fb6643bf23237c">mod_oasis_mpi::oasis_mpi_maxloci</a> (lvec, lveca, gvec, gveca, comm, string, all)</td></tr>
+<tr class="memdesc:a103579b46cc544dc29fb6643bf23237c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a global maximum and location for a distrbuted array of integers.  <a href="namespacemod__oasis__mpi.html#a103579b46cc544dc29fb6643bf23237c">More...</a><br /></td></tr>
+<tr class="separator:a103579b46cc544dc29fb6643bf23237c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6808017043f4531bf0d470b25bdff94b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__mpi.html#a6808017043f4531bf0d470b25bdff94b">mod_oasis_mpi::oasis_mpi_minlocr</a> (lvec, lveca, gvec, gveca, comm, string, all)</td></tr>
+<tr class="memdesc:a6808017043f4531bf0d470b25bdff94b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a global minimum and location for a distrbuted array of reals.  <a href="namespacemod__oasis__mpi.html#a6808017043f4531bf0d470b25bdff94b">More...</a><br /></td></tr>
+<tr class="separator:a6808017043f4531bf0d470b25bdff94b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a915aaf2f2d17f9108e8d08c2e4976e49"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__mpi.html#a915aaf2f2d17f9108e8d08c2e4976e49">mod_oasis_mpi::oasis_mpi_maxlocr</a> (lvec, lveca, gvec, gveca, comm, string, all)</td></tr>
+<tr class="memdesc:a915aaf2f2d17f9108e8d08c2e4976e49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute a global maximum and location for a distrbuted array of reals.  <a href="namespacemod__oasis__mpi.html#a915aaf2f2d17f9108e8d08c2e4976e49">More...</a><br /></td></tr>
+<tr class="separator:a915aaf2f2d17f9108e8d08c2e4976e49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adac784196d7af85611752214137dd4db"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__mpi.html#adac784196d7af85611752214137dd4db">mod_oasis_mpi::oasis_mpi_commsize</a> (comm, size, string)</td></tr>
 <tr class="memdesc:adac784196d7af85611752214137dd4db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the total number of tasks associated with a communicator.  <a href="namespacemod__oasis__mpi.html#adac784196d7af85611752214137dd4db">More...</a><br /></td></tr>
 <tr class="separator:adac784196d7af85611752214137dd4db"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -278,7 +296,7 @@ Functions/Subroutines</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 29 2018 20:52:29 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 3 2023 16:29:05 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

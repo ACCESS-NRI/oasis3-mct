@@ -10,6 +10,8 @@ Coupler data for managing all aspects of coupling in O\+A\+S\+IS.
 \item 
 type(mct\+\_\+avect) \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_a153e0bf9e28c0a8ff4d8bb27c83f598e}{avect1}
 \begin{DoxyCompactList}\small\item\em primary a\+Vect \end{DoxyCompactList}\item 
+type(mct\+\_\+avect) \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_ab93382323f7cce85d164dd94cf23b4e6}{avect1p}
+\begin{DoxyCompactList}\small\item\em primary a\+Vect, value at most recent coupling time (used in B\+L\+A\+S\+N\+EW) \end{DoxyCompactList}\item 
 type(mct\+\_\+avect) \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_ab5626722caee601622658134916f12bf}{avect1m}
 \begin{DoxyCompactList}\small\item\em extra a\+Vect needed for mapping \end{DoxyCompactList}\item 
 type(mct\+\_\+avect) \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_a7cd1aa8e520cf036f4dd72ad2445b774}{avect2}
@@ -88,6 +90,20 @@ real(kind=ip\+\_\+double\+\_\+p) \hyperlink{structmod__oasis__coupler_1_1prism__
 \begin{DoxyCompactList}\small\item\em receive field multiplier term \end{DoxyCompactList}\item 
 real(kind=ip\+\_\+double\+\_\+p) \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_adee95ace457db5ccaacc0195f3327277}{rcvadd}
 \begin{DoxyCompactList}\small\item\em receive field addition term \end{DoxyCompactList}\item 
+logical \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_afe5c43fd5b563dbdab9a6a6d27415206}{blasfld}
+\begin{DoxyCompactList}\small\item\em flag indicates field used in other B\+L\+A\+S\+N\+EW computations \end{DoxyCompactList}\item 
+integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_a297ff604ac6fbb83cf560e638e649005}{rfno}
+\begin{DoxyCompactList}\small\item\em B\+L\+A\+S\+N\+EW extra field number for local variable. \end{DoxyCompactList}\item 
+character(len=ic\+\_\+med), dimension(\+:), pointer \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_a1c7b29a73f66c38c1f4d2b8411cfb9cb}{rfna}
+\begin{DoxyCompactList}\small\item\em blasnew extra field name \end{DoxyCompactList}\item 
+real(kind=ip\+\_\+double\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_a7b756410acbdc46690167c0ab8863630}{rfmult}
+\begin{DoxyCompactList}\small\item\em blasnew extra field multiplier term \end{DoxyCompactList}\item 
+real(kind=ip\+\_\+double\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_a337fc7968366689769de6e84a6cc49b8}{rfadd}
+\begin{DoxyCompactList}\small\item\em blasnew extra field addition term \end{DoxyCompactList}\item 
+integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_a090e6832355f714af2c64d4029c8aea5}{rfcpl}
+\begin{DoxyCompactList}\small\item\em blasnew extra field coupler id \end{DoxyCompactList}\item 
+integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_a6be4f1b135e027b3ede5c957184e392e}{rffnum}
+\begin{DoxyCompactList}\small\item\em blasnew extra field field number \end{DoxyCompactList}\item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_a5d93a8e5b39d3b713e8f1bf4760b10f9}{ltime}
 \begin{DoxyCompactList}\small\item\em time at last coupling \end{DoxyCompactList}\item 
 integer(kind=ip\+\_\+i4\+\_\+p) \hyperlink{structmod__oasis__coupler_1_1prism__coupler__type_a2fd551fc7c0ed06d43b2b3babfc8c34a}{ctime}
@@ -101,7 +117,7 @@ integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer \hyperlink{structmod__o
 \subsection{Detailed Description}
 Coupler data for managing all aspects of coupling in O\+A\+S\+IS. 
 
-Definition at line 47 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 49 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 
 
@@ -118,7 +134,7 @@ counter for averaging
 
 
 
-Definition at line 92 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 102 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a153e0bf9e28c0a8ff4d8bb27c83f598e}\label{structmod__oasis__coupler_1_1prism__coupler__type_a153e0bf9e28c0a8ff4d8bb27c83f598e}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!avect1@{avect1}}
@@ -132,7 +148,7 @@ primary a\+Vect
 
 
 
-Definition at line 49 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 51 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ab5626722caee601622658134916f12bf}\label{structmod__oasis__coupler_1_1prism__coupler__type_ab5626722caee601622658134916f12bf}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!avect1m@{avect1m}}
@@ -146,7 +162,21 @@ extra a\+Vect needed for mapping
 
 
 
-Definition at line 50 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 53 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ab93382323f7cce85d164dd94cf23b4e6}\label{structmod__oasis__coupler_1_1prism__coupler__type_ab93382323f7cce85d164dd94cf23b4e6}} 
+\index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!avect1p@{avect1p}}
+\index{avect1p@{avect1p}!mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}}
+\subsubsection{\texorpdfstring{avect1p}{avect1p}}
+{\footnotesize\ttfamily type(mct\+\_\+avect) mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type\+::avect1p\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+primary a\+Vect, value at most recent coupling time (used in B\+L\+A\+S\+N\+EW) 
+
+
+
+Definition at line 52 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a7cd1aa8e520cf036f4dd72ad2445b774}\label{structmod__oasis__coupler_1_1prism__coupler__type_a7cd1aa8e520cf036f4dd72ad2445b774}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!avect2@{avect2}}
@@ -160,7 +190,7 @@ higher order mapping data
 
 
 
-Definition at line 51 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 54 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ac923618471bb31902062be4107d9bbf3}\label{structmod__oasis__coupler_1_1prism__coupler__type_ac923618471bb31902062be4107d9bbf3}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!avect3@{avect3}}
@@ -174,7 +204,7 @@ higher order mapping data
 
 
 
-Definition at line 52 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 55 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a478dda1acb9e270efda23a7275b21b83}\label{structmod__oasis__coupler_1_1prism__coupler__type_a478dda1acb9e270efda23a7275b21b83}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!avect4@{avect4}}
@@ -188,7 +218,7 @@ higher order mapping data
 
 
 
-Definition at line 53 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 56 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a939d1987d5c66c2352ff40709f255980}\label{structmod__oasis__coupler_1_1prism__coupler__type_a939d1987d5c66c2352ff40709f255980}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!avect5@{avect5}}
@@ -202,7 +232,7 @@ higher order mapping data
 
 
 
-Definition at line 54 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 57 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_aa2090cc6941c0dbbbf4bdb5c68cff873}\label{structmod__oasis__coupler_1_1prism__coupler__type_aa2090cc6941c0dbbbf4bdb5c68cff873}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!avon@{avon}}
@@ -216,7 +246,21 @@ flags indicating whether a\+Vects 2-\/5 are active
 
 
 
-Definition at line 55 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 58 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_afe5c43fd5b563dbdab9a6a6d27415206}\label{structmod__oasis__coupler_1_1prism__coupler__type_afe5c43fd5b563dbdab9a6a6d27415206}} 
+\index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!blasfld@{blasfld}}
+\index{blasfld@{blasfld}!mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}}
+\subsubsection{\texorpdfstring{blasfld}{blasfld}}
+{\footnotesize\ttfamily logical mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type\+::blasfld\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+flag indicates field used in other B\+L\+A\+S\+N\+EW computations 
+
+
+
+Definition at line 92 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a77cc2858814776053af5f3958d29fee2}\label{structmod__oasis__coupler_1_1prism__coupler__type_a77cc2858814776053af5f3958d29fee2}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!comp@{comp}}
@@ -230,7 +274,7 @@ other model compid to couple
 
 
 
-Definition at line 70 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 73 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a6ae875acb2785153668c3e773ed9682f}\label{structmod__oasis__coupler_1_1prism__coupler__type_a6ae875acb2785153668c3e773ed9682f}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!conserv@{conserv}}
@@ -244,7 +288,7 @@ conserve operation (ip\+\_\+cnone,ip\+\_\+cglobal,...)
 
 
 
-Definition at line 77 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 80 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ab539821ab680aa56c81cb541c093f50f}\label{structmod__oasis__coupler_1_1prism__coupler__type_ab539821ab680aa56c81cb541c093f50f}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!consopt@{consopt}}
@@ -258,7 +302,7 @@ conserve option (bfb, opt)
 
 
 
-Definition at line 78 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 81 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a2fd551fc7c0ed06d43b2b3babfc8c34a}\label{structmod__oasis__coupler_1_1prism__coupler__type_a2fd551fc7c0ed06d43b2b3babfc8c34a}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!ctime@{ctime}}
@@ -272,7 +316,7 @@ time at last call
 
 
 
-Definition at line 91 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 101 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ae1c1191f9aa4664aac2b819d1648320d}\label{structmod__oasis__coupler_1_1prism__coupler__type_ae1c1191f9aa4664aac2b819d1648320d}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!dt@{dt}}
@@ -286,7 +330,7 @@ coupling period (secs)
 
 
 
-Definition at line 73 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 76 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a8fa15fcf7d475ade7879d64b4aeb9188}\label{structmod__oasis__coupler_1_1prism__coupler__type_a8fa15fcf7d475ade7879d64b4aeb9188}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!fldlist@{fldlist}}
@@ -300,7 +344,7 @@ field list
 
 
 
-Definition at line 59 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 62 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a72f8ada57213a9c0e6ab85742c521f86}\label{structmod__oasis__coupler_1_1prism__coupler__type_a72f8ada57213a9c0e6ab85742c521f86}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!getput@{getput}}
@@ -314,7 +358,7 @@ get/put flag
 
 
 
-Definition at line 79 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 82 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a0ecb3c23d7b761aa9bfad0fbb59e40d3}\label{structmod__oasis__coupler_1_1prism__coupler__type_a0ecb3c23d7b761aa9bfad0fbb59e40d3}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!inpfile@{inpfile}}
@@ -328,7 +372,7 @@ input file if data is read
 
 
 
-Definition at line 58 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 61 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a1cda09cced2782af8cdccae35a00107d}\label{structmod__oasis__coupler_1_1prism__coupler__type_a1cda09cced2782af8cdccae35a00107d}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!input@{input}}
@@ -342,7 +386,7 @@ input flag
 
 
 
-Definition at line 82 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 85 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a5f95dd90844b18f8c619df9371a556c6}\label{structmod__oasis__coupler_1_1prism__coupler__type_a5f95dd90844b18f8c619df9371a556c6}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!lag@{lag}}
@@ -356,7 +400,7 @@ put lag positive is put sooner (secs)
 
 
 
-Definition at line 74 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 77 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a5d93a8e5b39d3b713e8f1bf4760b10f9}\label{structmod__oasis__coupler_1_1prism__coupler__type_a5d93a8e5b39d3b713e8f1bf4760b10f9}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!ltime@{ltime}}
@@ -370,7 +414,7 @@ time at last coupling
 
 
 
-Definition at line 90 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 100 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_aab6763e489b8ace8cff0fbe9e62cbcd8}\label{structmod__oasis__coupler_1_1prism__coupler__type_aab6763e489b8ace8cff0fbe9e62cbcd8}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!maploc@{maploc}}
@@ -384,7 +428,7 @@ map location setting, src or dst
 
 
 
-Definition at line 68 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 71 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ada880a13e931db47e72859515208ec1d}\label{structmod__oasis__coupler_1_1prism__coupler__type_ada880a13e931db47e72859515208ec1d}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!mapperid@{mapperid}}
@@ -398,7 +442,7 @@ mapper ID
 
 
 
-Definition at line 67 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 70 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_abe7dd91c4d011f5717e203191b7788e3}\label{structmod__oasis__coupler_1_1prism__coupler__type_abe7dd91c4d011f5717e203191b7788e3}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!maxtime@{maxtime}}
@@ -412,7 +456,7 @@ max time for the coupler
 
 
 
-Definition at line 75 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 78 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a68ccbd8305f8c1016a9025558ab8dea5}\label{structmod__oasis__coupler_1_1prism__coupler__type_a68ccbd8305f8c1016a9025558ab8dea5}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!namid@{namid}}
@@ -426,7 +470,7 @@ namcouple ID
 
 
 
-Definition at line 63 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 66 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a08fa25cab6817cfbc0c660a4f51d3857}\label{structmod__oasis__coupler_1_1prism__coupler__type_a08fa25cab6817cfbc0c660a4f51d3857}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!nflds@{nflds}}
@@ -440,7 +484,7 @@ number of fields
 
 
 
-Definition at line 60 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 63 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ac041ba5de191fa34468f61a674dd5bac}\label{structmod__oasis__coupler_1_1prism__coupler__type_ac041ba5de191fa34468f61a674dd5bac}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!ops@{ops}}
@@ -454,7 +498,7 @@ namcouple operation (ip\+\_\+exported,...)
 
 
 
-Definition at line 69 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 72 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a56fc19e4619dd8224859f222566ea7ca}\label{structmod__oasis__coupler_1_1prism__coupler__type_a56fc19e4619dd8224859f222566ea7ca}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!output@{output}}
@@ -468,7 +512,7 @@ output flag
 
 
 
-Definition at line 81 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 84 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a5506dc46a0c8def7417a6e2a9c046474}\label{structmod__oasis__coupler_1_1prism__coupler__type_a5506dc46a0c8def7417a6e2a9c046474}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!partid@{partid}}
@@ -482,7 +526,7 @@ local variable partition ID
 
 
 
-Definition at line 64 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 67 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_adee95ace457db5ccaacc0195f3327277}\label{structmod__oasis__coupler_1_1prism__coupler__type_adee95ace457db5ccaacc0195f3327277}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rcvadd@{rcvadd}}
@@ -496,7 +540,7 @@ receive field addition term
 
 
 
-Definition at line 88 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 91 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a05d7a7317dd4b063ced94cebd4dfedc7}\label{structmod__oasis__coupler_1_1prism__coupler__type_a05d7a7317dd4b063ced94cebd4dfedc7}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rcvdiag@{rcvdiag}}
@@ -510,7 +554,7 @@ diagnose rcv fields as part of coupling
 
 
 
-Definition at line 84 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 87 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a9733b71cc0ade029f7f19be6ad114596}\label{structmod__oasis__coupler_1_1prism__coupler__type_a9733b71cc0ade029f7f19be6ad114596}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rcvmult@{rcvmult}}
@@ -524,7 +568,91 @@ receive field multiplier term
 
 
 
-Definition at line 87 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 90 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a337fc7968366689769de6e84a6cc49b8}\label{structmod__oasis__coupler_1_1prism__coupler__type_a337fc7968366689769de6e84a6cc49b8}} 
+\index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rfadd@{rfadd}}
+\index{rfadd@{rfadd}!mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}}
+\subsubsection{\texorpdfstring{rfadd}{rfadd}}
+{\footnotesize\ttfamily real(kind=ip\+\_\+double\+\_\+p), dimension(\+:), pointer mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type\+::rfadd\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+blasnew extra field addition term 
+
+
+
+Definition at line 96 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a090e6832355f714af2c64d4029c8aea5}\label{structmod__oasis__coupler_1_1prism__coupler__type_a090e6832355f714af2c64d4029c8aea5}} 
+\index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rfcpl@{rfcpl}}
+\index{rfcpl@{rfcpl}!mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}}
+\subsubsection{\texorpdfstring{rfcpl}{rfcpl}}
+{\footnotesize\ttfamily integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type\+::rfcpl\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+blasnew extra field coupler id 
+
+
+
+Definition at line 97 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a6be4f1b135e027b3ede5c957184e392e}\label{structmod__oasis__coupler_1_1prism__coupler__type_a6be4f1b135e027b3ede5c957184e392e}} 
+\index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rffnum@{rffnum}}
+\index{rffnum@{rffnum}!mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}}
+\subsubsection{\texorpdfstring{rffnum}{rffnum}}
+{\footnotesize\ttfamily integer(kind=ip\+\_\+i4\+\_\+p), dimension(\+:), pointer mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type\+::rffnum\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+blasnew extra field field number 
+
+
+
+Definition at line 98 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a7b756410acbdc46690167c0ab8863630}\label{structmod__oasis__coupler_1_1prism__coupler__type_a7b756410acbdc46690167c0ab8863630}} 
+\index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rfmult@{rfmult}}
+\index{rfmult@{rfmult}!mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}}
+\subsubsection{\texorpdfstring{rfmult}{rfmult}}
+{\footnotesize\ttfamily real(kind=ip\+\_\+double\+\_\+p), dimension(\+:), pointer mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type\+::rfmult\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+blasnew extra field multiplier term 
+
+
+
+Definition at line 95 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a1c7b29a73f66c38c1f4d2b8411cfb9cb}\label{structmod__oasis__coupler_1_1prism__coupler__type_a1c7b29a73f66c38c1f4d2b8411cfb9cb}} 
+\index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rfna@{rfna}}
+\index{rfna@{rfna}!mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}}
+\subsubsection{\texorpdfstring{rfna}{rfna}}
+{\footnotesize\ttfamily character(len=ic\+\_\+med), dimension(\+:), pointer mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type\+::rfna\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+blasnew extra field name 
+
+
+
+Definition at line 94 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+
+\mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a297ff604ac6fbb83cf560e638e649005}\label{structmod__oasis__coupler_1_1prism__coupler__type_a297ff604ac6fbb83cf560e638e649005}} 
+\index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rfno@{rfno}}
+\index{rfno@{rfno}!mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}}
+\subsubsection{\texorpdfstring{rfno}{rfno}}
+{\footnotesize\ttfamily integer(kind=ip\+\_\+i4\+\_\+p) mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type\+::rfno\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+B\+L\+A\+S\+N\+EW extra field number for local variable. 
+
+
+
+Definition at line 93 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ab6ce21d836e3fc511fcb028f99b0abd7}\label{structmod__oasis__coupler_1_1prism__coupler__type_ab6ce21d836e3fc511fcb028f99b0abd7}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!routerid@{routerid}}
@@ -538,7 +666,7 @@ router ID
 
 
 
-Definition at line 66 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 69 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a1bf4a986a745318b93d46612b95b0489}\label{structmod__oasis__coupler_1_1prism__coupler__type_a1bf4a986a745318b93d46612b95b0489}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rpartid@{rpartid}}
@@ -552,7 +680,7 @@ router partition ID
 
 
 
-Definition at line 65 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 68 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a8a660e192210d1e8ff71f7dded631dce}\label{structmod__oasis__coupler_1_1prism__coupler__type_a8a660e192210d1e8ff71f7dded631dce}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!rstfile@{rstfile}}
@@ -566,7 +694,7 @@ restart file
 
 
 
-Definition at line 56 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 59 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_af1766ab1d9fe55670c551a9d0c7f2e00}\label{structmod__oasis__coupler_1_1prism__coupler__type_af1766ab1d9fe55670c551a9d0c7f2e00}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!seq@{seq}}
@@ -580,7 +708,7 @@ sequence number
 
 
 
-Definition at line 72 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 75 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ad0176e1d6bdcb0f50fc5889921aec8dc}\label{structmod__oasis__coupler_1_1prism__coupler__type_ad0176e1d6bdcb0f50fc5889921aec8dc}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!sndadd@{sndadd}}
@@ -594,7 +722,7 @@ send field addition term
 
 
 
-Definition at line 86 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 89 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ae0ad5bd2dfbc17cbdceeda23c92dbebe}\label{structmod__oasis__coupler_1_1prism__coupler__type_ae0ad5bd2dfbc17cbdceeda23c92dbebe}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!snddiag@{snddiag}}
@@ -608,7 +736,7 @@ diagnose src fields as part of coupling
 
 
 
-Definition at line 83 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 86 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ad17bb1c791d2ef48cf7b4abf955bf43b}\label{structmod__oasis__coupler_1_1prism__coupler__type_ad17bb1c791d2ef48cf7b4abf955bf43b}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!sndmult@{sndmult}}
@@ -622,7 +750,7 @@ send field multiplier term
 
 
 
-Definition at line 85 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 88 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a45db2da67a23b8a4b693d0b7882996b5}\label{structmod__oasis__coupler_1_1prism__coupler__type_a45db2da67a23b8a4b693d0b7882996b5}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!sndrcv@{sndrcv}}
@@ -636,7 +764,7 @@ send recv flag
 
 
 
-Definition at line 80 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 83 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_aee26373fa4a84f3c4e1841ba702f161c}\label{structmod__oasis__coupler_1_1prism__coupler__type_aee26373fa4a84f3c4e1841ba702f161c}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!status@{status}}
@@ -650,7 +778,7 @@ status of variables in coupler
 
 
 
-Definition at line 93 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 103 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a3b8e0d2cd3f3001b4c82e7a911008a37}\label{structmod__oasis__coupler_1_1prism__coupler__type_a3b8e0d2cd3f3001b4c82e7a911008a37}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!tag@{tag}}
@@ -664,7 +792,7 @@ communcation tag
 
 
 
-Definition at line 71 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 74 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ad9fad1fec923d4db974f94fd0bca5697}\label{structmod__oasis__coupler_1_1prism__coupler__type_ad9fad1fec923d4db974f94fd0bca5697}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!trans@{trans}}
@@ -678,7 +806,7 @@ transformation (ip\+\_\+average,...)
 
 
 
-Definition at line 76 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 79 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_aceee78ca0ec709406b404ff29e1fcf18}\label{structmod__oasis__coupler_1_1prism__coupler__type_aceee78ca0ec709406b404ff29e1fcf18}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!valid@{valid}}
@@ -692,7 +820,7 @@ is this coupler valid
 
 
 
-Definition at line 62 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 65 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_a9e31592685ea4cb2da222187ee2ffa4b}\label{structmod__oasis__coupler_1_1prism__coupler__type_a9e31592685ea4cb2da222187ee2ffa4b}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!varid@{varid}}
@@ -706,7 +834,7 @@ varid for each field
 
 
 
-Definition at line 61 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 64 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 \mbox{\Hypertarget{structmod__oasis__coupler_1_1prism__coupler__type_ac6ed82fd00e0244b23fa874d62a83c9d}\label{structmod__oasis__coupler_1_1prism__coupler__type_ac6ed82fd00e0244b23fa874d62a83c9d}} 
 \index{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type@{mod\+\_\+oasis\+\_\+coupler\+::prism\+\_\+coupler\+\_\+type}!writrest@{writrest}}
@@ -720,10 +848,10 @@ flag to write a restart file
 
 
 
-Definition at line 57 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
+Definition at line 60 of file mod\+\_\+oasis\+\_\+coupler.\+F90.
 
 
 
 The documentation for this type was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-/home/globc2/tcraig/oasis3-\/mct.\+trunk/lib/psmile/src/\hyperlink{mod__oasis__coupler_8_f90}{mod\+\_\+oasis\+\_\+coupler.\+F90}\end{DoxyCompactItemize}
+/home/globc/andrea/\+W\+O\+R\+K/\+O\+A\+S\+I\+S3-\/\+M\+C\+T/oasis3-\/mct/lib/psmile/src/\hyperlink{mod__oasis__coupler_8_f90}{mod\+\_\+oasis\+\_\+coupler.\+F90}\end{DoxyCompactItemize}

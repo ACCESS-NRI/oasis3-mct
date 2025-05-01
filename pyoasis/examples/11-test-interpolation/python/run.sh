@@ -13,20 +13,34 @@ uti=utils.py
 n1=4
 n2=1
 
-rundir=$srcdir/work
+rmplibs="scrip yac"
+tgtgrids="bggd bgnc"
 
-rm -fr $rundir
-mkdir -p $rundir
+for rmplib in $rmplibs ; do
+   for tgtgrid in $tgtgrids ; do
+      rundir=$srcdir/work/$rmplib/
 
-ln -sf $srcdir/$exe1 $rundir/.
-ln -sf $srcdir/$exe2 $rundir/.
-ln -sf $srcdir/$uti $rundir/.
+      rm -fr $rundir
+      mkdir -p $rundir
 
-ln -sf $datadir/grids.nc $rundir/.
-ln -sf $datadir/areas.nc $rundir/.
+      ln -sf $srcdir/$exe1 $rundir/.
+      ln -sf $srcdir/$exe2 $rundir/.
+      ln -sf $srcdir/$uti $rundir/.
 
-ln -sf $datadir/cartopy $rundir/.
+      ln -sf $datadir/grids.nc $rundir/.
+      ln -sf $datadir/areas.nc $rundir/.
 
-cd $rundir
+      ln -sf $datadir/cartopy $rundir/.
 
-${MPIRUN4PY} -np $n1 python3 $exe1 : -np $n2 python3 $exe2
+      cd $rundir
+
+      cat > test_input.in <<EOF
+$rmplib
+nogt
+$tgtgrid
+no
+EOF
+
+      ${MPIRUN4PY} -np $n1 python3 $exe1 < test_input.in : -np $n2 python3 $exe2
+   done
+done

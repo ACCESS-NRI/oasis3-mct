@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Oasis3-MCT: /home/globc2/tcraig/oasis3-mct.trunk/lib/psmile/src/mod_oasis_io.F90 File Reference</title>
+<title>Oasis3-MCT: /home/globc/andrea/WORK/OASIS3-MCT/oasis3-mct/lib/psmile/src/mod_oasis_io.F90 File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -64,7 +64,8 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Modules</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">mod_oasis_io.F90 File Reference</div>  </div>
 </div><!--header-->
@@ -86,6 +87,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a6c14bebb7b216218e25f599e3469ae0c"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#a6c14bebb7b216218e25f599e3469ae0c">mod_oasis_io::oasis_io_read_avfld</a> (filename, av, gsmap, mpicom, avfld, filefld, fldtype)</td></tr>
 <tr class="memdesc:a6c14bebb7b216218e25f599e3469ae0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads single field from a file into an attribute Vector.  <a href="namespacemod__oasis__io.html#a6c14bebb7b216218e25f599e3469ae0c">More...</a><br /></td></tr>
 <tr class="separator:a6c14bebb7b216218e25f599e3469ae0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9166ac9efbdf1146dc3c64677fd411b7"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#a9166ac9efbdf1146dc3c64677fd411b7">mod_oasis_io::oasis_io_write_fldattr</a> (filename, fldname, keyword, value)</td></tr>
+<tr class="memdesc:a9166ac9efbdf1146dc3c64677fd411b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write an attribute keyword value pair to a field.  <a href="namespacemod__oasis__io.html#a9166ac9efbdf1146dc3c64677fd411b7">More...</a><br /></td></tr>
+<tr class="separator:a9166ac9efbdf1146dc3c64677fd411b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad8a48d6c36e3fac637a8191c20e514f2"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#ad8a48d6c36e3fac637a8191c20e514f2">mod_oasis_io::oasis_io_write_avfile</a> (rstfile, av, gsmap, mpicom, nx, ny, nampre)</td></tr>
 <tr class="memdesc:ad8a48d6c36e3fac637a8191c20e514f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes all fields from an attribute vector to a file.  <a href="namespacemod__oasis__io.html#ad8a48d6c36e3fac637a8191c20e514f2">More...</a><br /></td></tr>
 <tr class="separator:ad8a48d6c36e3fac637a8191c20e514f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -116,11 +120,20 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aa967e930e5d6199bbc6ec9a4f3c7069e"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#aa967e930e5d6199bbc6ec9a4f3c7069e">mod_oasis_io::oasis_io_write_3dgridfld_fromroot</a> (filename, fldname, fld, nx, ny, nc)</td></tr>
 <tr class="memdesc:aa967e930e5d6199bbc6ec9a4f3c7069e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a 3d real array named field from the root task to a file.  <a href="namespacemod__oasis__io.html#aa967e930e5d6199bbc6ec9a4f3c7069e">More...</a><br /></td></tr>
 <tr class="separator:aa967e930e5d6199bbc6ec9a4f3c7069e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab82165daa65fd85a13d8fe5ec9e2293e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#ab82165daa65fd85a13d8fe5ec9e2293e">mod_oasis_io::check_status</a> (stat, subn, file, line)</td></tr>
+<tr class="separator:ab82165daa65fd85a13d8fe5ec9e2293e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:afb3f1a32c9458479f33439c5c3a94115"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#afb3f1a32c9458479f33439c5c3a94115">mod_oasis_io::oasis_io_64bit_offset</a> = nf90_64bit_offset</td></tr>
+<tr class="separator:afb3f1a32c9458479f33439c5c3a94115"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18f97049c0295ca8d358d996c69a805e"><td class="memItemLeft" align="right" valign="top">integer(kind=ip_i4_p)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacemod__oasis__io.html#a18f97049c0295ca8d358d996c69a805e">mod_oasis_io::oasis_io_64bit_data</a> = nf90_64bit_offset</td></tr>
+<tr class="separator:a18f97049c0295ca8d358d996c69a805e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 29 2018 20:52:29 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Nov 3 2023 16:29:05 for Oasis3-MCT by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>
