@@ -105,7 +105,7 @@ module mod_oasis_load_balancing
 
    real(ip_double_p) :: dl_simu_wtimer(2)
 
-   integer(kind=ip_i4_p) :: ievent
+   integer(kind=ip_i4_p) :: ievent, ievent_old
    logical ::               ldo_lb_analysis = .TRUE.
 
    contains
@@ -835,13 +835,14 @@ module mod_oasis_load_balancing
             ! if not, gather information
             ELSE
 
-               ALLOCATE(bk_minval(ievent), stat=ierror)
+               ievent_old = SIZE( tl_global_timer, 1)   ! to avoid runtime error: Array bound mismatch for dimension 1
+               ALLOCATE(bk_minval(ievent_old), stat=ierror)
                IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
                                         mpi_rank_local,' WARNING allocating working buffer '
-               ALLOCATE(bk_maxval(ievent), stat=ierror)
+               ALLOCATE(bk_maxval(ievent_old), stat=ierror)
                IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
                                      mpi_rank_local,' WARNING allocating working buffer '
-               ALLOCATE(bk_avg(ievent), stat=ierror)
+               ALLOCATE(bk_avg(ievent_old), stat=ierror)
                IF (ierror /= 0) WRITE(nulprt,*) subname,' model :',compid,' proc :',&
                                         mpi_rank_local,' WARNING allocating working buffer '
                ! last measurement, useful to initialise minimum values
