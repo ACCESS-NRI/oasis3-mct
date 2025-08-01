@@ -1172,25 +1172,26 @@ contains
 
              call oasis_debug_note(subname//' copy to av: max')
              cstring = 'max'
-             pcpointer%avcnt(nfav) = 1
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
              if (pcpointer%avcnt(nfav) == 0) then
                 pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav)
              else
                 pcpointer%avect1%rAttr(nfav,1:nsav) = max(pcpointer%avect1%rAttr(nfav,1:nsav),array1din(1:nsav))
+
              endif
+             pcpointer%avcnt(nfav) = 1
 
           elseif (pcpointer%trans == ip_min) then
 
              call oasis_debug_note(subname//' copy to av: min')
              cstring = 'min'
-             pcpointer%avcnt(nfav) = 1
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
              if (pcpointer%avcnt(nfav) == 0) then
                 pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav)
              else
                 pcpointer%avect1%rAttr(nfav,1:nsav) = min(pcpointer%avect1%rAttr(nfav,1:nsav),array1din(1:nsav))
              endif
+             pcpointer%avcnt(nfav) = 1
 
           else
              write(nulprt,*) subname,estr,'transform not known for var = ',trim(vname),pcpointer%trans
@@ -2900,8 +2901,9 @@ contains
 ! tcraig, turn off area and fraction weighting here, partly due to complexity
 ! associated with new fracwgt put option.  Can recover the fraction/area weight
 ! with the CPP DIAG_WITH_AREAFRAC
+! SValcke: removed CPP key DIAG_WITH_AREAFRAC as this should be the default behaviour
 
-#ifdef DIAG_WITH_AREAFRAC
+!#ifdef DIAG_WITH_AREAFRAC
     if (prism_part(partid)%areaflag .or. prism_part(partid)%fracflag) then
        if (prism_part(partid)%areaflag) then
           if (size(prism_part(partid)%area) /= lsize) then
@@ -2928,10 +2930,10 @@ contains
        dowsum = .false.
        notes = trim(notes)//':unweighted'
     endif
-#else
-    dowsum = .false.
-    notes = trim(notes)//':unweighted'
-#endif
+!#else
+!    dowsum = .false.
+!    notes = trim(notes)//':unweighted'
+!#endif
 
     lcnt = 0
     lsum = 0.0_ip_r8_p
