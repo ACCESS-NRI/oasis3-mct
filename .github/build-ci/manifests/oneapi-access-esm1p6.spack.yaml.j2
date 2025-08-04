@@ -46,7 +46,8 @@ spack:
       - '%gcc target={{ target }}'
     all:
       require:
-      - '%{{ oneapi_compiler }} target={{ target }}'
+      - '%{{ oneapi_compiler }}'
+      - 'target={{ target }}'
   concretizer:
     unify: false
   view: false
