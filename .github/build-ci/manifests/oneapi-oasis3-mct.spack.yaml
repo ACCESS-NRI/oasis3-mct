@@ -1,8 +1,8 @@
 # Building OASIS3-mct stand-alone using access-esm1.5 spack version
 spack:
   specs:
-  - '@git.{{ ref }}=access-esm1.5'
-  - '@git.{{ ref }}=access-om2'
+  - 'oasis3-mct@git.{{ ref }}=access-esm1.5'
+  - 'oasis3-mct@git.{{ ref }}=access-om2'
   packages:
     openmpi:
       require:
