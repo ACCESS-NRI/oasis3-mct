@@ -16,6 +16,9 @@ spack:
     hdf5:
       require:
         - '@1.14.3'
+    gcc-runtime:
+      require:
+      - '%gcc target={{ target }}'
     all:
       require:
       - '%{{ oneapi_compiler }} target={{ target }}'
