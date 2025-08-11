@@ -38,9 +38,12 @@ spack:
     openmpi:
       require:
       - '@{{ openmpi_version }}'
+    gcc-runtime:
+      require:
+      - '%gcc target={{ target }}'
     all:
       require:
-      - '%{{ intel_compiler }} target={{ target }}'
+      - '%{{ oneapi_compiler }} target={{ target }}'
   concretizer:
     unify: false
   view: false

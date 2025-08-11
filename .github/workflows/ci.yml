@@ -31,6 +31,9 @@ jobs:
       max-parallel: 5
       matrix:
         file: ${{ fromJson(needs.pre-ci.outputs.matrix) }}
+        exclude:
+        # TODO: Remove this exclusion once https://github.com/ACCESS-NRI/GCOM4/issues/15 is fixed
+        - file: .github/build-ci/manifests/gcc-access-esm1p6.spack.yaml.j2
     uses: access-nri/build-ci/.github/workflows/ci.yml@v2
     with:
       spack-manifest-path: ${{ matrix.file }}

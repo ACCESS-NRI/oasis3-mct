@@ -1,25 +1,19 @@
-# Building OASIS3-mct in the context of the ACCESS-ESM1.6 model
-# Note, our current ACCESS-ESM1.6 deployment uses the "access-esm1.5" branch not the "master"
-# branch used here
 spack:
   specs:
-  - 'access-esm1p6@latest cice=5'
+  - 'access-om2@latest'
   packages:
     mom5:
       require:
-      - '@{{ mom5_version_esm1p6 }}'
+      - '@{{ mom5_version_om2 }}'
     cice5:
       require:
-      - '@{{ cice5_version_esm1p6 }}'
-    um7:
+      - '@{{ cice5_version_om2 }}'
+    libaccessom2:
       require:
-      - '@{{ um_version }}'
-    gcom4:
-      require:
-      - '@{{ gcom4_version }}'
+      - '@{{ libaccessom2_version }}'
     oasis3-mct:
       require:
-      - '@git.{{ ref }}=access-esm1.5'
+      - '@git.{{ ref }}=access-om2'
     access-fms:
       require:
       - '@{{ access_fms_version }}'
@@ -35,12 +29,18 @@ spack:
     netcdf-fortran:
       require:
       - '@{{ netcdf_fortran_version }}'
+    parallelio:
+      require:
+      - '@{{ parallelio_version }}'
     openmpi:
       require:
       - '@{{ openmpi_version }}'
+    gcc-runtime:
+      require:
+      - '%gcc target={{ target }}'
     all:
       require:
-      - '%{{ intel_compiler }} target={{ target }}'
+      - '%{{ oneapi_compiler }} target={{ target }}'
   concretizer:
     unify: false
   view: false
