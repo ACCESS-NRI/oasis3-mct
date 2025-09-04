@@ -715,7 +715,9 @@ CONTAINS
          CASE('FILE')
             CALL yac_interp_stack_config_add_user_file_c( &
                & interp_stack_config, &
-               & TRIM(namyacmet(namID)%yac_stack(ib_s)%file_name)//c_null_char)
+               & TRIM(namyacmet(namID)%yac_stack(ib_s)%file_name)//c_null_char, &
+               & YAC_INTERP_FILE_ON_MISSING_FILE_DEFAULT_F, &
+               & YAC_INTERP_FILE_ON_SUCCESS_DEFAULT_F)
          END SELECT
          CALL yac_interp_stack_config_add_check_c( &
             &    interp_stack_config, YAC_INTERP_CHECK_CONSTRUCTOR_KEY_DEFAULT_F, &
@@ -770,7 +772,8 @@ CONTAINS
          & basic_grid%id(j_src),        &
          & basic_grid%id(j_tgt),        &
          & basic_grid%point_size(j_src), &
-         & basic_grid%point_size(j_tgt))
+         & basic_grid%point_size(j_tgt), &
+         & INT(YAC_WEIGHT_FILE_OVERWRITE, c_int)) ! or alternatively YAC_WEIGHT_FILE_KEEP
 
       IF (comm_rank == 0) THEN
          ierror = nf90_open(TRIM(ADJUSTL(prism_mapper(mapID)%file)), NF90_WRITE, ncid)
