@@ -690,7 +690,9 @@ contains
                 endif
 
                 if (didread1) readabort = .false.
-                write(vstring,'(a,i1.1,i6.6,a)') 'av',n,pcpointer%namID,'_'
+                ! SV For backward compatibility for high order fields
+                ! write(vstring,'(a,i1.1,i6.6,a)') 'av',n,pcpointer%namID,'_'
+                write(vstring,'(a,i1.1,a)') 'av',n,'_'
                 CALL oasis_io_read_avfile(TRIM(rstfile),avtmp,prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
                                           abort=readabort,nampre=vstring,didread=didread)
                 if (didread) then
