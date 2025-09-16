@@ -1447,31 +1447,35 @@ contains
              write(vstring,'(a,i6.6,a)') 'a',pcpointer%namID,'_cnt'
              CALL oasis_io_write_array(rstfile2,prism_part(partid)%mpicom,iarray=pcpointer%avcnt,&
                                        ivarname=TRIM(vstring))
-!tcxx             ! for backwards compatibility
-             write(vstring,'(a,i6.6,a)') 'av1',pcpointer%namID,'_'
-!tcxx             vstring = ""
+!tcxx        ! for backwards compatibility
+             !SV write(vstring,'(a,i6.6,a)') 'av1',pcpointer%namID,'_'
+             vstring = ""
              call oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              write(vstring,'(a,i6.6,a)') 'av1m',pcpointer%namID,'_'
              call oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
                 prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=trim(vstring))
              if (pcpointer%aVon(2)) then
-                write(vstring,'(a,i6.6,a)') 'av2',pcpointer%namID,'_'
+                ! write(vstring,'(a,i6.6,a)') 'av2',pcpointer%namID,'_'
+                write(vstring,'(a)') 'av2_'
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect2, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              endif
              if (pcpointer%aVon(3)) then
-                write(vstring,'(a,i6.6,a)') 'av3',pcpointer%namID,'_'
+                ! write(vstring,'(a,i6.6,a)') 'av3',pcpointer%namID,'_'
+                write(vstring,'(a)') 'av3_'
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect3, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              endif
              if (pcpointer%aVon(4)) then
-                write(vstring,'(a,i6.6,a)') 'av4',pcpointer%namID,'_'
+                ! write(vstring,'(a,i6.6,a)') 'av4',pcpointer%namID,'_'
+                write(vstring,'(a)') 'av4_'
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect4, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              endif
              if (pcpointer%aVon(5)) then
-                write(vstring,'(a,i6.6,a)') 'av5',pcpointer%namID,'_'
+                ! write(vstring,'(a,i6.6,a)') 'av5',pcpointer%namID,'_'
+                write(vstring,'(a)') 'av5_'
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              endif
