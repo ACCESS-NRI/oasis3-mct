@@ -220,7 +220,7 @@ contains
            WRITE(nulprt,*) '----------------------------------------------------------------'
            CALL oasis_flush(nulprt)
        ENDIF
-
+#ifdef LOCTRANS_RESTARTS
        !------------------------------------------------
        !>   * Read restart for LOCTRANS fields.
        !>     Do after restart and advance above because prism_advance_run
@@ -334,7 +334,7 @@ contains
              enddo
           endif
        endif
-
+#endif
     ENDIF  ! valid
     enddo  ! npc
     ENDDO  ! cplid
@@ -1763,7 +1763,7 @@ contains
        endif   ! comm_now
 
        pcpointer%ctime = msec
-
+#ifdef LOCTRANS_RESTARTS
        !------------------------------------------------
        !>   * at the end of the run only,  save fields associated
        !>     with non-instant loctrans operations to restart files
@@ -1844,7 +1844,7 @@ contains
              enddo
           endif
        ENDIF
-
+#endif
        !------------------------------------------------
        !>   * GET only, unpack avect1 if it's newly received
        !------------------------------------------------
