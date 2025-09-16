@@ -1428,7 +1428,7 @@ contains
           if (len_trim(rstfile) > 0) then
           if (getput == OASIS3_PUT .and. &
               ((mseclag == maxtime .and. lag > 0) .or. &
-               (msec + dt >= maxtime .and. (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul)) .or. &
+               ! (msec + dt >= maxtime .and. (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul)) .or. &
                (pcpointer%writrest))) then
              call oasis_debug_note(subname//' lag restart write')
 
