@@ -55,20 +55,20 @@ CC          = $(MPIBIN)/mpiicc -I$(MPI_INCLUDE)
 YCC = $(MPIBIN)/mpiicc
 YFC = $(MPIBIN)/mpiifort
 ifeq ($(OASIS_DEBUG), )
-# optimisation safe
-YCFLAGS  = -O2 -fp-model precise
-YFCFLAGS = -O2 -fp-model precise
+    # optimisation safe
+    YCFLAGS  = -O2 -fp-model precise
+    YFCFLAGS = -O2 -fp-model precise
 else
-# optimisation debug
-YCFLAGS  = -O0 -g -traceback
-YFCFLAGS = -O0 -g -traceback
+    # optimisation debug
+    YCFLAGS  = -O0 -g -traceback
+    YFCFLAGS = -O0 -g -traceback
 endif
 #
 # YAC libraries options for models and toys link
 # Leave empty if YAC not enabled
 ifeq ($(ENABLE_YAC),YES)
-YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
-              -lyac_utils -lyac_core -lyaxt_c
+    YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
+                  -lyac_utils -lyac_core -lyaxt_c
 endif
 # Static archiver
 AR          = ar
@@ -83,24 +83,28 @@ F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 # CPP keys and compiler options
 #
-CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
+ifeq ($(OASIS_LOCTRANS_RESTARTS), )
+    CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
+else
+    CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY -DLOCTRANS_RESTARTS
+endif
 #
 FCBASEFLAGS := -I. -assume byterecl -qmkl
 CCBASEFLAGS :=
 ifeq ($(OASIS_DEBUG), )
-	ifeq ($(OASIS_OPENMP), )
-		FCBASEFLAGS += -O2 -march=core-avx2
-	else
-		FCBASEFLAGS += -O2 -march=core-avx2 -mt_mpi -qopenmp
-                CCBASEFLAGS += -qopenmp
-	endif
+    ifeq ($(OASIS_OPENMP), )
+        FCBASEFLAGS += -O2 -march=core-avx2
+    else
+        FCBASEFLAGS += -O2 -march=core-avx2 -mt_mpi -qopenmp
+        CCBASEFLAGS += -qopenmp
+    endif
 else
-	ifeq ($(OASIS_OPENMP), )
-		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created
-        else
-		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created -mt_mpi -qopenmp
-		CCBASEFLAGS += -qopenmp
-        endif
+    ifeq ($(OASIS_OPENMP), )
+        FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created
+    else
+        FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created -mt_mpi -qopenmp
+        CCBASEFLAGS += -qopenmp
+    endif
 endif
 #
 # INC_DIR : includes all *mod for each library

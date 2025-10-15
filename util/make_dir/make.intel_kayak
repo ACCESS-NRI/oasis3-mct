@@ -24,16 +24,16 @@ MPIBIN           = $(MPIDIR)/bin
 MPI_INCLUDE      = $(MPIDIR)/include
 MPILIB           = -L$(MPIDIR)/lib
 ifeq ($(OASIS_DEBUG), )
-   MPIRUN           = $(MPIBIN)/mpirun
+    MPIRUN           = $(MPIBIN)/mpirun
 else
-   MPIRUN           = $(MPIBIN)/mpirun -tv
+    MPIRUN           = $(MPIBIN)/mpirun -tv
 endif
 #
 # NETCDF library
 ifeq ($(NETCDFF_DIR), )
-   NETCDFF_DIR    = $(NETCDF4_DIR)
-   NETCDFF_INCDIR = $(NETCDF4_INCDIR)
-   NETCDFF_LIBDIR = $(NETCDF4_LIBDIR)
+    NETCDFF_DIR    = $(NETCDF4_DIR)
+    NETCDFF_INCDIR = $(NETCDF4_INCDIR)
+    NETCDFF_LIBDIR = $(NETCDF4_LIBDIR)
 endif
 NETCDF_DIR     = $(NETCDFF_DIR)
 NETCDFC_DIR    = $(NETCDF4_DIR)
@@ -52,29 +52,29 @@ CC          = $(MPIBIN)/mpiicx -I$(MPI_INCLUDE)
 YCC = $(MPIBIN)/mpiicx
 YFC = $(MPIBIN)/mpiifx
 ifeq ($(OASIS_DEBUG), )
-# optimisation safe
-YCFLAGS  = -O2 -fp-model precise
-YFCFLAGS = -O2 -fp-model precise
+    # optimisation safe
+    YCFLAGS  = -O2 -fp-model precise
+    YFCFLAGS = -O2 -fp-model precise
 else
-# optimisation debug
-YCFLAGS  = -O0 -g -traceback
-YFCFLAGS = -O0 -g -traceback
+    # optimisation debug
+    YCFLAGS  = -O0 -g -traceback
+    YFCFLAGS = -O0 -g -traceback
 endif
 #
 # YAC libraries options for models and toys link
 # Leave empty if YAC not enabled
 ifeq ($(ENABLE_YAC),YES)
-YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
-              -lyac_utils -lyac_core -lyaxt_c
+    YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
+                  -lyac_utils -lyac_core -lyaxt_c
 endif
 # Static archiver
 AR          = ar
 ARFLAGS     = -ruv
 # Static libraries compilation options
 ifeq ($(OASIS_DEBUG), )
-        STATOPT =  -xAVX
+    STATOPT =  -xAVX
 else
-        STATOPT =
+    STATOPT =
 endif
 # Linker (needed for shared libraries)
 LD          = $(MPIBIN)/mpiifx $(MPILIB)
@@ -86,30 +86,34 @@ F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 #
 # CPP keys and compiler options
 #
-CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
+ifeq ($(OASIS_LOCTRANS_RESTARTS), )
+    CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
+else
+    CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY -DLOCTRANS_RESTARTS
+endif
 #
 ifeq ($(CMPLR_ROOT), )
-        MKLOPT = -mkl
+    MKLOPT = -mkl
 else
-        MKLOPT = -qmkl
+    MKLOPT = -qmkl
 endif
 FCBASEFLAGS := -I. -assume byterecl $(MKLOPT)
 CCBASEFLAGS :=
 ifeq ($(OASIS_DEBUG), )
-	ifeq ($(OASIS_OPENMP), )
-		FCBASEFLAGS += -O2 -xAVX
-                CCBASEFLAGS += -O2
-	else
-		FCBASEFLAGS += -O2 -xAVX -mt_mpi -qopenmp
-                CCBASEFLAGS += -O2 -qopenmp
-	endif
+    ifeq ($(OASIS_OPENMP), )
+        FCBASEFLAGS += -O2 -xAVX
+        CCBASEFLAGS += -O2
+    else
+        FCBASEFLAGS += -O2 -xAVX -mt_mpi -qopenmp
+        CCBASEFLAGS += -O2 -qopenmp
+    endif
 else
-	ifeq ($(OASIS_OPENMP), )
-		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created
-	else
-		FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created -mt_mpi -qopenmp
-                CCBASEFLAGS += -qopenmp
-	endif
+    ifeq ($(OASIS_OPENMP), )
+        FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created
+    else
+        FCBASEFLAGS += -g -traceback -fpe0 -O0 -check all -check noarg_temp_created -mt_mpi -qopenmp
+        CCBASEFLAGS += -qopenmp
+    endif
 endif
 #
 # INC_DIR : includes all *mod for each library

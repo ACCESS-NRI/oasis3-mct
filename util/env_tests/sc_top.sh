@@ -16,22 +16,10 @@ ln -sf env_tests_param_${envcomp} env_tests_param
 ###############################################
 ###############################################
 # Compilation of OASIS3-MCT OR PYOASIS only once
-# Creation of librairy verification
-# comp_env_${OASIS_ENV}.sh and make.${OASIS_ENV}
-# must exist
+# Creation of library verification
+# make.${OASIS_ENV} must exist
 ###############################################
 ###############################################
-if [ -z "${OASIS_ENV}" ]; then
-  echo "ERROR OASIS_ENV not defined"
-  exit -9
-fi
-
-if [ -z "${OASIS_COUPLE}" ]; then
-  echo "ERROR OASIS_COUPLE not defined"
-  exit -9
-fi
-. ${OASIS_COUPLE}/util/make_dir/comp_env_${OASIS_ENV}.sh
-#
 if [ -z "${OASIS_COMPILE}" ]; then
   echo "BE CAREFULL OASIS_COMPILE not defined, OASIS will not be compiled alone"
 elif [ ${OASIS_COMPILE} == TRUE ]; then
