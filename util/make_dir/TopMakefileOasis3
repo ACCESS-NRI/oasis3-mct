@@ -338,21 +338,21 @@ makeyac-static:
 ifeq ($(RECONF),YES)
 	@echo "=> Configuring static libraries yac_core and yac_utils, and building the yac tools"
 	@(cd $(LIBBUILD)/yac; \
-	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --disable-tools --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
+	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) )
 endif
 	@echo "=> Compiling and installing static libraries yac_core and yac_utils, and copying the yac tools"
 	@(cd $(LIBBUILD)/yac; \
 	     make -j $(shell grep -c ^processor /proc/cpuinfo) install 1>> $(LOGSTATIC) 2>> $(ERRSTATIC) ; \
 	     cp -f $(LIBSRC)/yac/tools/plot_weights.py $(ARCHDIR)/bin ; \
-	     cp -f $(LIBSRC)/yac/tools/grid_utils.py $(ARCHDIR)/bin ; )
-#	     cp -f $(LIBBUILD)/yac/tools/weights2vtk.x $(ARCHDIR)/bin ; \
+	     cp -f $(LIBSRC)/yac/tools/grid_utils.py $(ARCHDIR)/bin ; \
+	     cp -f $(LIBBUILD)/yac/tools/weights2vtk.x $(ARCHDIR)/bin )
 	@$(MAKEf) print-yacinfo
 
 makeyac-shared:
 ifeq ($(RECONF),YES)
 	@echo "=> Configuring shared libraries yac_core and yac_utils, and building the yac tools"
 	@(cd $(LIBBUILDSHARED)/yac; \
-	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --disable-tools --with-pic --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
+	     $(LIBSRC)/yac/configure CC="$(YCC)" FC="$(YFC)" CFLAGS="$(YCFLAGS)" FCFLAGS="$(YFCFLAGS)" --disable-mci --disable-examples --with-pic --with-yaxt-root=$(ARCHDIR) --with-netcdf-root=$(NETCDFC_DIR) --prefix=$(ARCHDIR) 1>> $(LOGSHARED) 2>> $(ERRSHARED) )
 endif
 	@echo "=> Compiling shared objects for yac"
 	@(cd $(LIBBUILDSHARED)/yac; \
@@ -372,8 +372,8 @@ endif
 	     cp -f $(LIBSRC)/yac/src/utils/*.h   $(ARCHDIR)/include/; \
 	     cp -f ./src/utils/yac_utils.mod  $(ARCHDIR)/include/; \
 	     cp -f $(LIBSRC)/yac/tools/plot_weights.py $(ARCHDIR)/bin ; \
-	     cp -f $(LIBSRC)/yac/tools/grid_utils.py $(ARCHDIR)/bin ; )
-#	     cp -f $(LIBBUILDSHARED)/yac/tools/weights2vtk.x $(ARCHDIR)/bin ; \
+	     cp -f $(LIBSRC)/yac/tools/grid_utils.py $(ARCHDIR)/bin ; \
+	     cp -f $(LIBBUILDSHARED)/yac/tools/weights2vtk.x $(ARCHDIR)/bin )
 	@$(MAKEf) print-yacinfo
 
 print-yacinfo:
