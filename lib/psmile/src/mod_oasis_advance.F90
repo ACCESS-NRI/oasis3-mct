@@ -1452,9 +1452,11 @@ contains
              vstring = ""
              call oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
-             write(vstring,'(a,i6.6,a)') 'av1m',pcpointer%namID,'_'
-             call oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
-                prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=trim(vstring))
+             if (fwon) then
+                write(vstring,'(a,i6.6,a)') 'av1m',pcpointer%namID,'_'
+                call oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
+                   prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=trim(vstring))
+             endif
              if (pcpointer%aVon(2)) then
                 ! write(vstring,'(a,i6.6,a)') 'av2',pcpointer%namID,'_'
                 write(vstring,'(a)') 'av2_'
@@ -1479,10 +1481,12 @@ contains
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              endif
-             if (pcpointer%aVonfw) then
-                write(vstring,'(a,i6.6,a)') 'avfw',pcpointer%namID,'_'
-                call oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
-                   prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
+             if (fwon) then
+                if (pcpointer%aVonfw) then
+                   write(vstring,'(a,i6.6,a)') 'avfw',pcpointer%namID,'_'
+                   call oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
+                      prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
+                endif
              endif
              if (ET_debug) CALL oasis_lb_measure(cplid,LB_RST,msec)
              if (local_timers_on) call oasis_timer_stop(tstring)
@@ -1794,9 +1798,11 @@ contains
           CALL oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
              prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
 
-          write(vstring,'(a,i6.6,a)') 'av1mloc',pcpointer%namID,'_'
-          CALL oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
-             prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=TRIM(vstring))
+          if (fwon) then
+             write(vstring,'(a,i6.6,a)') 'av1mloc',pcpointer%namID,'_'
+             CALL oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
+                prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=TRIM(vstring))
+          endif
 
           if (pcpointer%aVon(2)) then
              write(vstring,'(a,i6.6,a)') 'av2loc',pcpointer%namID,'_'
@@ -1818,10 +1824,12 @@ contains
              CALL oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
           endif
-          if (pcpointer%aVonfw) then
-             write(vstring,'(a,i6.6,a)') 'avfwloc',pcpointer%namID,'_'
-             CALL oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
-                prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
+          if (fwon) then
+             if (pcpointer%aVonfw) then
+                write(vstring,'(a,i6.6,a)') 'avfwloc',pcpointer%namID,'_'
+                CALL oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
+                   prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
+             endif
           endif
           if (ET_debug) CALL oasis_lb_measure(cplid,LB_TRN,msec)
           if (local_timers_on) call oasis_timer_stop(tstring)
