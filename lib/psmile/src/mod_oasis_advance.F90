@@ -1453,9 +1453,11 @@ contains
              if (local_timers_on) call oasis_timer_start(tstring)
              if (ET_debug) CALL oasis_lb_measure(cplid,LB_RST,msec)
 
+#ifdef LOCTRANS_RESTARTS 
              write(vstring,'(a,i6.6,a)') 'a',pcpointer%namID,'_cnt'
              CALL oasis_io_write_array(rstfile2,prism_part(partid)%mpicom,iarray=pcpointer%avcnt,&
                                        ivarname=TRIM(vstring))
+#endif
 !tcxx        ! for backwards compatibility
              !SV write(vstring,'(a,i6.6,a)') 'av1',pcpointer%namID,'_'
              vstring = ""
