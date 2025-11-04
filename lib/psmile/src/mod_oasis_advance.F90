@@ -557,6 +557,15 @@ contains
        endif
 
        !------------------------------------------------
+       !>   *  global CONSERV cannot be used with dynamic fractions
+       !------------------------------------------------
+       if (arrayonfw .and. (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul) .and. pcpointer%conserv .gt. 0) then 
+           write(nulprt,*)'The global transformation CONSERV cannot be used with dynamic fractions (option "fracwgt")'
+           call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+
+
+       !------------------------------------------------
        !>   *  set a bunch of local variables
        !------------------------------------------------
        rouid   = pcpointer%routerid
@@ -1452,7 +1461,7 @@ contains
              vstring = ""
              call oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
-             if (fwon) then
+             if (arrayonfw) then
                 write(vstring,'(a,i6.6,a)') 'av1m',pcpointer%namID,'_'
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
                    prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=trim(vstring))
@@ -1481,7 +1490,7 @@ contains
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              endif
-             if (fwon) then
+             if (arrayonfw) then
                 if (pcpointer%aVonfw) then
                    write(vstring,'(a,i6.6,a)') 'avfw',pcpointer%namID,'_'
                    call oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
@@ -1798,7 +1807,7 @@ contains
           CALL oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
              prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
 
-          if (fwon) then
+          if (arrayonfw) then
              write(vstring,'(a,i6.6,a)') 'av1mloc',pcpointer%namID,'_'
              CALL oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
                 prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=TRIM(vstring))
@@ -1824,7 +1833,7 @@ contains
              CALL oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
           endif
-          if (fwon) then
+          if (arrayonfw) then
              if (pcpointer%aVonfw) then
                 write(vstring,'(a,i6.6,a)') 'avfwloc',pcpointer%namID,'_'
                 CALL oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
@@ -2225,6 +2234,7 @@ contains
 
     IF (PRESENT(conserv)) THEN
     call oasis_debug_note(subname//' conserv')
+    !
     IF (conserv /= ip_cnone) THEN
 
        !-------------------
@@ -3044,10 +3054,10 @@ contains
                                              '     max val at   = ','(',igloc,',',jgloc,')',ngloc,trim(itemc)
              write(nulprt,'(a,g24.16,1x,a)') '  unweighted mean = ',gsum(m)/gcnt,trim(itemc)
              if (dowsum) &
-             write(nulprt,'(a,g24.16,1x,a)') '  weighted mean   = ',gsxw(m)/gswt,trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  weighted mean (WARNING: NOT EXACT WITH FRACWGT OPTION) = ',gsxw(m)/gswt,trim(itemc)
              write(nulprt,'(a,g24.16,1x,a)') '  unweighted sum  = ',gsum(m),trim(itemc)
              if (dowsum) &
-             write(nulprt,'(a,g24.16,1x,a)') '  weighted sum    = ',gsxw(m),trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  weighted sum (WARNING: NOT EXACT WITH FRACWGT OPTION) = ',gsxw(m),trim(itemc)
           endif
        enddo
        write(nulprt,*) ' '
