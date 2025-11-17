@@ -1,17 +1,17 @@
 /* pyOASIS - A Python wrapper for OASIS
    Authors: Philippe Gambron, Rupert Ford
    Copyright (C) 2019 UKRI - STFC
-  
+
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
    published by the Free Software Foundation, either version 3 of the
    License, or any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
    GNU Lesser General Public License for more details.
-  
+
    A copy of the GNU Lesser General Public License, version 3, is supplied
    with this program, in the file lgpl-3.0.txt. It is also available at
    <https://www.gnu.org/licenses/lgpl-3.0.html>. */
@@ -79,6 +79,7 @@ enum partition_params {
   OASIS_Box           = 2,
   OASIS_Orange        = 3,
   OASIS_Points        = 4,
+  OASIS_Cube          = 5,
   OASIS_Strategy      = 0,
   OASIS_Segments      = 1,
   OASIS_Npoints       = 1,
@@ -87,9 +88,12 @@ enum partition_params {
   OASIS_SizeX         = 2,
   OASIS_SizeY         = 3,
   OASIS_LdX           = 4,
+  OASIS_LdY           = 5,
+  OASIS_LdZ           = 6,
   OASIS_Serial_Params = 3,
   OASIS_Apple_Params  = 3,
   OASIS_Box_Params    = 5,
+  OASIS_Cube_Params   = 7,
   OASIS_No_Gsize      = 0
 };
 
@@ -143,9 +147,11 @@ int oasis_c_get_ncpl(const int varid, int* ncpl);
 
 int oasis_c_get_freqs(const int varid, const int mop, const int ncpl, int* cpl_freqs);
 
-int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y_size, const int bundle_size, const int fkind, const int storage, const void* fld1, const bool write_restart, int* kinfo);
+int oasis_c_put(const int var_id, const int kstep, const int x_size, const int y_size, const int z_or_bundle_size, const int fkind, const int storage, const void* fld1, const bool write_restart, int* kinfo);
 
-int oasis_c_get(const int var_id, const int kstep, const int x_size, const int y_size, const int bundle_size, const int fkind, const int storage, void* fld1, int* kinfo);
+int oasis_c_put_with_frac(const int var_id, const int kstep, const int x_size, const int y_size, const int z_or_bundle_size, const int fkind, const int storage, const void* fld1, const void* fracwgt, const bool write_restart, int* kinfo);
+
+int oasis_c_get(const int var_id, const int kstep, const int x_size, const int y_size, const int z_or_bundle_size, const int fkind, const int storage, void* fld1, int* kinfo);
 
 int oasis_c_start_grids_writing();
 

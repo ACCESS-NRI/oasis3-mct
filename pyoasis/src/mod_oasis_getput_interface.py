@@ -48,7 +48,7 @@ def put(var_id, kstep, field, write_restart):
     kinfo = c_int(0)
     ierr = c_int(0)
     p_field = field.ctypes.data
-    storage = c_int(1) # colum-major storage cf. OASIS_COL_MAJOR in oasis_c.h 
+    storage = c_int(1) # colum-major storage cf. OASIS_COL_MAJOR in oasis_c.h
     if field.dtype == float32:
         fkind = c_int(4)
     elif field.dtype == float64:
@@ -57,6 +57,35 @@ def put(var_id, kstep, field, write_restart):
         raise pyoasis.PyOasisException("Data type of field can only by float32 or float64")
     ierr = LIB.oasis_c_put(var_id, kstep, sizes[0], sizes[1], sizes[2], fkind, storage,
                            p_field, write_restart, kinfo)
+    if (pyoasis.OasisParameters(ierr) != pyoasis.OasisParameters.OASIS_OK):
+        return ierr
+    else:
+        return kinfo.value
+
+
+LIB.oasis_c_put_with_frac.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                                      ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                                      ctypes.c_void_p, ctypes.c_void_p,
+                                      ctypes.c_bool, ctypes.POINTER(ctypes.c_int)]
+LIB.oasis_c_put_with_frac.restype = ctypes.c_int
+
+
+def put_with_frac(var_id, kstep, field, fracwgt, write_restart):
+    """Send 8-byte multidimensional field with associated active fractions"""
+    sizes = get_sizes(field)
+    kinfo = c_int(0)
+    ierr = c_int(0)
+    p_field = field.ctypes.data
+    p_fracw = fracwgt.ctypes.data
+    storage = c_int(1) # colum-major storage cf. OASIS_COL_MAJOR in oasis_c.h
+    if field.dtype == float32:
+        fkind = c_int(4)
+    elif field.dtype == float64:
+        fkind = c_int(8)
+    else:
+        raise pyoasis.PyOasisException("Data type of field can only by float32 or float64")
+    ierr = LIB.oasis_c_put_with_frac(var_id, kstep, sizes[0], sizes[1], sizes[2], fkind, storage,
+                                     p_field, p_fracw, write_restart, kinfo)
     if (pyoasis.OasisParameters(ierr) != pyoasis.OasisParameters.OASIS_OK):
         return ierr
     else:
@@ -75,7 +104,7 @@ def get(var_id, kstep, field):
     kinfo = c_int(0)
     ierr = c_int(0)
     p_field = field.ctypes.data
-    storage = c_int(1) # colum-major storage cf. OASIS_COL_MAJOR in oasis_c.h 
+    storage = c_int(1) # colum-major storage cf. OASIS_COL_MAJOR in oasis_c.h
     if field.dtype == float32:
         fkind = c_int(4)
     elif field.dtype == float64:

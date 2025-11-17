@@ -13,16 +13,6 @@ between CERFACS and the Centre National de la Recherche Scientifique
 (CNRS) and its maintainance and user support is regularly reinforced
 with additional resources coming from European and national projects.
 
-The current OASIS3-MCT internally uses MCT, the Model
-Coupling Toolkit\footnote{www.mcs.anl.gov/research/projects/mct/} \citep{mct_larson} \newline \citep{mct_jacob}, developed by the Argonne National Laboratory in the USA. MCT implements fully parallel remapping, as a parallel matrix vector 
-multiplication, and parallel distributed exchanges of the coupling
-fields, based on pre-computed remapping weights and addresses. 
-Its design philosophy, based on flexibility and minimal invasiveness,
-is close to the OASIS3-MCT approach. 
-MCT has proven parallel performance and is, most notably, the
-underlying coupling software used in National Center for Atmospheric
-Research Community Earth System Model (NCAR CESM).
-
 OASIS3-MCT is a portable set of Fortran 77, Fortran 90 and C
 routines. Low-intrusiveness, portability and flexibility are
 OASIS3-MCT key design concepts. After compilation OASIS3-MCT is a
@@ -30,18 +20,27 @@ coupling library to be linked to the component models, and which main
 function is to interpolate and exchange the coupling fields to form a coupled system.  OASIS3-MCT supports  coupling of 2D
 logically-rectangular fields but 3D fields and 1D fields expressed on
 unstructured grids are also supported using a one dimension
-degeneration of the structures. Thanks to MCT, all transformations,
-including remapping, are performed in parallel on the set of source or
-target component processes and all coupling exchanges are now executed
-in parallel directly between the component processes via Message Passing Interface
-(MPI). OASIS3-MCT also supports file I/O using NetCDF and has python and C language bindings. 
+degeneration of the structures.
+
+OASIS3-MCT internally uses MCT, the Model
+Coupling Toolkit\footnote{www.mcs.anl.gov/research/projects/mct/} \citep{mct_larson} \newline \citep{mct_jacob}, 
+developed by the Argonne National Laboratory in the USA. MCT implements fully parallel remapping, as a parallel matrix vector 
+multiplication on the set of source or
+target component processes, and parallel distributed exchanges of the coupling
+fields via Message Passing Interface
+(MPI). 
+Its design philosophy, based on flexibility and minimal invasiveness,
+is close to the OASIS3-MCT approach. 
+
+For remapping the coupling fields from the source to the target grid, OASIS3-MCT includes a modified version of the SCRIP library \citep{Jones99}.
+
+ OASIS3-MCT also supports file I/O using NetCDF and has python and C language bindings. 
 
 The developments realised in the different versions of OASIS3-MCT are described in Appendix \ref{sec_changes}.
 To communicate with another component, or to perform I/O actions, a
-component model needs to include few specific calls to OASIS3-MCT Application Programming Interface (API).  The {\it namcouple} configuration file is also largely unchanged, although several options are either added, deprecated, not used
-or not supported. 
+component model needs to include few specific calls to OASIS3-MCT Application Programming Interface (API).  And the configuration of the coupling exchanges need to be described externally by the user in a text file, the {\it namcouple}. 
 
-Results obtained with IS-ENES2 coupling technology benchmarks show that OASIS3-MCT performs as well as, and even better at very high number of cores, than other coupling technologies, at least for up to O(10000) cores. It is therefore very likely that OASIS3-MCT will provide an efficient and
+We believe that OASIS3-MCT will still provide an efficient and
 easy-to-use coupling solution for many climate modelling groups in the few years to come. 
 
 %See appendix \ref{sec_changes} for a more detailed list of changes in this %version.
@@ -67,7 +66,7 @@ To use OASIS3-MCT for coupling codes, one has to follow these steps:
   {\it namcouple}.
   OASIS3-MCT supports different interpolation algorithms as described in
   chapter \ref{sec_transformations}.  Remapping files can be computed
-  online using the SCRIP options, or offline using either the SCRIP, ESMF or XIOS (see  {\tt
+  online using the SCRIP library, or offline using either the SCRIP, ESMF or XIOS (see  {\tt
   examples/regrid\_environment}, section \ref{subsec_regrid}) and read in during the run using the MAPPING
   transformation.
 
@@ -96,7 +95,7 @@ OASIS3-MCT directory structure is the following one:
  - oasis3-mct/lib/cbindings        C language bindings source code
                  /mct              Model Coupling Toolkit Coupling Software
                  /psmile           OASIS3-MCT coupling library
-                 /scrip            SCRIP interpolation library               
+                 /scrip            SCRIP remapping library  
 
  - oasis3-mct/doc                  OASIS3-MCT User Guide
 
@@ -113,7 +112,7 @@ OASIS3-MCT directory structure is the following one:
  
 \subsection{OASIS3-MCT license and copyright statement}
 
-Copyright © 2021 Centre Europ\'een de Recherche et Formation
+Copyright © 2025 Centre Europ\'een de Recherche et Formation
 Avanc\'ee en Calcul Scientifique (CERFACS).  
 
 This software and ancillary information called OASIS3-MCT is free
@@ -166,7 +165,7 @@ This software was authored by:
 
 \end{enumerate}
 
-\subsection{The SCRIP 1.4 license copyright statement}
+\subsection{SCRIP 1.4 license copyright statement}
 \label{sec_SCRIP}
 
 The SCRIP 1.4 copyright statement reads as follows:

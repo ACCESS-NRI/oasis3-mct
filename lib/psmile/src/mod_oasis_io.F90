@@ -554,9 +554,11 @@ subroutine oasis_io_read_avfile(rstfile,av,gsmap,mpicom,abort,nampre,didread)
                if (labort) THEN
                   write(nulprt,*) subname,estr,'var missing on file = ',trim(itemc),':',trim(nf90_strerror(status))
                   call oasis_abort(file=__FILE__,line=__LINE__)
-!               else
-!                  write(nulprt,*) subname,wstr,'var missing on file = ',trim(itemc),':',trim(nf90_strerror(status))
-!                  call oasis_flush(nulprt)
+               else
+                  if (OASIS_debug >= 5) then
+                     write(nulprt,*) subname,wstr,'var missing on file = ',trim(itemc),':',trim(nf90_strerror(status))
+                     call oasis_flush(nulprt)
+                  endif
                endif
 
             else
@@ -582,6 +584,8 @@ subroutine oasis_io_read_avfile(rstfile,av,gsmap,mpicom,abort,nampre,didread)
 
                allocate(array2(nx,ny))
 
+               write(nulprt,*) subname,'read var = ',trim(itemc)
+               call oasis_flush(nulprt)
                status = nf90_get_var(ncid,varid,array2)
                call check_status(status,subname,__FILE__,__LINE__)
 
@@ -604,6 +608,7 @@ subroutine oasis_io_read_avfile(rstfile,av,gsmap,mpicom,abort,nampre,didread)
       endif  ! file exists
    endif
 
+   if (present(didread)) call oasis_mpi_bcast(didread,mpicom,trim(subname)//':didread',master_task)
    call mct_aVect_scatter(av_g,av,gsmap,master_task,mpicom)
    if (iam == master_task) then
       call mct_aVect_clean(av_g)
@@ -691,9 +696,11 @@ subroutine oasis_io_read_array(rstfile,mpicom,iarray,ivarname,rarray,rvarname,ab
                if (labort) THEN
                   write(nulprt,*) subname,estr,'var missing on file = ',trim(ivarname),':',trim(nf90_strerror(status))
                   call oasis_abort(file=__FILE__,line=__LINE__)
-!               else
-!                  write(nulprt,*) subname,wstr,'var missing on file = ',trim(ivarname),':',trim(nf90_strerror(status))
-!                  call oasis_flush(nulprt)
+               else
+                  if (OASIS_debug >= 5) then
+                     write(nulprt,*) subname,wstr,'var missing on file = ',trim(ivarname),':',trim(nf90_strerror(status))
+                     call oasis_flush(nulprt)
+                  endif
                endif
             else
                status = nf90_inquire_variable(ncid,varid,ndims=dlen,dimids=dimid1)
@@ -728,9 +735,11 @@ subroutine oasis_io_read_array(rstfile,mpicom,iarray,ivarname,rarray,rvarname,ab
                if (labort) THEN
                   write(nulprt,*) subname,estr,'var missing on file = ',trim(rvarname),':',trim(nf90_strerror(status))
                   call oasis_abort(file=__FILE__,line=__LINE__)
-!               else
-!                  write(nulprt,*) subname,wstr,'var missing on file = ',trim(rvarname),':',trim(nf90_strerror(status))
-!                  call oasis_flush(nulprt)
+               else
+                  if (OASIS_debug >= 5) then
+                     write(nulprt,*) subname,wstr,'var missing on file = ',trim(rvarname),':',trim(nf90_strerror(status))
+                     call oasis_flush(nulprt)
+                  endif
                endif
             else
                status = nf90_inquire_variable(ncid,varid,ndims=dlen,dimids=dimid1)

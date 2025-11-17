@@ -161,6 +161,7 @@ CONTAINS
 
    !--------------------------------------------------------
    integer(kind=ip_intwp_p) :: m,n,k,p,nsegs,numel,taskid
+   integer(kind=ip_intwp_p) :: nseg2D, level
    INTEGER(kind=ip_intwp_p) :: icpl,ierr,ilen
    integer(kind=ip_intwp_p),pointer :: start(:),length(:)
    integer(kind=ip_intwp_p),pointer :: kparal(:)
@@ -301,6 +302,21 @@ CONTAINS
            enddo
            numel = nsegs
          endif
+      elseif (kparal(CLIM_Strategy) == CLIM_Cube) then
+         nseg2D = kparal(CLIM_SizeY)
+         allocate(start(nseg2D*kparal(CLIM_LdZ)),length(nseg2D*kparal(CLIM_LdZ)))
+         k = 0
+         do level = 1,kparal(CLIM_LdZ)
+            do n = 1,nseg2D
+               k = k + 1
+               start (k) = kparal(CLIM_Offset) + (n-1)*kparal(CLIM_LdX) &
+                           + (level-1)*kparal(CLIM_LdX)*kparal(CLIM_LdY) + 1
+               length(k) = kparal(CLIM_SizeX)
+            enddo
+         enddo
+         numel = k
+         nsegs = k
+         if (kparal(CLIM_SizeY)*kparal(CLIM_SizeX) == 0) numel = 0
       else
          write(nulprt,*) subname,estr,'part strategy unknown in def_part = ',kparal(CLIM_Strategy)
          write(nulprt,*) subname,estr,'strategy set in kparal array index ',CLIM_Strategy

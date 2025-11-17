@@ -16,6 +16,7 @@ examples/*/*/receiver-serial
 examples/*/*/sender-serial
 examples/*/*/sender-apple
 examples/*/*/sender-box
+examples/*/*/sender-cube
 examples/*/*/sender-orange
 examples/*/*/sender-points
 examples/*/*/sendrecv-orange

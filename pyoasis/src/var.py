@@ -74,13 +74,10 @@ class Var:
 
     def _check_size(self, field):
         if self.bundle_size == 1:
-            if field.ndim == 3:
-                if field.shape[-1] == 1 and field.size == self._partition_local_size:
-                    return True
-                else:
-                    return False
-            else:
+            if field.size == self._partition_local_size:
                 return True
+            else:
+                return False
         else:
             if field.ndim >= 2:
                 if field.shape[-1] == self.bundle_size:
@@ -103,13 +100,14 @@ class Var:
         :rtype: bool
         """
         return self._id != -1
-    
-    def put(self, time, field, write_restart=False):
+
+    def put(self, time, field, fracwgt=None, write_restart=False):
         """
         Sends data to another model.
 
         :param int time: model time (in seconds) [kstep in OASIS]
         :param pyoasis.asarray field: data
+        :param pyoasis.asarray fracwgt: optional field of active fractions
         :param bool write_restart: optional flag for writing a restart file
 
         :raises OasisException: if OASIS is unable to send \
@@ -120,8 +118,12 @@ class Var:
                             write_restart])
         if(not self._check_size(field)):
             raise pyoasis.OasisException("Field of the wrong size", error)
-        error = pyoasis.mod_oasis_getput_interface.put(self._id, time,
-                                                       field, write_restart)
+        if fracwgt is None:
+            error = pyoasis.mod_oasis_getput_interface.put(self._id, time,
+                                                           field, write_restart)
+        else:
+            error = pyoasis.mod_oasis_getput_interface.put_with_frac(self._id, time,
+                                                                     field, fracwgt, write_restart)
         if error < 0:
             raise pyoasis.OasisException("Error in sending data to another component", error)
 
@@ -160,25 +162,21 @@ class Var:
     def put_inquire(self, time):
         """
         :param int time: model time (in seconds) [msec in OASIS]
-
         :returns: return value expected at a specified time
-        for a given variable
-
+         for a given variable
         :rtype: pyoasis.OasisParameters
-
         :raises OasisException: if OASIS is unable to obtain
-        the return code
-
+         the return code
         :raises PyOasisException: if an incorrect parameter is
-        supplied
+         supplied
         """
         pyoasis.check_types([int], [time])
         rcode, ierr = pyoasis.mod_oasis_auxiliary_routines.put_inquire(self._id,
                                                                        time)
-        
+
         if (pyoasis.OasisParameters(ierr) != pyoasis.OasisParameters.OASIS_OK):
             raise pyoasis.OasisException("Error in put_inquire: returned value not a valid Put inquire answer", -1)
-        
+
         try:
             return pyoasis.OasisParameters(rcode)
         except ValueError:

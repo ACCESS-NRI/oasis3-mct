@@ -55,7 +55,11 @@ MODULE mod_oasis_coupler
      type(mct_aVect)       :: aVect3   !< higher order mapping data
      type(mct_aVect)       :: aVect4   !< higher order mapping data
      type(mct_aVect)       :: aVect5   !< higher order mapping data
+     type(mct_aVect)       :: aVectfw  !< fraction weight
      logical               :: aVon(prism_coupler_avsmax)  !< flags indicating whether aVects 2-5 are active
+     logical               :: aVonset  !< has avon been set yet
+     logical               :: aVonfw   !< flag indicating whether aVfw is active
+     logical               :: aVonfwset!< has aVonfw been set yet
      character(len=ic_xl)  :: rstfile  !< restart file
      logical               :: writrest !< flag to write a restart file
      character(len=ic_xl)  :: inpfile  !< input file if data is read
@@ -97,6 +101,7 @@ MODULE mod_oasis_coupler
      integer(kind=ip_i4_p) ,pointer :: rfcpl(:) !< blasnew extra field coupler id
      integer(kind=ip_i4_p) ,pointer :: rffnum(:)!< blasnew extra field field number
      !--- time varying info ---
+     integer(kind=ip_i4_p) :: ftime    !< estimate of initial coupling time
      integer(kind=ip_i4_p) :: ltime    !< time at last coupling
      integer(kind=ip_i4_p) :: ctime    !< time at last call
      integer(kind=ip_i4_p),pointer :: avcnt(:)  !< counter for averaging
@@ -275,6 +280,9 @@ CONTAINS
      allocate(pcpointer%varid(1))
      pcpointer%varid(:) = ispval
      pcpointer%aVon(:) = .false.
+     pcpointer%aVonset = .false.
+     pcpointer%aVonfw  = .false.
+     pcpointer%aVonfwset = .false.
      pcpointer%ops     = ispval
      pcpointer%comp    = ispval
      pcpointer%routerID  = ispval
@@ -290,6 +298,7 @@ CONTAINS
      pcpointer%input   = .false.
      pcpointer%trans   = ip_instant
      pcpointer%conserv = ip_cnone
+     pcpointer%ftime   = ispval
      pcpointer%ltime   = ispval
      pcpointer%ctime   = ispval
      pcpointer%snddiag = .false.
@@ -827,7 +836,7 @@ CONTAINS
            endif
 
            IF (OASIS_debug >= 20) THEN
-               WRITE(nulprt,*) subname,' Field : ',trim(prism_var(nn)%name)
+               WRITE(nulprt,*) subname,' Field : ',trim(prism_var(nv1)%name)
                WRITE(nulprt,*) subname,' Grid dst : ',trim(namdstgrd(nn))
                WRITE(nulprt,*) subname,' Grid src : ',trim(namsrcgrd(nn))
 !               WRITE(nulprt,*) subname,' prism_part : ',prism_part(part1)%gridname
@@ -1440,9 +1449,11 @@ CONTAINS
      endif
      call mct_avect_init(pcpointer%avect1,rList=trim(pcpointer%fldlist),lsize=lsize)
      call mct_avect_zero(pcpointer%avect1)
+     call mct_avect_init(pcpointer%avect1m,rList=trim(pcpointer%fldlist),lsize=lsize)
+     call mct_avect_zero(pcpointer%avect1m)
      pcpointer%aVon(1) = .true.
      if (OASIS_debug >= 15) then
-        write(nulprt,*) subname,' DEBUG ci:avect1 initialized '
+        write(nulprt,*) subname,' DEBUG ci:avect1, avect1m initialized '
         call oasis_flush(nulprt)
      endif
 
@@ -1718,7 +1729,7 @@ CONTAINS
 
            endif
 
-            if (local_timers_on >= 1) then
+           if (local_timers_on >= 1) then
               call oasis_timer_start('cpl_setup_n4part_cr_barrier')
               call oasis_mpi_barrier(mpi_comm_local, 'cpl_setup_n4part')
               call oasis_timer_stop('cpl_setup_n4part_cr_barrier')
@@ -1821,7 +1832,7 @@ CONTAINS
         endif  ! map init
 
         !--------------------------------
-        !>   * Initialize avect1m, the data in avect1 mapped to another grid
+        !>   * Reinitialize avect1m, the data in avect1 mapped to another grid
         !--------------------------------
 
         if (local_timers_on >= 3) call oasis_timer_start('cpl_setup_n4f')
@@ -1836,10 +1847,11 @@ CONTAINS
            enddo
            call oasis_flush(nulprt)
         endif
+        call mct_avect_clean(pcpointer%avect1m)
         call mct_avect_init(pcpointer%avect1m,rList=trim(pcpointer%fldlist),lsize=lsize)
         call mct_avect_zero(pcpointer%avect1m)
         if (OASIS_debug >= 15) then
-           write(nulprt,*) subname,' DEBUG ci:avect1m initialized '
+           write(nulprt,*) subname,' DEBUG ci:avect1m reinitialized '
            call oasis_flush(nulprt)
         endif
 
@@ -2255,7 +2267,7 @@ CONTAINS
 !
 !> Build a consistent variable name based on bundles
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !     Build a variable name for a given variable based on the name, number
 !     of bundled fields, and bundle level.  Needs to be used in a few different
 !     places in oasis.
@@ -2299,7 +2311,7 @@ CONTAINS
 !
 !> Deconstruct the varname based on oasis_coupler_bldvarname
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !     Deconstruct a variable name for a given variable based on the name, number
 !     of bundled fields, and bundle level.  Must be consistent with oasis_coupler_bldvarname
 !
@@ -2348,9 +2360,9 @@ CONTAINS
 !------------------------------------------------------------
 ! !BOP ===========================================================================
 !
-!> Search a character field list for a matching values 
+!> Search a character field list for a matching values
 !
-! !DESCRIPTION: 
+! !DESCRIPTION:
 !     Sort a character array and the associated array(s) based on a
 !     reasonably fast sort algorithm
 !
@@ -2458,7 +2470,7 @@ subroutine cplfind(num, fldlist, fld, ifind, nfind)
           enddo
        endif
        ifind = is
-       nfind = (ie - is + 1)    
+       nfind = (ie - is + 1)
     endif
 
 !   call oasis_debug_exit(subname)
@@ -2468,5 +2480,3 @@ end subroutine cplfind
 !===============================================================================
 
 END MODULE mod_oasis_coupler
-
-

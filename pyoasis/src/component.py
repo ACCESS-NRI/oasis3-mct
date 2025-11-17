@@ -197,7 +197,7 @@ class Component(object):
         :returns: the intercommunicator
         :rtype: MPI.communicator
         :raises OasisException: if OASIS is unable to create
-        the intercommunicator
+         the intercommunicator
         :raises PyOasisException: if an incorrect parameter is supplied
         """
         pyoasis.check_types([str], [compname])

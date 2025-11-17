@@ -9,6 +9,8 @@ pyOASIS Documentation
 Introduction
 ------------
 
+*In memoriam Rupert Ford*
+
 pyOASIS is a Python wrapper for OASIS written using ctypes
 and ISO C bindings to Fortran. It provides an object-oriented
 interface to OASIS3-MCT. This allows users to write and couple models
@@ -45,11 +47,11 @@ pyoasis`` in his/her python code.
 
 Users can find examples on how to use the interface in python, C and Fortran in ``pyoasis/examples``;
 to run all these examples at once, use ``make test`` in ``oasis3-mct/pyoasis``.
-More advanced testing of the python wrapping functions can be done 
+More advanced testing of the python wrapping functions can be done
 with ``make wrappertest``; this will call the script ``tests/run_pytest.sh`` that invokes the standard ``pytest`` testing framework (that has to be installed).
 
 Creating a component using MPI
-++++++++++++++++++++
+++++++++++++++++++++++++++++++
 
 In pyOASIS, components are instances of the **Component** class. To
 initialise a component, its name has to be supplied ::
@@ -72,10 +74,10 @@ to get access to information such as rank and number of processes in
 the local communicator gathering only the component processes ::
 
     import pyoasis
-    
+
     comp = pyoasis.Component("component")
-    
-    print("Hello world from process " + str(comp.localcomm.rank) 
+
+    print("Hello world from process " + str(comp.localcomm.rank)
           + " of " +  str(comp.localcomm.size))
 
 
@@ -94,50 +96,56 @@ optional argument. This should be created with ``mpi4py``. ::
 To create a coupling communicator for a subset of processes, one can
 use the method ``create_couplcomm``, with a flag being ``True`` for all these
 processes: ::
-  coupled = True
-  if local_comm_size > 3:
-    if local_comm_rank >= local_comm_size - 2:
-        coupled = False
-  comp.create_couplcomm(coupled)
+
+    coupled = True
+    if local_comm_size > 3:
+      if local_comm_rank >= local_comm_size - 2:
+          coupled = False
+    comp.create_couplcomm(coupled)
 
 If such a communicator already exists in the code, it should simply be
 provided to OASIS3-MCT with the method ``set_couplcomm``. Notice that the processes not involved in the coupling should still invoke this method providing the ``MPI.COMM_NULL`` communicator (predefined in ``mpi4py``): ::
-  couplcomm = comp.localcomm.Split(icpl, local_comm_rank)
-  if icpl == 0:
-      couplcomm = MPI.COMM_NULL
-  comp.set_couplcomm(couplcomm)
+
+    couplcomm = comp.localcomm.Split(icpl, local_comm_rank)
+    if icpl == 0:
+        couplcomm = MPI.COMM_NULL
+    comp.set_couplcomm(couplcomm)
 
 To set up an MPI intra-communicator or inter-communicator between the local component and
 another component, e.g. the component ``receiver`` in the example
 below, one can use ``get_intracomm`` or ``get_intercomm``: ::
-  intracomm = comp.get_intracomm("receiver")
-  intercomm = comp.get_intercomm("receiver")
+
+    intracomm = comp.get_intracomm("receiver")
+    intercomm = comp.get_intercomm("receiver")
 
 To set up an MPI intra-communicator among some of the coupled components, listed in the ``comp_list`` list,
 one can use::
-  intracomm, root_ranks = comp.get_multi_intracomm(comp_list)
+
+    intracomm, root_ranks = comp.get_multi_intracomm(comp_list)
 
 where ``root_ranks`` is a dictionary (the keys are the elements of ``comp_list``) providing the ranks of the component roots in the intra-communicator.
-  
+
 The current OASIS3-MCT internal debug level (``$NLOGPRT``
 value in the ``namcouple``), can be retrieved as a property of a component,
 namely ``comp.debug_level``, as in: ::
-  print("PyOasis debug level set to {}".format(comp.debug_level)
+
+    print("PyOasis debug level set to {}".format(comp.debug_level)
 
 and can be changed by directly modifying, the ``debug_level`` property
 of the component::
-  comp.debug_level = 2
+
+    comp.debug_level = 2
 
 Creating a partition
 ++++++++++++++++++++
 
 The data can be partitioned in various ways.
 These correspond to the  **SerialPartition**, **ApplePartition**,
-**BoxPartition**, **OrangePartition** and **PointsPartition**
+**BoxPartition**, **OrangePartition**, **PointsPartition** and **CubePartition**
 classes which are inherited from the **Partition** abstract class.
 For details on the different ways to describe the partitions,
 see OASIS3-MCT User Guide, section 2.2.3 and examples ``1-serial``,
-``2-apple``, ``3-box``, ``4-orange``, ``5-points`` in ``pyoasis/examples``. 
+``2-apple``, ``3-box``, ``4-orange``, ``5-points`` in ``pyoasis/examples``.
 
 The simplest situation is the serial partitioning where all the data is
 held by a single process and only the number of points has to be
@@ -172,12 +180,12 @@ the rank. Another example of a box partition is available in example ``3-box`` :
 
     rank = comp.localcomm.rank
     n_global_points_per_side = 4
-    n_partitions_per_side = 2  
+    n_partitions_per_side = 2
     local_extent = n_global_points_per_side / n_partitions_per_side
     i_partition_x = rank / n_partitions_per_side
     i_partition_y = rank % n_partitions_per_side
     global_offset =   i_partition_x * n_global_points_per_side * local_extent
-                    + i_partition_y * local_extent 
+                    + i_partition_y * local_extent
     global_extent_x = n_global_points_per_side
     partition = pyoasis.BoxPartition(global_offset, local_extent, local_extent,
                                      global_extent_x)
@@ -187,7 +195,7 @@ As a consequence, a list of offsets and local sizes have to be provided.
 In this example, each process contains 2 consecutive segments of 2
 points. (Another example with only one segment per process is available in example ``4-orange``.) ::
 
-    rank = comp.localcomm.rank 
+    rank = comp.localcomm.rank
     n_segments_per_rank = 2
     n_points_per_segment = 2
     offset_beginning = rank * n_segments_per_rank * n_points_per_segment
@@ -218,65 +226,71 @@ parallel models can be found in ``examples/10-grid`` .
 
 To initialise a grid and write the grid longitudes and latitudes, one
 has to create an instance of the **Grid** class: ::
-  [...]
-  lon = np.array([-180. + comm_rank*nx_loc*dx + float(i)*dx +
-               dx/2.0 for i in range(nx_loc)], dtype=np.float64)
-  lon = np.tile(lon, (ny_loc, 1)).T
 
-  lat = np.array([-90.0 + float(j)*dy + dy/2.0 for j in range(ny_loc)],
-               dtype=np.float64)
-  lat = np.tile(lat, (nx_loc, 1))
-  grid = pyoasis.Grid('pyoa', nx_global, ny_global, lon, lat, partition)
+    [...]
+    lon = np.array([-180. + comm_rank*nx_loc*dx + float(i)*dx +
+                 dx/2.0 for i in range(nx_loc)], dtype=np.float64)
+    lon = np.tile(lon, (ny_loc, 1)).T
+
+    lat = np.array([-90.0 + float(j)*dy + dy/2.0 for j in range(ny_loc)],
+                 dtype=np.float64)
+    lat = np.tile(lat, (nx_loc, 1))
+    grid = pyoasis.Grid('pyoa', nx_global, ny_global, lon, lat, partition)
 
 To write the grid cell corner longitudes and latitudes, the
 ``set_corners`` method can be used ::
-  [...]
-  ncrn = 4
-  clo = pyoasis.asarray(np.zeros((nx_loc, ny_loc, ncrn), dtype=np.float64))
-  clo[:, :, 0] = lon[:, :] - dx/2.0
-  clo[:, :, 1] = lon[:, :] + dx/2.0
-  clo[:, :, 2] = clo[:, :, 1]
-  clo[:, :, 3] = clo[:, :, 0]
-  cla = pyoasis.asarray(np.zeros((nx_loc, ny_loc, ncrn), dtype=np.float64))
-  cla[:, :, 0] = lat[:, :] - dy/2.0
-  cla[:, :, 1] = cla[:, :, 0]
-  cla[:, :, 2] = lat[:, :] + dy/2.0
-  cla[:, :, 3] = cla[:, :, 2]
 
-  grid.set_corners(clo, cla)
+    [...]
+    ncrn = 4
+    clo = pyoasis.asarray(np.zeros((nx_loc, ny_loc, ncrn), dtype=np.float64))
+    clo[:, :, 0] = lon[:, :] - dx/2.0
+    clo[:, :, 1] = lon[:, :] + dx/2.0
+    clo[:, :, 2] = clo[:, :, 1]
+    clo[:, :, 3] = clo[:, :, 0]
+    cla = pyoasis.asarray(np.zeros((nx_loc, ny_loc, ncrn), dtype=np.float64))
+    cla[:, :, 0] = lat[:, :] - dy/2.0
+    cla[:, :, 1] = cla[:, :, 0]
+    cla[:, :, 2] = lat[:, :] + dy/2.0
+    cla[:, :, 3] = cla[:, :, 2]
+
+    grid.set_corners(clo, cla)
 
 To write the grid cell areas, the
 ``set_area`` method can be used : ::
-  [...]
-  area = np.zeros((nx_loc, ny_loc), dtype=np.float64)
-  area[:, :] = dp_conv * \
-             np.abs(np.sin(cla[:, :, 2] * dp_conv) -
-                    np.sin(cla[:, :, 0] * dp_conv)) * \
-             np.abs(clo[:, :, 1] - clo[:, :, 0])
 
-  grid.set_area(area)
+    [...]
+    area = np.zeros((nx_loc, ny_loc), dtype=np.float64)
+    area[:, :] = dp_conv * \
+               np.abs(np.sin(cla[:, :, 2] * dp_conv) -
+                      np.sin(cla[:, :, 0] * dp_conv)) * \
+               np.abs(clo[:, :, 1] - clo[:, :, 0])
+
+    grid.set_area(area)
 
 To define the mask of the grid, the ``set_mask`` method can be used (here
 a mask where all points have zero value i.e. are valid). Notice the optional
 argument ``companion`` providing the name of the corresponding ocean
 grid from which the masks and fractions are obtained: ::
-  msk = np.zeros((nx_loc, ny_loc), dtype=np.int32)
-  grid.set_mask(msk, companion=None)
+
+    msk = np.zeros((nx_loc, ny_loc), dtype=np.int32)
+    grid.set_mask(msk, companion=None)
 
 To define the grid cell water fraction,
 the ``set_frac`` method can be used: ::
-  frc = np.ones((nx_loc, ny_loc), dtype=np.float64)
-  frc = np.where(msk == 1, 0.0, 1.0)
-  grid.set_frac(frc, companion=None)
+
+    frc = np.ones((nx_loc, ny_loc), dtype=np.float64)
+    frc = np.where(msk == 1, 0.0, 1.0)
+    grid.set_frac(frc, companion=None)
 
 To define the grid cell angles,
 the ``set_angle`` method can be used: ::
-  angle = np.zeros((nx_loc, ny_loc), dtype=np.float64)
-  grid.set_angle(angle)
-   
+
+    angle = np.zeros((nx_loc, ny_loc), dtype=np.float64)
+    grid.set_angle(angle)
+
 
 Declaring the coupling data
-+++++++++++++++++++++
++++++++++++++++++++++++++++
 
 The coupling data is handled by the class **Var**. Its constructor requires
 its symbolic name, as it appears in the ``namcouple`` file, the partition and a flag indicating whether the
@@ -285,6 +299,7 @@ have the values ``pyoasis.OasisParameters.OASIS_OUT`` or
 ``pyoasis.OasisParameters.OASIS_IN``. In the following example, we wish
 to send data to a process having the rank 1 and we use a partition that was
 previously created.::
+
     data_name = "name"
     variable = pyoasis.Var(data_name, partition,
                            pyoasis.OasisParameters.OASIS_OUT)
@@ -292,11 +307,12 @@ previously created.::
 In the case of the receiving model, the code is: ::
 
     data_name = "name"
-    variable = pyoasis.Var(data_name, partition,            
+    variable = pyoasis.Var(data_name, partition,
                            pyoasis.OasisParameters.OASIS_IN)
 
 The property ``is_active`` can be tested to check if the variable is
 activated in the ``namcouple`` configuring file: ::
+
   variable2 = pyoasis.Var("NOTANAME", partition, OASIS.OUT)
   if variable2.is_active:
        print("{} is active".format(variable2))
@@ -306,6 +322,7 @@ activated in the ``namcouple`` configuring file: ::
 The coupling period(s) of the data, as defined in the ``namcouple``, can be
 accessed with the property ``cpl_freqs`` and the number of coupling exchanges in
 which the data is involved by ``len(cpl_freqs)``::
+
   var_1 = pyoasis.Var("FRECVATM_1", partition, OASIS.IN)
   print("Recv_one: coupling frequencies for {} = ".format(var_1.name),
   var_1.cpl_freqs)
@@ -325,7 +342,7 @@ OASIS3-MCT User Guide. ::
 
 
 Ending the definition phase
-+++++++++++++++++++++
++++++++++++++++++++++++++++
 
 We must end the definition of the component by calling the ``enddef()``
 method. ::
@@ -340,8 +357,9 @@ Sending and receiving data
 
 pyOASIS expects data to be provided as a **pyoasis.asarray** object:
 ::
+
      field = pyoasis.asarray(range(n_points))
-     
+
 This is a Numpy array but ordered in the Fortran way.
 In C, multidimensional arrays store data in row-major order where
 contiguous elements are accessed by incrementing the rightmost index
@@ -351,18 +369,18 @@ use that ordering as well. Fortran, on the other hand, uses column-major
 order. In that case, contiguous elements are accessed by incrementing
 the leftmost index. **pyoasis.asarray** objects use the same ordering as
 Fortran. As a consequence, it is not necessary to transform data in order to
-use it in the OASIS3-MCT Fortran library. ::
+use it in the OASIS3-MCT Fortran library.
 
 The sending and receiving actions may be called by the component at
 each timestep. The date argument is automatically analysed and actions
 are actually performed only if date corresponds to a time for which it
 should be activated, given the period indicated by the user in the
-namcouple. See OASIS3-MCT User Guide section 2.2.7 for details. ::
+namcouple. See OASIS3-MCT User Guide section 2.2.7 for details.
 
 The data is sent with the following function. ::
-   
-   date = int(0)
-   variable.put(date, field)
+
+    date = int(0)
+    variable.put(date, field)
 
 Conversely, it is received with the function ::
 
@@ -372,15 +390,16 @@ This will fill the
 **pyoasis.asarray** object.
 
 Termination
-++++++++++
++++++++++++
 
-Finally, the coupling is terminated in the destructor of 
+Finally, the coupling is terminated in the destructor of
 the component: ::
-  del comp
+
+    del comp
 
 
 Exceptions and aborting
-++++++++++
++++++++++++++++++++++++
 
 When an error occurs in OASIS3-MCT, the code coupler returns an error
 code and an **OasisException** is raised. In practice, OASIS3-MCT will
@@ -402,14 +421,14 @@ name : ::
         pyoasis.pyoasis_abort(exception)
 
 The function ``pyoasis.pyoasis_abort`` takes an exception as argument.
-It stops the execution  of all the processes after having displayed an error message and 
-written information in the log files about the error and the context in 
+It stops the execution  of all the processes after having displayed an error message and
+written information in the log files about the error and the context in
 which it took place.
 
-Another function is available, ``pyoasis.oasis_abort``, 
+Another function is available, ``pyoasis.oasis_abort``,
 for the cases where a voluntary abort is needed in the code where or
-not an exception has been raised. Its interface mimics the 
-corresponding OASIS3-MCT functio ``oasis_abort``. 
+not an exception has been raised. Its interface mimics the
+corresponding OASIS3-MCT functio ``oasis_abort``.
 
 
 Examples
@@ -441,14 +460,14 @@ The sender and receiver start in the same way.
 differ. In the sender, the variable data is initialised
 by ::
 
-    variable = pyoasis.Var("FSENDOCN", partition, 
+    variable = pyoasis.Var("FSENDOCN", partition,
                           pyoasis.OasisParameters.OASIS_OUT)
 
 whereas, in the receiver, we have ::
 
     variable = pyoasis.Var("FRECVATM", partition,
                           pyoasis.OasisParameters.OASIS_IN)
-		       
+
 where the last flag is instead ``pyoasis.OasisParameters.OASIS_IN``
 to indicate that, in this case, the data will be incoming.
 
@@ -490,7 +509,7 @@ receives its share of the data as previously. In the sender, we have ::
     field = pyoasis.asarray(numpy.zeros(local_size))
     for i in range(local_size):
         field[i] = offset + i
-    variable.put(date, field)  
+    variable.put(date, field)
 
 
 while, in the receiver, ::
@@ -539,21 +558,23 @@ local size ::
    call oasis_terminate(kinfo)
 
 
-API reference 
+API reference
 -------------
 
 .. autoclass:: pyoasis.Component
                :members:
-		  	      
+
 .. autoclass:: pyoasis.SerialPartition
 
 .. autoclass:: pyoasis.ApplePartition
 
 .. autoclass:: pyoasis.BoxPartition
-	       
+
 .. autoclass:: pyoasis.OrangePartition
 
 .. autoclass:: pyoasis.PointsPartition
+
+.. autoclass:: pyoasis.CubePartition
 
 .. autofunction:: pyoasis.OasisParameters()
 
@@ -561,27 +582,27 @@ API reference
 
 .. autoclass:: pyoasis.Var
                :members:
- 
+
 .. autoclass:: pyoasis.Grid
                :members:
-		  
+
 .. autoclass:: pyoasis.OasisException
 
 .. autoclass:: pyoasis.PyOasisException
-	       
+
 .. autofunction:: pyoasis.pyoasis_abort
 
 .. autofunction:: pyoasis.oasis_abort
 
 
 Correspondence with the OASIS3-MCT Fortran API
----------------------------------------
+----------------------------------------------
 
-These tables show the correspondence between the functions 
+These tables show the correspondence between the functions
 described in the OASIS3-MCT user guide and their analogue in pyoasis.
 All the functions have been implemented with their full interface
 except ``put`` which, in the case of pyoasis, accepts only
-a single field. 
+a single field.
 
 
 Component
@@ -601,10 +622,10 @@ Component
 | oasis_set_couplcomm(couplcomm,     | set_couplcomm(couplcomm)          |
 | kinfo)                             |                                   |
 +------------------------------------+-----------------------------------+
-| oasis_get_multi_intracomm(newcomm, | get_multi_intracomm(complist)     | 
+| oasis_get_multi_intracomm(newcomm, | get_multi_intracomm(complist)     |
 | cdnam, root_ranks, kinfo)          |                                   |
 +------------------------------------+-----------------------------------+
-| oasis_get_intracomm(newcomm, cdnam,| get_intracomm(compname)           | 
+| oasis_get_intracomm(newcomm, cdnam,| get_intracomm(compname)           |
 | kinfo)                             |                                   |
 +------------------------------------+-----------------------------------+
 | oasis_get_intercomm(newcomm,       | get_intercomm(compname)           |
@@ -635,9 +656,15 @@ Partition
 |                                    |   global_extent_x, global_size=-1,|
 |                                    |   name="")                        |
 |                                    | OrangePartition(offsets, extents, |
-|                                    |   global_size=-1, name="")        | 
+|                                    |   global_size=-1, name="")        |
 |                                    | PointsPartition(global_indices,   |
 |                                    |   global_size=-1, name="")        |
+|                                    | CubePartition(global_offset,      |
+|                                    |   local_extent_x, local_extent_y, |
+|                                    |   global_extent_x,                |
+|                                    |   global_extent_y,                |
+|                                    |   global_extent_z, global_size=-1,|
+|                                    |   name="")                        |
 +------------------------------------+-----------------------------------+
 
 Var
@@ -646,13 +673,13 @@ Var
 +------------------------------------+-----------------------------------+
 | OASIS3-MCT                         | pyoasis.var.                      |
 +====================================+===================================+
-| oasis_def_var(var_id, name,        | __init__(name, partition, inout,  | 
+| oasis_def_var(var_id, name,        | __init__(name, partition, inout,  |
 |   il_part_id, var_nodims, kinout,  |   bundle_size=1)                  |
 |   var_actual_shape, vartype,       |                                   |
 |   ierror)                          |                                   |
 +------------------------------------+-----------------------------------+
-| oasis_put(varid, date, fld1, info, | put(date, field,                  |
-| fld2, fld3, fld4, fld5,            |   write_restart=False)            |
+| oasis_put(varid, date, fld1, info, | put(date, field, fracwgt=None,    |
+| fld2, fld3, fld4, fld5, fracwgt,   |   write_restart=False)            |
 | write_restart)                     |                                   |
 +------------------------------------+-----------------------------------+
 | oasis_get(varid, date, fld, info)  | get(date, field)                  |
@@ -685,7 +712,7 @@ Grid
 |   nx_global, ny_global,         |                              |
 |   area, il_partid)              |                              |
 +---------------------------------+------------------------------+
-| oasis_write_mask(cgrid,         | set_mask(mask,               | 
+| oasis_write_mask(cgrid,         | set_mask(mask,               |
 |   nx_glo, ny_glo, mask,         |   companion=None)            |
 |   part_id, companion)           |                              |
 +---------------------------------+------------------------------+
@@ -704,7 +731,7 @@ Utilities
 +++++++++
 
 +---------------------------------+-------------------------------+
-| OASIS3-MCT                      | pyoasis.                      | 
+| OASIS3-MCT                      | pyoasis.                      |
 +=================================+===============================+
 |oasis_abort(compid, routinename, | oasis_abort(component_id,     |
 |  abortmessage, rcode)           |   routine, message, filename, |
@@ -750,37 +777,37 @@ OASIS3-MCT Installation
     make -f TopMakefile realclean
     make -f TopMakefile pyoasis
 
-- Append the lines displayed at the end of the compilation to your .bashrc file or, alternatively, before using pyOASIS, source the script mentioned there. 
+- Append the lines displayed at the end of the compilation to your .bashrc file or, alternatively, before using pyOASIS, source the script mentioned there.
 
 Virtual Python environment
-................
+..........................
 
 - Create a virtual environment (set ``VENVDIR`` as a directory of your choice containing the virtual environment): ::
 
-    export VENVDIR=~/INSTALL/PY_ENV/PyO   
+    export VENVDIR=~/INSTALL/PY_ENV/PyO
     python3 -m venv ${VENVDIR}
     source ${VENVDIR}/bin/activate
-    
+
 - Install packages: ::
-    
+
     pip install --upgrade pip
     pip install mpi4py
-    pip install numpy 
+    pip install numpy
     pip install netcdf4
 
-Extra software 
+Extra software
 ..............
 
-- For applications using Cartopy plots, as in the examples ``11-test-interpolation`` and ``12-grid-functions`` : :: 
-    
+- For applications using Cartopy plots, as in the examples ``11-test-interpolation`` and ``12-grid-functions`` : ::
+
     pip install scipy
     pip install matplotlib
-    pip uninstall shapely   
+    pip uninstall shapely
     pip install shapely --no-binary shapely
     pip install cartopy
 
 - Optional package for performances optimisation: ::
-    
+
     pip install pykdtree
 
 
@@ -793,17 +820,17 @@ Prerequisites
 Refer to the GNU/Linux section.
 
 If using Brew (tested with gnu up to version 10.2.0): ::
-   
-   brew install gcc   
+
+   brew install gcc
    brew install openblas
    brew install openmpi
 
 For the optional packages: ::
-  
+
    brew install geos
    brew install proj
 
-   
+
 OASIS3-MCT Installation
 .......................
 
@@ -816,20 +843,20 @@ Virtual Python environment
 - Create a virtual environment:
 
     Same as under GNU/Linux, see previous section.
-    
+
 - Install packages: ::
 
     pip install mpi4py
-    pip uninstall numpy 
+    pip uninstall numpy
     pip cache remove numpy
     OPENBLAS="$(brew --prefix openblas)" pip install --global-option=build-ext numpy
     pip install netcdf4
 
-Extra software 
+Extra software
 ..............
 
 - For applications using Cartopy plots, as in the examples ``11-test-interpolation`` and ``12-grid-functions``: ::
-    
+
     pip uninstall scipy
     pip cache remove scipy
     pip install --global-option=build-ext scipy
@@ -837,9 +864,9 @@ Extra software
     pip install shapely --no-binary shapely
     pip install matplotlib
     pip install cartopy
-    
+
 - Optional package for performances optimisation: ::
-    
+
     pip install pykdtree
 
 Set up the environment
@@ -855,7 +882,7 @@ Documentation
 
 If pyOASIS is modified, this document can be regenerated, using Sphinx,
 by typing the following command in the directory ${OASIS_ROOT}/pyoasis::
-  
+
    make doc
 
 
@@ -866,7 +893,7 @@ This work has been financed by the IS-ENES3 project which has received funding f
 
 .. image:: euflag.png
 
-  
+
 Index and search
 ----------------
 
