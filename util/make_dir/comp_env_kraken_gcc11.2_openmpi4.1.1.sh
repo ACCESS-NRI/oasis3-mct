@@ -17,3 +17,4 @@ echo `which mpirun`
 export MPIRUN=mpirun
 module load lib/phdf5/1.10.8_gcc112_ompi411
 module load lib/netcdf-fortran/4.4.4_phdf5_1.10.8_ompi_gcc112
+module load tools/nco/4.7.6

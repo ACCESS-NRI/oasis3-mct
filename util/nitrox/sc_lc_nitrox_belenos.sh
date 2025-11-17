@@ -5,6 +5,21 @@ export debug=$2
 export oasis_belenos=${workdir}/oasis3-mct/util/nitrox
 export envtests_belenos=${workdir}/oasis3-mct/util/env_tests
 
+###############################################
+# comp_env_${OASIS_ENV}.sh and make.${OASIS_ENV} must exist
+###############################################
+if [ -z "${OASIS_ENV}" ]; then
+  echo "ERROR OASIS_ENV not defined"
+  exit -9
+fi
+
+if [ -z "${OASIS_COUPLE}" ]; then
+  echo "ERROR OASIS_COUPLE not defined"
+  exit -9
+fi
+
+${OASIS_COUPLE}/util/make_dir/comp_env_${OASIS_ENV}.sh
+
 declare -a StringArrayv1=("compile" "toy_1f1grd_to_2f2grd" "toy_auxiliary_routines" \
                           "toy_bundle" "toy_CHECKIN_BLASOLD_BLASNEW_CHECKOUT" \
                           "toy_configuration_components_A" "toy_configuration_components_ABCGH" \

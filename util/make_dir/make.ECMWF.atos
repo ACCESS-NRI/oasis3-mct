@@ -51,7 +51,11 @@ F2C_LIBS    = -lm
 #
 # CPP keys and compiler options
 #
-CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
+ifeq ($(OASIS_LOCTRANS_RESTARTS), )
+    CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
+else
+    CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY -DLOCTRANS_RESTARTS
+endif
 #
 FCBASEFLAGS  = -O0 -ffree-line-length-0 -fopenmp 
 CCBASEFLAGS  = -fopenmp

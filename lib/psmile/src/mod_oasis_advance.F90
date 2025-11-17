@@ -220,7 +220,7 @@ contains
            WRITE(nulprt,*) '----------------------------------------------------------------'
            CALL oasis_flush(nulprt)
        ENDIF
-
+#ifdef LOCTRANS_RESTARTS
        !------------------------------------------------
        !>   * Read restart for LOCTRANS fields.
        !>     Do after restart and advance above because prism_advance_run
@@ -334,7 +334,7 @@ contains
              enddo
           endif
        endif
-
+#endif
     ENDIF  ! valid
     enddo  ! npc
     ENDDO  ! cplid
@@ -557,6 +557,15 @@ contains
        endif
 
        !------------------------------------------------
+       !>   *  global CONSERV cannot be used with dynamic fractions
+       !------------------------------------------------
+       if (arrayonfw .and. (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul) .and. pcpointer%conserv .gt. 0) then 
+           write(nulprt,*)'The global transformation CONSERV cannot be used with dynamic fractions (option "fracwgt")'
+           call oasis_abort(file=__FILE__,line=__LINE__)
+       endif
+
+
+       !------------------------------------------------
        !>   *  set a bunch of local variables
        !------------------------------------------------
        rouid   = pcpointer%routerid
@@ -690,7 +699,9 @@ contains
                 endif
 
                 if (didread1) readabort = .false.
-                write(vstring,'(a,i1.1,i6.6,a)') 'av',n,pcpointer%namID,'_'
+                ! SV For backward compatibility for high order fields
+                ! write(vstring,'(a,i1.1,i6.6,a)') 'av',n,pcpointer%namID,'_'
+                write(vstring,'(a,i1.1,a)') 'av',n,'_'
                 CALL oasis_io_read_avfile(TRIM(rstfile),avtmp,prism_part(partid)%pgsmap,prism_part(partid)%mpicom, &
                                           abort=readabort,nampre=vstring,didread=didread)
                 if (didread) then
@@ -1172,25 +1183,26 @@ contains
 
              call oasis_debug_note(subname//' copy to av: max')
              cstring = 'max'
-             pcpointer%avcnt(nfav) = 1
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
              if (pcpointer%avcnt(nfav) == 0) then
                 pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav)
              else
                 pcpointer%avect1%rAttr(nfav,1:nsav) = max(pcpointer%avect1%rAttr(nfav,1:nsav),array1din(1:nsav))
+
              endif
+             pcpointer%avcnt(nfav) = 1
 
           elseif (pcpointer%trans == ip_min) then
 
              call oasis_debug_note(subname//' copy to av: min')
              cstring = 'min'
-             pcpointer%avcnt(nfav) = 1
              if (kinfo == OASIS_OK) kinfo = OASIS_LocTrans
              if (pcpointer%avcnt(nfav) == 0) then
                 pcpointer%avect1%rAttr(nfav,1:nsav) = array1din(1:nsav)
              else
                 pcpointer%avect1%rAttr(nfav,1:nsav) = min(pcpointer%avect1%rAttr(nfav,1:nsav),array1din(1:nsav))
              endif
+             pcpointer%avcnt(nfav) = 1
 
           else
              write(nulprt,*) subname,estr,'transform not known for var = ',trim(vname),pcpointer%trans
@@ -1425,7 +1437,7 @@ contains
           if (len_trim(rstfile) > 0) then
           if (getput == OASIS3_PUT .and. &
               ((mseclag == maxtime .and. lag > 0) .or. &
-               (msec + dt >= maxtime .and. (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul)) .or. &
+               ! (msec + dt >= maxtime .and. (pcpointer%trans == ip_average .or. pcpointer%trans == ip_accumul)) .or. &
                (pcpointer%writrest))) then
              call oasis_debug_note(subname//' lag restart write')
 
@@ -1441,41 +1453,51 @@ contains
              if (local_timers_on) call oasis_timer_start(tstring)
              if (ET_debug) CALL oasis_lb_measure(cplid,LB_RST,msec)
 
+#ifdef LOCTRANS_RESTARTS 
              write(vstring,'(a,i6.6,a)') 'a',pcpointer%namID,'_cnt'
              CALL oasis_io_write_array(rstfile2,prism_part(partid)%mpicom,iarray=pcpointer%avcnt,&
                                        ivarname=TRIM(vstring))
-!tcxx             ! for backwards compatibility
-             write(vstring,'(a,i6.6,a)') 'av1',pcpointer%namID,'_'
-!tcxx             vstring = ""
+#endif
+!tcxx        ! for backwards compatibility
+             !SV write(vstring,'(a,i6.6,a)') 'av1',pcpointer%namID,'_'
+             vstring = ""
              call oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
-             write(vstring,'(a,i6.6,a)') 'av1m',pcpointer%namID,'_'
-             call oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
-                prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=trim(vstring))
+             if (arrayonfw) then
+                write(vstring,'(a,i6.6,a)') 'av1m',pcpointer%namID,'_'
+                call oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
+                   prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=trim(vstring))
+             endif
              if (pcpointer%aVon(2)) then
-                write(vstring,'(a,i6.6,a)') 'av2',pcpointer%namID,'_'
+                ! write(vstring,'(a,i6.6,a)') 'av2',pcpointer%namID,'_'
+                write(vstring,'(a)') 'av2_'
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect2, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              endif
              if (pcpointer%aVon(3)) then
-                write(vstring,'(a,i6.6,a)') 'av3',pcpointer%namID,'_'
+                ! write(vstring,'(a,i6.6,a)') 'av3',pcpointer%namID,'_'
+                write(vstring,'(a)') 'av3_'
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect3, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              endif
              if (pcpointer%aVon(4)) then
-                write(vstring,'(a,i6.6,a)') 'av4',pcpointer%namID,'_'
+                ! write(vstring,'(a,i6.6,a)') 'av4',pcpointer%namID,'_'
+                write(vstring,'(a)') 'av4_'
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect4, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              endif
              if (pcpointer%aVon(5)) then
-                write(vstring,'(a,i6.6,a)') 'av5',pcpointer%namID,'_'
+                ! write(vstring,'(a,i6.6,a)') 'av5',pcpointer%namID,'_'
+                write(vstring,'(a)') 'av5_'
                 call oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                    prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
              endif
-             if (pcpointer%aVonfw) then
-                write(vstring,'(a,i6.6,a)') 'avfw',pcpointer%namID,'_'
-                call oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
-                   prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
+             if (arrayonfw) then
+                if (pcpointer%aVonfw) then
+                   write(vstring,'(a,i6.6,a)') 'avfw',pcpointer%namID,'_'
+                   call oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
+                      prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=trim(vstring))
+                endif
              endif
              if (ET_debug) CALL oasis_lb_measure(cplid,LB_RST,msec)
              if (local_timers_on) call oasis_timer_stop(tstring)
@@ -1756,7 +1778,7 @@ contains
        endif   ! comm_now
 
        pcpointer%ctime = msec
-
+#ifdef LOCTRANS_RESTARTS
        !------------------------------------------------
        !>   * at the end of the run only,  save fields associated
        !>     with non-instant loctrans operations to restart files
@@ -1787,9 +1809,11 @@ contains
           CALL oasis_io_write_avfile(rstfile2,pcpointer%avect1, &
              prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
 
-          write(vstring,'(a,i6.6,a)') 'av1mloc',pcpointer%namID,'_'
-          CALL oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
-             prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=TRIM(vstring))
+          if (arrayonfw) then
+             write(vstring,'(a,i6.6,a)') 'av1mloc',pcpointer%namID,'_'
+             CALL oasis_io_write_avfile(rstfile2,pcpointer%avect1m, &
+                prism_part(part2)%pgsmap,prism_part(partid)%mpicom,nx2,ny2,nampre=TRIM(vstring))
+          endif
 
           if (pcpointer%aVon(2)) then
              write(vstring,'(a,i6.6,a)') 'av2loc',pcpointer%namID,'_'
@@ -1811,10 +1835,12 @@ contains
              CALL oasis_io_write_avfile(rstfile2,pcpointer%avect5, &
                 prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
           endif
-          if (pcpointer%aVonfw) then
-             write(vstring,'(a,i6.6,a)') 'avfwloc',pcpointer%namID,'_'
-             CALL oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
-                prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
+          if (arrayonfw) then
+             if (pcpointer%aVonfw) then
+                write(vstring,'(a,i6.6,a)') 'avfwloc',pcpointer%namID,'_'
+                CALL oasis_io_write_avfile(rstfile2,pcpointer%aVectfw, &
+                   prism_part(partid)%pgsmap,prism_part(partid)%mpicom,nx,ny,nampre=TRIM(vstring))
+             endif
           endif
           if (ET_debug) CALL oasis_lb_measure(cplid,LB_TRN,msec)
           if (local_timers_on) call oasis_timer_stop(tstring)
@@ -1837,7 +1863,7 @@ contains
              enddo
           endif
        ENDIF
-
+#endif
        !------------------------------------------------
        !>   * GET only, unpack avect1 if it's newly received
        !------------------------------------------------
@@ -2210,6 +2236,7 @@ contains
 
     IF (PRESENT(conserv)) THEN
     call oasis_debug_note(subname//' conserv')
+    !
     IF (conserv /= ip_cnone) THEN
 
        !-------------------
@@ -2900,8 +2927,9 @@ contains
 ! tcraig, turn off area and fraction weighting here, partly due to complexity
 ! associated with new fracwgt put option.  Can recover the fraction/area weight
 ! with the CPP DIAG_WITH_AREAFRAC
+! SValcke: removed CPP key DIAG_WITH_AREAFRAC as this should be the default behaviour
 
-#ifdef DIAG_WITH_AREAFRAC
+!#ifdef DIAG_WITH_AREAFRAC
     if (prism_part(partid)%areaflag .or. prism_part(partid)%fracflag) then
        if (prism_part(partid)%areaflag) then
           if (size(prism_part(partid)%area) /= lsize) then
@@ -2928,10 +2956,10 @@ contains
        dowsum = .false.
        notes = trim(notes)//':unweighted'
     endif
-#else
-    dowsum = .false.
-    notes = trim(notes)//':unweighted'
-#endif
+!#else
+!    dowsum = .false.
+!    notes = trim(notes)//':unweighted'
+!#endif
 
     lcnt = 0
     lsum = 0.0_ip_r8_p
@@ -3028,10 +3056,10 @@ contains
                                              '     max val at   = ','(',igloc,',',jgloc,')',ngloc,trim(itemc)
              write(nulprt,'(a,g24.16,1x,a)') '  unweighted mean = ',gsum(m)/gcnt,trim(itemc)
              if (dowsum) &
-             write(nulprt,'(a,g24.16,1x,a)') '  weighted mean   = ',gsxw(m)/gswt,trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  weighted mean (WARNING: NOT EXACT WITH FRACWGT OPTION) = ',gsxw(m)/gswt,trim(itemc)
              write(nulprt,'(a,g24.16,1x,a)') '  unweighted sum  = ',gsum(m),trim(itemc)
              if (dowsum) &
-             write(nulprt,'(a,g24.16,1x,a)') '  weighted sum    = ',gsxw(m),trim(itemc)
+             write(nulprt,'(a,g24.16,1x,a)') '  weighted sum (WARNING: NOT EXACT WITH FRACWGT OPTION) = ',gsxw(m),trim(itemc)
           endif
        enddo
        write(nulprt,*) ' '

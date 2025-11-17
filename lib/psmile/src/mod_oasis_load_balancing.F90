@@ -1086,7 +1086,7 @@ module mod_oasis_load_balancing
                write(nulet,'(a16,f8.3)') ' Total jitter : ', g_lb_diag_buff(3,n)
                WRITE(nulet,*) ' '
                write(nulet,'(a29,f6.2)') ' Partial coupling cost (%) : ', g_lb_diag_buff(4,n)
-               write(nulet,'(a56,f6.2)') ' Partial coupling cost including OASIS operations (%) : ', g_lb_diag_buff(5,n)
+               write(nulet,'(a56,f8.2)') ' Partial coupling cost including OASIS operations (%) : ', g_lb_diag_buff(5,n)
                WRITE(nulet,*) ' '
                WRITE(nulet,*) ' '
                WRITE(nulet,*) ' OASIS Operations : '

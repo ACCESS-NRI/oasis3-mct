@@ -55,20 +55,20 @@ CC          = $(MPIBIN)/mpicc -I$(MPI_INCLUDE)
 YCC = $(MPIBIN)/mpicc
 YFC = $(MPIBIN)/mpif90
 ifeq ($(OASIS_DEBUG), )
-# optimisation safe
-YCFLAGS  = -O2
-YFCFLAGS = -O2
+    # optimisation safe
+    YCFLAGS  = -O2
+    YFCFLAGS = -O2
 else
-# optimisation debug
-YCFLAGS  = -O0 -g
-YFCFLAGS = -O0 -g
+    # optimisation debug
+    YCFLAGS  = -O0 -g
+    YFCFLAGS = -O0 -g
 endif
 #
 # YAC libraries options for models and toys link
 # Leave empty if YAC not enabled
 ifeq ($(ENABLE_YAC),YES)
-YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
-              -lyac_utils -lyac_core -lyaxt_c -llapack -lblas
+    YAC_LIBRARY = -L$(ARCHDIR)/lib -Wl,-rpath,$(ARCHDIR)/lib \
+                  -lyac_utils -lyac_core -lyaxt_c -llapack -lblas
 endif
 # Static archiver
 AR          = ar
@@ -83,26 +83,30 @@ F2C_LIBS    = -lmpi_mpifh -lgfortran -lm
 #
 # CPP keys and compiler options
 #
-CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
+ifeq ($(OASIS_LOCTRANS_RESTARTS), )
+    CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
+else
+    CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY -DLOCTRANS_RESTARTS
+endif
 #
 FCBASEFLAGS := -fallow-argument-mismatch -ffree-line-length-0
 CCBASEFLAGS :=
 ifeq ($(OASIS_DEBUG), )
-	ifeq ($(OASIS_OPENMP), )
-		FCBASEFLAGS += -O2
-		CCBASEFLAGS += -O2
-	else
-		FCBASEFLAGS += -O2 -fopenmp
-		CCBASEFLAGS += -O2 -fopenmp
-	endif
+    ifeq ($(OASIS_OPENMP), )
+        FCBASEFLAGS += -O2
+        CCBASEFLAGS += -O2
+    else
+        FCBASEFLAGS += -O2 -fopenmp
+        CCBASEFLAGS += -O2 -fopenmp
+    endif
 else
-	ifeq ($(OASIS_OPENMP), )
-		FCBASEFLAGS += -g -fbounds-check
-		CCBASEFLAGS +=
-	else
-		FCBASEFLAGS += -g -fbounds-check -fopenmp
-		CCBASEFLAGS += -fopenmp
-	endif
+    ifeq ($(OASIS_OPENMP), )
+        FCBASEFLAGS += -g -fbounds-check
+        CCBASEFLAGS +=
+    else
+        FCBASEFLAGS += -g -fbounds-check -fopenmp
+        CCBASEFLAGS += -fopenmp
+    endif
 endif
 #
 # INC_DIR : includes all *mod for each library
