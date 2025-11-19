@@ -270,7 +270,7 @@ simply provide it to OASIS3-MCT with:
 
 The coupling fields sent or received by a component are usually
 scattered among the different component processes. With OASIS3-MCT,
-all processes exchanging coupling data have to describe, in a global index space, the local
+all processes exchanging coupling data have to describe, in a global index space spanning the 2D domain, the local
 partitioning of the different grids onto which the data is expressed (see \ref{subsubsec_griddef} for the grid definition).
 
 The choices detailed in the following provide a compact description of
@@ -298,7 +298,7 @@ one grid to one partition (this could cause problems with the global {\tt CONSER
   \begin{itemize}
   \item {\tt il\_part\_id [INTEGER; OUT]}: partition ID
   \item {\tt ig\_paral [INTEGER, DIMENSION(:), IN]}: vector of
-    integers describing the local grid partition in the global index space;
+    integers describing the local grid partition in the global index space spanning the 2D domain;
     has a different expression depending on the type of the partition;
     in OASIS3-MCT, 5 types of partition are supported: Serial (no
     partition), Apple, Box, Orange, and Points (see below).
@@ -435,18 +435,18 @@ each partition has to be defined with monotonically increasing global index valu
 
 \subsubsection{Cube partition}
 
-For the special case of 3D fields interpolation with user provided
-mapping matrix, OASIS3-MCT provides a partition which acts as
-a Box partition declaration at every vertical level without the need
+For the special case of 3D fields interpolation with user-provided
+mapping matrix, OASIS3-MCT supports a partition which acts as
+a Box partition at every vertical level without the need
 of repeating it. On every
-2D level, each local partition is a rectangular region of the global
+2D level, each local partition is a rectangular region of the 2D global
 domain, described by the global offset of its upper left corner, and
 its local extents in the X and Y dimensions. The global extents in the
 X and Y dimensions and the number of vertical levels must also be
 given. In this case, we have {\tt ig\_paral(1:7)}:
 \begin{itemize} 
 \item {\tt ig\_paral(1)} = 5 (indicates a Cube partition)
-\item {\tt ig\_paral(2)} = the upper left corner global offset
+\item {\tt ig\_paral(2)} = the upper left corner global offset in the 2D domain
 \item {\tt ig\_paral(3)} = the local extent in x
 \item {\tt ig\_paral(4)} = the local extent in y
 \item {\tt ig\_paral(5)} = the global extent in x.
@@ -654,7 +654,7 @@ compatibility with OASIS3-MCT\_2.0, they may still call it with any {\tt name} a
     put {\tt OASIS\_Real} (i.e. = 4) for single
     or double precision real arrays.  All coupling data is treated as
     double precision in the coupling layer, but conversion to or from
-    single precision data is supported in the interface.
+    single precision data is supported by the API.
   \item {\tt kinfo [INTEGER; OUT]}: returned error code.
   \end{itemize}
 \end{itemize}
@@ -760,9 +760,9 @@ coupling (or I/O) field.
     It will be sent only when the {\tt oasis\_put} of the last field in the group will be called; however, the field is buffered and therefore the field array can be modified in the component code when returning from the oasis\_put call.
     \item {\tt OASIS\_Ok} (=0) otherwise and no error occurred.
     \end{itemize}
-  \item {\tt fld2/fld3/fld4/fld5 [REAL, IN, OPTIONAL]}: optional $2^{nd}$/$3^{rd}$/$4^{th}$/$5^{th}$ coupling
+  \item {\tt fld2/fld3/fld4/fld5 [REAL, IN, OPTIONAL]}: optional higher-order $2^{nd}$/$3^{rd}$/$4^{th}$/$5^{th}$ coupling
     field array; 4-byte or 8-byte 1D, 2D, 3D, bundle 1D, or bundle 2D; rank and size
-    must match {\tt fld1}; needed for high-order remapping, see details below.
+    must match {\tt fld1}; needed for higher-order remapping, see details below.
   \item {\tt write\_restart [LOGICAL, IN, OPTIONAL]}: optional argument to write an
     intermediate restart file associated with the variable {\tt
       var\_id} at the current timestep; false by default. If true, the field that exists at the time of the call is written in an intermediate restart file, taking into account LOCTRANS operations. 
@@ -772,9 +772,17 @@ If multiple fields are coupled as a single operation in the model (indicated via
 Restart files are created with 9 digits in their name, corresponding to the time of the {\tt oasis\_put} call, e.g. TA000003600 rst4.nc or TC000014400 rst4.nc. An intermediate restart file associated with a LOCTRANS operation starts with TA while an intermediate standard coupling restart file starts with TC. The coupling restart filename defined in the namcouple (e.g. rst4.nc) is used to generate the name of these intermediate restart files.
 
   \item {\tt fracwgt [REAL, IN, OPTIONAL]}: optional fraction weight
-    field array; 4-byte or 8-byte 1D, 2D, 3D, bundle 1D, or bundle 2D; rank and grid size must match {\tt fld1}; number of bundles must match {\tt fld1} and in that case, {\tt fracwgt} can be different for the different bundle members or be 1. 
-This field multiplies {\tt fld1} on the source side and then is mapped and applied as a normalization term on the destination side. It may vary in time and can represent the fraction of the cell for which {\tt fld1} is valid, like an ice fraction.  
-Calling {\tt oasis\_put} with this optional argument is referred to as the {\tt fracwgt}  option in the rest of the text.
+    field array; 4-byte or 8-byte 1D, 2D, 3D, bundle 1D, or bundle 2D; {\tt fracwgt} multiplies {\tt fld1} on the source side and then is mapped and applied as a normalization term on the destination side. It may vary in time and can represent the fraction of the cell for which {\tt fld1} is valid, like an ice fraction. Calling {\tt oasis\_put} with this optional argument is referred to as the {\tt fracwgt} option in the rest of the text.
+
+\begin{itemize}
+
+\item {\tt fracwgt} rank must match {\tt fld1} rank; {\tt fracwgt} grid size must match {\tt fld1} grid size; if {\tt fld1} has a bundle dimension, then {\tt fracwgt} must have a bundle dimension that can be the same than {\tt fld1} bundle dimension (and in that case, {\tt fracwgt} can be different for the different bundle members) or that can be equal to 1 (and in that case, {\tt fracwgt} is the same for the different bundle members). 
+
+\item The {\tt fracwgt} option can only be carried out with remapping on the source model processors, ({\tt \$MAPLOC=src} in section \ref{subsec_interp}) and cannot be combined with {\tt LOCTRANS T\_MIN/T\_MAX} (see section \ref{subsec_timetrans}). 
+
+\item If higher-order transforms ({\tt CONSERV/SECOND} or {\tt BICUBIC}) are specified for the coupling fields, they are applied on the target grid without regard to {\tt fracwgt}.
+
+\end{itemize}
   \end{itemize}
 \end{itemize}
 
@@ -818,9 +826,9 @@ corresponding {\tt oasis\_put} should not be called.
   % averging/accumulating period.
 
 \item A $2^{nd}$, $3^{rd}$, $4^{th}$ and $5^{th}$ source field can be
-  passed as optional arguments for higher-order remapping. If If {\tt fld3}  is passed, {\tt fld2}  must also be passed; if {\tt fld4}  is passed, {\tt fld3}  and {\tt fld2}  must also be passed; if {\tt fld5}  is passed {\tt fld4}, {\tt fld3}  and {\tt fld2} must also be passed. If passed, the $2^{nd}$, $3^{rd}$, $4^{th}$ and $5^{th}$ set of weights present in the remapping file will be applied to these fields respectively (see section \ref{subsec_mapdata} for the remapping file format). 
+  passed as optional arguments for higher-order remapping. If {\tt fld3}  is passed, {\tt fld2}  must also be passed; if {\tt fld4}  is passed, {\tt fld3}  and {\tt fld2}  must also be passed; if {\tt fld5}  is passed {\tt fld4}, {\tt fld3}  and {\tt fld2} must also be passed. If passed, the $2^{nd}$, $3^{rd}$, $4^{th}$ and $5^{th}$ set of weights present in the remapping file will be applied to these fields respectively (see section \ref{subsec_mapdata} for the remapping file format). 
   From OASIS3-MCT\_4.0 onwards, the number of weights in the remapping file and the number of fields in the coupling restart file
-(when such a file is needed) must strictly match the number of source fields passed to the {\tt oasis\_put }.
+(when such a file is needed) must strictly match the number of source fields passed to the {\tt oasis\_put }. The higher-order restart fields in the coupling restart file must have the same name than the coupling field itself prefixed with either {\tt av2\_} , {\tt av3\_} , {\tt av4\_} , or {\tt av5\_} , see also section \ref{subsec_restartdata}.
 
 This possibility must be used for example for the higher-order {\tt
     SCRIPR/BICUBIC} remapping for which a $1^{st}$, $2^{nd}$,
@@ -835,11 +843,9 @@ This possibility must be used for example for the higher-order {\tt
   and its gradient with respect to the longitude ($\phi$) $\frac{1}{cos \theta}\frac{\delta f}{\delta \phi}$
   in that order. 
   
-  Higher-order remappings are therefore supported given that the higher-order fields are provided at each time step as {\tt oasis\_put} arguments.
+  Higher-order remappings are therefore supported given that the higher-order fields are provided at each time step as {\tt oasis\_put} arguments and given that higher-order remapping set of weights are provided in the remapping file.
 
-\item The {\tt fracwgt} option and higher-order remappings {\tt CONSERV/SECOND} or {\tt BICUBIC} can only be carried out with remapping on the source model processors, ({\tt \$MAPLOC=src} in section \ref{subsec_interp}) and cannot be combined with {\tt LOCTRANS T\_MIN/T\_MAX} (see section \ref{subsec_timetrans}). XXXXXXXXXX
-
-\item The {\tt fracwgt} option is implemented by multiplying {\tt fld1} by the {\tt fracwgt}, remapping that product on the target grid, then normalizing by the mapped {\tt fracwgt}. Higher-order transforms are then applied separately without regard to {\tt fracwgt}. XXXXXXXXXX 
+  Higher-order remappings {\tt CONSERV/SECOND} or {\tt BICUBIC} can only be carried out with remapping on the source model processors, ({\tt \$MAPLOC=src} in section \ref{subsec_interp}) and cannot be combined with {\tt LOCTRANS T\_MIN/T\_MAX} (see section \ref{subsec_timetrans}). 
 
 \item A coupling field sent by a source component can be
   associated with more than one target field and component, with different entries in the {\it namcouple} configuration
@@ -1233,9 +1239,9 @@ interfaces are defined there.
 
 \item {\tt int oasis\_c\_init\_comp(int* compid, const char* comp\_name, const bool coupled)}
   \begin{itemize}
-  \item This {\tt oasis\_c\_init\_comp} interface includes the {\tt coupled} flag but
-    NO communicator argument; use  {\tt
-      oasis\_c\_init\_comp\_with\_comm} below to indicate a
+  \item This {\tt oasis\_c\_init\_comp} interface includes the {\tt coupled} flag but no {\tt commworld}
+    argument; use  {\tt
+      oasis\_c\_init\_comp\_with\_comm} below to provide a
     communicator argument.
     \item The {\tt coupled} argument can receive the predefined mnemonic boolean constants {\tt
       OASIS\_Coupled} and {\tt OASIS\_Not\_Coupled}
@@ -1465,6 +1471,11 @@ interfaces are defined there.
   info} argument for the Fortran {\tt oasis\_put} routine, see section \ref{prismput})
   \end{itemize}
 
+\vspace{0.2cm}
+\item {\tt int oasis\_c\_put\_with\_frac(const int var\_id, const int date, const int x\_size, const int y\_size, const int bundle\_size, const int fkind, const int storage, const void* fld1, const void* fracwgt, const bool write\_restart, int* kinfo)}
+  \begin{itemize}
+  \item Same as for {\tt oasis\_c\_put} with the additional {\tt fracwgt} argument, which gives a fraction weight field array (see {\tt oasis\_put} in section \ref{subsubsec_sendingreceiving}). 
+  \end{itemize}
 \vspace{0.2cm}
 \item {\tt int oasis\_c\_get(const int var\_id, const int date, const
   int x\_size, const int y\_size, const int bundle\_size, const int

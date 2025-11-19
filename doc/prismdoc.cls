@@ -514,7 +514,7 @@
           \parbox{15cm}{
             {\PRISMDOCFont{T1}{ptm}{b}{n}{12pt}{14pt}Copyright Notice\\[0.5ex]}
             \PRISMDOCFont{T1}{ptm}{m}{n}{11pt}{13pt}
-            \copyright\ Copyright 2024 by CERFACS \\
+            \copyright\ Copyright 2025 by CERFACS \\
             All rights reserved.\\
             No parts of this document should be either reproduced or 
             commercially used without prior agreement 
@@ -528,7 +528,7 @@
             {\PRISMDOCFont{T1}{ptm}{b}{n}{12pt}{14pt}
               How to get documentation ?\\[0.5ex]}
             \PRISMDOCFont{T1}{ptm}{m}{n}{11pt}{13pt}
-            The documentation can be downloaded from the OASIS web site under the URL : \\
+            This User Guide and additional information are available on the OASIS web site under the URL : \\
             https://oasis.cerfacs.fr/en/ \\
             }}}
 

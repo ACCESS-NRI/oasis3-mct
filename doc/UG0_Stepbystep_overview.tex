@@ -32,7 +32,7 @@ fields via Message Passing Interface
 Its design philosophy, based on flexibility and minimal invasiveness,
 is close to the OASIS3-MCT approach. 
 
-For remapping the coupling fields from the source to the target grid, OASIS3-MCT includes a modified version of the SCRIP library \citep{Jones99}.
+For remapping the coupling fields from the source to the target grid, OASIS3-MCT includes a modified version of the SCRIP library \citep{Jones99} and is interfaced with YAC coupler \citep{hanke2016} \citep{hanke2019} .
 
  OASIS3-MCT also supports file I/O using NetCDF and has python and C language bindings. 
 
@@ -66,7 +66,7 @@ To use OASIS3-MCT for coupling codes, one has to follow these steps:
   {\it namcouple}.
   OASIS3-MCT supports different interpolation algorithms as described in
   chapter \ref{sec_transformations}.  Remapping files can be computed
-  online using the SCRIP library, or offline using either the SCRIP, ESMF or XIOS (see  {\tt
+  online using the SCRIP or YAC library, or offline using either the SCRIP, ESMF or XIOS (see  {\tt
   examples/regrid\_environment}, section \ref{subsec_regrid}) and read in during the run using the MAPPING
   transformation.
 
@@ -96,6 +96,8 @@ OASIS3-MCT directory structure is the following one:
                  /mct              Model Coupling Toolkit Coupling Software
                  /psmile           OASIS3-MCT coupling library
                  /scrip            SCRIP remapping library  
+                 /yac              YAC  remapping library 
+                 /yaxt	             communication layer used by YAC            
 
  - oasis3-mct/doc                  OASIS3-MCT User Guide
 
@@ -187,3 +189,8 @@ or assumes any liability or responsibility for the use of this
 SOFTWARE. If SOFTWARE is modified to produce derivative works, such
 modified SOFTWARE should be clearly marked, so as not to confuse it
 with the version available from Los Alamos National Laboratory.''
+
+\subsection{YAC license copyright statement}
+\label{sec_YAC}
+
+Copyright 2018 by DKRZ and MPI-M. 

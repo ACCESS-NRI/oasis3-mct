@@ -8,18 +8,24 @@
 \label{subsec_compile}
 
 OASIS3-MCT is a mixed MPI-OpenMP parallel code. Compiling OASIS3-MCT libraries can be done
-from the {\tt oasis3-MCT/util/make\_dir} directory
+in the {\tt oasis3-MCT/util/make\_dir} directory
 with the makefile {\tt TopMakefileOasis3}.
-
-With the new compiling environment available on OASIS3-MCT master branch since December 2022 (commit 5e9efd18), two environment variables {\tt \$(OASIS\_COUPLE)} and {\tt \$(OASIS\_ENV)} have to be defined. {\tt \$(OASIS\_COUPLE)} gives the location of the coupler sources ({\tt /lib, /util, /examples}, etc. directories). {\tt \$(OASIS\_ENV)} gives the extension of the header Makefile to be used for compilation {\tt make.\$(OASIS\_ENV)}. 
+In the new OASIS3-MCT\_6.0 compiling environment,
+two environment variables {\tt \$(OASIS\_COUPLE)} and {\tt \$(OASIS\_ENV)} have to be defined:
+\begin{itemize}
+\item {\tt \$(OASIS\_COUPLE)} gives {\bf the location of the coupler sources} ({\tt /lib, /util, /examples}, etc. directories); 
+\item {\tt \$(OASIS\_ENV)} gives {\bf the extension of the header Makefile to be used for compilation}.
+\end{itemize}
 {\tt TopMakefileOasis3} includes {\tt make.inc}
-which itself includes \newline {\tt \$(OASIS\_COUPLE)/util/make\_dir/make.\$(OASIS\_ENV)} where {\tt make.\$(OASIS\_ENV)} is specific to the hardware and compiling environment used. 
-We recommend to compose {\tt \$(OASIS\_ENV)} as {\tt (computer\_name)\_(compiler\_version)\_(MPI\_library\_version)}. A file named \newline {\tt comp\_env\_\$(OASIS\_ENV).sh} must also exist the directory {\tt oasis3-mct/util/make\_dir}. It defines the computer environment for running the test examples from {\tt oasis3-mct/examples}.  
+which includes the header Makefile {\tt make.\$(OASIS\_ENV)} specific to the hardware and compiling environment used. 
+We recommend to compose {\tt \$(OASIS\_ENV)} as {\tt (computer\_name)\_(compiler\_version)\_(MPI\_library\_version)}. A file named \newline {\tt comp\_env\_\$(OASIS\_ENV).sh} should also exist the compiling directory; it defines the computer environment for running coupled model, in particular the test examples from {\tt oasis3-mct/examples}, and should to be activated in the user environment.
 
-Several header files {\tt make.\$(OASIS\_ENV)} and {\tt comp\_env\_\$(OASIS\_ENV).sh} files are distributed with the release and can by used as
-a template to create a custom file for your machine, see the files in directory {\tt oasis3-mct/util/make\_dir}. It is important to note that the coupled model components must be compiled with the same compilers and system software than the OASIS3-MCT library itself.
+Several header files {\tt make.\$(OASIS\_ENV)} and {\tt comp\_env\_\$(OASIS\_ENV).sh} files are distributed with the release and can be used as
+a template to create a custom file for your machine.
+It is important that the coupled model components be compiled with the same compilers and system software than the OASIS3-MCT library itself.
+
 After successful compilation, resulting
-libraries are found in the directory in {\tt \$(ARCHDIR)/lib}\footnote{where \$(ARCHDIR) = \$(OASIS\_COUPLE)/INSTALL\_OASIS.\$(OASIS\_ENV), see the header files} while
+libraries are found in the directory in {\tt \$(ARCHDIR)/lib}\footnote{where \$(ARCHDIR) = \$(OASIS\_COUPLE)/INSTALL\_OASIS.\$(OASIS\_ENV), see the header Makefiles} while
 object and module files are found in {\tt \$(ARCHDIR)/build-static} and {\tt \$(ARCHDIR)/build-shared}. 
 
 OASIS3-MCT has historically created static libraries for use in
@@ -37,32 +43,7 @@ supports compilation of both static and shared libraries.
 \item  {\tt shared-libs         =} shared (dynamic) OASIS3-MCT libraries including Fortran and c-bindings
 \item  {\tt pyoasis             =} builds and installs shared-libs plus higher and intermediate python classes
 \item  {\tt realclean           =} cleans and resets the build
-\end{itemize}
-
-The names of the libraries produced
-are {\it mct}, {\it mpeu},  {\it scrip}, {\it psmile.MPI1}, and {\it oasis.cbind}
-with standard prefixes ({\it lib}) and suffixes ({\it .a} or {\it .so}).
-
-The following targets have been used historically to compile
-OASIS3-MCT for Fortran 
-codes and they are all still supported:
-
-\begin{itemize}
-\item {\tt make -f TopMakefileOasis3 help}
-
-  provides a current list of available targets.
-
-\item {\tt make -f TopMakefileOasis3 realclean}
-
-  removes all OASIS3-MCT compiled sources and librairies.
-
-\item {\tt make -f TopMakefileOasis3} or
-
-      {\tt make -f TopMakefileOasis3 oasis3\_psmile}
-
-  compiles static versions of OASIS3-MCT Fortran libraries {\it mct}, {\it mpeu},
-  {\it scrip} and {\it psmile};
-
+\item  {\tt help                =} provides information about the different targets               
 \end{itemize}
 
 Log and error messages from compilation are normally saved in the directory
@@ -72,26 +53,30 @@ output will direct users to the compile output files.
 
 To interface a component code with OASIS3-MCT and use the module {\tt mod\_oasis} (see section \ref{subsubsec_Use}), it is required to include OASIS3-MCT modules from {\tt \$(ARCHDIR)/include} and link with appropriate libraries in {\tt \$(ARCHDIR)/lib} during the compilation and linking.
 
-Exchange of coupling fields in single and double precision is now supported directly through the interface 
-(see section \ref{subsubsec_Declaration}).  Single precision fields are converted to double precision fields internally and temporarily.
-For double precision coupling fields, there is no need to promote REAL variables to DOUBLE PRECISION at compilation; this is done automatically within the OASIS3-MCT library.
-
 \section{CPP keys}
 \label{subsec_cpp}
 
-The following OASIS3-MCT CPP keys can be specified in {\tt CPPDEF} in {\tt make.{\it your\_platform}} file:
+The following CPP keys can be used when compiling OASIS3-MCT, in general to be specified in the {\tt CPPDEF} variable in the header Makefile :
+
 \begin{itemize}
-\item {\tt TREAT\_OVERLAY}:  ensures, in {\tt SCRIPR/CONSERV}
+
+\item{\tt YAC\_REMAP}: to compile the YAC interpolation library, see section \ref{subsec_interp}. Note that this CPP key can be activated by specifying {\tt ENABLE\_YAC = YES} in the header Makefile.
+
+\item {\tt LOCTRANS\_RESTARTS}: to allow partial time transformations, if any, to be saved at the end of the run in the coupling restart files for exact restart of the next run. {\bf Note that this is not backward compatible as {\tt LOCTRANS} restart fields were saved by default in OASIS3-MCT\_5.0.} Although we do not recommend it as it may have unexpected side effects, this allows a run to end in the middle of a coupling period. Note that this CPP key can be activated by specifying {\tt OASIS\_LOCTRANS\_RESTARTS = YES} in the header Makefile. See section \ref{subsec_timetrans} for important remarks regarding the use of this CPP key.
+
+\item {\tt TREAT\_OVERLAY}:  to ensure, in {\tt SCRIPR/CONSERV}
   remapping (see section \ref{subsec_interp}), that if two cells of
   the source grid overlay and none is masked a priori, the one with the greater numerical
-  index will not be considered (they also can be both masked); this is mandatory
-  for this remapping. For example, if the grid line with {\it i=1} overlaps
+  index will not be considered (they also can be both masked); mandatory
+  for the remapping. For example, if the grid line with {\it i=1} overlaps
   the grid line with {\it i=imax}, it is the latter that must be masked;
   when this is not the case with the mask defined in {\it masks.nc},
-  this CPP key forces these rules to be respected.
+  this CPP key forces this rules to be respected.
 
-\item {\tt \_\_NO\_16BYTE\_REALS}:  {\bf must} be specified  if you compile
-with {\bf PGF90}.
+\item {\tt CDF\_64BIT\_DATA} : to allow choice of {\tt cdf5} for {\tt \$NCDFTYP} keyword, see section \ref{subsec_namcouplefirst}.
+
+\item {\tt \_\_NO\_16BYTE\_REALS}:  must be specified if you compile
+with PGF90.
 \end{itemize}
 
 %\item {\tt balance}: Add a MPI\_Wtime() function before and after
@@ -108,8 +93,7 @@ with {\bf PGF90}.
 \section{Examples on how to run OASIS3-MCT}
 \label{subsec_running}
 
-The following examples of running environments are provided with the
-sources in the {\tt oasis3-mct/examples} directory.
+The following examples of running environments are provided in the directory {\tt oasis3-mct/examples}.
 
 \subsection{tutorial\_communication}
 \label{subsec_tutorial}
@@ -119,9 +103,6 @@ contains the files of a tutorial on how to instrument a code with calls to the O
 
 All information about this tutorial is
 provided in the document {\tt tutorial\_communication.pdf} therein. 
-
-This tutorial is extracted from the Short Online Private Course (SPOC)
-on “Code Coupling with OASIS3-MCT” shortly described in the next section. 
 
 \subsection{spoc}
 \label{subsec_spoc}
@@ -134,8 +115,7 @@ models to set-up a real coupled model exchanging coupling fields (directory
   /spoc\_communication) and to learn more about OASIS3-MCT regridding
 functionality (directory {\tt /spoc\_regridding}). If you are interested in
 attending the SPOC, please visit the online training section of
-CERFACS web site at https://cerfacs.fr/online-training/.
-
+CERFACS web site at https://cerfacs.fr/en/online-traning-sessions/ .
 Videos and quizzes extracted from the SPOC are also available
 as Open Education Resources (OER) material at https://www.oercommons.org/courseware/lesson/85340 .
 
@@ -152,7 +132,7 @@ instructions on how to run this tutorial.
 \subsection{Fortran, C and python equivalent examples}
 \label{subsec_equivalent}
 
-Different examples implementing the different parts of the API with the Fortran, C and python interfaces are provided as practical illustrations in directory {\tt /pyoasis/examples} :
+Different examples implementing the Fortran, C and python APIs are provided as practical illustrations in directory {\tt /pyoasis/examples} :
 
 \begin{itemize}
 
@@ -165,9 +145,9 @@ Different examples implementing the different parts of the API with the Fortran,
 \item{{\tt 7-multiple-puts}}: two coupling fields are both sent from a serial sender to two different serial receivers; this example also sets up an intra communicator between the sender and one receiver and an inter communicator between the sender and the other receiver.
 \item{{\tt 8-interoperability/fortran\_and\_C}}: implements a coupling of a bundle field, with two bundle elements, between a Fortran Apple-parallel sender and a C component. This C component is Orange-parallel for the reception of the bundle field; it also defines another partition of type Box onto which a second coupling field is defined and sent to a third Fortran serial receiver. The sum of the Box partitions in the C component does not cover the global grid, hence the fourth argument {\tt ig\_size} is used to specify the grid global size. The C component also illustrates how the order of the partition definition does not need to be the same for the different processes but that, in that case, a meaningful {\tt name} fifth argument must be used.
 \item{{\tt 8-interoperability/fortran\_and\_python}}: implements the same coupling exchanges than {{\tt 8-interoperability/fortran\_and\_C}} but with the C component replaced by a python component.
-\item{{\tt 9-python\_fortran\_C-multi\_intracomm}}: illustrates the set-up of an intracommunicator between a Fortran, a C and a python components using OASIS3-MCT; a bcast is then realised to share some data. In this example, an additional component is also launched at start but does not participate in the coupling and hence uses the {\tt coupled} third argument of {\tt oasis\_initi\_comp}.
+\item{{\tt 9-python\_fortran\_C-multi\_intracomm}}: illustrates the set-up of an intracommunicator between a Fortran, a C and a python components using OASIS3-MCT; a bcast is then realised to share some data. In this example, an additional component is also launched at start but does not participate in the coupling and hence uses the {\tt coupled} third argument of {\tt oasis\_init\_comp}.
 \item{{\tt 10-grid}}: a single Box-parallel component defines and writes two grids {\tt pyoa} and {\tt mono}, the first one with distributed calls from all the processes, the second one from the master process only.
-\item{{\tt 11-test-interpolation}}: one exchange of a coupling bundle field defined on real grids involving a first-order concervative regridding between an Apple-parallel sender and a serial receiver.  In the Fortran and C examples, the grids are fixed, while in the python example, the user chooses the source and target grids interactively, among the ones available in the files available in the {\tt common\_data} directory. This example produces graphical output of the received fields if the following packages are installed
+\item{{\tt 11-test-interpolation}}: one exchange of a coupling bundle field defined on real grids involving a first-order conservative regridding with either {\tt SCRIPR} or {\tt YAC} between an Apple-parallel sender and a serial receiver.  In the Fortran and C examples, the grids are fixed, while in the python example, the user chooses the source and target grids interactively, among the ones available in the files available in the {\tt common\_data} directory. This example produces graphical output of the received fields if the following packages are installed
 \begin{itemize}
 \item pip3 install matplotlib
 \item pip3 install scipy
@@ -187,30 +167,24 @@ directory {\tt /pyoasis} using targets {\tt examples}, {\tt
 \label{subsec_debug}
 
 \subsection{Debug files}
-If you experience problems while running your coupled model with
-OASIS3-MCT, you can obtain more information on what is happening by
-increasing the {\tt \$NLOGPRT} value in your {\it namcouple}, see section
+If you experience problems while running your coupled model,  you can obtain more information in OASIS3-MCT debug files, by
+increasing the value of the first number on the line below {\tt \$NLOGPRT} in your {\it namcouple}, see section
 \ref{subsec_namcouplefirst} for details.
 
 \subsection{Time statistics files}
 \label{timestat}
 
-The variable TIMER\_Debug, defined in the {\it namcouple} (second
-number on the line below \$NLOGPRT keyword), is used to obtain time
-statistics over all the processors for each routine.
-
-Different output are written (in files named {\tt *.timers\_xxxx})
-depending on TIMER\_Debug value :
+The level of time statistics written out in files named {\tt *.timers\_xxxx} depends on the value of the second number on the line below the \$NLOGPRT keyword in the {\it namcouple} :
 
 \begin{itemize}
-\item {TIMER\_Debug=0} : nothing is calculated, nothing is written.
-\item {TIMER\_Debug=1} : the times are calculated and written in a
+\item 0 : timers are not activated, nothing is calculated, nothing is written.
+\item 1 : timers are activated and written in a
   single file by the process 0 as well as the min and the max times
   over all the processes.
-\item {TIMER\_Debug=2} : the times are calculated and each process
+\item 2 : timers are activated and each process
   writes its own file ; process 0 also writes the min and the max
   times over all the processes in its file.
-\item {TIMER\_Debug=3} : the times are calculated and each process
+\item 3 : timers are activated and each process
   writes its own file ; process 0 also writes in its file the min
   and the max times over all processes and also writes in its file
   all the results for each process.
@@ -219,8 +193,8 @@ depending on TIMER\_Debug value :
 The time given for each timer is calculated by the difference between
 calls to {\tt oasis\_timer\_start()} and {\tt oasis\_timer\_stop()}
 and is the accumulated time over the entire run. Here is an overview
-of the meaning of the different timers as implemented by default.
-\footnote{Many other measures can be obtained by defining the logical
+of the meaning of the different timers implemented by default.
+\footnote{Other measures can be obtained by defining the logical
 {\tt local\_timers\_on} as {\tt .true.} in different routines or by
 implementing other timers. Of course, OASIS3\_MCT and the model code then have to be recompiled.}
 
@@ -277,8 +251,8 @@ implementing other timers. Of course, OASIS3\_MCT and the model code then have t
  To facilitate this work, a load balancing analysis functionality is included in OASIS3-MCT and can be activated by setting to 1 the third number under {\tt \$NLOGPRT} in the  {\it namcouple} configuration file (see section \ref{subsec_namcouplefirst}). Some details on this functionality are provided here and more information can be found in the {\tt balancing\_documentation.pdf} file in {\tt
   oasis3-mct/util/load\_balancing} directory.
 
-  When activated, the load balancing analysis functionality outputs the full timeline of all OASIS3-MCT related events, for any of the allocated resources. This timeline is saved in one NetCDF file per coupled component, {\tt timeline\_XXX\_component.nc} where {\tt XXX} is the component name. It provides the comprehensive sequence of all operations related to the coupling (field send and receive through MPI, field output on disk, field interpolation and mapping, field reading on disk, restart writing, initialisation and termination phase of the OASIS3-MCT setup) so that any simulation slow down in link with the use of the OASIS3-MCT library can be identified.
+  When activated, the load balancing analysis functionality provides general computing information (simulation time, speed, waiting time, etc.) in a text file {\tt load\_balancing\_info.txt} for the coupled model and for each component; this global information can help to allocate resources in a balanced way. 
 
+This functionality also outputs the full timeline of all OASIS3-MCT related events, for any of the allocated resources. This timeline is saved in one NetCDF file per coupled component, {\tt timeline\_XXX\_component.nc} where {\tt XXX} is the component name. It provides the comprehensive sequence of all operations related to the coupling (field put and get through MPI, field output on disk, field interpolation and mapping, field reading on disk, restart writing, initialisation and termination phase of the OASIS3-MCT setup) so that any simulation slow down in link with the use of the OASIS3-MCT library can be identified.
  The analysis of the coupling field exchanges, amongst all coupling events, allows to not only identify the waste of resources by components which are recurrently waiting for their coupling fields but it also reveals other bottlenecks such as disk access or model internal load imbalance. The full picture of these events makes possible an optimal load balancing, even for the most complex configurations.
 
- In addition to the detailed timeline saved in the NetCDF file, more general computing information (simulation time, speed, waiting time, etc.) is also provided in a text file {\tt load\_balancing\_info.txt}  for the coupled model and for each component. In simple cases, this global information can help to allocate resources in a balanced way.
