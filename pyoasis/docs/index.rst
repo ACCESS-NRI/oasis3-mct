@@ -382,7 +382,14 @@ The data is sent with the following function. ::
     date = int(0)
     variable.put(date, field)
 
-Conversely, it is received with the function ::
+If the ``fracwgt`` option is activated, the dynamic fraction field also has to be provided as a ``pyoasis.asarray`` object and sent together with the field with the  ``put`` function. ::
+
+   frac = pyoasis.asarray(np.zeros((local_size), dtype=np.float64))
+   ... [fill frac with the dynamic fraction] ...
+   variable.put(date, field, fracwgt=frac)
+
+Finally, on the target side, the field
+is received with the function ::
 
     variable.get(date, field)
 
@@ -889,10 +896,7 @@ by typing the following command in the directory ${OASIS_ROOT}/pyoasis::
 Acknowledgments
 ---------------
 
-This work has been financed by the IS-ENES3 project which has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 824084.
-
-.. image:: euflag.png
-
+This work has been financed by the Agence Nationale de la Recherche - France 2030 as part of the PEPR TRACCS programme under grant number ANR-22-EXTR-0006 ; and by the IS-ENES3 project which has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 824084.
 
 Index and search
 ----------------
