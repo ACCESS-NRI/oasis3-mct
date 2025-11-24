@@ -147,7 +147,8 @@ As for the other transformations, different mappings can be specified for the di
     the source processors before communication to the destination
     model processes; this is the default.  With {\tt dst}, the mapping
     is done on the destination processes after the source grid data is
-    sent from the source model.
+    sent from the source model. Note that higher-order remappings {\tt CONSERV/SECOND} or {\tt BICUBIC} can only be carried 
+    out with remapping on the source model processors,
 
   \item {\tt \$MAPSTRATEGY} is optional and can be either {\tt bfb},
     {\tt sum}, or {\tt opt}.  In {\tt bfb} mode, the mapping is done
@@ -255,7 +256,29 @@ SCRIP parallelisation can be found in \cite{piacentini08} and
     \begin{itemize}
     \item {\tt \$CMETH = DISTWGT or DISTWGTNF}.
     \item {\tt \$CGRS} is the source grid type ({\tt LR}, {\tt D} or
-      {\tt U})- see appendix \ref{subsec_gridtypes}.
+      {\tt U}):
+      \begin{itemize}
+
+\item {\tt `LR' grid}: The longitudes and the latitudes of
+  2D Logically-Rectangular (LR) grid points can be described by two arrays
+  {\tt longitude(i,j)} and {\tt latitude(i,j)}. Streched
+  or/and rotated grids are LR grids. 
+
+\item {\tt `U' grid}: Unstructured (U) grids do have any particular
+      structure. The longitudes and the latitudes of 2D Unstructured
+      grid points must be described by two arrays {\tt
+      longitude(nbr\_pts,1)} and {\tt latitude(nbr\_pts,1)}, where {\tt nbr\_pts}
+      is the total grid size.
+
+\item {\tt `D' grid}: The Gaussian Reduced (D) grid is composed of a certain
+number of latitude circles, each one being divided into a varying
+number of longitudinal segments. The grid data (longitudes,
+latitudes, etc.) must be described by arrays dimensioned {\tt
+(nbr\_pts,1)}, where {\tt nbr\_pts} is the total number of grid
+points. There are grid points on the Greenwich meridian, but no grid point at the
+equator nor at the poles, and no overlap of the grid.
+ 
+\end{itemize}
 
     \item {\tt \$CFTYP} is the field type: {\tt SCALAR}. The option
       {\tt VECTOR}, which in fact leads to a scalar treatment of the

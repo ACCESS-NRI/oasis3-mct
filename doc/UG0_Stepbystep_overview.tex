@@ -10,14 +10,14 @@ world to couple more than 80 applications on different computing platforms\footn
 coupled models realised with OASIS3-MCT can be found at https://oasis.cerfacs.fr/en/oasis-coupled-models/}.
 OASIS3-MCT sustained development is ensured by a collaboration
 between CERFACS and the Centre National de la Recherche Scientifique
-(CNRS) and its maintainance and user support is regularly reinforced
+(CNRS) and its maintenance and user support is regularly reinforced
 with additional resources coming from European and national projects.
 
 OASIS3-MCT is a portable set of Fortran 77, Fortran 90 and C
 routines. Low-intrusiveness, portability and flexibility are
 OASIS3-MCT key design concepts. After compilation OASIS3-MCT is a
 coupling library to be linked to the component models, and which main
-function is to interpolate and exchange the coupling fields to form a coupled system.  OASIS3-MCT supports  coupling of 2D
+function is to interpolate and exchange the coupling fields between the components to form a coupled system.  OASIS3-MCT supports  coupling of 2D
 logically-rectangular fields but 3D fields and 1D fields expressed on
 unstructured grids are also supported using a one dimension
 degeneration of the structures.
@@ -32,13 +32,9 @@ fields via Message Passing Interface
 Its design philosophy, based on flexibility and minimal invasiveness,
 is close to the OASIS3-MCT approach. 
 
-For remapping the coupling fields from the source to the target grid, OASIS3-MCT includes a modified version of the SCRIP library \citep{Jones99} and is interfaced with YAC coupler \citep{hanke2016} \citep{hanke2019} .
-
- OASIS3-MCT also supports file I/O using NetCDF and has python and C language bindings. 
+To communicate with another component, a component model needs to include few specific calls to OASIS3-MCT Fortran Application Programming Interface (API).  OASIS3-MCT also has python and C language bindings. For remapping the coupling fields from the source to the target grid, OASIS3-MCT includes a modified version of the SCRIP library \citep{Jones99} and is interfaced with YAC \citep{hanke2016} \citep{hanke2019}. OASIS3-MCT also supports basic non-parallel file I/O using NetCDF .  The configuration of the coupling exchanges need to be described externally by the user in a text file, the {\it namcouple}. 
 
 The developments realised in the different versions of OASIS3-MCT are described in Appendix \ref{sec_changes}.
-To communicate with another component, or to perform I/O actions, a
-component model needs to include few specific calls to OASIS3-MCT Application Programming Interface (API).  And the configuration of the coupling exchanges need to be described externally by the user in a text file, the {\it namcouple}. 
 
 We believe that OASIS3-MCT will still provide an efficient and
 easy-to-use coupling solution for many climate modelling groups in the few years to come. 
@@ -66,14 +62,14 @@ To use OASIS3-MCT for coupling codes, one has to follow these steps:
   {\it namcouple}.
   OASIS3-MCT supports different interpolation algorithms as described in
   chapter \ref{sec_transformations}.  Remapping files can be computed
-  online using the SCRIP or YAC library, or offline using either the SCRIP, ESMF or XIOS (see  {\tt
+  online using the SCRIP or YAC library, or offline using either the SCRIP, YAC, ESMF or XIOS (see  {\tt
   examples/regrid\_environment}, section \ref{subsec_regrid}) and read in during the run using the MAPPING
   transformation.
 
 {\bf We strongly recommend to tests off-line the quality of the chosen transformations and remappings} using the environment available in {\tt
   examples/regrid\_environment} and explanations provided in the document {\tt regrid\_environment.pdf} therein. 
 
-\item Generate required auxiliary data files (see chapter
+\item Generate required auxiliary data files , if needed (see chapter
   \ref{sec_auxiliary}).
 \item Compile OASIS3-MCT, the component models and start the coupled
   experiment. For details on how to compile and run a coupled model
@@ -97,12 +93,13 @@ OASIS3-MCT directory structure is the following one:
                  /psmile           OASIS3-MCT coupling library
                  /scrip            SCRIP remapping library  
                  /yac              YAC  remapping library 
-                 /yaxt	             communication layer used by YAC            
+                 /yaxt	            communication layer used by YAC            
 
  - oasis3-mct/doc                  OASIS3-MCT User Guide
 
  - oasis3-mct/util/make_dir        Utilities to compile OASIS3-MCT
                   /load_balancing  Tool for load balancing analysis
+                  /env_tests        Script to compile and launch toy models          
                   
  - oasis3-mct/pyoasis	             Python wrapper source code
 
@@ -193,4 +190,6 @@ with the version available from Los Alamos National Laboratory.''
 \subsection{YAC license copyright statement}
 \label{sec_YAC}
 
-Copyright 2018 by DKRZ and MPI-M. 
+Copyright (c) 2024 The YAC Authors
+
+SPDX-License-Identifier: CC-BY-4.0

@@ -462,14 +462,14 @@ If needed, LOCTRANS transformations write partially
   two (or more) coupling fields are different, it is necessary to define
   two (or more) restart files, one for each field.
 
-\item Support to couple multiple fields via a single communication.
+\item Support to group multiple fields in a single communication.
 
  This is supported through colon
 delimited field lists in the {\it namcouple}, for example
 
 {\tt ATMTAUX:ATMTAUY:ATMHFLUX  TAUX:TAUY:HEATFLUX 1 3600 3 rstrt.nc EXPORTED}
 
- in a single {\it namcouple} entry. All fields will use the
+ in a single {\it namcouple} entry. All fields in this group will use the
 {\it namcouple} settings for that entry. In the component model codes,
 these fields are still sent (``put'') or received (``get'') one at a
 time. Inside OASIS3-MCT, the fields are stored and a single mapping

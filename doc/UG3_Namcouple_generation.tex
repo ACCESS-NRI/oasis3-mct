@@ -423,23 +423,23 @@ lines are described in more details in the chapter
 
 \end{itemize}
 
-{\bf Support to couple multiple fields via a single communication}
+{\bf Support to group multiple fields in a single communication}
 
-With OASIS3-MCT, it is possible to couple mutiple fields via a
+With OASIS3-MCT, it is possible to group multiple fields in a
 single communication. To activate this option, the user must list the
 related fields on a single entry line (with a maximum of 5000 characters on one line) through a colon
 delimited list in the {\it namcouple}, for example:
 
 {\tt ATMTAUX:ATMTAUY:ATMHFLUX  TAUX:TAUY:HEATFLUX 1 3600 3 rstrt.nc EXPORTED}
 
-All fields will then use the same
+All fields in this group will then use the same
 {\it namcouple} settings (source and target grids, transformations, etc.) for that entry.
 In the component model codes,
 these fields are still apparently sent or received one at a
-time through individual {\tt oasis\_put} and {\tt oasis\_get}. Inside OASIS3-MCT, the fields are stored and a single mapping
+time through individual {\tt oasis\_put} and {\tt oasis\_get}. Inside OASIS3-MCT, the fields in this group are stored and a single mapping
 and send or receive instruction is executed for all fields. This is
 useful in cases where multiple fields have the same coupling
-transformations and to reduce communication costs by aggregating multiple
+transformations to reduce communication costs by aggregating multiple
 fields into a single communication.
 
 This option does not put any constraint
