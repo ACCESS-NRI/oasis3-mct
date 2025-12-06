@@ -18,7 +18,7 @@ two environment variables {\tt \$(OASIS\_COUPLE)} and {\tt \$(OASIS\_ENV)} have 
 \end{itemize}
 {\tt TopMakefileOasis3} includes {\tt make.inc}
 which includes the header Makefile {\tt make.\$(OASIS\_ENV)} specific to the hardware and compiling environment used. 
-We recommend to compose {\tt \$(OASIS\_ENV)} as {\tt (computer\_name)\_(compiler\_version)\_(MPI\_library\_version)}. A file named \newline {\tt comp\_env\_\$(OASIS\_ENV).sh} should also exist the compiling directory; it defines the computer environment for running coupled model, in particular the test examples from {\tt oasis3-mct/examples}, and should to be activated in the user environment.
+We recommend to compose {\tt \$(OASIS\_ENV)} as {\tt (computer\_name)\_(compiler\_version)\_(MPI\_library\_version)}. A file named \newline {\tt comp\_env\_\$(OASIS\_ENV).sh} should also exist the compiling directory. It defines the computer environment for running coupled model, in particular the test examples from {\tt oasis3-mct/examples}, and should to be activated in the user environment.
 
 Several header files {\tt make.\$(OASIS\_ENV)} and {\tt comp\_env\_\$(OASIS\_ENV).sh} files are distributed with the release and can be used as
 a template to create a custom file for your machine.
@@ -129,7 +129,7 @@ SCRIP library, ESMF or XIOS. The document {\tt
   regrid\_environment\_documentation.pdf} therein contains all
 instructions on how to run this tutorial.
 
-\subsection{Fortran, C and python equivalent examples}
+\subsection{Fortran, C and python equivalent (pyoasis/examples)}
 \label{subsec_equivalent}
 
 Different examples implementing the Fortran, C and python APIs are provided as practical illustrations in directory {\tt /pyoasis/examples} :
@@ -156,6 +156,8 @@ Different examples implementing the Fortran, C and python APIs are provided as p
 \item pip3 install shapely --no-binary shapely
 \end{itemize}
 \item{\tt 12-grid-functions}: Graphical version of {{\tt 10-grid}} (i.e. the {\tt pyoa} grid layout is displayed if the same graphical packages than for {{\tt 11-test-interpolation}} are installed).
+\item {\tt 13-test-fracwgt} : illustrates the {\tt fracwgt} option, see appendix \ref{subsec_fracwgt} ; exchange of 3 coupling fields: the basic coupling field with its dynamic fractions as {\tt fragwgt} argument, the dynamic fraction field {\it per se}, the scaled coupling field (i.e. the basic coupling field multiplied by its dynamic fractions).
+\item {\tt 14-test-inter3d} : illustrates the use of a cube partition, see section \ref{Cube_partition} .
 \end{itemize}
 
 The different examples can be launched with the {\tt Makefile} from

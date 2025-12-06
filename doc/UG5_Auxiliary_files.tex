@@ -44,7 +44,7 @@ points and {\tt ny} to 1.
   \ref{subsec_namcouplesecond}), and of a suffix,{\tt .lon} or {\tt .lat}, for respectively the grid point
   longitudes or latitudes.
 
-  If the {\tt SCRIPR/CONSERV} remapping is specified, longitudes and
+  If the {\tt YAC/CONSERV} or {\tt SCRIPR/CONSERV} remapping is specified, longitudes and
   latitudes for the source and target grid {\bf corners} must also be
   available in the {\em grids.nc} file as double precision {\tt
     REAL} arrays dimensioned {\tt (nx,ny,nc)}
@@ -129,34 +129,28 @@ coupling restart files must follow the NetCDF format.
 
 The name of the coupling restart file is given by the 6th character
 string on the first configuring line for each field in the {\it
-  namcouple} and the restart field in that file must have the sympbolic name of the coupling field in the {\it
-  namcouple}, (see section \ref{subsec_namcouplesecond}). If the coupling exchange involves higher-order fields (see section \ref{subsubsec_sendingreceiving}), the higher-order restart fields in the coupling restart file must have the same name than the coupling field itself prefixed with either {\tt av2\_} , {\tt av3\_} , {\tt av4\_} , or {\tt av5\_}. For example, higher-order restart fields for the {\tt SOSSTSST} field in section \ref{subsubsec_secondEXPORTED}, if needed, would have to be named {\tt av2\_SOSSTSST}, {\tt av3\_SOSSTSST}, {\tt av4\_SOSSTSST}, and {\tt av5\_SOSSTSST}.
+  namcouple} and the restart field in that file must have the symbolic name of the coupling field in the {\it
+  namcouple}, (see section \ref{subsec_namcouplesecond}). If the coupling exchange involves higher-order fields (see section \ref{subsubsec_sendingreceiving}), the higher-order restart fields in the coupling restart file must have the same name than the coupling field itself prefixed with either {\tt av2\_} , {\tt av3\_} , {\tt av4\_} , or {\tt av5\_}. For example, higher-order restart fields for the {\tt SOSSTSST} field in section \ref{subsubsec_secondEXPORTED}, if needed, would be named {\tt av2\_SOSSTSST}, {\tt av3\_SOSSTSST}, {\tt av4\_SOSSTSST}, and {\tt av5\_SOSSTSST}. These fields have to be provided on the
+source grid in single or double precision REAL arrays and, as the grid data files, must be dimensioned {\tt (nx, ny)}, where {\tt nx} and
+{\tt ny} are the grid first and second dimension (see section \ref{subsec_griddata} above).  The shape and indexing of each
+restart field (and of the corresponding coupling fields exchanged during the simulation) must be coherent with the shape of its grid
+data arrays.
 
- Coupling
-fields coming from different models cannot be in the same coupling
+If the {\tt fracwgt} option is activated for a field with a LAG (see section \ref{subsec_namcouplesecond}), special care have to be taken on the content of the coupling restart files. If no {\tt LOCTRANS} {\tt ACCUMUL} or {\tt AVERAGE} time transformation is specified for the field, the coupling restart file may contain only the restart field, with its symbolic name, and a dynamic fraction field (see the {\tt fracwgt} argument of the {\tt oasis\_put} call in section \ref{prismput}) named {\tt av1mxxxxxx\_YYYYYYYY}, where {\tt xxxxxx} is the 6-digit number of the coupling field and {\tt YYYYYYYY} is the field symbolic name. But if a {\tt LOCTRANS} {\tt ACCUMUL} or {\tt AVERAGE} time transformation is specified for the field, then the coupling restart files must contain in addition the restart coupling field remapped on the destination grid taking into account the dynamic fraction, named {\tt avfwxxxxxx\_YYYYYYYY}, where {\tt xxxxxx} is the 6-digit number of the coupling field and {\tt YYYYYYYY} is the field symbolic name.
+
+Coupling fields coming from different models cannot be in the same coupling
 restart files, but for each model, there can be an arbitrary number of
 fields written in one coupling restart file. One exception is when a coupling field sent by a source component model is associated with more than one target field and model; in that case, if coupling restart files are required, it is mandatory to specify different files for the different fields. 
 
-The coupling restart files are also used automatically by OASIS3-MCT
+If the CPP key {\tt LOCTRANS\_RESTARTS} is activated when compiling OASIS3-MCT, the coupling restart files are also used automatically by OASIS3-MCT
 to allow partial LOCTRANS time transformation to be saved at the end
-of a run for exact restart at the start of the next run. When LOCTRANS
-transformations are specified, the initial coupling restart file
+of a run for exact restart at the start of the next run. Although we do not recommend it as it may have unexpected side effects, this allows a run to end in the middle of a coupling period. In that case, the initial coupling restart file
 should not contain any LOCTRANS restart fields. For the following
 runs, it is mandatory that the coupling restart file contains LOCTRANS
-restart fields coherent with the current namcouple entries. For
+restart fields coherent with the current {\it namcouple} entries. For
 example, it will not be possible to restart a run with a multiple
-field entry in the namcouple with a coupling restart file created by a 
-run not activating this multiple file option.
-
-
-In the coupling restart files, the fields must be provided on the
-source grid in single or double precision REAL arrays and, as the grid
-data files, must be dimensioned {\tt (nx, ny)}, where {\tt nx} and
-{\tt ny} are the grid first and second dimension (see section
-\ref{subsec_griddata} above).  The shape and indexing of each
-restart field (and of the corresponding coupling fields exchanged
-during the simulation) must be coherent with the shape of its grid
-data arrays.
+field entry in the {\it namcouple} with a coupling restart file created by a 
+run not activating this multiple file option. See section \ref{subsec_timetrans} for more detail on the {\tt LOCTRANS} restart fields in the coupling restart files.
 
 \section{Input data files}
 \label{subsec_inputdata}

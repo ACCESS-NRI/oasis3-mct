@@ -2,13 +2,10 @@
 \chapter{Transformations and interpolations}
 \label{sec_transformations}
 
-Different transformations and 2D interpolations are available in
-OASIS3-MCT to adapt the coupling fields from a source model grid to a
-target model grid.  In the following paragraphs, a description of each
-transformation with its corresponding configuration lines that the
-user has to write in the {\it namcouple} file is given.  Features that
-are now deprecated (non functional) compared to prior versions will be
-noted with the string UNUSED and not described.
+Different transformations and 2D interpolations are available in OASIS3-MCT to adapt the coupling fields from a source model grid to a
+target model grid.  In the following paragraphs, a description of each transformation, with its corresponding configuration lines that the
+user has to write in the {\it namcouple} file, is given.  Features that are now deprecated (non functional) compared to prior versions are
+noted but not described.
 
 \section{Time transformations}
 \label{subsec_timetrans}
@@ -32,24 +29,24 @@ noted with the string UNUSED and not described.
     is transferred;
   \item {\tt ACCUMUL}: the arrays {\tt field\_array} provided as third argument to the {\tt oasis\_put} calls  are accumulated, without any specific weighting, and exchanged at the 
     coupling period ({\tt field\_array} should therefore not contain the field accumulated between two successive {\tt oasis\_put});
-      \item {\tt AVERAGE}: the arrays {\tt field\_array} provided as third argument to the {\tt oasis\_put} calls  are averaged, without any specific weighting (this means in particular that time-steps of varying duration are not supported), and exchanged at the coupling period;
+      \item {\tt AVERAGE}: the arrays {\tt field\_array} provided as third argument to the {\tt oasis\_put} calls  are averaged, without any specific weighting (this means in particular that time steps of varying duration are not supported), and exchanged at the coupling period;
   \item {\tt T\_MIN} or {\tt T\_MAX}: the minimum or maximum value of the field for each source
     grid point over the {\tt oasis\_put} calls of the previous coupling period is transferred; cannot be used together with the {\tt fracwgt} option (see section \ref{subsubsec_sendingreceiving}) or with higher-order remappings ({\tt BICUBIC, CONSERV/SECOND}, see section \ref{subsec_interp});
-  \item {\tt ONCE}: UNUSED, not supported in OASIS3-MCT.
+  \item {\tt ONCE}: not supported anymore in OASIS3-MCT.
   \end{itemize}
 
 When combined with {\tt BLASOLD} (see section \ref{subsec_preproc}), {\tt T\_MIN}  or {\tt T\_MAX}  extracts the minimum or maximum of the raw field array before {\tt BLASOLD}  is applied.
 
-When {\tt ACCUMUL} or {\tt AVERAGE} is specified for a field that is sent with a fraction weight field (see the {\tt fracwgt} option in section \ref{prismput}),
-the remapping of the instantaneous field is performed, the {\tt fracwgt} term is applied as a normalization term on the target side and then the accumulation or averaging is done on the remapped fields. This may increase the cost compared to {\tt ACCUMUL}  or {\tt AVERAGE} without {\tt fracwgt}, where the remapping is done only at coupling time on the accumulated or averaged field. 
+When {\tt ACCUMUL} or {\tt AVERAGE} is specified for a field that is sent with dynamic fractions (see the {\tt fracwgt} option in section \ref{prismput}),
+the remapping of the field and fractions is performed, the remapped fractions are applied as a normalization term on the target side and then the accumulation or averaging is done on the remapped fields. This may increase the cost compared to {\tt ACCUMUL}  or {\tt AVERAGE} without {\tt fracwgt}, where the remapping is done only at coupling time on the accumulated or averaged field. 
 
-If the CPP key {\tt LOCTRANS\_RESTARTS} is activated when compiling OASIS3-MCT, partial time transformations, if any, will be saved in the coupling restart file at the end of the run for exact restart of the next run. {\bf Note that this is not backward compatible as {\tt LOCTRANS} restart fields were saved by default in OASIS3-MCT\_5.0.} Although we do not recommand it as it may have unexpected side effects, this allows a run to end in the middle of a coupling period. If used, it is important to note the following:
+If the CPP key {\tt LOCTRANS\_RESTARTS} is activated when compiling OASIS3-MCT, partial time transformations, if any, will be saved in the coupling restart file at the end of the run for exact restart of the next run. {\bf Note that this is not backward compatible as {\tt LOCTRANS} restart fields were saved by default in OASIS3-MCT\_5.0.} Although we do not recommend it as it may have unexpected side effects, this allows a run to end in the middle of a coupling period. If used, it is important to note the following:
 \begin{itemize}
 \item The initial coupling restart file should not contain any {\tt LOCTRANS}  restart fields.
 \item For the following runs, it is mandatory to use the coupling restart file produced at the end of the previous run that automatically contains {\tt LOCTRANS} restart fields coherent with the {\it namcouple} entries.
 \item In the restart file, {\tt LOCTRANS} restart fields are named with the symbolic name of the coupling fields prefixed with {\tt locxxxxxx\_} where {\tt xxxxxx} is the 6-digit number of the coupling field ;
-\item In the restart file, {\tt LOCTRANS} restart fields for higher-order terms (if any, see section \ref{prismput}) are named with the symbolic name of the couplig fields prefixed with {\tt av?locxxxxxx\_} where {\tt ?} is 2, 3, 4, or 5 for the higher-order $2^{nd}$/$3^{rd}$/$4^{th}$/$5^{th}$ coupling field array respectively.
-\item If the {\tt fracwgt} option is used (see section \ref{prismput}), {\tt LOCTRANS} restart fields are also saved for the destination accumulated/averaged normalised scaled field and the fraction field, named with the symbolic name of the couplig fields prefixed respectively with {\tt av1mlocxxxxxx\_} and {\tt avfwlocxxxxxx\_}.
+\item In the restart file, {\tt LOCTRANS} restart fields for higher-order terms (if any, see section \ref{prismput}) are named with the symbolic name of the coupling fields prefixed with {\tt av?locxxxxxx\_} where {\tt ?} is 2, 3, 4, or 5 for the higher-order $2^{nd}$/$3^{rd}$/$4^{th}$/$5^{th}$ coupling field array respectively.
+\item If the {\tt fracwgt} option is used (see section \ref{prismput}), {\tt LOCTRANS} restart fields are also saved for the destination accumulated/averaged normalised scaled field and the fraction field, named with the symbolic name of the coupling fields prefixed respectively with {\tt av1mlocxxxxxx\_} and {\tt avfwlocxxxxxx\_}.
 \item Finally, the accumulation or averaging counter is also stored with prefix {\tt alocxxxxxx\_} and {\tt locxxxxxx\_}.
 \end{itemize} 
 \end{itemize}
@@ -57,15 +54,9 @@ If the CPP key {\tt LOCTRANS\_RESTARTS} is activated when compiling OASIS3-MCT, 
 \section{The pre-processing transformations}
 \label{subsec_preproc}
 
+Note that previous transformations {\tt REDGLO}, {\tt INVERT}, {\tt MASK}, {\tt EXTRAP}, {\tt CORRECT} are not supported anymore.
+
 \begin{itemize}
-
-\item {\bf REDGLO} UNUSED
-
-\item {\bf INVERT}: UNUSED
-
-\item {\bf MASK}: UNUSED
- 
-\item {\bf EXTRAP}: UNUSED
 
 \item {\bf CHECKIN}:
 
@@ -88,8 +79,6 @@ All diagnotics are written to the master
  # CHECKIN operation
      INT = 1  
 \end{verbatim} 
-
-\item {\bf CORRECT}: UNUSED
 
 \item {\bf BLASOLD}:
 
@@ -120,12 +109,14 @@ All diagnotics are written to the master
 
 % subsection{The pre-processing transformations}
 
-\section{The remapping (also called interpolation or regridding)}
+\section{The remapping (or interpolation or regridding)}
 \label{subsec_interp}
 
-\begin{itemize}
+The  3 options for remapping are {\tt MAPPING} for using an existing set of weights and addresses, or {\tt YAC} for using the YAC library to generate remapping weights and addresses, or {\tt SCRIPR} to use the SCRIP library to generate them.
+Note that {\tt INTERP}, {\tt MOZAIC}, {\tt NOINTERP}, and {\tt FILLING} are not supported aymore in OASIS3-MCT.
 
-\item {\bf MAPPING}:
+\subsection{MAPPING}
+\label{subsec_mapping}
 
   This keyword is used to specify a {\tt MAPPING} input file containing the weights and addresses to be read and used for remapping.
 
@@ -170,9 +161,238 @@ As for the other transformations, different mappings can be specified for the di
     namcouple}, for example to use it with a specific {\tt
     \$MAPLOC} or {\tt \$MAPSTRATEGY} option.
 
-\item {\bf YAC} XXXXXXXXX
+\subsection{YAC}
+\label{subsec_yac}
 
-\item {\bf SCRIPR}:
+YAC offers the parallel remapping algorithms for 2D interpolation on the sphere from version 3.10 of the YAC coupler \citep{hanke2016} \citep{hanke2019}  \cite{jonville2024}. YAC routines are in {\tt oasis3-mct/lib/yac} and {\tt yaxt} directories.
+
+An interpolation with YAC consists of one or more interpolation methods that form an interpolation stack prescribed in the {\it namcouple}, as described below. The name of the resulting remapping file, containing remapping weights and addresses, is composed with the character string appearing on the first YAC line in the {\it namcouple}. When YAC performs a remapping, it first checks if the remapping file exists; if it exists, it reads the weights and addresses from the file; if not, it calculates them and store them in a file with that name. When using an existing remapping file, one has to be sure that it was generated in exactly the same conditions than the ones it is currently used for.
+
+YAC needs the grid data files {\tt grids.nc} containing the longitudes and latitudes of the source and target grid centers and, if the {\tt CONSERV} remapping is prescribed, also including the longitudes and latitudes of the source and target grid corners.  If a mask is defined for a grid in the auxiliary
+file {\tt masks.nc}, it will be taken into account in the interpolation (see section \ref{subsec_griddata}). 
+ 
+The different types of interpolations available with YAC are described in detail in \cite{jonville2024}. Examples are also available in {\tt oasis3-mct/pyoasis/examples/11-test-interpolation/} \newline {\tt common\_data/namcouple\_yac\_bgnc} and {\tt namcouple\_yac\_bggd}. These are :
+\begin{itemize}
+\item NNN : n-nearest-neighbour method ;
+\item ZERO : to set target points to 0.0 ;
+\item RBF : remapping using radial basic functions ;
+\item AVG : average of the non-masked corners of the matching cell ;
+\item NCC : average of the unmasked vertices connected to the nearest cell corner ;
+\item HCSBB : remapping using spherical Bernstein-B\'ezier polynomials ;
+\item CONSERV : $1^{st}$ or $2^{nd}$ order conservative remapping ;
+\item SPMAP :  locally conservative remapping ;
+\item CREEP :  creeping extrapolation.
+\end{itemize}
+
+YAC first configuration line in the {\it namcouple} is: 
+\begin{verbatim}
+ # First configuration line for YAC in the namcouple
+     $EDGS $EDGT $NINT $FILENAMEAPPEND $NIO
+\end{verbatim} 
+where :
+\begin{itemize}
+\item {\tt \$EDGS} defines the type of cell borders of the source grid: great circles, {\tt \$EDGS = GC}, or longitude-latitude circles, {\tt \$EDGS = LL}\footnote{This is especially important for cells from regular grids that are located close to the poles.}.
+\item {\tt  \$EDGT } : same as {\tt \$EDGS} for the target grid.
+\item {\tt \$NINT} defines the number of interpolation methods in the interpolation stack.
+\item {\tt \$FILENAMEAPPEND} is used for building the name of the remapping file, \newline i.e. {\tt rmp\_\$srcprefix\_to\_\$dstprefix\_\$FILENAMEAPPEND.nc}, where {\tt \$srcprefix} and  {\tt \$dstprefix} are the prefixes of the source and target grid names, see section \ref{subsubsec_secondEXPORTED}.
+\item {\tt \$NIO} is the number of processes used by YAC to write the remapping file to disk, which is independent of the number of processes used to calculate the weights (which is equal to the number of component model processes).
+\end{itemize}
+
+The following types of interpolations can then be specified in the {\it namcouple}, each one having a specific line of parameters described here. Note that for all parameters, the default value, if any, can be activated by setting {\tt DEFAULT} for that parameter.
+
+ \begin{itemize}
+ \item NNN : n-nearest-neighbour method :
+ \begin{verbatim}
+  # Second configuration line for YAC/NNN in the namcouple
+     NNN $weighting $n $search_distance $scale
+\end{verbatim} 
+where
+\begin{itemize}
+\item NNN : for N-Nearest-Neighbour 
+\item {\tt \$weighting} {\tt [string]} : how to weight the values of the n nearest neighbours ; can be :
+   \begin{itemize}
+   \item {\tt AVG} : arithmetic average ;
+   \item {\tt DIST} : inverse distance weighting ;
+   \item {\tt GAUSS} : calculates weights by applying a Gauss function to the distance, with an additional optional scale parameter, see below ;
+   \item {\tt RBF} : Radial Basis Function ; has also an additional optional scale parameter, see below (NNN with RBF weighting is strictly equivalent to RBF method, see below) ;
+   \item {\tt ZERO} : sets the weight to zero with only 1 source point per target point, and therefore sets target point values to 0.0 (strictly equivalent to the ZERO method, see below):  .
+   \end{itemize} 
+\item {\tt \$n} {\tt [integer]} : number of source points per target point (mandatory, except for the ZERO weight).
+\item {\tt \$search\_distance} {\tt [real]} or {\tt DEFAULT}: Maximum search distance in degree (optional, default 0.0, valid range [0.0, 180.0[). Note: a value of 0.0 results in an unlimited search distance. Warning: if there are less than the specified number of source points within the maximum
+search distance, then the respective target point will not be remapped.
+\item {\tt \$scale} {\tt [real]} or {\tt DEFAULT} : Scaling factor; optional, only for GAUSS and RBF weighting methods; empirical tests have led to default values of 0.1 and 1.487973e+01 respectively.
+\end{itemize}
+
+\item ZERO :  is strictly equivalent to NNN with {\tt ZERO} weighting. It sets
+the weight of one source neighbour to zero (the address of the source neighbour is 
+irrelevant) and therefore sets target point values to 0.0 :
+\begin{verbatim}
+  # Second configuration line for YAC/ZERO in the namcouple
+     ZERO  
+\end{verbatim}
+
+\item RBF: is strictly equivalent to NNN with RBF weighting.  It is based on \newline Reinheimer, J., 2018: Vector Field Interpolation using Radial Basis Functions, pp 68. :
+\begin{verbatim}
+  # Second configuration line for YAC/RBF in the namcouple
+     RBF $n $scale  
+\end{verbatim}
+where
+   \begin{itemize}
+   \item RBF : for Radial Basis Functions
+   \item {\tt \$n} {\tt [integer]} : number of source points per target point
+   \item  {\tt \$scale} {\tt [real]} or {\tt DEFAULT} : Scaling factor; optional ; empirical tests have led to default values of 1.487973e+01
+   \end{itemize}
+   
+\item AVG : generates cells based on the centers of the original source grid, then for each target grid point, searches a matching source cell and  then applies the selected weighting to the non-masked corners of
+the matching source cell :
+\begin{verbatim}
+  # Second configuration line for YAC/AVG in the namcouple
+     AVG $weighting
+\end{verbatim}
+where
+\begin{itemize}
+\item AVG : for average of the non-masked corners of the matching cell
+\item {\tt \$weighting} {\tt [string]} : how to weight the non-masked corners of the matching source cell  ; can be :
+   \begin{itemize}
+   \item {\tt ARITHMETIC} : arithmetic average ;
+   \item {\tt DIST} : inverse distance weighting ;
+   \item {\tt BARY} : triangulates the source cells and then finds the matching source triangle for each target point; computes the weights based on the barycentric coordinates of the target point within this triangle.
+   \end{itemize} 
+\end{itemize} 
+
+\item NCC :  for each target grid point, searches for a matching source cell, as defined above for the AVG
+method; determines the closest vertex in that cell ; selects all unmasked vertices of the source cells connected to this vertex; applies a weighting method to the selected vertices.
+This method produces results that are very similar to AVG method, the major differences occurring
+close to the mask edges, where the AVG method fails. This property makes the NCC method a
+good fallback option, e.g. for AVG or HCSBB.
+
+\begin{verbatim}
+  # Second configuration line for YAC/NCC in the namcouple
+     NCC $weighting
+\end{verbatim}
+where
+\begin{itemize}
+\item NCC : for nearest cell corner 
+\item {\tt \$weighting} {\tt [string]} : how to weight the values of the vertices connected to the source nearest cell corner ; can be :
+   \begin{itemize}
+   \item {\tt AVG} : arithmetic average ;
+   \item {\tt DIST} : inverse distance weighting.
+   \end{itemize} 
+\end{itemize} 
+
+\item HCSBB : is based on \cite{alfeld}; triangulates the source grid points and estimates the derivatives of the source field
+across the edges of the triangles; from these derivatives, constructs triangular patches from a blend of
+spherical Bernstein-B\'ezier polynomials then used for the interpolation of the
+target points. With this method, that is computationally expensive and produces a quite large interpolation stencil, the resulting target field always has a continuous first derivative.
+
+\begin{verbatim}
+  # Second configuration line for YAC/HCSBB in the namcouple
+     HCSBB 
+\end{verbatim}
+where
+\begin{itemize}
+\item HCSBB : for Hybrid Cubic Spherical Bernstein-B\'ezier
+\end{itemize}
+
+\item CONSERV : implements a $1^{st}$ order conservative remapping following \cite{Jones99} and a $2^{nd}$ order conservative remapping following \cite{kritsikis2017} . The source and target cells are defined by the source and target corners (OASIS3-MCT standard). 
+For each target cell, 
+the weight of each source cell is defined by the overlap between the source cell and target
+cell. When computing the overlaps, YAC differentiates
+between edges defined on great circles (GC) and longitude-latitude circles (LL), as specified by the user 
+on the first configuration line for YAC (see above). Therefore, in contrast to the SCRIP that also provides this
+interpolation method, YAC does not require coordinate transformation close to the
+poles.
+\begin{verbatim}
+  # Second configuration line for YAC/CONSERV in the namcouple
+     CONSERV $order $normalization 
+\end{verbatim}
+where
+\begin{itemize}
+\item CONSERV : for conservative remapping
+\item {\tt \$order [string]} ; can be :
+\begin{itemize}
+  \item {\tt FIRST} : for $1^{st}$ order conservative remapping.
+  \item {\tt SECOND} : for $2^{nd}$ order conservative remapping. Compared to the $1^{st}$ order, this option computes and uses the gradient of the source field and generates a much bigger stencil; it results in a much smoother field, especially when going from a low- to a high-resolution grid. In contrast to  {\tt SCRIPR} $2^{nd}$ order conservative remapping (see section \ref{subsec_scripr}), the gradient is computed  by YAC for each source cell based on its
+neighbouring cells and does not have to be provided as additional field array arguments in the {\tt oasis\_put} call (see section \ref{prismput}).  If, for any reason, the gradient computation fails, a zero-gradient is used for the respective source cell, which is basically a fallback to $1^{st}$ order conservative remapping.
+\end{itemize}
+\item {\tt \$normalization [string]} ; specifies the area normalization method as for {\tt SCRIPR}, see section \ref{subsec_scripr}; different options produce different results only for target cells that are partially covered by non-masked source cells.
+\begin{itemize}
+\item {\tt FRACAREA} : The sum of the area of the non-masked source cells overlapping with the target cell is
+used to normalize the respective target field value; this option gives reasonable flux values but may not be locally conservative.
+\item {\tt DESTAREA} : The target cell area is used to normalize the target field value; this option might generate unreasonable flux values but it ensures local conservation of the source flux.
+\end{itemize}
+\end{itemize}
+
+\item SPMAP : For each source cell, first searches for the nearest target cell within a maximum search
+distance ({\tt \$search\_distance}); the source cell data is then distributed to all non-masked target cells
+that are within the user-provided maximum spread distance ({\tt \$spread}) around the nearest
+target cell, respecting the grid connectivity around the sea-land mask. If multiple source cells
+contribute to a target cell, their contributions are summed up. Target cells not associated with any
+source cell will not get any value. Multiple normalization options ({\tt \$scale}) are available
+based on the cell areas of the associated source/target cells.
+This method has been implemented in particular to cover the mapping of the hydrological runoff, which is provided on selected cells at the coastline. It is close to the {\tt LOCCUNIF},  {\tt LOCCDIST} and  {\tt LOCCGAUS} methods of  {\tt SCRIPR}, see below. In contrast with all other interpolation
+schemes, which goal is to generate a value for all non-masked target cells, this method aims to be
+locally mass-conserving and not to lose any flux from the donor (source) cells.
+
+\begin{verbatim}
+  # Second configuration line for YAC/SPMAP in the namcouple
+SPMAP $weighting $spread $search_distance $scale $src_radius $tgt_radius
+\end{verbatim}
+where :
+\begin{itemize}
+\item SPMAP : for locally conservative remapping
+\item {\tt \$weighting  [string]}, can be :
+\begin{itemize}
+  \item {\tt AVG} : for arithmetic average
+  \item {\tt DIST} : for inverse distance weighting
+\end{itemize}
+\item {\tt \$spread [real]} or {\tt DEFAULT} : spread distance (optional, default: 0.0, valid range is [0.0, 90.0[ ). Note: a value of 0.0 results in the source field being assigned to the single closest target point.
+\item {\tt \$search\_distance [real]} or {\tt DEFAULT} : Maximum search distance (optional, default: 0.0, valid range is [0.0, 180.0[).
+Note: a value of 0.0 results in an unlimited search distance.
+\item {\tt \$scale [string]} or {\tt DEFAULT} : Scaling factor (optional, default: as {\tt NONE}), can be :
+\begin{itemize}
+\item {\tt NONE} : No scaling ; the sum of the weights for each source cell is 1.0 ;
+ to be used in case the source and target field are not provided as a flux
+(for example, both source and target runoff field in m3/s).
+\item {\tt SRCAREA}: All weights are scaled by the area of the associated source cell; therefore, the weights for each source cell sum to its area ; to be used in case the source field is provided as a flux while
+the target field is not (for example, runoff source field units in m/s and
+runoff target field units in m3/s).
+\item {\tt INVTGTAREA} : All weights are scaled by the inverse area of the associated
+target cell ; to be used in case the target field is provided as a flux
+while the source field is not (for example, runoff source field in m3/s and runoff target field in m/s).
+\item {\tt FRACAREA }: All weights are scaled by the area of the associated source cell and
+the inverse area of the associated target cell ; to be used in case the source and target fields are provided as
+a flux (for example, both source and target runoff field in m/s).
+\end{itemize}
+
+\item {\tt \$src\_radius  [real]} or {\tt [string]} : if {\tt [real]}, gives value of the sphere radius for the computation of the source cell areas (optional, default: 1.0); if {\tt [string]} , can be :
+\begin{itemize}
+\item {\tt DEFAULT} : default value of 1.0 
+\item {\tt EARTH} : hard-coded value of 6371229 m.
+\item {\tt FILE} or {\tt USER} : the source cell areas is not computed but read in the auxiliary file {\tt areas.nc} 
+\end{itemize}
+\item {\tt \$tgt\_radius  [real]} or {\tt [string]}: same as {\tt \$src\_radius} but for the target cell areas
+\end{itemize}
+
+\item CREEP : is an extrapolation method described in \cite{Kara2007}. For each unmapped target point,
+the method checks the status of its neighbouring target points. If successfully-interpolated target
+neighbour points are available, the respective unmapped point value is calculated based on their
+results. This check is repeated until all target points are remapped or for a specified number of
+iterations.
+\begin{verbatim}
+  # Second configuration line for YAC/CREEP in the namcouple
+CREEP $iter 
+\end{verbatim}
+where 
+\begin{itemize}
+\item CREEP : for creeping extrapolation
+\item {\tt \$iter  [integer]} or {\tt DEFAULT}: number of iterations (optional, default: -1.0, valid range is [-1, $\infty$ [) ; a value of -1 results in the execution of the
+algorithm until no additional target points can be remapped by this method.
+\end{itemize}
+ \end{itemize}
+
+\subsection{SCRIPR}
+\label{subsec_scripr}
  
   {\tt SCRIPR} gathers the interpolation techniques offered by Los
   Alamos National Laboratory SCRIP 1.4 library
@@ -259,18 +479,18 @@ SCRIP parallelisation can be found in \cite{piacentini08} and
       {\tt U}):
       \begin{itemize}
 
-\item {\tt `LR' grid}: The longitudes and the latitudes of
+\item {\tt LR}: The longitudes and the latitudes of
   2D Logically-Rectangular (LR) grid points can be described by two arrays
   {\tt longitude(i,j)} and {\tt latitude(i,j)}. Streched
   or/and rotated grids are LR grids. 
 
-\item {\tt `U' grid}: Unstructured (U) grids do have any particular
+\item {\tt U}: Unstructured (U) grids do have any particular
       structure. The longitudes and the latitudes of 2D Unstructured
       grid points must be described by two arrays {\tt
       longitude(nbr\_pts,1)} and {\tt latitude(nbr\_pts,1)}, where {\tt nbr\_pts}
       is the total grid size.
 
-\item {\tt `D' grid}: The Gaussian Reduced (D) grid is composed of a certain
+\item {\tt D}: The Gaussian Reduced (D) grid is composed of a certain
 number of latitude circles, each one being divided into a varying
 number of longitudinal segments. The grid data (longitudes,
 latitudes, etc.) must be described by arrays dimensioned {\tt
@@ -619,19 +839,10 @@ More details can be found in section 6 of \cite{valcke19}. A full validation of 
   code has to receive the 3 interpolated Cartesian components and
   recombine them to get the proper vector field.
 
-\item {\bf INTERP}: UNUSED
-
-\item {\bf MOZAIC}: UNUSED; note that {\tt MAPPING} (see above) is the
-  NetCDF equivalent to {\tt MOZAIC}.
-
-\item {\bf NOINTERP}: UNUSED
-
-\item {\bf FILLING}: UNUSED
-
-\end{itemize}
-
 \section{The post-processing stage}
 \label{subsec_cooking}
+
+Note that {\tt SUBGRID}, {\tt MASKP}, {\tt REVERSE}, {\tt GLORED} are not supported anymore in OASIS3-MCT.
 
 \begin{itemize}
 
@@ -734,81 +945,6 @@ More details can be found in section 6 of \cite{valcke19}. A full validation of 
 \end{itemize}
   \end{itemize}
 
-
-
-\item {\bf SUBGRID}: UNUSED
-
-  % {\tt SUBGRID} can be used to interpolate a field from a coarse
-  % grid to a finer target grid (the target grid must be finer over
-  % the whole domain). Two types of subgrid interpolation can be
-  % performed, depending on the type of the field.
-%
-  % For solar type of flux field ({\tt \$SUBTYPE = SOLAR}), the
-  % operation performed is:
-%$$\Phi_{i} = \frac{1-\alpha_i}{1-\alpha} F$$ where $\Phi_{i}$ ($F$) is
-%the flux on the fine (coarse) grid, $\alpha_i$ ($\alpha$) an
-% auxiliary field on the fine (coarse) grid (e.g. the albedo).  The
-% whole operation is interpolated from the coarse grid with a
-% grid-mapping type of interpolation; the dataset of weights and
-% addresses has to be given by the user.
-%
-% For non-solar type of field ({\tt \$SUBTYPE = NONSOLAR}), a
-% first-order Taylor expansion of the field on the fine grid
-% relatively to a state variable is performed (for instance, an
-% expansion of the total heat flux relatively to the SST):
-%$$\Phi_{i} = F + \frac{\partial F}{\partial T} ( T_i - T ) $$ where
-%$\Phi_{i}$ ($F$) is the heat flux on the fine (coarse) grid, $T_i$
-% ($T$) an auxiliary field on the fine (coarse) grid (e.g. the SST)
-% and $\frac{\partial F}{\partial T}$ the derivative of the flux
-% versus the auxiliary field on the coarse grid. This operation is
-% interpolated from the coarse grid with a grid-mapping type of
-% interpolation; the dataset of weights and addresses has to be given
-% by the user.
-%
-% This analysis requires one input line with 7 or 8 arguments
-% depending on the type of subgrid interpolation.
-%
-% \begin{enumerate}
-% \item If the the {\tt SUBGRID} operation is performed on a solar
-%   flux, the 7-argument input line is:
-%\begin{verbatim}
-%# SUBGRID operation with $SUBTYPE=SOLAR 
-%  $CFILE  $NUMLU  $NID  $NV  $SUBTYPE  $CCOARSE $CFINE\end{verbatim}where
-%{\tt \$CFILE} and {\tt \$NUMLU} are the subgrid-mapping file name and
-%associated logical unit (see section \ref{subsec_transformationdata} for the
-%structure of this file); {\tt \$NID} the identificator for this
-%subgrid-mapping dataset within the file build by OASIS based on all
-%the different {\tt SUBGRID} analyses in the present coupling; {\tt
-%\$NV} is the maximum number of target grid points use in the
-%subgrid-mapping; {\tt \$SUBTYPE = SOLAR} is the type of subgrid
-%  interpolation; {\tt \$CCOARSE} is the
-%auxiliary field name on the coarse grid (corresponding to $\alpha$)
-%and {\tt \$CFINE} is the auxiliary field name on fine grid
-%(corresponding to $\alpha_i$).
-%These two fields needs to be exchanged between their original model
-%and OASIS3 main process, at least as {\tt AUXILARY} fields.
-%This analysis is performed from the coarse grid with a grid-mapping type
-%of interpolation based on the {\tt \$CFILE} file.
-%
-% \item If the the SUBGRID operation is performed on a nonsolar flux,
-%   the 8-argument input line is:
-%\begin{verbatim}
-%# SUBGRID operation with $SUBTYPE=NONSOLAR
-%  $CFILE $NUMLU $NID $NV $SUBTYPE $CCOARSE $CFINE $CDQDT
-%\end{verbatim} where {\tt \$CFILE},  {\tt \$NUMLU},  {\tt \$NID},  
-%{\tt \$NV} are as for a solar subgrid interpolation; {\tt
-%\$SUBTYPE = NONSOLAR}; {\tt \$CCOARSE} is the auxiliary
-%field name on the coarse grid (corresponding to $T$) and {\tt \$CFINE}
-%is the auxiliary field name on fine grid (corresponding to $T_i$); the
-%additional argument {\tt \$CDQDT} is the coupling ratio on the coarse
-%grid (corresponding to $\frac{\partial F}{\partial T}$) These three
-%fields need to be exchanged between their original model and OASIS3
-%main process as {\tt AUXILARY} fields. This operation is performed from the
-%coarse grid with a grid-mapping type of interpolation based on the {\tt
-%\$CFILE} file.
-%
-% \end{enumerate}
-
 \item {\bf BLASNEW}:
  
   {\tt BLASNEW} performs a scalar multiply or scalar add to any
@@ -862,10 +998,6 @@ For example :
   Note that a more transparent implementation
   might be to combine fields in the component model (not in OASIS3-MCT) after they are received independently.
 
-\item {\bf MASKP}: UNUSED
-
-\item {\bf REVERSE}: UNUSED
-
 \item {\bf CHECKOUT}:
 
   {\tt CHECKOUT} calculates the global minimum, maximum, mean, and 
@@ -875,7 +1007,7 @@ For example :
   mean and sum are also diagnosed and written.  All diagnostics are
   written to the master  process OASIS3-MCT debug file (under {\tt CHECK* diags}).
 
-  Note that {\tt CHECKOUT} does not provide exact weighted mean and sum when the {\tt fracwgt} option involving dynmaic fractions is activated, see section \ref{prismput}; indeed in that case, {\tt CHECKOUT} will not use the equivalent active destination fraction and a warning will be printed in the debug files.
+  Note that {\tt CHECKOUT} does not provide exact weighted mean and sum when the {\tt fracwgt} option involving dynamic fractions is activated, see section \ref{prismput}; indeed in that case, {\tt CHECKOUT} will not use the equivalent active destination fraction and a warning will be printed in the debug files.
 
   This operation does not transform the field. CHECKOUT operations can
   slow down the simulation and should not be used in
@@ -888,8 +1020,6 @@ For example :
  # CHECKOUT operation
      INT = 1  
 \end{verbatim} 
-
-\item {\bf GLORED}: UNUSED
 
 \end{itemize}
 

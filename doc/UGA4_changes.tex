@@ -13,6 +13,42 @@ have your e-mail added to the list of addresses to which the log files
 of the SVN checkins are automatically sent; contact
 oasishelp@cerfacs.fr if you wish to be added to that list.
 
+\section{Changes between OASIS3-MCT\_6.0 and OASIS3-MCT\_5.0}
+
+The last version of the coupler, OASIS3-MCT\_6.0, comes with the
+following new functionalities and improvements :
+
+\begin{itemize}
+
+\item {\bf YAC interpolation library} :  interfacing with the parallel remapping algorithms for 2D interpolation on the sphere from version 3.10 of the YAC coupler  \citep{hanke2016} \citep{hanke2019}  all details are provided in section \ref{subsec_yac} and in \cite{jonville2024}.
+
+\item {\bf Support of dynamic fractions}, see {\tt fracwgt} option in section \ref{prismput} and in appendix \ref{subsec_fracwgt}.
+
+\item {\bf Support of a new ``Cube" partition}, see section \ref{Cube_partition}, adapted to specific
+couplings, e.g. horizontal coarsening in the exchanges between a high-resolution
+ocean model and a lower-resolution bio-geo-chemistry model.
+
+\item Suppression of big NetCDF files in the git repository and its history in order to drastically reduce its size, see Redmine issue \#2907
+
+\item An upgraded compiling environment based on two environment variables \$(OASIS\_COUPLE) and \$(OASIS\_ENV), see section \ref{subsec_compile}.
+
+\item Migration of the OASIS3-MCT web site from DKRZ (content manager Plone) to Cerfacs (content manager Wordpress) in July 2022.
+
+\item Migration of the CI/CD (Continuous Integration and Continuous Deployment) environment from Buildbot to gitlab .
+
+\item Different bug fixes, see the following Redmine closed issues :
+\begin{itemize}
+\item  \#3098, an array bound mismatch in mod\_oasis\_load\_balancing.F90 ;
+\item   \#2900, a bug with partition duplication in case the grid dimensions were not declared in the {\it namcouple} ;
+\item   \#2841, the support of multiple grids for one same partition (linked with \#2900) ;
+\item   \#2816, a freeze in the load balancing analysis when a component was not at all involved in the coupling ;
+\item   \#2812, an uninitialized array in grid writing routines ;
+\item   \#2793, wrong {\it namcouple} processing for BLASNEW ;
+\item   \#2725, a problem with BICUBIC/BILINEAR sequence in weights generation ;
+\item   \#2704, a problem with coupled = .false. in oasis\_init\_comp.
+\end{itemize}
+\end{itemize}
+
 \section{Changes between OASIS3-MCT\_5.0 and OASIS3-MCT\_4.0}
 
 The last version of the coupler, OASIS3-MCT\_5.0, comes with the

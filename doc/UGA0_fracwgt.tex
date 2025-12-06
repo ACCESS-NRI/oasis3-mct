@@ -14,7 +14,9 @@ The new option {\tt fracwgt} in OASIS3-MCT\_6.0 allows to pass, in the source co
 For instantaneous fields, option {\tt fracwgt} is not essential as the user could get the {\bf active destination surface coefficient} simply with the conservative remapping of the source fraction field. He/she could then obtain the {\bf destination normalized scaled field} by applying the element-wise division of the {\bf destination scaled field} by the {\bf active destination surface coefficient}.
 
 However, for accumulated or averaged fields, option {\tt fracwgt} is essential to obtain the {\bf destination accumulated
-normalized scaled field} and the {\bf accumulated active destination surface coefficients}, as they cannot be calculated in the  models because of the non permutation of the time and remapping operations.  
+normalized scaled field} and the {\bf accumulated active destination surface coefficients}, as they cannot be calculated in the  models because of the non permutation of the time and remapping operations. 
+
+An example of how to use the {\tt fracwgt} option is given in  {\tt /pyoasis/examples/13-test-fracwgt}. 
 \section{Introduction}
 
 Conservative remapping is relevant for physical fields representing a flux or a concentration. \\

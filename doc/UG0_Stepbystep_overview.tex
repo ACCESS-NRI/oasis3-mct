@@ -22,8 +22,8 @@ logically-rectangular fields but 3D fields and 1D fields expressed on
 unstructured grids are also supported using a one dimension
 degeneration of the structures.
 
-OASIS3-MCT internally uses MCT, the Model
-Coupling Toolkit\footnote{www.mcs.anl.gov/research/projects/mct/} \citep{mct_larson} \newline \citep{mct_jacob}, 
+Internally, OASIS3-MCT uses MCT, the Model
+Coupling Toolkit\footnote{https://web.cels.anl.gov/projects/climate/mct/} \citep{mct_larson} \citep{mct_jacob}, 
 developed by the Argonne National Laboratory in the USA. MCT implements fully parallel remapping, as a parallel matrix vector 
 multiplication on the set of source or
 target component processes, and parallel distributed exchanges of the coupling
@@ -32,9 +32,9 @@ fields via Message Passing Interface
 Its design philosophy, based on flexibility and minimal invasiveness,
 is close to the OASIS3-MCT approach. 
 
-To communicate with another component, a component model needs to include few specific calls to OASIS3-MCT Fortran Application Programming Interface (API).  OASIS3-MCT also has python and C language bindings. For remapping the coupling fields from the source to the target grid, OASIS3-MCT includes a modified version of the SCRIP library \citep{Jones99} and is interfaced with YAC \citep{hanke2016} \citep{hanke2019}. OASIS3-MCT also supports basic non-parallel file I/O using NetCDF .  The configuration of the coupling exchanges need to be described externally by the user in a text file, the {\it namcouple}. 
+To communicate with another component, a component model needs to include few specific calls to OASIS3-MCT Fortran Application Programming Interface (API).  OASIS3-MCT also has python and C language bindings. For remapping the coupling fields from the source to the target grid, OASIS3-MCT\_6.0 includes a modified version of the SCRIP library \citep{Jones99} and is interfaced with YAC version 3.10 \citep{hanke2016} \citep{hanke2019} \cite{jonville2024}. OASIS3-MCT also supports basic non-parallel file I/O using NetCDF .  The configuration of the coupling exchanges needs to be described externally by the user in a text file, the {\it namcouple}. 
 
-The developments realised in the different versions of OASIS3-MCT are described in Appendix \ref{sec_changes}.
+The developments realised between the different versions of OASIS3-MCT are described in Appendix \ref{sec_changes}.
 
 We believe that OASIS3-MCT will still provide an efficient and
 easy-to-use coupling solution for many climate modelling groups in the few years to come. 
@@ -46,7 +46,7 @@ easy-to-use coupling solution for many climate modelling groups in the few years
 To use OASIS3-MCT for coupling codes, one has to follow these steps:
 \begin{enumerate}
 \item Obtain OASIS3-MCT source code (see chapter \ref{sec_Obtaining}).
-\item Get familiar with OASIS3-MCT, either by following the Short Private Online Course (SPOC, see  https://cerfacs.fr/online-training/) or by going through the tutorial steps. Tutorial sources are available in directory {\tt
+\item Get familiar with OASIS3-MCT, either by following the Short Private Online Course (SPOC, see  https://cerfacs.fr/en/online-traning-sessions/ ) or by going through the tutorial steps. A tutorial is also available in directory {\tt
   examples/tutorial\_communication} and all explanations are provided in the document
 {\tt tutorial\_communication.pdf} therein.
 
@@ -56,7 +56,7 @@ To use OASIS3-MCT for coupling codes, one has to follow these steps:
   from/to disk files.  For more detail on how to use the 
   OASIS3-MCT API in the codes, see chapter \ref{sec_modelinterfacing}.
 
-\item Define all coupling and I/O parameters and the transformations
+\item Define all coupling and I/O parameters and transformations
   required to adapt each coupling field from the source model grid to
   the target model grid. On this basis, prepare OASIS3-MCT configuring file 
   {\it namcouple}.
@@ -66,7 +66,7 @@ To use OASIS3-MCT for coupling codes, one has to follow these steps:
   examples/regrid\_environment}, section \ref{subsec_regrid}) and read in during the run using the MAPPING
   transformation.
 
-{\bf We strongly recommend to tests off-line the quality of the chosen transformations and remappings} using the environment available in {\tt
+{\bf We strongly recommend to tests the quality of the chosen transformations and remappings} off-line using the environment available in {\tt
   examples/regrid\_environment} and explanations provided in the document {\tt regrid\_environment.pdf} therein. 
 
 \item Generate required auxiliary data files , if needed (see chapter
@@ -167,9 +167,7 @@ This software was authored by:
 \subsection{SCRIP 1.4 license copyright statement}
 \label{sec_SCRIP}
 
-The SCRIP 1.4 copyright statement reads as follows:
-
-``Copyright © 1997, 1998 the Regents of the University of California.
+Copyright © 1997, 1998 the Regents of the University of California.
 This software and ancillary information (herein called SOFTWARE)
 called SCRIP is made available under the terms described here. The
 SOFTWARE has been approved for release with associated LA-CC Number
@@ -185,11 +183,11 @@ Government nor the University makes any warranty, express or implied,
 or assumes any liability or responsibility for the use of this
 SOFTWARE. If SOFTWARE is modified to produce derivative works, such
 modified SOFTWARE should be clearly marked, so as not to confuse it
-with the version available from Los Alamos National Laboratory.''
+with the version available from Los Alamos National Laboratory.
 
 \subsection{YAC license copyright statement}
 \label{sec_YAC}
 
-Copyright (c) 2024 The YAC Authors
+Copyright (c) 2025 The YAC Authors
 
 SPDX-License-Identifier: CC-BY-4.0

@@ -448,7 +448,9 @@ given. In this case, we have {\tt ig\_paral(1:7)}:
 \item {\tt ig\_paral(6)} = the global extent in Y
 \item {\tt ig\_paral(7)} = the number of vertical  levels
 \end{itemize}
-
+This type of partition is adapted to specific
+couplings, e.g. horizontal coarsening in the exchanges between a high-resolution
+ocean model and a lower-resolution bio-geo-chemistry model.  An example of how to use this type of partition is given in  {\tt /pyoasis/examples/14-test-inter3d}. 
 % {Partition definition}
 \subsection{Grid data file definition}
 \label{subsubsec_griddef}
@@ -693,7 +695,7 @@ So in general, {\tt fld}, the field passed into the get and put interface can ha
 \item 1D, fld(:) = a single, unbundle field of rank 1.
 \item 2D, fld(:,:) = a single, unbundle field of rank 2.
 \item 3D, fld(:,:,:) = a single, unbundled field of decomposition rank 3 ; 
-special case linked with the Cube partition (see section \ref{Cube_partition}) limited to specific
+special case linked with the Cube partition (see section \ref{Cube_partition}) adapted to specific
 couplings (e.g. horizontal coarsening in the exchanges between a high-resolution
 ocean model and a lower-resolution bio-geo-chemistry model)
 that requires user-defined interpolation remapping files, 
@@ -761,6 +763,8 @@ If multiple fields are grouped in a single operation in the model (see "Support 
 
 \item {\tt fracwgt} cannot be combined with global CONSERV (see section \ref{subsec_cooking}) if  {\tt LOCTRANS AVERAGE} or {\tt ACCUMUL} is also activated, or with {\tt LOCTRANS T\_MIN} or {\tt T\_MAX} (see section \ref{subsec_timetrans}). 
 
+\item If the {\tt fracwgt}  option is activated for a field with a LAG (see section \ref{subsec_namcouplesecond}), special care have to be taken on the content of the coupling restart files; see section \ref{subsec_restartdata} for details.
+
 \item {\tt fracwgt} option can only be carried out with remapping on the source model processors, ({\tt \$MAPLOC=src} in section \ref{subsec_interp}).
 
 \item If higher-order transforms ({\tt CONSERV/SECOND} or {\tt BICUBIC}) are specified for the coupling fields, they are applied on the target grid without regard to {\tt fracwgt}.
@@ -789,7 +793,7 @@ of the following aspects:
 returned by the {\tt oasis\_def\_var} is equal to -1 and the
 corresponding {\tt oasis\_put} should not be called.
 
-\item For a coupling field with a positive lag, the coupling restart file used at the beginning of the run (see section
+\item For a coupling field with a positive lag, a coupling restart file containing the initial values of the field must be provided and will be used at the beginning of the run (see section
   \ref{subsec_restartdata}) is automatically overwritten by the {\tt
     oasis\_put} when the {\tt date+LAG=runtime}. {\bf It is the user's responsibility to ensure that the overwritten restart file is copied in the working directory of the next run.}
     
@@ -1102,8 +1106,6 @@ routine oasis\_get\_freqs, see below.
 
 This routine can be used to retrieve the coupling period(s) of field with
 corresponding {\tt var\_id}, as defined in the {\it namcouple}.
-
-ICICICICI
 
 \end{itemize}
 
@@ -1768,7 +1770,7 @@ root to root coupling of scalars between components.  To do so :
 \end{itemize}
 
 This can be extended as needed to send or receive from non root processes.  But
-you cannot send the scalar data to multiple processes as this violates the halo
+one cannot send the scalar data to multiple processes as this violates the halo
 restriction in MCT.  
 %Users need to be aware which processes contain valid scalar
 % data both on the source and destination side and to manage data synchronization
@@ -1779,7 +1781,7 @@ restriction in MCT.
 \label{subsec_lag}
 
 Using the OASIS3-MCT coupling library, the user has the flexibility
-to reproduce different coupling algorithms defining {\tt LAG} values for the different coupling fields .
+to reproduce different coupling algorithms defining {\tt LAG} values for the different coupling fields . See section \ref{subsec_namcouplesecond} for more details on how to specify a {\tt LAG} for a coupling field.
 In the components, the
 sending and receiving routines, respectively {\tt oasis\_put} and {\tt
   oasis\_get}, can be called at each component timestep, with the
@@ -1788,7 +1790,7 @@ beginning of the timestep), expressed in number of seconds since the
 start of the run, or in any other time units as long as the same are
 used in all components and in the {\it namcouple} (see section
 \ref{prismput}). This {\tt date} argument is automatically analysed by
-the coupling library and depending on the coupling period and the lag chosen by the user for the coupling field in the {\it namcouple} ({\tt LAG}), different coupling algorithms can be reproduced
+the coupling library and, depending on the coupling period and the lag chosen by the user for the coupling field in the {\it namcouple} ({\tt LAG}), different coupling algorithms can be reproduced
 without modifying the component codes themselves.
 
 The lag ({\tt LAG}) must be
@@ -1808,7 +1810,7 @@ So the lag only shifts the time at which the data is sent but not
 the time at which the data is received.
 
 When the lag is positive, a restart file must be available to initiate
-the coupling.  For a field with positive lag, the source
+the coupling.  See section \ref{subsec_restartdata} for details on the structure of the coupling restart files. For a field with positive lag, the source
 component automatically reads the field in the restart file
 during the coupling initialization phase (below the {\tt
   oasis\_enddef}) and send the data to match the {\tt oasis\_get}
@@ -1819,7 +1821,7 @@ in the debug netCDF file (EXPOUT fields, see section
 \ref{subsec_namcouplesecond}) always correspond respectively to the
 field read from and written to the restart file.}.
 
-On the 4 figures in this section, short black arrows correspond to
+On figure \ref{fig:lag_concept_1}, short black arrows correspond to
   {\tt oasis\_put} or {\tt oasis\_get} called in the component
   that do not lead to any ``put" or receiving action; long black
   arrows correspond to {\tt oasis\_put} or {\tt oasis\_get} called in
@@ -1828,9 +1830,7 @@ On the 4 figures in this section, short black arrows correspond to
     oasis\_get} called in the component models that lead to a reading
   or writing of the coupling field from or to a coupling restart file.
 
-{\bf LAG concept  example}
-
-  A first coupling algorithm, exploiting the LAG concept, is
+  A coupling algorithm exploiting the LAG concept, is
   illustrated on figure \ref{fig:lag_concept_1}.
 
   \begin{figure}
@@ -1882,12 +1882,12 @@ On the 4 figures in this section, short black arrows correspond to
 
 The order of coupling operations in the system is determined solely by
 the order of calls to send ({\tt oasis\_put} or ``put'') and receive ({\tt oasis\_get} or ``get'') data in the components
-in conjunction with the setting of the lag in the {\it namcouple}.
-Data that is received is always blocking while data that is sent is non-blocking with respect to the component making that call.  It
+in conjunction with the setting of the LAG in the {\it namcouple}.
+Receiving data is always blocking while sending data is non-blocking with respect to the component making that call.  It
 is possible to deadlock the system if the relative orders of puts and
 gets in different components are not compatible.
 
-With OASIS3-MCT, the sequence (SEQ) index in the {\it namcouple} file
+The sequence (SEQ) index in the {\it namcouple} file
 now provides the coupling layer with an ability to detect a deadlock
 before it happens and exit.  It does this by tracking the order of get
 and put calls in components compared to the SEQ specified in the {\it
@@ -1898,7 +1898,7 @@ index is recommended for diagnosis but has no impact on the ultimate
 solution and is NOT required.
 
 In the following two examples, there are two
-models, each ``put" a field to the other at every coupling period
+models, each one sending a field to the other at every coupling period
 without any lags.  In the first case, there is no dependency as each
 model first sends and then receives some data.
 
@@ -1912,8 +1912,7 @@ model first sends and then receives some data.
 In this case, there is no sequencing dependency and specifying SEQ indices is not needed\footnote{In that case, if set, the SEQ indices
 must be identical.  If by mistake, SEQ is set to 1 for fld1 and 2 for fld2,
 then the coupled model will abort because at runtime, the coupler will
-detect in model 2 that fld2 was sent before fld1 was received which
-is out of sequence as defined by the SEQ settings.}
+detect in model 2 that fld2 was sent before fld1 was received which is out of sequence as defined by the SEQ settings.}.
 
 In the next example, there is a dependency in the sequencing.
 
@@ -1952,35 +1951,27 @@ MCT, mapping and communication are also treated as independent features.
 OASIS3-MCT supports both mapping and communication of data through MCT.  
 A coupling field can be interpolated to
 the destination grid on the source processes then communicated to the destination
-component OR a coupling field can be communicated to the destination component
+component; or a coupling field can be communicated to the destination component
 on the source grid then mapped to the destination grid on the destination
-component.  At the present time, it is not possible to map the field as part
+component (see {\tt \$MAPLOC}  in section \ref{subsec_interp}). At the present time, it is not possible to map the field as part
 of the communication rearrangement, although that capability should
 be possible to implement.
 The separation of mapping and communication is handled by the OASIS
 layer.  Users only need to be aware of a few options that can be set to fine
 tune the performance of these operations.
 
-OASIS3-MCT also imposes a few other constraints on the usage.  MCT
-does not support haloed communication.  There must be a 1-to-1 relationship
-between grid point values on the source grid and on the destination grid.
-A user cannot send a single grid point value to multiple destination grid cells
-or processes via OASIS3-MCT.  The partitions defined by the user that define
+OASIS3-MCT also imposes a few other constraints on the usage.  For example, MCT
+does not support haloed communication.  The partitions defined by the component that describes
 the field decomposition cannot reference the same global grid cell more than once.
 
-OASIS3-MCT does not support dynamically varying grids nor dynamically varying
-decompositions at the present time.  MCT is not currently setup to support those
-features.  
+Also, neither OASIS3-MCT nor MCT support dynamically varying grids nor dynamically varying
+decompositions at the present time.  
 
-Since the OASIS3-MCT\_4.0 release, OASIS3-MCT includes a mixed MPI+OpenMP parallel version of the SCRIP library for the calculation of the remapping weights (see section \ref{subsec_interp}). But besides this aspect, MCT itself, and therefore the communication layer in OASIS, has no OpenMP support at the present time.
-Users are discouraged from calling OASIS3-MCT {\tt oasis\_put} and {\tt oasis\_get}
-from a threaded region.  And it is not possible to define a partition (decomposition)
-across multiple active threads.  Most of the work that OASIS3-MCT does related to decomposition rearrangement for communication or mapping per se is MPI-based.  There
+Finally, MCT itself, and therefore the communication layer in OASIS, has no OpenMP support. Users are discouraged from calling OASIS3-MCT {\tt oasis\_put} and {\tt oasis\_get}
+from a threaded region.  And it is not possible to define a partition (decomposition) across multiple active threads. 
+ The work that OASIS3-MCT does related to decomposition rearrangement for communication or mapping per se is MPI-based.  There
 are some floating point operations in the sparse matrix multiple as well as in
-some of the OASIS3-MCT transforms; but generally, these are highly parallel and
-would often not benefit from use of OpenMP.  OASIS3-MCT is designed primarily to
-support large memory parallel applications that require efficient and scalable
-coupling and mapping capabilities.
-
+some of the OASIS3-MCT transformation operations; but generally, these are highly parallel and
+would often not benefit from use of OpenMP.  The only use of OpenMP in  OASIS3-MCT is within the mixed MPI+OpenMP parallel version of the SCRIP library for the calculation of the remapping weights (see section \ref{subsec_interp}). 
 
 
