@@ -408,9 +408,11 @@ CONTAINS
 
    IF ( ET_debug .AND. OASIS_debug > 0 ) THEN
       WRITE (UNIT = nulprt1,FMT = *) subname,wstr, &
-       ' WARNING: With load balance analysis '
+       ' WARNING: With load balance analysis, '
       WRITE (UNIT = nulprt1,FMT = *)  &
-       ' OASIS_debug should be 0 '
+       ' OASIS_debug (1st number below the NLOGPRT key word in the namcouple) should be 0 '
+      WRITE (UNIT = nulprt1,FMT = *)  &
+       ' to get load balancing numbers not impacted by the writing to debug file. '
       CALL oasis_flush(nulprt1)
    ENDIF
 
