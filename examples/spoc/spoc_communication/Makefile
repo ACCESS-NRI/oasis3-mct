@@ -1,5 +1,5 @@
 #
-include $(OASIS_COUPLE)/util/make_dir/make.inc
+include ../../../util/make_dir/make.inc
 LIBPSMILE = $(ARCHDIR)/lib/libpsmile.${CHAN}.a $(ARCHDIR)/lib/libmct.a $(ARCHDIR)/lib/libmpeu.a $(ARCHDIR)/lib/libscrip.a
 #
 ##### User configurable options #####
