@@ -978,13 +978,13 @@ contains
             ! compute nchk, the first neighbor with ge distance than nadd
             nchk = num_neighbors
             nchkflag = .true.
+            if (nchk == 1) nchkflag = .false.
             do while (nchkflag)
                if (distance .lt. nbr_dist(nchk-1)) then
                    nchk = nchk - 1
                else
                    nchkflag = .false.
                endif
-               if (nchk == 1) nchkflag = .false.
             enddo
 
             ! check that points are not the same, need to compare nchk-1 and nchk
