@@ -1,6 +1,5 @@
 #
-include $(OASIS_COUPLE)/util/make_dir/make.inc
-LIBPSMILE = $(ARCHDIR)/lib/libpsmile.${CHAN}.a $(ARCHDIR)/lib/libmct.a $(ARCHDIR)/lib/libmpeu.a $(ARCHDIR)/lib/libscrip.a
+include header_Makefile
 #
 ##### User configurable options #####
 #
@@ -30,7 +29,7 @@ all: oasis3_psmile model1 model2
 #
 # Compile and link libaries
 oasis3_psmile:
-	(cd $(OASIS_COUPLE)/util/make_dir ; $(MAKE) oasis3_psmile -f TopMakefileOasis3)
+	(cd $(O3DIR)/util/make_dir ; $(MAKE) oasis3_psmile -f TopMakefileOasis3)
 #
 #-------------------------------------------------------------------------------
 # Rules for executables
@@ -87,4 +86,4 @@ clean:
 #
 realclean: clean remove
 remove:
-	(cd $(OASIS_COUPLE)/util/make_dir ; $(MAKE) realclean -f TopMakefileOasis3)
+	(cd $(O3DIR)/util/make_dir ; $(MAKE) realclean -f TopMakefileOasis3)

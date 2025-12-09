@@ -1,1 +1,0 @@
-../../../util/env_tests/oasis_test_build.sh
