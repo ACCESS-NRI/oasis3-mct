@@ -39,13 +39,11 @@ else
 fi
 ##
 ## User's choice of computing architecture
-arch=$OASIS_ENV  # nemo_intel18.0.1.163_intelmpi2018.1.163 
-                 # kraken_intel18.0.1.163_intelmpi2018.1.163,
+arch=kraken_intel23.2.1_intelmpi2021.10.0  # nemo_intel18.0.1.163_intelmpi2018.1.163 
+                 # kraken_intel23.2.1_intelmpi2021.10.0
                  # training_computer, gfortran_openmpi_openmp_linux
                  # belenos_intel2018.5.274_intelmpi2018.5.274 
                  # mac_gfortran10_openmpi4.0.5
-	         # stiff_pgi20.4_openmpi3.1.3 
-	         # fundy_gfortran10.2.0_openmpi4.1.0 
 ##
 ######################################################################
 ## - Verification source grid type and remapping
@@ -153,39 +151,9 @@ cd $rundir
 ## - Creation of configuration scripts
 
 ###---------------------------------------------------------------------
-### NEMO_LENOVO_INTEL_IMPI_OPENMP
-###---------------------------------------------------------------------
-if [ ${arch} == nemo_intel18.0.1.163_intelmpi2018.1.163 ]; then
-
-  cat <<EOF > $rundir/run_$casename.$arch
-#!/bin/bash -l
-#SBATCH --partition prod
-#SBATCH --job-name ${n_p_t}
-#SBATCH --time=00:02:00
-#SBATCH --output=$rundir/$casename.o
-#SBATCH --error=$rundir/$casename.e
-# Number of nodes
-#SBATCH --nodes=$nnode
-# Number of MPI tasks per node
-#SBATCH --ntasks-per-node=$mpiprocs
-# Number of OpenMP threads per MPI task
-##SBATCH --cpus-per-task=24
-cd $rundir
-
-export KMP_STACKSIZE=1GB
-export I_MPI_PIN_DOMAIN=omp
-#export I_MPI_PIN_DOMAIN=socket
-export I_MPI_WAIT_MODE=enable
-export KMP_AFFINITY=verbose,granularity=fine,compact
-export OASIS_OMP_NUM_THREADS=$threads
-
-time mpirun -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 
-EOF
-
-###---------------------------------------------------------------------
 ### KRAKEN_INTEL_IMPI_OPENMP 
 ###---------------------------------------------------------------------
-elif [ ${arch} == kraken_intel18.0.1.163_intelmpi2018.1.163 ]; then
+if [ ${arch} == kraken_intel23.2.1_intelmpi2021.10.0 ]; then
 
   timreq=00:30:00
 
@@ -208,14 +176,15 @@ elif [ ${arch} == kraken_intel18.0.1.163_intelmpi2018.1.163 ]; then
 
 cd $rundir
 module purge
-module load compiler/intel/18.0.1.163
-module load mpi/intelmpi/2018.1.163
-module load lib/netcdf-fortran/4.4.4_impi
-module load lib/netcdf-c/4.6.1_impi
+module load compiler/gcc/11.2.0
+module load compiler/intel/23.2.1
+module load mpi/intelmpi/2021.10.0
+module load lib/netcdf-fortran/4.4.4_phdf5_1.10.4
+module load tools/nco/4.7.6
 
 export KMP_STACKSIZE=1GB
 export I_MPI_PIN_DOMAIN=omp
-export I_MPI_WAIT_MODE=enable
+#export I_MPI_WAIT_MODE=enable
 (( map = $threads - 1 ))
 affin="verbose,granularity=fine,proclist=[0"
 for place in \$(seq \$map); do
@@ -281,20 +250,7 @@ elif [ ${arch} == gfortran_openmpi_openmp_linux ]; then
     MPIRUN=/usr/lib64/openmpi/bin/mpirun
     echo 'Executing the model using '$MPIRUN
     $MPIRUN -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
-elif [ ${arch} == fundy_gfortran10.2.0_openmpi4.1.0 ]; then
-    export OASIS_OMP_NUM_THREADS=$threads
-    MPIRUN=/usr/local/openmpi/4.1.0_gcc1020/bin/mpirun
-    echo 'Executing the model using '$MPIRUN
-    $MPIRUN -oversubscribe -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
-elif [ $arch == stiff_pgi20.4_openmpi3.1.3 ]; then
-    MPIRUN=/usr/local/pgi/linux86-64/20.4/mpi/openmpi-3.1.3/bin/mpirun
-    echo 'Executing the model using '$MPIRUN
-    $MPIRUN -oversubscribe -np $nproc_exe1 ./$exe1 : -np $nproc_exe2 ./$exe2 > runjob.err
-elif [ $arch == nemo_intel18.0.1.163_intelmpi2018.1.163 ]; then
-    echo 'Submitting the job to queue using sbatch'
-    sbatch $rundir/run_$casename.$arch
-    squeue -u $USER
-elif [ $arch == kraken_intel18.0.1.163_intelmpi2018.1.163 ]; then
+elif [ $arch == kraken_intel23.2.1_intelmpi2021.10.0 ]; then
     echo 'Submitting the job to queue using sbatch'
     sbatch $rundir/run_$casename.$arch
     squeue -u $USER
