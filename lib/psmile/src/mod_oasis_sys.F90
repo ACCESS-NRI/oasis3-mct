@@ -82,9 +82,7 @@ SUBROUTINE oasis_abort(id_compid, cd_routine, cd_message, file, line, rcode)
    WRITE (0,*) subname,astr,'See the log files in the run directory'
    CALL oasis_flush(0)
 
-#if defined use_comm_MPI1 || defined use_comm_MPI2
    CALL MPI_ABORT (mpi_comm_global, errcode, ierror)
-#endif
 
    STOP
 

@@ -114,11 +114,7 @@ CONTAINS
    call oasis_lb_init
 
 ! Initial default for early part of init
-#ifdef use_comm_MPI1
    mpi_comm_global = mpi_comm_global_world
-#elif defined use_comm_MPI2
-   mpi_comm_global = ??
-#endif
 
    CALL MPI_Comm_Size(mpi_comm_global_world,mpi_size_world,ierr)
    CALL MPI_Comm_Rank(mpi_comm_global_world,mpi_rank_world,ierr)
@@ -375,7 +371,6 @@ CONTAINS
    !------------------------
 
    mpi_rank_global = -1
-#ifdef use_comm_MPI1
 
    !------------------------
    !>   * Set mpi_comm_local based on compid
@@ -393,13 +388,6 @@ CONTAINS
    icolor = 1
    if (.not.oasis_coupled) icolor = MPI_UNDEFINED
    call MPI_COMM_SPLIT(mpi_comm_global_world,icolor,ikey,mpi_comm_global,ierr)
-
-#elif defined use_comm_MPI2
-
-   mpi_comm_global = ??
-   mpi_comm_local = mpi_comm_global_world
-
-#endif
 
    !------------------------
    !> * Reset debug levels
@@ -428,8 +416,6 @@ CONTAINS
    CALL MPI_Comm_Size(mpi_comm_local,mpi_size_local,ierr)
    CALL MPI_Comm_Rank(mpi_comm_local,mpi_rank_local,ierr)
    mpi_root_local = 0
-
-#ifdef use_comm_MPI1
 
    !------------------------
    !>   * Set mpi_comm_map based on node association
@@ -497,13 +483,6 @@ CONTAINS
    DEALLOCATE(cla_nodes)
    DEALLOCATE(ila_colors)
 
-
-#elif defined use_comm_MPI2
-
-   mpi_comm_map = ??
-   mpi_in_map   = ??
-
-#endif
    !------------------------
    !> * Open log files
    !------------------------
