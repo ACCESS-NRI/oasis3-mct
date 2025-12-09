@@ -38,18 +38,17 @@
 
       use kinds_mod
       use constants
+      USE netcdf
 
       implicit none
 
-#include <netcdf.inc>
-
       character(len=char_len), public :: s_cdf_filetype
 
-      integer (kind=int_kind), public :: s_cdf_64bit_offset = nf_64bit_offset
+      integer (kind=int_kind), public :: s_cdf_64bit_offset = nf90_64bit_offset
 #ifdef CDF_64BIT_DATA
-      integer (kind=int_kind), public :: s_cdf_64bit_data = nf_64bit_data
+      integer (kind=int_kind), public :: s_cdf_64bit_data = nf90_64bit_data
 #else
-      integer (kind=int_kind), public :: s_cdf_64bit_data = nf_64bit_offset
+      integer (kind=int_kind), public :: s_cdf_64bit_data = nf90_64bit_offset
 #endif
 
 !***********************************************************************
@@ -71,8 +70,8 @@
 
 !-----------------------------------------------------------------------
 
-      if (istat /= NF_NOERR) then
-        WRITE(nulou,*)'Error in netCDF: ',nf_strerror(istat)
+      if (istat /= NF90_NOERR) then
+        WRITE(nulou,*)'Error in netCDF: ',nf90_strerror(istat)
         stop
       endif
 

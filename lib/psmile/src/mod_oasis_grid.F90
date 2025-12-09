@@ -157,10 +157,6 @@ MODULE mod_oasis_grid
   type(prism_grid_type),public,save :: prism_grid(mgrid)   !< array of grid datatypes
   logical, parameter :: local_timers_on = .false.
 
-#ifdef use_netCDF
-#include <netcdf.inc>
-#endif
-
 !---------------------------------------------------------------------------
 
 CONTAINS

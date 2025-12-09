@@ -80,9 +80,9 @@ F2C_LIBS    = -lifcore -lifcoremt -lifport -limf
 # CPP keys and compiler options
 #
 ifeq ($(OASIS_LOCTRANS_RESTARTS), )
-    CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY
+    CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY
 else
-    CPPDEF    = -Duse_netCDF -Duse_comm_$(CHAN) -D__VERBOSE  -DTREAT_OVERLAY -DLOCTRANS_RESTARTS
+    CPPDEF    = -Duse_comm_$(CHAN) -D__VERBOSE -DTREAT_OVERLAY -DLOCTRANS_RESTARTS
 endif
 #
 FCBASEFLAGS := -I. -assume byterecl -qmkl

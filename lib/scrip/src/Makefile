@@ -5,10 +5,7 @@ OBJS1 =  $(patsubst $(COUPLE)/lib/scrip/src/%.F90, %.o, $(SRCS1))
 SRCS3   = $(shell ls $(COUPLE)/lib/scrip/src/*.f90)
 OBJS3   = $(patsubst $(COUPLE)/lib/scrip/src/%.f90, %.o, $(SRCS3))
 
-SRCS4 =  $(shell ls $(COUPLE)/lib/scrip/src/*.f)
-OBJS4 =  $(patsubst $(COUPLE)/lib/scrip/src/%.f, %.o, $(SRCS4))
-
-VPATH =	.:$(COUPLE)/lib/scrip/src:$(COUPLE)/src
+VPATH =	.:$(COUPLE)/lib/scrip/src
 
 LIBRARY	= $(ARCHDIR)/lib/libscrip.a
 
@@ -21,8 +18,8 @@ all:	$(LIBRARY)
 
 shared: $(DYNLIBRARY)
 
-$(LIBRARY): $(OBJS1)  $(OBJS3) $(OBJS4)
-	$(AR) $(ARFLAGS) $(LIBRARY) $(OBJS1) $(OBJS3) $(OBJS4)
+$(LIBRARY): $(OBJS1)  $(OBJS3)
+	$(AR) $(ARFLAGS) $(LIBRARY) $(OBJS1) $(OBJS3)
 
 $(DYNLIBRARY): F90FLAGS += $(DYNOPT)
 $(DYNLIBRARY): f90FLAGS += $(DYNOPT)
@@ -30,8 +27,8 @@ $(DYNLIBRARY): FFLAGS += $(DYNOPT)
 $(DYNLIBRARY): fFLAGS += $(DYNOPT)
 $(DYNLIBRARY): CCFLAGS += $(DYNOPT)
 $(DYNLIBRARY): LDFLAGS += $(DYNOPT) $(LDDYNOPT)
-$(DYNLIBRARY): $(OBJS1)  $(OBJS3) $(OBJS4)
-	$(F90) $(LDFLAGS) -o $(DYNLIBRARY) $(OBJS1) $(OBJS3) $(OBJS4) $(NETCDF_LIBRARY)
+$(DYNLIBRARY): $(OBJS1)  $(OBJS3)
+	$(F90) $(LDFLAGS) -o $(DYNLIBRARY) $(OBJS1) $(OBJS3) $(NETCDF_LIBRARY)
 
 .SUFFIXES:
 .SUFFIXES: .o .f .F .f90 .F90 .c
