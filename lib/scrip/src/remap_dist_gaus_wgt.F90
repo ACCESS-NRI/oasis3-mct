@@ -870,8 +870,6 @@ contains
 
       real (kind=dbl_kind), parameter :: dist_chk = 1.0e-7       ! delta distance limit radians
 
-      logical (kind=log_kind) :: nchkflag                        ! flag for nchk
- 
       !-----------------------------------------------------------------------
       !
       !     loop over source grid and find nearest neighbors
@@ -975,17 +973,15 @@ contains
          !***
 
          if (distance .lt. nbr_dist(num_neighbors)) then
-            ! compute nchk, the first neighbor with ge distance than nadd
+            ! compute nchk, the first neighbor with distance ge than nadd
             nchk = num_neighbors
-            nchkflag = .true.
-            if (nchk == 1) nchkflag = .false.
-            do while (nchkflag)
+            neighbor_loop: do while (nchk > 1)
                if (distance .lt. nbr_dist(nchk-1)) then
                    nchk = nchk - 1
                else
-                   nchkflag = .false.
+                   exit neighbor_loop
                endif
-            enddo
+            enddo neighbor_loop
 
             ! check that points are not the same, need to compare nchk-1 and nchk
             ! only compare against neighbors that have been initialized (nchk <= nbr_count)
