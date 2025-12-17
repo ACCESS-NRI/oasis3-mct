@@ -406,7 +406,7 @@ algorithm until no additional target points can be remapped by this method.
  Since OASIS3-MCT\_4.0 release, a hybrid MPI+OpenMP parallel version
  of the SCRIP library is available. It relies on the MPI parallel
  layout of the calling model but only uses one MPI process per
- node. The number of OpenMP threads per MPI process used by SCRIP is
+ node. To benefit from the OpenMP parallelisation of the SCRIP, one has, of course, to compile OASIS3-MCT with options activating OpenMP, see also section \ref{subsec_compile}. In The number of OpenMP threads per MPI process used by SCRIP is
  set by a dedicated environment variable OASIS\_OMP\_NUM\_THREADS,
  which can be different from the default number of threads per MPI
  process used elsewhere in the application, set by the environment
