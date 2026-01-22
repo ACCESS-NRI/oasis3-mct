@@ -9,7 +9,7 @@ A {\bf destination scaled field}, i.e. the remapping of the original field multi
 
 Another way to consider the problem is to calculate a {\bf destination normalized scaled field} that will be in the physical range of the original field. This {\bf destination normalized scaled field} will be valid only on a fraction of the target, the {\bf active destination surface} that can be calculated with the {\bf active destination surface coefficient}.
 
-The new option {\tt fracwgt} in OASIS3-MCT\_6.0 allows to pass, in the source component as argument of the {\tt oasis\_put}, the active fraction of the source cells together with the source coupling field and to obtain, in the target component in the {\tt oasis\_get}, the {\bf destination normalized scaled field}. It also allows to calculate the {\bf active destination surface coefficient}.
+The new option {\tt fracwgt} in OASIS3-MCT v6 allows to pass, in the source component as argument of the {\tt oasis\_put}, the active fraction of the source cells together with the source coupling field and to obtain, in the target component in the {\tt oasis\_get}, the {\bf destination normalized scaled field}. It also allows to calculate the {\bf active destination surface coefficient}.
 
 For instantaneous fields, option {\tt fracwgt} is not essential as the user could get the {\bf active destination surface coefficient} simply with the conservative remapping of the source fraction field. He/she could then obtain the {\bf destination normalized scaled field} by applying the element-wise division of the {\bf destination scaled field} by the {\bf active destination surface coefficient}.
 
@@ -77,7 +77,7 @@ f_{Dj} = \sum_i{w_{ij}f_{Si}}
 \begin{equation}\label{eqn:normalized_field}
 F^{fn}_{Dj} = \frac{F^f_{Dj}}{f_{Dj}}    
 \end{equation}
-Note that if the active fraction of all source cells associated to one target cell \(f_{Si}\) are zero then both \(F^{f}_{Dj}\) and \(f_{Dj}\) are zero and equation \ref{eqn:normalized_field} becomes undefined. In that case, in OASIS3-MCT\_6.0, we set \(F^{fn}_{Dj}\) equal to zero.
+Note that if the active fraction of all source cells associated to one target cell \(f_{Si}\) are zero then both \(F^{f}_{Dj}\) and \(f_{Dj}\) are zero and equation \ref{eqn:normalized_field} becomes undefined. In that case, in OASIS3-MCT v6, we set \(F^{fn}_{Dj}\) equal to zero.
 
 In order to preserve the integral quantity we have to scale back the field:
 \[\sum_iA_{Si}f_{Si}F_{Si} = \sum_jA_{Dj}f_{Dj}F^{fn}_{Dj}\]
@@ -87,7 +87,7 @@ A^a_{Dj} = A_{Dj}f_{Dj}
 \end{equation}
 so that
 \[\sum_iA_{Si}f_{Si}F_{Si} = \sum_iA^a_{Si}F_{Si} =\sum_jA^a_{Dj}F^{fn}_{Dj}\]
-Since OASIS3-MCT\_6.0, the {\tt oasis\_put} routine comes with an extra optional argument {\tt fracwgt}. If  the argument is present, it has to correspond to the active source fraction field \(f_S\), and the matching {\tt oasis\_get} will receive the normalized scaled field \(F^{fn}_D\). \\
+Since OASIS3-MCT v6, the {\tt oasis\_put} routine comes with an extra optional argument {\tt fracwgt}. If  the argument is present, it has to correspond to the active source fraction field \(f_S\), and the matching {\tt oasis\_get} will receive the normalized scaled field \(F^{fn}_D\). \\
 Notice that for technical reasons, the active destination surface coefficient \(f_D\) cannot be recovered as an extra output of the {\tt oasis\_get} call. The user can recover it in two ways:
 \begin{enumerate}
     \item send the active source fraction field \(f_S\) as a separate coupling field through a standard conservative remapping and directly get \(f_D\) (equation \ref{eqn:inst_dest_fract}) ; or
@@ -138,7 +138,7 @@ However, \(F^{+f}_{Dj}\) will not be physically consistent with the source field
 \begin{equation}\label{eqn:accumulate_scaled}
 F^{+fn}_{Dj}=\sum_t{\frac{\sum_i{w_{ij}f^t_{Si}F^t_{Si}}}{\sum_i{w_{ij}f^t_{Si}}}}=\sum_t{\frac{F^{ft}_{Dj}}{f^t_{Dj}}}    
 \end{equation}
-Note that, as for equation \ref{eqn:normalized_field}, if for any timestep the active fraction of all source cells associated to one target cell \(f^{t}_{Si}\) are zero then both \(F^{ft}_{Dj}\) and \(f^{t}_{Dj}\) are zero and equation \ref{eqn:accumulate_scaled} becomes undefined. In that case, in OASIS3-MCT\_6.0, we set \(F^{+fn}_{Dj}\) equal to zero.
+Note that, as for equation \ref{eqn:normalized_field}, if for any timestep the active fraction of all source cells associated to one target cell \(f^{t}_{Si}\) are zero then both \(F^{ft}_{Dj}\) and \(f^{t}_{Dj}\) are zero and equation \ref{eqn:accumulate_scaled} becomes undefined. In that case, in OASIS3-MCT v6, we set \(F^{+fn}_{Dj}\) equal to zero.
 
 Notice that in equation \ref{eqn:accumulate_scaled}, the summation on the source grid cells does not permute with the summation in time and the summation of the \(N_{t}\) time contribution has to be carried on on the destination grid after remapping: it requires \(2N_t\) sparse multiplications by the weight matrix.\\
 Once again we can derive the expression of the {\bf active surface for every destination cell} \(A^a_{Dj}\) by imposing
@@ -167,7 +167,7 @@ In the case of a time average with individual contributions at equal intervals, 
 It's easy to see that the coefficient \(1/N_t\) can permute with all the time summations and that the active fraction on the destination grid is the same as in the time accumulation case.
 
 \[\overline{f}_{Dj} = \frac{\overline{F}^{f}_{Dj}}{\overline{F}^{fn}_{Dj}} =\frac{F^{+f}_{Dj}/N_t}{F^{+fn}_{Dj}/N_t} =  \frac{F^{+f}_{Dj}}{F^{+fn}_{Dj}} = f^+_{Dj}\]
-The case with unevenly spaced time contributions would be more complicated, but it is not implemented in OASIS3-MCT\_6.0.
+The case with unevenly spaced time contributions would be more complicated, but it is not implemented in OASIS3-MCT v6.
 
 \section{An example}
 
