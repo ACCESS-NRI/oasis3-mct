@@ -1,7 +1,7 @@
 {
-  "intel_compiler": "intel@2021.10.0",
-  "gcc_compiler": "gcc@13.2.0",
-  "oneapi_compiler": "oneapi@2025.2.0",
+  "intel_compiler_version": "2021.10.0",
+  "gcc_compiler_version": "13.2.0",
+  "oneapi_compiler_version": "2025.2.0",
   "target": "x86_64",
   "mom5_version_om2": "git.2025.08.000=access-om2",
   "mom5_version_esm1p6": "git.2025.08.000=access-esm1.6",
