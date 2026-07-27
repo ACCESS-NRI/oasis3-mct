@@ -1,0 +1,15 @@
+spack:
+  specs:
+  - 'oasis3-mct@git.{{ ref }}=stable'
+  - 'oasis3-mct@git.{{ ref }}=5.2'
+  packages:
+    intel-oneapi-compilers-classic:
+      require:
+      - '@{{ intel_compiler_version }}'
+    all:
+      require:
+      - '%access_intel'
+      - 'target={{ target }}'
+  concretizer:
+    unify: false
+  view: false
