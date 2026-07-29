@@ -1,0 +1,15 @@
+spack:
+  specs:
+  - 'oasis3-mct@git.{{ ref }}=stable'
+  - 'oasis3-mct@git.{{ ref }}=5.2'
+  packages:
+    gcc:
+      require:
+      - '@{{ gcc_compiler_version }}'
+    all:
+      require:
+      - '%access_gcc'
+      - 'target={{ target }}'
+  concretizer:
+    unify: false
+  view: false
