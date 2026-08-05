@@ -7,7 +7,7 @@ spack:
   packages:
     mom5:
       require:
-      - '@{{ mom5_version }}=access-esm1.6'
+      - '@{{ mom5_version }}'
     cice5:
       require:
       - '@{{ cice5_version }}'
@@ -23,7 +23,7 @@ spack:
       - '@{{ gcom4_version }}'
     oasis3-mct:
       require:
-      - '@git.{{ ref }}=access-esm1.5'
+      - '@git.{{ ref }}'
     access-fms:
       require:
       - '@{{ access_fms_version }}'
