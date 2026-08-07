@@ -44,8 +44,7 @@
 
 /*  Implementations: */
 
-void FC_FUNC(get_zeits,GET_ZEITS)(zts)
-  double *zts;
+void FC_FUNC(get_zeits,GET_ZEITS)(double *zts)
 {
 
 #ifndef NOTIMES
@@ -68,8 +67,7 @@ void FC_FUNC(get_zeits,GET_ZEITS)(zts)
 
 }
 
-void FC_FUNC(get_ztick,GET_ZTICK)(tic)
-  double *tic;
+void FC_FUNC(get_ztick,GET_ZTICK)(double *tic)
 {
   tic[0]=1./ZCLK_TCK;
 }
