@@ -6,12 +6,15 @@ spack:
   # Include configuration from this repository, with the environment variable defined in build-ci
   - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
-  - 'access-esm1p6@latest cice=5 %%access_oneapi'
+  - 'access-esm1p6@latest cice=5'
   packages:
     cice5:
       require:
       - 'nxglob=360 nyglob=300 blckx=30 blcky=300 mxblcks=1' # grid size and block size
     oasis3-mct:
       require:
-      - '@git.{{ ref }} %%access_oneapi'
+      - '@git.{{ ref }}'
+    all:
+      require:
+      - '%access_oneapi'
   view: false
