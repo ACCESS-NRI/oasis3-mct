@@ -1,19 +1,19 @@
 packages:
   cice5:
     require:
-    - '@2026.01.000'
+    - '@2026.07.000'
   mom5:
     require:
-    - '@2026.02.000'
+    - '@2026.02.002'
   libaccessom2:
     require:
-    - '@2026.02.000'
+    - '@2026.08.000'
   access-fms:
     require:
-    - '@2025.08.000'
+    - '@2025.08.001'
   access-generic-tracers:
     require:
-    - '@2026.02.000'
+    - '@2026.09.000'
   access-mocsy:
     require:
     - '@2025.07.002'
@@ -21,10 +21,11 @@ packages:
   # ESM1.6 constraints
   um7:
     require:
-    - '@2026.02.000'
+    - '@2026.04.002'
   cable:
     require:
     - '@2025.11.000'
+    - library=access-esm1.6
   gcom4:
     require:
     - '@2025.08.000'
