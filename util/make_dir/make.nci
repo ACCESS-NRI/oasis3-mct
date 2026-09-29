@@ -28,24 +28,43 @@ f90         = $(F90)
 f           = $(F90)
 
 LD          = $(F90)
-AR          = ar
+## llvm-ar is recommended when using -flto (MS: 21st Mar, 2025)
+AR          = $(shell $(F90) --print-prog-name=llvm-ar 2>/dev/null)
+
+## older oneAPI (I tested 2022.0.0) do not support that syntax
+## to get the full path to llvm-ar. In such cases, AR will be
+## empty. If so, set to default "ar"
+## Similarly, older oneAPI was showing warnings about the
+## two flags `-qno-opt-dynamic-align` and `-axCORE-AVX2`
+## -> only enable them for recent oneAPI. (MS: 21st Mar, 2025)
+
+## Intel did supply an ar - called `xiar`with such distributions.
+## I have checked that with oneAPI 2022.0.0 using both `xiar` and
+## regular `ar` works regardlesss of the presence/absence of flto
+## (MS: 24 Mar, 2025)
+ifeq ($(AR),)
+  AR = ar
+  EXTRA_FLAGS =
+else
+  EXTRA_FLAGS = -qno-opt-dynamic-align -axCORE-AVX2
+endif
 ARFLAGS     = -rvD
 
 # -g is necessary in F90FLAGS and LDFLAGS for pgf90 versions lower than 6.1
 # For compiling in double precision, put -r8
 # For compiling in single precision, remove -r8 and add -Duse_realtype_single
-NCI_INTEL_FLAGS = -r8 -i4 -traceback -fpe0 -convert big_endian -fno-alias -ip -check noarg_temp_created
+NCI_INTEL_FLAGS = -r8 -i4 -traceback -fpe0 -convert big_endian -fno-alias -check noarg_temp_created
 NCI_REPRO_FLAGS = -fp-model precise -fp-model source -align all
 ifeq ($(DEBUG), yes)
     NCI_DEBUG_FLAGS = -g3 -O0 -fpe0 -no-vec -debug all -check all -no-vec
     F90FLAGS_1      = $(NCI_INTEL_FLAGS) $(NCI_REPRO_FLAGS) $(NCI_DEBUG_FLAGS)
     CPPDEF          = -Duse_netCDF -Duse_comm_$(CHAN) -DTREAT_OVERLAY -DDEBUG -D__VERBOSE
-    MCT_FCFLAGS     = $(NCI_REPRO_FLAGS) $(NCI_DEBUG_FLAGS) -ip
+    MCT_FCFLAGS     = $(NCI_REPRO_FLAGS) $(NCI_DEBUG_FLAGS)
 else
-    NCI_OPTIM_FLAGS = -g3 -O2 -axCORE-AVX2 -debug all -check none -qopt-report=5 -qopt-report-annotate
+    NCI_OPTIM_FLAGS = -g3 -O2 -debug all -check none $(EXTRA_FLAGS)
     F90FLAGS_1      = $(NCI_INTEL_FLAGS) $(NCI_REPRO_FLAGS) $(NCI_OPTIM_FLAGS)
     CPPDEF          = -Duse_netCDF -Duse_comm_$(CHAN) -DTREAT_OVERLAY
-    MCT_FCFLAGS     = $(NCI_REPRO_FLAGS) $(NCI_OPTIM_FLAGS) -ip
+    MCT_FCFLAGS     = $(NCI_REPRO_FLAGS) $(NCI_OPTIM_FLAGS)
 endif
 f90FLAGS_1  = $(F90FLAGS_1)
 FFLAGS_1    = $(F90FLAGS_1)

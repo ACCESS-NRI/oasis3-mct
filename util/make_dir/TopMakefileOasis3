@@ -11,6 +11,10 @@
 #######
 include make.inc
 #
+ifndef COUPLE
+$(error The environment variable 'COUPLE' needs to be set to the root-dir of the repo)
+endif
+
 SHELL = /bin/bash
 MAKEf = $(MAKE) -f TopMakefileOasis3
 #
