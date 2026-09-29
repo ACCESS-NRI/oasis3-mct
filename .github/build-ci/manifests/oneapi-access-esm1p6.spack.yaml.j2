@@ -2,53 +2,19 @@
 # Note, our current ACCESS-ESM1.6 deployment uses the "access-esm1.5" branch not the "master"
 # branch used here
 spack:
+  include:
+  # Include configuration from this repository, with the environment variable defined in build-ci
+  - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
   - 'access-esm1p6@latest cice=5'
   packages:
-    mom5:
-      require:
-      - '@{{ mom5_version }}'
     cice5:
       require:
-      - '@{{ cice5_version }}'
       - 'nxglob=360 nyglob=300 blckx=30 blcky=300 mxblcks=1' # grid size and block size
-    um7:
-      require:
-      - '@{{ um_version }}'
-    cable:
-      require:
-      - '@{{ cable_version }}'
-    gcom4:
-      require:
-      - '@{{ gcom4_version }}'
     oasis3-mct:
       require:
       - '@git.{{ ref }}'
-    access-fms:
-      require:
-      - '@{{ access_fms_version }}'
-    access-generic-tracers:
-      require:
-      - '@{{ access_generic_tracers_version }}'
-    access-mocsy:
-      require:
-      - '@{{ access_mocsy_version }}'
-    netcdf-c:
-      require:
-      - '@{{ netcdf_c_version}}'
-    netcdf-fortran:
-      require:
-      - '@{{ netcdf_fortran_version }}'
-    openmpi:
-      require:
-      - '@{{ openmpi_version }}'
-    intel-oneapi-compilers:
-      require:
-      - '@{{ oneapi_compiler_version }}'
     all:
       require:
       - '%access_oneapi'
-      - 'target={{ target }}'
-  concretizer:
-    unify: false
   view: false

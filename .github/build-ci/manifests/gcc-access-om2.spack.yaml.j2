@@ -1,48 +1,17 @@
 spack:
+  include:
+  # Include configuration from this repository, with the environment variable defined in build-ci
+  - path: $SPACK_MANIFEST_REPOSITORY_PATH/.github/build-ci/config
   specs:
   - 'access-om2@latest'
   packages:
-    mom5:
-      require:
-      - '@{{ mom5_version }}'
     cice5:
       require:
-      - '@{{ cice5_version }}'
       - 'io_type=PIO build_system=cmake'
-    libaccessom2:
-      require:
-      - '@{{ libaccessom2_version }}'
     oasis3-mct:
       require:
       - '@git.{{ ref }}'
-    access-fms:
-      require:
-      - '@{{ access_fms_version }}'
-    access-generic-tracers:
-      require:
-      - '@{{ access_generic_tracers_version }}'
-    access-mocsy:
-      require:
-      - '@{{ access_mocsy_version }}'
-    netcdf-c:
-      require:
-      - '@{{ netcdf_c_version}}'
-    netcdf-fortran:
-      require:
-      - '@{{ netcdf_fortran_version }}'
-    parallelio:
-      require:
-      - '@{{ parallelio_version }}'
-    openmpi:
-      require:
-      - '@{{ openmpi_version }}'
-    gcc:
-      require:
-      - '@{{ gcc_compiler_version }}'
     all:
       require:
       - '%access_gcc'
-      - 'target={{ target }}'
-  concretizer:
-    unify: false
   view: false
